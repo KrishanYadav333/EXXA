@@ -1,0 +1,55 @@
+# Python
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Data files (too large for Git)
+*.dat
+*.h5
+*.hdf5
+*.fits
+*.npy
+*.npz
+
+# Model weights and checkpoints
+*.pth
+*.pt
+*.ckpt
+*.pb
+*.h5
+*.pkl
+*.pickle
+
+# Logs
+*.log
+logs/
+wandb/
+tensorboard/
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Environment variables
+.env
+.env.local
