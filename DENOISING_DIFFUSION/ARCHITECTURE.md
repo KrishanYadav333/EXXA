@@ -18,7 +18,7 @@ A complete end-to-end system for denoising astronomical observations of protopla
 ┌─────────────────────────────────────────────────────────────────────┐
 │                         DATA PIPELINE                                │
 │  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐          │
-│  │ Raw Data     │───▶│ Preprocessing │───▶│ Augmentation │          │
+│  │ Raw Data     │───>│ Preprocessing │───>│ Augmentation │          │
 │  │ - FITS files │    │ - Normalize  │    │ - Rotations  │          │
 │  │ - .npy files │    │ - Pad/Resize │    │ - Flips      │          │
 │  │ - Train/Val  │    │ - Transform  │    │ - Noise      │          │
@@ -38,7 +38,7 @@ A complete end-to-end system for denoising astronomical observations of protopla
 │                         DDPM MODEL                                   │
 │  ┌────────────────────────────────────────────────────────┐         │
 │  │              Forward Diffusion Process                 │         │
-│  │  Clean Image ─▶ + Noise (t=0→T) ─▶ Pure Noise         │         │
+│  │  Clean Image ─> + Noise (t=0->T) ─> Pure Noise         │         │
 │  │  x₀          β₁   βₜ              βₜ    xₜ            │         │
 │  └────────────────────────────────────────────────────────┘         │
 │                              │                                       │
@@ -47,7 +47,7 @@ A complete end-to-end system for denoising astronomical observations of protopla
 │  │                                                         │         │
 │  │  ┌──────────┐  ┌──────────┐  ┌──────────┐            │         │
 │  │  │ Encoder  │  │ Bottleneck│  │ Decoder  │            │         │
-│  │  │ - Conv   │─▶│ - ResBlocks│─▶│ - UpConv │            │         │
+│  │  │ - Conv   │─>│ - ResBlocks│─>│ - UpConv │            │         │
 │  │  │ - Down   │  │ - Attention│  │ - Skip   │            │         │
 │  │  │ - Skip   │  │            │  │   Conn   │            │         │
 │  │  └──────────┘  └──────────┘  └──────────┘            │         │
@@ -58,13 +58,13 @@ A complete end-to-end system for denoising astronomical observations of protopla
 │  │  │ Sinusoidal PE │                                     │         │
 │  │  └───────────────┘                                     │         │
 │  │                                                         │         │
-│  │  Output: Predicted Noise ε̂θ(xₜ, t)                    │         │
+│  │  Output: Predicted Noise epstheta(xₜ, t)                    │         │
 │  └────────────────────────────────────────────────────────┘         │
 │                              │                                       │
 │  ┌────────────────────────────────────────────────────────┐         │
 │  │           Reverse Diffusion (Inference)                │         │
-│  │  Pure Noise ─▶ - Predicted Noise (t=T→0) ─▶ Clean     │         │
-│  │  xₜ           ε̂θ                          x₀          │         │
+│  │  Pure Noise ─> - Predicted Noise (t=T->0) ─> Clean     │         │
+│  │  xₜ           epstheta                          x₀          │         │
 │  └────────────────────────────────────────────────────────┘         │
 └──────────────────────────────────────────────────────────────────────┘
                                │
@@ -74,7 +74,7 @@ A complete end-to-end system for denoising astronomical observations of protopla
 │                      TRAINING PIPELINE                               │
 │  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐          │
 │  │ Loss         │    │ Optimizer    │    │ Scheduler    │          │
-│  │ - MSE Loss   │───▶│ - AdamW      │───▶│ - Cosine LR  │          │
+│  │ - MSE Loss   │───>│ - AdamW      │───>│ - Cosine LR  │          │
 │  │ - L1 Loss    │    │ - β=(0.9,..) │    │ - Warmup     │          │
 │  │ - Perceptual │    │ - Weight     │    │              │          │
 │  └──────────────┘    │   Decay      │    └──────────────┘          │
@@ -94,7 +94,7 @@ A complete end-to-end system for denoising astronomical observations of protopla
 │  ┌────────────────────────────────────────────────────────┐         │
 │  │ 1. Load noisy observation (FITS)                       │         │
 │  │ 2. Preprocess (normalize, pad)                         │         │
-│  │ 3. Run reverse diffusion (T→0 steps)                   │         │
+│  │ 3. Run reverse diffusion (T->0 steps)                   │         │
 │  │ 4. Postprocess (unpad, denormalize)                    │         │
 │  │ 5. Save clean image (FITS)                             │         │
 │  └────────────────────────────────────────────────────────┘         │
@@ -118,7 +118,7 @@ A complete end-to-end system for denoising astronomical observations of protopla
 
 ## Component Breakdown
 
-### 1. Data Pipeline (✅ IMPLEMENTED)
+### 1. Data Pipeline ([DONE] IMPLEMENTED)
 
 **Location**: `src/data/`
 
@@ -128,7 +128,7 @@ A complete end-to-end system for denoising astronomical observations of protopla
 - `preprocessing.py`: Normalization, padding, transforms
 - `augmentation.py`: Physics-aware data augmentation
 
-**Status**: ✅ Complete (24/24 tests passing)
+**Status**: [DONE] Complete (24/24 tests passing)
 
 **Input**: 
 - Training: `dirty.npy` (noisy), `clean.npy` (ground truth)
@@ -138,7 +138,7 @@ A complete end-to-end system for denoising astronomical observations of protopla
 
 ---
 
-### 2. DDPM Model (🔨 TO IMPLEMENT)
+### 2. DDPM Model ([*] TO IMPLEMENT)
 
 **Location**: `src/models/`
 
@@ -150,7 +150,7 @@ class UNet(nn.Module):
     U-Net backbone for diffusion model.
     
     Architecture:
-    - Encoder: 4 downsampling blocks (64→128→256→512 channels)
+    - Encoder: 4 downsampling blocks (64->128->256->512 channels)
     - Bottleneck: ResNet blocks with self-attention
     - Decoder: 4 upsampling blocks with skip connections
     - Time conditioning: Sinusoidal positional embeddings
@@ -187,7 +187,7 @@ class DDPM(nn.Module):
     
     Implements:
     - Forward diffusion: q(x_t | x_0) 
-    - Reverse diffusion: p_θ(x_{t-1} | x_t)
+    - Reverse diffusion: p_theta(x_{t-1} | x_t)
     - Noise schedule: β_t (linear or cosine)
     """
     
@@ -206,11 +206,11 @@ class DDPM(nn.Module):
         
     def forward_diffusion(self, x0, t, noise=None):
         """Add noise to clean image at timestep t."""
-        # x_t = sqrt(α̅_t) * x_0 + sqrt(1-α̅_t) * ε
+        # x_t = sqrt(alpha_t) * x_0 + sqrt(1-alpha_t) * eps
         
     def reverse_diffusion_step(self, xt, t):
         """Predict one denoising step."""
-        # x_{t-1} = μ_θ(x_t, t) + σ_t * z
+        # x_{t-1} = mu_theta(x_t, t) + sigma_t * z
         
     def sample(self, shape):
         """Generate clean image from pure noise."""
@@ -253,7 +253,7 @@ class ConditionalDDPM(DDPM):
 
 ---
 
-### 3. Training Pipeline (🔨 TO IMPLEMENT)
+### 3. Training Pipeline ([*] TO IMPLEMENT)
 
 **Location**: `src/training/`
 
@@ -377,7 +377,7 @@ class TrainingConfig:
 
 ---
 
-### 4. Inference Pipeline (🔨 TO IMPLEMENT)
+### 4. Inference Pipeline ([*] TO IMPLEMENT)
 
 **Location**: `src/inference/`
 
@@ -461,7 +461,7 @@ class DDIMSampler:
 
 ---
 
-### 5. Evaluation & Validation (🔨 TO IMPLEMENT)
+### 5. Evaluation & Validation ([*] TO IMPLEMENT)
 
 **Location**: `src/evaluation/`
 
@@ -535,7 +535,7 @@ class BaselineComparison:
 
 ---
 
-### 6. Utilities (🔨 TO IMPLEMENT)
+### 6. Utilities ([*] TO IMPLEMENT)
 
 **Location**: `src/utils/`
 
@@ -584,14 +584,14 @@ DENOISING_DIFFUSION/
 ├── src/
 │   ├── __init__.py
 │   │
-│   ├── data/                          # ✅ COMPLETE
+│   ├── data/                          # [DONE] COMPLETE
 │   │   ├── __init__.py
 │   │   ├── dataset.py                 # AstroDataset class
 │   │   ├── fits_loader.py             # FITS file operations
 │   │   ├── preprocessing.py           # Normalization, padding
 │   │   └── augmentation.py            # Physics-aware transforms
 │   │
-│   ├── models/                        # 🔨 TO BUILD
+│   ├── models/                        # [*] TO BUILD
 │   │   ├── __init__.py
 │   │   ├── unet.py                    # U-Net architecture
 │   │   ├── blocks.py                  # ResBlock, AttentionBlock
@@ -599,59 +599,59 @@ DENOISING_DIFFUSION/
 │   │   ├── conditional_ddpm.py        # Conditional variant
 │   │   └── embeddings.py              # Time embeddings
 │   │
-│   ├── training/                      # 🔨 TO BUILD
+│   ├── training/                      # [*] TO BUILD
 │   │   ├── __init__.py
 │   │   ├── trainer.py                 # Training loop
 │   │   ├── losses.py                  # Loss functions
 │   │   ├── config.py                  # Configuration dataclass
 │   │   └── callbacks.py               # Training callbacks
 │   │
-│   ├── inference/                     # 🔨 TO BUILD
+│   ├── inference/                     # [*] TO BUILD
 │   │   ├── __init__.py
 │   │   ├── inference.py               # Main inference engine
 │   │   ├── sampling.py                # DDPM/DDIM samplers
 │   │   └── batch_processing.py        # Batch inference
 │   │
-│   ├── evaluation/                    # 🔨 TO BUILD
+│   ├── evaluation/                    # [*] TO BUILD
 │   │   ├── __init__.py
 │   │   ├── metrics.py                 # PSNR, SSIM, etc.
 │   │   ├── comparison.py              # Baseline comparisons
 │   │   └── scientific_validation.py   # Astronomy-specific checks
 │   │
-│   └── utils/                         # 🔨 TO BUILD
+│   └── utils/                         # [*] TO BUILD
 │       ├── __init__.py
 │       ├── visualization.py           # Plotting utilities
 │       ├── tracking.py                # Experiment logging
 │       └── checkpoint.py              # Model saving/loading
 │
-├── tests/                             # ✅ Data pipeline tested
+├── tests/                             # [DONE] Data pipeline tested
 │   ├── test_data_pipeline.py          # 24 tests (passing)
-│   ├── test_unet.py                   # 🔨 TO ADD
-│   ├── test_ddpm.py                   # 🔨 TO ADD
-│   └── test_training.py               # 🔨 TO ADD
+│   ├── test_unet.py                   # [*] TO ADD
+│   ├── test_ddpm.py                   # [*] TO ADD
+│   └── test_training.py               # [*] TO ADD
 │
-├── configs/                           # 🔨 TO CREATE
+├── configs/                           # [*] TO CREATE
 │   ├── base_config.yaml               # Base hyperparameters
 │   ├── small_model.yaml               # Fast training config
 │   └── production.yaml                # Full-scale config
 │
-├── scripts/                           # 🔨 TO CREATE
+├── scripts/                           # [*] TO CREATE
 │   ├── train.py                       # Training entry point
 │   ├── inference.py                   # Inference entry point
 │   ├── evaluate.py                    # Evaluation script
 │   └── download_data.py               # Data download helper
 │
-├── notebooks/                         # 🔨 TO CREATE
+├── notebooks/                         # [*] TO CREATE
 │   ├── 01_data_exploration.ipynb      # Explore training data
 │   ├── 02_model_architecture.ipynb    # Visualize U-Net
 │   ├── 03_diffusion_process.ipynb     # Understand diffusion
 │   └── 04_results_analysis.ipynb      # Analyze trained model
 │
-├── docs/                              # ✅ Started
+├── docs/                              # [DONE] Started
 │   ├── DATA_PIPELINE_IMPLEMENTATION.md
 │   └── ARCHITECTURE.md                # This file
 │
-├── experiments/                       # 🔨 WILL BE AUTO-GENERATED
+├── experiments/                       # [*] WILL BE AUTO-GENERATED
 │   ├── exp001/                        # First experiment
 │   │   ├── config.yaml
 │   │   ├── checkpoints/
@@ -659,11 +659,11 @@ DENOISING_DIFFUSION/
 │   │   └── samples/
 │   └── exp002/
 │
-├── trained_models/                    # 🔨 WILL BE CREATED
+├── trained_models/                    # [*] WILL BE CREATED
 │   ├── ddpm_base.pth
 │   └── ddpm_best.pth
 │
-├── data/                              # 🔨 USER DOWNLOADS
+├── data/                              # [*] USER DOWNLOADS
 │   ├── dirty.npy                      # Noisy synthetic obs
 │   ├── clean.npy                      # Ground truth
 │   └── real_observations/             # Real ALMA/VLT data
@@ -671,9 +671,9 @@ DENOISING_DIFFUSION/
 │       └── obs002.fits
 │
 ├── ARCHITECTURE.md                    # This file
-├── PRE_GSOC_STRATEGY.md              # ✅ Complete
-├── requirements.txt                   # 🔨 TO UPDATE
-└── README.md                          # 🔨 TO UPDATE
+├── PRE_GSOC_STRATEGY.md              # [DONE] Complete
+├── requirements.txt                   # [*] TO UPDATE
+└── README.md                          # [*] TO UPDATE
 ```
 
 ---
@@ -715,32 +715,32 @@ DENOISING_DIFFUSION/
 ```
 Raw Data (dirty.npy, clean.npy)
     │
-    ├─▶ AstroDataset
+    ├─> AstroDataset
     │   ├─ Load paired images
     │   ├─ Extract random patches
     │   └─ Apply augmentation
     │
-    ├─▶ DataLoader
+    ├─> DataLoader
     │   └─ Batch, shuffle, parallel loading
     │
-    ├─▶ Forward Diffusion
+    ├─> Forward Diffusion
     │   ├─ Sample timestep t ~ Uniform(0, T)
-    │   ├─ Sample noise ε ~ N(0, I)
-    │   └─ Compute x_t = √(α̅_t)·x_0 + √(1-α̅_t)·ε
+    │   ├─ Sample noise eps ~ N(0, I)
+    │   └─ Compute x_t = sqrt(alpha_t)*x_0 + sqrt(1-alpha_t)*eps
     │
-    ├─▶ U-Net Prediction
+    ├─> U-Net Prediction
     │   ├─ Input: (x_t, t)
-    │   └─ Output: ε̂_θ(x_t, t)
+    │   └─ Output: eps_theta(x_t, t)
     │
-    ├─▶ Loss Computation
-    │   └─ L = ||ε - ε̂_θ||²
+    ├─> Loss Computation
+    │   └─ L = ||eps - eps_theta||^2
     │
-    ├─▶ Backpropagation
+    ├─> Backpropagation
     │   ├─ Compute gradients
     │   ├─ Update weights
     │   └─ Log metrics
     │
-    └─▶ Validation
+    └─> Validation
         ├─ Generate samples
         ├─ Compute PSNR/SSIM
         └─ Save checkpoint if best
@@ -751,25 +751,25 @@ Raw Data (dirty.npy, clean.npy)
 ```
 Noisy FITS Observation
     │
-    ├─▶ Load & Preprocess
+    ├─> Load & Preprocess
     │   ├─ Read FITS file
     │   ├─ Normalize intensity
     │   └─ Pad to model size
     │
-    ├─▶ Initialize Noise
+    ├─> Initialize Noise
     │   └─ x_T = noisy_obs + small_noise
     │
-    ├─▶ Reverse Diffusion Loop (T→0)
+    ├─> Reverse Diffusion Loop (T->0)
     │   For t = T, T-1, ..., 1:
-    │   ├─ Predict noise: ε̂_θ(x_t, t)
-    │   ├─ Compute mean: μ_θ(x_t, t)
-    │   ├─ Sample: x_{t-1} ~ N(μ_θ, σ_t²I)
+    │   ├─ Predict noise: eps_theta(x_t, t)
+    │   ├─ Compute mean: mu_theta(x_t, t)
+    │   ├─ Sample: x_{t-1} ~ N(mu_theta, sigma_t^2I)
     │   └─ (optionally log progress)
     │
-    ├─▶ Extract Clean Image
+    ├─> Extract Clean Image
     │   └─ x_0 = final denoised image
     │
-    └─▶ Postprocess & Save
+    └─> Postprocess & Save
         ├─ Remove padding
         ├─ Denormalize intensity
         ├─ Write FITS file
@@ -780,7 +780,7 @@ Noisy FITS Observation
 
 ## Implementation Phases
 
-### Phase 1: Foundation (✅ COMPLETE)
+### Phase 1: Foundation ([DONE] COMPLETE)
 **Status**: Done  
 **Duration**: 3 days
 
@@ -789,7 +789,7 @@ Noisy FITS Observation
 - [x] Documentation (architecture, strategy)
 - [x] Repository structure
 
-### Phase 2: Model Architecture (🔨 NEXT - Days 1-3)
+### Phase 2: Model Architecture ([*] NEXT - Days 1-3)
 **Priority**: HIGH  
 **Estimated**: 3-4 days
 
@@ -808,7 +808,7 @@ Noisy FITS Observation
 
 **Deliverable**: Working U-Net that can predict noise
 
-### Phase 3: Training Pipeline (🔨 Days 4-6)
+### Phase 3: Training Pipeline ([*] Days 4-6)
 **Priority**: HIGH  
 **Estimated**: 3 days
 
@@ -822,7 +822,7 @@ Noisy FITS Observation
 
 **Deliverable**: Can train model end-to-end
 
-### Phase 4: Initial Training (🔨 Days 7-10)
+### Phase 4: Initial Training ([*] Days 7-10)
 **Priority**: MEDIUM  
 **Estimated**: 3-4 days
 
@@ -835,7 +835,7 @@ Noisy FITS Observation
 
 **Deliverable**: First trained model checkpoint
 
-### Phase 5: Inference & Evaluation (🔨 Days 11-14)
+### Phase 5: Inference & Evaluation ([*] Days 11-14)
 **Priority**: MEDIUM  
 **Estimated**: 4 days
 
@@ -848,7 +848,7 @@ Noisy FITS Observation
 
 **Deliverable**: Can denoise new observations
 
-### Phase 6: Optimization & Scaling (🔸 Days 15-21)
+### Phase 6: Optimization & Scaling ([*] Days 15-21)
 **Priority**: MEDIUM  
 **Estimated**: 7 days
 
@@ -861,7 +861,7 @@ Noisy FITS Observation
 
 **Deliverable**: Production-ready model
 
-### Phase 7: Validation on Real Data (🔸 Days 22-28)
+### Phase 7: Validation on Real Data ([*] Days 22-28)
 **Priority**: HIGH (for GSoC success)  
 **Estimated**: 7 days
 
@@ -874,7 +874,7 @@ Noisy FITS Observation
 
 **Deliverable**: Proof of scientific utility
 
-### Phase 8: Documentation & Paper (🔸 Days 29-35)
+### Phase 8: Documentation & Paper ([*] Days 29-35)
 **Priority**: HIGH (for GSoC deliverables)  
 **Estimated**: 7 days
 
@@ -928,7 +928,7 @@ Noisy FITS Observation
 
 **Start Unconditional**:
 - Simpler to implement
-- Learn pure noise→clean mapping
+- Learn pure noise->clean mapping
 
 **Add Conditioning Later**:
 - Use noisy observation as condition

@@ -125,6 +125,12 @@ class NoiseScheduler:
         """
         Reverse diffusion: denoise one step from x_t to x_{t-1}.
 
+        Uses the posterior mean formula:
+            μ(x_t, t) = 1/sqrt(α_t) * (x_t - (1-α_t)/sqrt(1-ᾱ_t) * ε_θ(x_t, t))
+
+        And posterior variance:
+            σ²_t = (1 - ᾱ_{t-1})/(1 - ᾱ_t) * β_t
+
         Args:
             model: U-Net that predicts noise given (x_t, t)
             xt: Noisy image at timestep t, shape (B, C, H, W)
@@ -133,7 +139,49 @@ class NoiseScheduler:
         Returns:
             Denoised image x_{t-1}, shape (B, C, H, W)
         """
-        raise NotImplementedError
+        # Ensure model is in eval mode
+        was_training = model.training
+        model.eval()
+        
+        with torch.no_grad():
+            # Get shape info
+            batch_size = xt.shape[0]
+            
+            # Predict noise using the model
+            predicted_noise = model(xt, t)  # (B, 1, H, W)
+            
+            # Extract the required values
+            alphas = self._extract(self.alphas, t, xt.shape)
+            alphas_cumprod = self._extract(self.alphas_cumprod, t, xt.shape)
+            sqrt_one_minus_alphas_cumprod = self._extract(self.sqrt_one_minus_alphas_cumprod, t, xt.shape)
+            
+            # Compute posterior mean
+            # μ = 1/√α * (x_t - (1-α)/√(1-ᾱ) * ε_θ)
+            coeff = (1.0 - alphas) / sqrt_one_minus_alphas_cumprod
+            mean = (xt - coeff * predicted_noise) / alphas.sqrt()
+            
+            # Compute posterior variance
+            # Only add noise if not at t=0
+            if (t > 0).any():
+                # Get previous timestep variance
+                alphas_cumprod_prev = torch.zeros_like(alphas_cumprod)
+                alphas_cumprod_prev[t > 0] = self._extract(
+                    self.alphas_cumprod, t - 1, xt.shape
+                )[t > 0]
+                
+                variance = ((1.0 - alphas_cumprod_prev) / (1.0 - alphas_cumprod)) * (self._extract(self.betas, t, xt.shape))
+                variance = torch.clamp(variance, min=1e-20)
+                
+                logvar = torch.log(variance)
+                noise = torch.randn_like(xt)
+                x_t_minus_1 = mean + (0.5 * logvar).exp() * noise
+            else:
+                x_t_minus_1 = mean
+        
+        # Restore training mode
+        model.train(was_training)
+        
+        return x_t_minus_1
 
     def p_sample_loop(
         self,
@@ -144,6 +192,9 @@ class NoiseScheduler:
         """
         Full reverse diffusion loop from pure noise to clean image.
 
+        Iteratively applies p_sample() from t=T-1 down to t=0,
+        gradually denoising from pure Gaussian noise to a clean image.
+
         Args:
             model: Trained U-Net
             shape: Output shape (B, C, H, W)
@@ -152,4 +203,15 @@ class NoiseScheduler:
         Returns:
             Generated clean image, shape (B, C, H, W)
         """
-        raise NotImplementedError
+        # Start from pure noise
+        xt = torch.randn(shape, device=device)
+        
+        # Iteratively denoise
+        for t in reversed(range(0, self.timesteps)):
+            # Create timestep tensor
+            t_tensor = torch.full((shape[0],), t, dtype=torch.long, device=device)
+            
+            # Single denoising step
+            xt = self.p_sample(model, xt, t_tensor)
+        
+        return xt
