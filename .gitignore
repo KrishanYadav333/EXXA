@@ -26,6 +26,8 @@ build/
 # Model weights and checkpoints
 *.pth
 *.pt
+*.pth.tar
+*.tar
 *.ckpt
 *.pb
 *.h5
