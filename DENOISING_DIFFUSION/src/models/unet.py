@@ -1,8 +1,46 @@
 """
-U-Net architecture for diffusion-based denoising - FIXED VERSION.
+src/models/unet.py
+==================
+U-Net encoder-decoder with skip connections and sinusoidal timestep conditioning.
 
-Standard U-Net encoder-decoder with skip connections, 
-conditioned on timestep via sinusoidal embeddings.
+Two public entry points
+-----------------------
+  UNet            -- general class, fully configurable
+  DenoisingUNet   -- lightweight preset for 64x64 single-channel denoising patches
+  create_model    -- helper that mirrors the original DDPM config (2-ch in, 1-ch out)
+
+Layer structure (UNet)
+----------------------
+  SinusoidalPositionalEmbedding  -- timestep -> (B, time_emb_dim) sinusoidal vector
+  ResidualBlock                  -- GroupNorm -> SiLU -> Conv3x3 -> time_add -> Conv3x3 + shortcut
+  Downsample                     -- strided Conv2d (x0.5 spatial)
+  Upsample                       -- ConvTranspose2d (x2 spatial)
+  UNet.conv_in                   -- 3x3 conv, in_channels -> base_channels
+  UNet.enc_blocks / enc_downs    -- encoder levels, each with num_res_blocks ResidualBlocks + Downsample
+  UNet.bottleneck                -- num_res_blocks ResidualBlocks at lowest resolution
+  UNet.dec_blocks / dec_ups      -- decoder levels, concat skip then num_res_blocks+1 ResidualBlocks + Upsample
+  UNet.norm_out / conv_out       -- GroupNorm -> SiLU -> 3x3 conv -> out_channels
+
+Default DDPM shapes (base_channels=64, mult=[1,2,4,8], 64x64 input)
+---------------------------------------------------------------------
+  conv_in   : (B,  1, 64, 64) -> (B, 64, 64, 64)
+  enc lv0   : (B, 64, 64, 64)  -> down -> (B,  64, 32, 32)
+  enc lv1   : (B,128, 32, 32)  -> down -> (B, 128, 16, 16)
+  enc lv2   : (B,256, 16, 16)  -> down -> (B, 256,  8,  8)
+  enc lv3   : (B,512,  8,  8)  (no downsample at last level)
+  bottleneck: (B,512,  8,  8)
+  dec lv0   : cat -> (B,1024, 8, 8)  -> up -> (B,512, 16, 16)
+  dec lv1   : cat -> (B, 768,16,16)  -> up -> (B,256, 32, 32)
+  dec lv2   : cat -> (B, 384,32,32)  -> up -> (B,128, 64, 64)
+  dec lv3   : cat -> (B, 192,64,64)         -> (B, 64, 64, 64)
+  conv_out  : (B,  64, 64, 64) -> (B,  1, 64, 64)
+  Total params with base=64, mult=[1,2,4,8]: ~51M
+
+DenoisingUNet preset (base_channels=32, mult=[1,2,4], groups=8)
+---------------------------------------------------------------
+  Input  : (B, 1, 64, 64)  single-channel dirty patch
+  Output : (B, 1, 64, 64)  denoised patch
+  Params : ~3.4M   <- fits 4 GB VRAM comfortably with batch 16
 """
 
 import math
@@ -280,16 +318,18 @@ def create_model(
     device: str = "cuda" if torch.cuda.is_available() else "cpu",
 ) -> UNet:
     """
-    Create a U-Net model for denoising.
-    
+    Original DDPM factory — 2-channel input (noisy+clean), 1-channel noise output.
+    Uses base_channels=64 and channel_multipliers=[1,2,4,8] (~51M params).
+    Suitable for full 600x600 images with large GPU; too heavy for 64x64 patches.
+
     Args:
-        in_channels: Number of input channels
-        out_channels: Number of output channels
-        base_channels: Base number of channels
-        device: Device to place model on
-    
+        in_channels   : Number of input channels (default 2 for DDPM conditioning)
+        out_channels  : Number of output channels (default 1 for noise prediction)
+        base_channels : Base channel width (default 64)
+        device        : Device string
+
     Returns:
-        UNet model on specified device
+        UNet on the specified device
     """
     model = UNet(
         in_channels=in_channels,
@@ -300,5 +340,81 @@ def create_model(
         num_res_blocks=2,
         groups=32,
     )
-    
     return model.to(device)
+
+
+def DenoisingUNet(
+    device: str = "cuda" if torch.cuda.is_available() else "cpu",
+) -> UNet:
+    """
+    Lightweight U-Net preset for single-channel 64x64 patch denoising.
+
+    Designed for the EXXA protoplanetary disk dataset:
+      - Input  : (B, 1, 64, 64)  dirty patch, normalised to [0, 1]
+      - Output : (B, 1, 64, 64)  denoised patch
+      - Params : ~3.4M  (fits 4 GB VRAM at batch 16)
+
+    Config:
+      base_channels       = 32
+      channel_multipliers = [1, 2, 4]   (3 encoder levels, bottleneck at 8x8)
+      time_emb_dim        = 128
+      num_res_blocks      = 2
+      groups              = 8            (compatible with min channel count = 32)
+
+    Spatial flow at 64x64 input:
+      enc lv0 : (B, 32, 64, 64) -> down -> (B,  32, 32, 32)
+      enc lv1 : (B, 64, 32, 32) -> down -> (B,  64, 16, 16)
+      enc lv2 : (B,128, 16, 16)                             (no downsample)
+      bottleneck : (B,128, 16, 16)
+      dec lv0 : cat -> (B,256,16,16) -> up -> (B,128, 32, 32)
+      dec lv1 : cat -> (B,192,32,32) -> up -> (B, 64, 64, 64)
+      dec lv2 : cat -> (B, 96,64,64)        -> (B, 32, 64, 64)
+      conv_out:                               (B,  1, 64, 64)
+
+    Args:
+        device : Device string
+
+    Returns:
+        UNet on the specified device
+    """
+    model = UNet(
+        in_channels=1,
+        out_channels=1,
+        base_channels=32,
+        channel_multipliers=[1, 2, 4],
+        time_emb_dim=128,
+        num_res_blocks=2,
+        groups=8,
+    )
+    return model.to(device)
+
+
+if __name__ == "__main__":
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Device: {device}")
+
+    print("\n--- DenoisingUNet (lightweight, single-channel 64x64 patches) ---")
+    m_light = DenoisingUNet(str(device))
+    x = torch.randn(4, 1, 64, 64).to(device)
+    t = torch.randint(0, 1000, (4,)).to(device)
+    with torch.no_grad():
+        out = m_light(x, t)
+    params = sum(p.numel() for p in m_light.parameters())
+    print(f"  Input  : {tuple(x.shape)}")
+    print(f"  Output : {tuple(out.shape)}")
+    print(f"  Params : {params:,}")
+    assert out.shape == (4, 1, 64, 64), "Shape mismatch!"
+    print("  Forward pass: OK")
+
+    print("\n--- UNet full (original DDPM config, 2-ch in) ---")
+    m_full = create_model(in_channels=2, out_channels=1, device=str(device))
+    x2 = torch.randn(2, 2, 64, 64).to(device)
+    t2 = torch.randint(0, 1000, (2,)).to(device)
+    with torch.no_grad():
+        out2 = m_full(x2, t2)
+    params2 = sum(p.numel() for p in m_full.parameters())
+    print(f"  Input  : {tuple(x2.shape)}")
+    print(f"  Output : {tuple(out2.shape)}")
+    print(f"  Params : {params2:,}")
+    assert out2.shape == (2, 1, 64, 64), "Shape mismatch!"
+    print("  Forward pass: OK")
