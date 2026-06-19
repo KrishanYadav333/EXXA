@@ -179,6 +179,11 @@ class DenoisingDiffusion:
         lr: Adam learning rate.
         ema_rate: EMA decay (uses ``config.model.ema_rate`` if not given).
         checkpoint_path: where to save the best checkpoint.
+        data_parallel: spread each batch across all visible CUDA devices via
+            ``nn.DataParallel``. ``None`` (default) auto-enables it whenever more
+            than one GPU is present (e.g. Kaggle's T4 x2); set ``False`` to force
+            single-GPU. EMA and checkpoints always operate on the unwrapped model,
+            so checkpoints are portable across single-/multi-GPU setups.
     """
 
     def __init__(
@@ -188,21 +193,33 @@ class DenoisingDiffusion:
         lr: float = 2e-5,
         ema_rate: Optional[float] = None,
         checkpoint_path: str = "results/checkpoints/diffusion_best.pth.tar",
+        data_parallel: Optional[bool] = None,
     ):
         self.config = config or default_diffusion_config()
         self.device = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
         self.checkpoint_path = checkpoint_path
 
-        self.model = DiffusionUNet(self.config).to(self.device)
+        # Unwrapped model is the source of truth for params/EMA/checkpoints.
+        self._core = DiffusionUNet(self.config).to(self.device)
+
+        n_gpu = torch.cuda.device_count() if self.device.type == "cuda" else 0
+        if data_parallel is None:
+            data_parallel = n_gpu > 1
+        self.data_parallel = bool(data_parallel) and n_gpu > 1
+        self.num_gpus = n_gpu if self.data_parallel else (1 if self.device.type == "cuda" else 0)
+
+        # self.model is what we call forward on (DataParallel replicates self._core
+        # per call from its current params, so EMA updates to _core take effect).
+        self.model = nn.DataParallel(self._core) if self.data_parallel else self._core
 
         self.use_ema = bool(self.config.model.ema)
         if self.use_ema:
             self.ema_helper = EMAHelper(mu=ema_rate if ema_rate is not None else self.config.model.ema_rate)
-            self.ema_helper.register(self.model)
+            self.ema_helper.register(self._core)
         else:
             self.ema_helper = None
 
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, eps=1e-8)
+        self.optimizer = torch.optim.Adam(self._core.parameters(), lr=lr, eps=1e-8)
 
         betas = get_beta_schedule(
             beta_schedule=self.config.diffusion.beta_schedule,
@@ -242,7 +259,7 @@ class DenoisingDiffusion:
                 self.optimizer.step()
                 self.step += 1
                 if self.use_ema:
-                    self.ema_helper.update(self.model)
+                    self.ema_helper.update(self._core)
 
             total += loss.item()
             count += 1
@@ -253,8 +270,9 @@ class DenoisingDiffusion:
         if verbose:
             print("=" * 60)
             print("Conditional DDPM training")
-            print(f"  params : {sum(p.numel() for p in self.model.parameters()):,}")
-            print(f"  device : {self.device}, timesteps: {self.num_timesteps}")
+            print(f"  params : {sum(p.numel() for p in self._core.parameters()):,}")
+            gpu_note = f"DataParallel x{self.num_gpus}" if self.data_parallel else "single device"
+            print(f"  device : {self.device} ({gpu_note}), timesteps: {self.num_timesteps}")
             print("=" * 60)
 
         for epoch in range(self.start_epoch, self.start_epoch + n_epochs):
@@ -300,8 +318,8 @@ class DenoisingDiffusion:
         """
         backup = None
         if use_ema and self.use_ema:
-            backup = {n: p.data.clone() for n, p in self.model.named_parameters() if p.requires_grad}
-            self.ema_helper.ema(self.model)
+            backup = {n: p.data.clone() for n, p in self._core.named_parameters() if p.requires_grad}
+            self.ema_helper.ema(self._core)
 
         self.model.eval()
         x_cond = data_transform(x_cond01.to(self.device))
@@ -314,7 +332,7 @@ class DenoisingDiffusion:
         out = inverse_data_transform(xs[-1].to(self.device))
 
         if backup is not None:
-            for n, p in self.model.named_parameters():
+            for n, p in self._core.named_parameters():
                 if p.requires_grad:
                     p.data.copy_(backup[n])
         return out
@@ -356,7 +374,7 @@ class DenoisingDiffusion:
         torch.save({
             "epoch": epoch + 1,
             "step": self.step,
-            "state_dict": self.model.state_dict(),
+            "state_dict": self._core.state_dict(),   # unwrapped -> no 'module.' prefix
             "optimizer": self.optimizer.state_dict(),
             "ema_helper": self.ema_helper.state_dict() if self.use_ema else None,
             "config": self.config,
@@ -369,12 +387,12 @@ class DenoisingDiffusion:
         path = path or self.checkpoint_path
         # weights_only=False: our own checkpoint embeds the DotDict config object.
         ckpt = torch.load(path, map_location=self.device, weights_only=False)
-        self.model.load_state_dict(ckpt["state_dict"], strict=True)
+        self._core.load_state_dict(ckpt["state_dict"], strict=True)
         self.optimizer.load_state_dict(ckpt["optimizer"])
         if self.use_ema and ckpt.get("ema_helper") is not None:
             self.ema_helper.load_state_dict(ckpt["ema_helper"])
             if load_ema_into_model:
-                self.ema_helper.ema(self.model)
+                self.ema_helper.ema(self._core)
         self.start_epoch = ckpt.get("epoch", 0)
         self.step = ckpt.get("step", 0)
         self.train_losses = ckpt.get("train_losses", [])
