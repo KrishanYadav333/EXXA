@@ -495,6 +495,25 @@ Day-5 artifacts -- loss curve, sample PNGs, preliminary metrics.
 
 ---
 
+### [2026-06-19] [DONE] Standalone scaled-DDPM notebook -- `notebooks/06_diffusion_scaled_kaggle.ipynb`
+
+Self-contained Kaggle notebook (23 cells) for the Week-4 deliverable, so the scaled DDPM can be run
+without executing the AE/VAE/U-Net stages of the master notebook. Maps 1:1 to the day-by-day plan:
+
+- Day 1.1 clone + install (`--no-deps` to avoid the RAPIDS pip-resolver warning) + 2-GPU verify.
+- Day 1.2 NoiseScheduler + forward-diffusion q(x_t|x_0) viz at t=0,250,500,750,999 + linear/cosine plots.
+- Day 2 conditional 6-level `ch=128 [1,1,2,2,4,4]` (~109.7M) at 128px; forward (B,2,128,128)->(B,1,128,128).
+- Day 3 `create_dataloaders` 2-ch patches, auto-OOM-fallback builder, multi-GPU DataParallel,
+  Adam lr=2e-5 + EMA, train with per-10-step loss logging.
+- Day 4 DDIM-50 sampling, first sample outputs (dirty->DDPM->clean), preliminary PSNR/SSIM/MSE.
+- Day 5 saves forward_diffusion.png / loss / samples / checkpoint to /kaggle/working + talking points.
+
+Bootstrap auto-updates (`git fetch` + `reset --hard origin/week-4`) so re-runs pick up latest.
+EPOCHS defaults to 30 (raise for a real run). All code paths smoke-tested locally incl. the 109.7M
+build/forward at 128px, per-step logging, and DDIM-50 sample.
+
+---
+
 ## Next Steps (Week 4 cont.)
 
 - [ ] Push Week-4 `src/` modules + Kaggle notebook to fork `week-4` branch (code only, no data).
