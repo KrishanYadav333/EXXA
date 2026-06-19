@@ -455,6 +455,28 @@ New/risky code paths smoke-tested locally (getsource, all trainers + `_MSEWrap`,
 
 ---
 
+### [2026-06-19] [DONE] Scaled DDPM subsection added to master notebook
+
+Added a "Week-4 Scaled Upgrade" subsection (16 cells -> notebook now 101 cells) after the
+64px/17M baseline diffusion section, per the updated Week-4 plan (Kaggle T4x2):
+
+- **Bigger backbone:** `DiffusionUNet` ch=128, ch_mult=[1,1,2,2,4] (5 levels, attn@16) =
+  **71.4M params** (middle ground between the old 17M and the 110M 6-level / 51M create_model
+  versions). Baseline 64px/17M run is **kept** for the scaling-story record.
+- **Higher resolution:** 128x128 patches (4x the area of 64px).
+- **Forward diffusion viz:** q(x_t|x_0) over T=1000 shown on a real patch (t=0..999).
+- **Schedules:** linear vs cosine beta/alpha-cumprod plots (NoiseScheduler from PR #22),
+  `SCALE_BETA_SCHEDULE` switch.
+- **Auto OOM-fallback builder:** probes one fwd+bwd step; on CUDA OOM halves batch, then drops to
+  64px -- since T4 VRAM couldn't be verified offline.
+- **Deliverables:** training loss curve + first DDIM sample outputs (dirty->DDPM->clean) + PSNR/SSIM/MSE.
+
+Why not literal "6-level / 51M / 600x600": 6-level needs input divisible by 32 (600 isn't) and 110M
+@600^2 overflows 16 GB; documented in the subsection. All new paths smoke-tested locally -- the 71.4M
+model trained at 128px even on the 4 GB RTX 2050 (batch_img=2), so it fits a T4 with headroom.
+
+---
+
 ## Next Steps (Week 4 cont.)
 
 - [ ] Push Week-4 `src/` modules + Kaggle notebook to fork `week-4` branch (code only, no data).
