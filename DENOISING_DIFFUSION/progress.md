@@ -430,21 +430,28 @@ to `os.path.abspath('..')`. All five notebooks validate under `nbformat`.
 
 ---
 
-### [2026-06-19] [DONE] Consolidated master notebook -- `notebooks/00_master_week1_to_week4.ipynb`
+### [2026-06-19] [DONE] Unified research notebook -- `notebooks/00_master_research_notebook.ipynb`
 
-Single Kaggle notebook covering the whole Week 1->4 journey (since work moved off the local
-RTX 2050 onto Kaggle GPU). 27 cells:
+Comprehensive faithful merge of notebooks 01->05 into one Kaggle-runnable research notebook
+(85 cells). Replaces the earlier slim orchestrator (`00_master_week1_to_week4.ipynb`, removed).
+Preserves the entire journey rather than summarising it:
 
-- §0 Kaggle bootstrap (clone fork, install deps, link `/kaggle/input` data), imports, run config.
-- §1 Week 1-2: data visualisation + classical baselines (Gaussian/Median/Wiener) PSNR/SSIM/MSE.
-- §1.5 shared `PatchDataset`, `train_supervised`, and a single evaluator on a fixed set of
-  held-out 64x64 val patches so every method is compared apples-to-apples.
-- §2 Autoencoder (hybrid loss), §3 VAE (MSE+SSIM+KL), §4 supervised U-Net (hybrid) + visuals.
-- §5 Week 4 conditional DDPM (scaled, multi-GPU DataParallel) + DDIM denoising + visuals.
-- §6 unified comparison table (ranked by SSIM) + bar charts, saved to `metrics_master.csv`.
+- **Phase 1-2 audit** (markdown): notebook inventory, cell-action ledger, dependency graph, dedup notes.
+- **Environment**: one Kaggle bootstrap, single global `CONFIG` (+ `QUICK_TEST`), `seed_everything`,
+  auto GPU/multi-GPU detection, Kaggle-resolved `CKPT_DIR`/`OUT_DIR`.
+- **Data**: load once, EDA, quality checks, preprocessing notes, ONE canonical `PatchDataset`,
+  ONE split + loaders, ONE sliding-window evaluator (merged from the 4x / 2x duplicates).
+- **Architectures shown via `inspect.getsource`** of the real `src/` code (AE, VAE, UNet,
+  NoiseScheduler, beta schedule, noise loss, DDIM steps, DiffusionUNet) -- no drift, fully preserved.
+- **Per-model sections** with Evolution callouts (Previous/New/Why/Benefit): AE (MSE + Hybrid both
+  trained), VAE (+latent-space analysis), U-Net, conditional DDPM (multi-GPU, resume support).
+- **Two evaluation protocols**: full-image sliding-window leaderboard (reproduces Week-3 numbers)
+  and a shared-patch unified table incl. DDPM (fair, single protocol).
+- **Final pipeline** (`denoise_image(img, method)` for ae/vae/unet/ddpm) + Conclusion + Phase-6
+  validation report (deps, bugs, conflicts, dedup, runtime, memory, GPU recs).
 
-All code paths smoke-tested locally (AE/VAE/U-Net/diffusion train+eval, baselines) before commit.
-Per-model epochs are tunable variables at the top; diffusion dominates runtime.
+New/risky code paths smoke-tested locally (getsource, all trainers + `_MSEWrap`, latent math,
+`ssim_torch` unified metrics, `denoise_image` incl. DDPM branch, baselines) before commit.
 
 ---
 
