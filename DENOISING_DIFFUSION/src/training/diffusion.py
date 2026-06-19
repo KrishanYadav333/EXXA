@@ -237,7 +237,7 @@ class DenoisingDiffusion:
         self.best_val_loss = float("inf")
 
     # ----------------------------- training ------------------------------- #
-    def _epoch_loss(self, loader, train: bool) -> float:
+    def _epoch_loss(self, loader, train: bool, log_every_step: int = 0) -> float:
         self.model.train(train)
         total, count = 0.0, 0
         torch.set_grad_enabled(train)
@@ -260,13 +260,16 @@ class DenoisingDiffusion:
                 self.step += 1
                 if self.use_ema:
                     self.ema_helper.update(self._core)
+                if log_every_step and self.step % log_every_step == 0:
+                    print(f"    step {self.step}: loss {loss.item():.4f}", flush=True)
 
             total += loss.item()
             count += 1
         torch.set_grad_enabled(True)
         return total / max(count, 1)
 
-    def train(self, train_loader, val_loader=None, n_epochs: int = 30, log_every: int = 1, verbose: bool = True):
+    def train(self, train_loader, val_loader=None, n_epochs: int = 30, log_every: int = 1,
+              log_every_step: int = 0, verbose: bool = True):
         if verbose:
             print("=" * 60)
             print("Conditional DDPM training")
@@ -277,7 +280,7 @@ class DenoisingDiffusion:
 
         for epoch in range(self.start_epoch, self.start_epoch + n_epochs):
             t0 = time.time()
-            train_loss = self._epoch_loss(train_loader, train=True)
+            train_loss = self._epoch_loss(train_loader, train=True, log_every_step=log_every_step)
             self.train_losses.append(train_loss)
 
             val_loss = None
