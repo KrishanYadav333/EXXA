@@ -477,6 +477,24 @@ model trained at 128px even on the 4 GB RTX 2050 (batch_img=2), so it fits a T4 
 
 ---
 
+### [2026-06-19] [DONE] Week-4 plan-fidelity pass
+
+Brought the scaled DDPM in line with the official Week-4 day-by-day plan:
+
+- **Model = literal 6-level** `ch=128, ch_mult=[1,1,2,2,4,4]`, attn@16 (**109.7M params**, the plan's
+  "51M-style" config) at 128x128. Note 6-level *does* build at 128px (128/32=4) -- the earlier
+  divisible-by-32 objection only applied to full 600px. Verified build + forward (1,2,128,128)->(1,1,128,128).
+- **DDIM sampling steps 25 -> 50** (`CONFIG['DDIM_STEPS']`), plan Task 4.1.
+- **Forward-diffusion viz t-values -> [0,250,500,750,999]**, plan Task 1.2.
+- **Per-10-step loss logging** added to `DenoisingDiffusion.train(log_every_step=...)` and used on both
+  the baseline and scaled training calls (Day-3 deliverable "loss logged every 10 steps").
+- OOM-fallback builder updated to retry the 6-level config. All verified locally.
+
+Remaining (user-side): run the notebook on Kaggle (upload data, Run All) to produce the actual
+Day-5 artifacts -- loss curve, sample PNGs, preliminary metrics.
+
+---
+
 ## Next Steps (Week 4 cont.)
 
 - [ ] Push Week-4 `src/` modules + Kaggle notebook to fork `week-4` branch (code only, no data).
