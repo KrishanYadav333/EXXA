@@ -415,6 +415,21 @@ to `os.path.abspath('..')`. All five notebooks validate under `nbformat`.
 
 ---
 
+### [2026-06-19] [DONE] Multi-GPU support (Kaggle T4 x2)
+
+- `DenoisingDiffusion` now wraps the model in `nn.DataParallel` to split each batch across
+  all visible GPUs. Auto-enabled when `torch.cuda.device_count() > 1`; `data_parallel=False`
+  forces single-GPU. EMA + checkpoints operate on the **unwrapped** model, so the saved
+  `state_dict` has no `module.` prefix and stays portable across single-/multi-GPU.
+- `train_diffusion.py`: added `--data-parallel` / `--no-data-parallel` (auto by default).
+- `05_diffusion_kaggle.ipynb`: prints GPU count, notes DataParallel, bumps `BATCH_IMAGES` to 16
+  (64 patches, ~32/GPU) to keep both T4s busy.
+- **Bug fix:** `DotDict` now converts nested dicts recursively, so nested config writes persist
+  (`cfg.model.ch = 128`, `cfg.diffusion.num_diffusion_timesteps = ...`). Previously these were
+  silently dropped (a throwaway copy was mutated), so the notebook's scale-up hints were no-ops.
+
+---
+
 ## Next Steps (Week 4 cont.)
 
 - [ ] Push Week-4 `src/` modules + Kaggle notebook to fork `week-4` branch (code only, no data).

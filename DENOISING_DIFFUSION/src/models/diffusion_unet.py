@@ -34,13 +34,24 @@ import torch.nn as nn
 
 
 class DotDict(dict):
-    """Dictionary with dot-notation attribute access (nested dicts wrapped lazily)."""
+    """Dictionary with dot-notation attribute access.
+
+    Nested dicts are converted to ``DotDict`` at construction so that nested
+    attribute *writes* persist (e.g. ``cfg.model.ch = 128`` mutates the stored
+    config rather than a throwaway copy).
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for k, v in list(self.items()):
+            if isinstance(v, dict) and not isinstance(v, DotDict):
+                self[k] = DotDict(v)
 
     def __getattr__(self, attr):
-        value = self.get(attr)
-        if isinstance(value, dict) and not isinstance(value, DotDict):
-            return DotDict(value)
-        return value
+        try:
+            return self[attr]
+        except KeyError:
+            return None
 
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__

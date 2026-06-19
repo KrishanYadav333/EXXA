@@ -57,6 +57,11 @@ def parse_args():
     p.add_argument("--no-plot", action="store_true")
     p.add_argument("--no-eval", action="store_true")
     p.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    dp = p.add_mutually_exclusive_group()
+    dp.add_argument("--data-parallel", dest="data_parallel", action="store_true", default=None,
+                    help="force nn.DataParallel across all visible GPUs (default: auto when >1 GPU)")
+    dp.add_argument("--no-data-parallel", dest="data_parallel", action="store_false",
+                    help="force single-GPU even if multiple are visible")
     return p.parse_args()
 
 
@@ -126,7 +131,10 @@ def main():
         device=args.device,
         lr=args.lr,
         checkpoint_path=args.checkpoint,
+        data_parallel=args.data_parallel,
     )
+    print(f"=> GPUs in use: {diffusion.num_gpus} "
+          f"({'DataParallel' if diffusion.data_parallel else 'single'})")
 
     results = diffusion.train(train_loader, val_loader, n_epochs=args.epochs)
 
