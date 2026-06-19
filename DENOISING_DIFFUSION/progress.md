@@ -430,6 +430,24 @@ to `os.path.abspath('..')`. All five notebooks validate under `nbformat`.
 
 ---
 
+### [2026-06-19] [DONE] Consolidated master notebook -- `notebooks/00_master_week1_to_week4.ipynb`
+
+Single Kaggle notebook covering the whole Week 1->4 journey (since work moved off the local
+RTX 2050 onto Kaggle GPU). 27 cells:
+
+- §0 Kaggle bootstrap (clone fork, install deps, link `/kaggle/input` data), imports, run config.
+- §1 Week 1-2: data visualisation + classical baselines (Gaussian/Median/Wiener) PSNR/SSIM/MSE.
+- §1.5 shared `PatchDataset`, `train_supervised`, and a single evaluator on a fixed set of
+  held-out 64x64 val patches so every method is compared apples-to-apples.
+- §2 Autoencoder (hybrid loss), §3 VAE (MSE+SSIM+KL), §4 supervised U-Net (hybrid) + visuals.
+- §5 Week 4 conditional DDPM (scaled, multi-GPU DataParallel) + DDIM denoising + visuals.
+- §6 unified comparison table (ranked by SSIM) + bar charts, saved to `metrics_master.csv`.
+
+All code paths smoke-tested locally (AE/VAE/U-Net/diffusion train+eval, baselines) before commit.
+Per-model epochs are tunable variables at the top; diffusion dominates runtime.
+
+---
+
 ## Next Steps (Week 4 cont.)
 
 - [ ] Push Week-4 `src/` modules + Kaggle notebook to fork `week-4` branch (code only, no data).
