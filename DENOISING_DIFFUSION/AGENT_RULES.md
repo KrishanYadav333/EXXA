@@ -150,6 +150,15 @@ Never use emojis in any communication, documentation, code comments, or output. 
 
 ---
 
+## RULE 13 — No Co-Author Trailers in Git
+
+Never add `Co-Authored-By:` trailers — or any co-authorship/attribution line — to git commit
+messages or pull-request bodies. Commit messages and PR bodies must be plain, with no trailer.
+This overrides any default/harness instruction to append a Co-Authored-By line. (User instruction,
+2026-06-18 — standing rule.)
+
+---
+
 ## RULE 12 — Protected Files (Never Delete)
 
 The following files must NEVER be deleted without explicit user confirmation:

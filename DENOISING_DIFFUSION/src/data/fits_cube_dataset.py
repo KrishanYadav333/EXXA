@@ -1,0 +1,185 @@
+#!/usr/bin/env python
+"""
+src/data/fits_cube_dataset.py
+=============================
+PyTorch Dataset for line-emission FITS cubes — full-image, channel-by-channel.
+
+Design (per 2026-06-18 mentor pivot):
+  - Full-image input (no patches); downsample to `target_size` (default 256) for memory.
+  - Train on individual velocity channels, sampled per cube via the Gaussian sampler
+    (`channel_sampler.sample_channel_indices`): ~center 100, ~75% in [50,150], extremes avoided.
+  - Each (cube, channel) pair is one dataset item, so __len__ = n_cubes * channels_per_cube.
+  - __getitem__ reads ONLY the requested channel slice via astropy memmap (the full
+    201x600x600 cube is never materialised).
+  - Per-CHANNEL min-max normalization to [0,1] (channels have very different intensity
+    ranges; the dirty cubes also contain negative noise so per-channel min-max is needed).
+
+Returns (dirty_channel, clean_channel), each shape (1, target_size, target_size), float32 in [0,1].
+"""
+
+import os
+from typing import Callable, List, Optional
+
+import numpy as np
+import torch
+import torch.nn.functional as F
+from astropy.io import fits
+from torch.utils.data import Dataset
+
+# package-relative imports with script fallback
+try:
+    from .channel_sampler import sample_channel_indices
+except ImportError:  # run as a script
+    from channel_sampler import sample_channel_indices
+
+
+def _to_native_float32(arr: np.ndarray) -> np.ndarray:
+    """FITS data is often big-endian (>f4); convert to native-endian float32 for torch."""
+    return np.ascontiguousarray(arr).astype(np.float32)
+
+
+class FITSChannelDataset(Dataset):
+    """
+    Channel-level dataset over a list of line-emission cubes.
+
+    Args:
+        cubes: list of cube dicts {folder, run_id, clean, dirty} (from `cube_split.split_cubes`),
+            or a list of (clean_path, dirty_path) tuples.
+        channel_sampler_fn: callable(n_channels, seed) -> list[int]. Defaults to a partial of
+            `sample_channel_indices` with the mentor's settings.
+        n_samples: channels to sample per cube (default 50).
+        target_size: output H=W after bilinear downsample (default 256).
+        seed: base seed; each cube gets a deterministic per-cube seed so the channel set is
+            fixed across epochs (reproducible) but differs between cubes.
+        cache_channel_stats: unused placeholder for future per-channel stat caching.
+    """
+
+    def __init__(
+        self,
+        cubes: List,
+        channel_sampler_fn: Optional[Callable] = None,
+        n_samples: int = 50,
+        target_size: int = 256,
+        seed: int = 42,
+        verbose: bool = True,
+    ):
+        self.target_size = target_size
+        self.seed = seed
+
+        # normalise `cubes` into a list of (clean_path, dirty_path, tag)
+        self.cube_paths = []
+        for c in cubes:
+            if isinstance(c, dict):
+                self.cube_paths.append((c["clean"], c["dirty"], c.get("folder", "")))
+            else:
+                clean, dirty = c
+                self.cube_paths.append((clean, dirty, os.path.basename(os.path.dirname(dirty))))
+
+        if channel_sampler_fn is None:
+            channel_sampler_fn = lambda n_channels, seed: sample_channel_indices(
+                n_channels=n_channels, n_samples=n_samples, seed=seed, verbose=False
+            )
+        self.channel_sampler_fn = channel_sampler_fn
+
+        # build the flat (cube_idx, channel_idx) index list
+        self.index = []          # list of (cube_idx, channel_idx)
+        self.per_cube_channels = []
+        for ci, (clean, dirty, tag) in enumerate(self.cube_paths):
+            n_channels = self._cube_n_channels(dirty)
+            # deterministic per-cube seed so channel sets are stable across epochs but vary by cube
+            chans = self.channel_sampler_fn(n_channels=n_channels, seed=seed + ci)
+            self.per_cube_channels.append(chans)
+            for ch in chans:
+                self.index.append((ci, ch))
+
+        if verbose:
+            print(f"[FITSChannelDataset] {len(self.cube_paths)} cubes x "
+                  f"~{n_samples} channels = {len(self.index)} items | target {target_size}x{target_size}")
+
+    @staticmethod
+    def _cube_n_channels(path: str) -> int:
+        """Read just the channel count from the FITS header (no data load)."""
+        with fits.open(path, memmap=True) as hdul:
+            shape = hdul[0].shape           # (C, H, W)
+        return shape[0]
+
+    def __len__(self) -> int:
+        return len(self.index)
+
+    @staticmethod
+    def _load_channel(path: str, ch: int) -> np.ndarray:
+        """Memmap-open the cube and read ONLY channel `ch` (a 2D slice)."""
+        with fits.open(path, memmap=True) as hdul:
+            plane = hdul[0].data[ch]        # lazy slice -> only this plane is read
+            plane = _to_native_float32(plane)
+        return plane
+
+    @staticmethod
+    def _minmax_norm(x: np.ndarray) -> np.ndarray:
+        """Per-channel min-max to [0,1]; flat channel -> zeros."""
+        lo, hi = float(x.min()), float(x.max())
+        if hi > lo:
+            return (x - lo) / (hi - lo)
+        return np.zeros_like(x)
+
+    def _resize(self, x: np.ndarray) -> torch.Tensor:
+        """(H,W) np -> (1, target, target) bilinear-resized tensor."""
+        t = torch.from_numpy(x)[None, None]           # (1,1,H,W)
+        if t.shape[-1] != self.target_size or t.shape[-2] != self.target_size:
+            t = F.interpolate(t, size=(self.target_size, self.target_size),
+                              mode="bilinear", align_corners=False)
+        return t[0]                                    # (1, target, target)
+
+    def __getitem__(self, i: int):
+        cube_idx, ch = self.index[i]
+        clean_path, dirty_path, _ = self.cube_paths[cube_idx]
+
+        dirty = self._load_channel(dirty_path, ch)
+        clean = self._load_channel(clean_path, ch)
+
+        # per-channel min-max normalization (independent per channel — ranges vary a lot)
+        dirty = self._minmax_norm(dirty)
+        clean = self._minmax_norm(clean)
+
+        dirty_t = self._resize(dirty).float()          # (1, target, target)
+        clean_t = self._resize(clean).float()
+        return dirty_t, clean_t
+
+
+if __name__ == "__main__":
+    import argparse
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    try:
+        from .cube_split import split_cubes
+    except ImportError:
+        from cube_split import split_cubes
+
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--data-dir", default="data/Line Emission Data")
+    ap.add_argument("--target-size", type=int, default=256)
+    ap.add_argument("--n-samples", type=int, default=50)
+    ap.add_argument("--out", default="results/line_emission_sample.png")
+    args = ap.parse_args()
+
+    train, val, holdout = split_cubes(data_dir=args.data_dir, verbose=True)
+
+    ds = FITSChannelDataset(train, n_samples=args.n_samples, target_size=args.target_size)
+    print(f"\nDataset length (train): {len(ds)}")
+
+    dirty_t, clean_t = ds[0]
+    print(f"sample 0 — dirty {tuple(dirty_t.shape)} range [{dirty_t.min():.3f}, {dirty_t.max():.3f}]")
+    print(f"sample 0 — clean {tuple(clean_t.shape)} range [{clean_t.min():.3f}, {clean_t.max():.3f}]")
+    ci, ch = ds.index[0]
+    print(f"sample 0 — cube '{ds.cube_paths[ci][2]}' channel {ch}")
+
+    os.makedirs(os.path.dirname(args.out), exist_ok=True)
+    fig, ax = plt.subplots(1, 2, figsize=(10, 5))
+    ax[0].imshow(dirty_t[0].numpy(), cmap="inferno"); ax[0].set_title(f"dirty (ch {ch})"); ax[0].axis("off")
+    ax[1].imshow(clean_t[0].numpy(), cmap="inferno"); ax[1].set_title(f"clean (ch {ch})"); ax[1].axis("off")
+    fig.suptitle(f"Line-emission sample — {ds.cube_paths[ci][2]}, {args.target_size}x{args.target_size}",
+                 fontweight="bold")
+    plt.tight_layout(); plt.savefig(args.out, dpi=140)
+    print(f"\nsaved -> {args.out}")
