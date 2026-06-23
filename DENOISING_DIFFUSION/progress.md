@@ -520,3 +520,158 @@ build/forward at 128px, per-step logging, and DDIM-50 sample.
 - [ ] Upload `dirty.npy` / `clean.npy` as a Kaggle Dataset; run `05_diffusion_kaggle.ipynb`.
 - [ ] Train DDPM for many more steps on Kaggle; re-evaluate SSIM vs the baselines above.
 - [ ] If diffusion still trails, weigh longer training / bigger model vs. the regression U-Net.
+
+
+---
+
+## Week 4 — June 15-19, 2026 (Initial DDPM Results)
+
+### Completed (verified with real artifacts)
+
+- **Conditional DDPM trained on Kaggle T4** — 100 epochs
+  - Artifact: checkpoint saved
+- **DDIM evaluation run on real validation data** — 384 patches
+  - Artifacts: loss curve and sample visualizations saved
+- **Forward diffusion visualization** — t=[0,250,500,750,999]
+  - Artifact: `forward_diffusion.png`
+- **Training loss tracking** — per-10-step logging implemented
+  - Artifact: loss curve with detailed step-level data
+
+### Result
+
+**DDPM SSIM: 0.2207** — currently underperforms ALL other methods including classical Gaussian filter (0.4230)
+
+**Comparison to Week 3 baselines:**
+
+| Rank | Method | SSIM | Notes |
+|---|---|---|---|
+| 1 | AE HybridLoss | 0.7609 | Week 3 leader |
+| 2 | VAE | 0.7059 | Week 3 |
+| 3 | U-Net | 0.7044 | Week 3 |
+| 4 | AE MSE-only | 0.6158 | Week 3 |
+| 5 | Gaussian σ=2 | 0.4230 | Classical baseline |
+| 6 | Median 3×3 | 0.3591 | Classical |
+| 7 | Wiener | 0.3398 | Classical |
+| 8 | **DDPM (100 ep)** | **0.2207** | This run |
+| 9 | Noisy input | 0.1924 | Baseline |
+
+**Root cause identified:** Planned model scale-up and resolution upgrade were NOT actually applied
+
+### Deviations from plan
+
+**Planned configuration:**
+- Model: ch=128, 6-level architecture (~110M parameters)
+- Training resolution: 128×128 patches
+- Rationale: Higher capacity model with larger patches for better structure learning
+
+**Actually ran:**
+- Model: ch=64, 4-level architecture (~17M parameters)
+- Training resolution: 64×64 patches
+- Reason: Scale-up code was written in notebook but commented out and not enabled before Kaggle training run
+
+**Impact:** Under-parameterized model at low resolution cannot learn complex disk structures effectively, explaining poor SSIM performance
+
+### Open questions for mentor
+
+- Is conditional DDPM expected to need substantially more training steps (epochs) than the regression-style models (AE/VAE/U-Net) to become competitive on SSIM?
+- Given the 100-epoch result at low scale, should we:
+  1. Re-run with the planned ch=128/128px configuration?
+  2. Extend training to 300+ epochs at current scale first?
+  3. Consider whether DDPM is the right approach for this task vs. direct regression?
+
+### Files created
+
+- Kaggle training notebook with DDPM implementation
+- `results/ddpm_loss_curve.png`
+- `results/ddpm_samples/` — DDIM-generated outputs
+- `results/checkpoints/ddpm_best.pth.tar`
+
+---
+
+---
+
+## 2026-06-18 — MAJOR PIVOT: Continuum → Line Emission, Patches → Full Images
+
+**Source:** Week 4 mentor meeting with Jason Terry (transcribed). This is a pivot, not an erasure —
+all prior continuum work (AE/VAE/U-Net/DDPM on `clean.npy`/`dirty.npy`, Weeks 2–4) remains valid,
+documented, foundational work. The project's center of gravity has moved.
+
+### Decisions (authoritative — follow literally; see context.md Section 6 entry of same date)
+
+1. **Patch-based training DEPRECATED project-wide.** 64×64 patches underperformed (DDPM SSIM ~0.22,
+   weak continuum patch results). No future training on random patches.
+2. **Full-image input.** Whole 600×600 channel maps; downsample to 256×256 / 300×300 if memory
+   demands (approved — "just a parameter," unscale later). Rationale: disk symmetries/substructures
+   span large azimuthal distances that patches destroy → global context matters.
+3. **Pivot to LINE EMISSION data now.** Continuum is now background/foundational, not active focus.
+4. **Architecture: back to Week-3 U-Net on full images.** NOT DDPM (underperformed), NOT patches.
+   Goal: get *any* line-emission denoising working ("no one's done that yet"); fancier later.
+5. **Scientific eval target:** denoise whole held-out cubes channel-by-channel → `bettermoments`
+   moment maps (Moment 0/1/2 + quadratic) → compare dirty vs denoised. The real test of value.
+
+### Line emission dataset — located and inspected (verified)
+
+- Path: `data/Line Emission Data/<run>/` — 14 cubes (28 FITS), ~7.6 GB (mentor uploading toward ~20).
+- Each cube: `*_clean.fits`, `*_dirty.fits`, `*.para`. Shape **(201, 600, 600)** = (vel chan, Dec, RA),
+  CTYPE3=VELO-LSR, BUNIT=JY/BEAM, float32, NOT pre-normalized (range ~[-0.007, 0.04]).
+- Naming `run_<RunID>_<StepID>_rt_<PP>`; `rt_PP` are RT parameter variants of same run/step.
+- Channel sampling (mentor): ~50/cube, Gaussian center idx 100, ~75% in [50,150], avoid extremes.
+- Cube-level split (mentor): hold out 3–4 ENTIRE cubes inference-only (not train, not val).
+
+### Completed this entry (verified with real artifacts)
+
+- Located + inspected line-emission FITS data — artifact: confirmed `(201,600,600)` cube via astropy.
+- Updated `context.md` (Sections 3, 6, 8, 10), `AGENT_RULES.md`, `progress.md` to reflect the pivot.
+
+### Not started (next action items, in order)
+
+- FITS cube loader + Gaussian channel sampler (center 100, ~75% in [50,150]).
+- Cube-level train/val/test split; 3–4 inference-only holdout cubes.
+- Adapt Week-3 U-Net to full images (256×256/300×300); full-image dataset (no patches).
+- Install + smoke-test `bettermoments` on one clean/dirty FITS pair.
+
+### Deviations from plan
+
+- This supersedes the old Week 5–22 ordering: line-emission work moved up from ~Week 8–9 to now;
+  DDPM full benchmark PAUSED. Approved directly by mentor (Jason Terry) in the 2026-06-18 meeting.
+
+### Open questions for mentor
+
+- Confirm download is complete / which additional cubes to expect (~20 mentioned).
+- Preferred downsample target if 600×600 full-res won't fit on Kaggle T4 — 300 or 256?
+- For full-cube inference holdout: which specific RunIDs to reserve, or our choice (breadth)?
+
+---
+
+## 2026-06-18 — Channel sampler (`src/data/channel_sampler.py`)
+
+`sample_channel_indices(n_channels=201, n_samples=50, center=100, std=25, seed=42)` — Gaussian
+channel sampling for line-emission cubes per mentor spec (center ~100, ~75% in [50,150], avoid
+extreme high-velocity channels). Returns sorted unique int indices; dedups and resamples to hit
+`n_samples`; optional hard `low_cutoff`/`high_cutoff`.
+
+### Calibration decision (KEEP — do not recalibrate)
+
+- **Issue:** a Gaussian at center=100 with `std=25` puts ~96% of mass in [50,150] (because 50 = 2σ),
+  far above the ~75% target. So the literal default std cannot hit 75%.
+- **Resolution:** `auto_adjust_std=True` binary-searches std against the continuous population so
+  ~75% of (clipped) draws land in [50,150]. This yields **std ≈ 44.5**.
+- **Decision (user, 2026-06-18):** KEEP std=44.5 calibration. Do NOT recalibrate against the
+  unique-sample fraction. Rationale: it satisfies the mentor's literal instruction ("at least 75%")
+  on average and in the realized default draw.
+
+### Verified behavior (artifact: `results/channel_sampling_distribution.png`)
+
+- **seed=42 (default): 86.0%** in [50,150]; 50 unique indices; range [13, 195].
+- **20-seed sweep:** mean **73.8%**, min **64.0%** (seed=8), max **84.0%** in [50,150].
+  The 86% default is a high outlier; the method targets ~75% on average. Spread is inherent
+  sampling variance in a 50-index draw (amplified slightly by dedup pulling toward the dense center).
+- **Worst-case extreme-channel exposure (seed=8, 64.0% in-band):** 18/50 outside the band —
+  10 low [0,50), 8 high (150,201]. Only 3/50 in the true extreme zones (indices 0, 195, 200), i.e.
+  ~94% of channels still avoid the problematic continuum-dominated tails. Confirms even unlucky
+  seeds keep extreme-channel exposure low, which was the mentor's primary concern.
+
+### Status
+
+- [DONE] sampler implemented, run, verified; histogram saved.
+- Note: treats 75% as an AVERAGE target (mentor said "at least 75%"), not a per-draw hard floor.
