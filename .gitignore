@@ -22,6 +22,11 @@ build/
 *.fits
 *.npy
 *.npz
+*.para
+
+# Line emission dataset (~7.6 GB FITS cubes) — never commit; upload to Kaggle as a Dataset instead
+DENOISING_DIFFUSION/data/Line Emission Data/
+**/Line Emission Data/
 
 # Model weights and checkpoints
 *.pth
