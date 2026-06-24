@@ -675,3 +675,41 @@ extreme high-velocity channels). Returns sorted unique int indices; dedups and r
 
 - [DONE] sampler implemented, run, verified; histogram saved.
 - Note: treats 75% as an AVERAGE target (mentor said "at least 75%"), not a per-draw hard floor.
+
+---
+
+## 2026-06-24 — Line-emission pipeline built & smoke-verified (NOT done — Kaggle metrics pending)
+
+Full Week-5 line-emission pipeline is implemented and verified end-to-end on REAL cube data via a
+smoke test. Per AGENT_RULES Rule 1, this is **NOT marked done** — the real 30-epoch metrics require
+actual Kaggle execution by the user, who will report back.
+
+### Built + verified (real data, local smoke test)
+- `src/data/inspect_line_emission.py` — 14 cubes, all (201,600,600), clean/dirty pairs verified.
+- `src/data/channel_sampler.py` — Gaussian channel sampler (std auto-cal 44.5, ~75% in [50,150] mean).
+- `src/data/cube_split.py` — RunID-grouped split: 7 train / 2 val / 5 holdout cubes (3 RunID groups
+  held out inference-only; leakage-safe).
+- `src/data/fits_cube_dataset.py` — FITSChannelDataset, memmap per-channel load, per-channel min-max,
+  bilinear downsample to 256. Verified: 350 train / 100 val items, sample (1,256,256) in [0,1].
+- `notebooks/05_unet_line_emission.ipynb` — full-image (no patches) DenoisingUNet, HybridLoss,
+  OOM-safe batch probe (shrinks batch not resolution), num_workers=4 on Kaggle, moment-map Sec.9.
+- `src/evaluation/moment_maps.py` — bettermoments M0/M1/M2; verified on held-out run_0002
+  (M0 ~0.2% clean-vs-dirty, M1 27.8%, M2 25.8% — kinematic maps noise-degraded as expected).
+
+### Smoke-test result (1 epoch, real data, local 4 GB RTX 2050)
+- **Full 256x256 images train WITHOUT patches at batch 8** (~13 min/epoch, FITS I/O bound locally).
+- After 1 epoch: val Hybrid tot/mse/ssim = 0.046 / 0.0065 / 0.205. Pipeline sound; loss decreasing.
+
+### PENDING (real artifacts — to be produced by user on Kaggle T4)
+- [ ] 30-epoch training run on Kaggle (user uploads Line Emission Data as a Kaggle Dataset, GPU on,
+      num_workers=4 already set, Run All).
+- [ ] Final validation PSNR / SSIM / MSE (real numbers).
+- [ ] `results/unet_line_emission_loss.png`, `results/checkpoints/unet_line_emission_best.pth`,
+      `experiments/line_emission_unet_comparison.png`, `results/moment_maps_holdout.png`.
+- Status stays OPEN until the user reports back the real Kaggle output.
+
+### Note — moment_maps.py external regeneration (resolved)
+During editing, moment_maps.py reverted a fix once. No Claude hooks exist (checked project/local/user
+settings) — likely an IDE editor buffer or a concurrent external tool. Mitigated: corrected version is
+committed/pushed (Kaggle clones that), and an AST scan confirms no print() carries non-ASCII (the
+cp1252 crash trigger is gone). Stable and git-clean since.
