@@ -713,3 +713,38 @@ During editing, moment_maps.py reverted a fix once. No Claude hooks exist (check
 settings) — likely an IDE editor buffer or a concurrent external tool. Mitigated: corrected version is
 committed/pushed (Kaggle clones that), and an AST scan confirms no print() carries non-ASCII (the
 cp1252 crash trigger is gone). Stable and git-clean since.
+
+---
+
+## 2026-06-24 — [DONE] Line-emission U-Net: REAL Kaggle results (T4x2)
+
+Notebook `05_unet_line_emission.ipynb` executed end-to-end on Kaggle T4x2 by the user. Real artifacts
+produced. This closes the task opened 2026-06-24 (was "pending Kaggle execution").
+
+### Run config (confirmed from output)
+- GPUs: 2 x Tesla T4. **BATCH SIZE USED: 32 at 256x256 [DataParallel x2 (~16/GPU)]** — both GPUs used.
+- Full images, NO patches, 256x256. 7 train / 2 val / 5 holdout cubes (350 train / 100 val channels).
+- DenoisingUNet 3,424,065 params, HybridLoss(0.8,0.2), Adam lr=1e-3, ReduceLROnPlateau. ~13 s/epoch
+  on Kaggle (vs ~13 min/epoch locally — Kaggle ~60x faster here).
+
+### Final validation metrics (100 channels, best ckpt @ epoch 29)
+| PSNR | SSIM | MSE |
+|---|---|---|
+| **26.4591 dB** | **0.8100** | **0.004566** |
+
+Loss trajectory (val_total): ep1 0.163 -> ep8 0.048 -> ep21 0.044 -> ep25 0.042 -> **ep29 0.0417 (best)**.
+Train still dropping (ep29 tr_total 0.0361); val plateauing ~0.042 with a widening train/val gap ->
+mild overfitting beginning on the fixed 350-channel set.
+
+### Significance
+- **SSIM 0.81 on line emission** — exceeds the continuum AE-Hybrid (0.7609) and is the project's first
+  working line-emission denoiser (mentor: "no one's done that yet").
+- Artifacts: `results/unet_line_emission_loss.png`, `results/checkpoints/unet_line_emission_best.pth`,
+  `experiments/line_emission_unet_comparison.png`, `results/moment_maps_holdout.png`.
+- Held-out moment maps (clean vs DIRTY, run_0002): M0 0.2%, M1 27.8%, M2 25.8% diff — denoised-cube
+  moment comparison is the next step.
+
+### Next levers (data diversity > raw epochs, given overfitting onset)
+- [ ] Per-epoch channel resampling + raise N_SAMPLES (50 -> 100) — combats overfit, more data.
+- [ ] Full held-out cube inference (denoise all 201 channels) -> denoised moment maps vs clean.
+- [ ] More cubes as mentor uploads (~20).
