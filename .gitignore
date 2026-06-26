@@ -28,6 +28,20 @@ build/
 DENOISING_DIFFUSION/data/Line Emission Data/
 **/Line Emission Data/
 
+# DENOISING_DIFFUSION local working docs (planning / presentations / reports / agent rules) — keep out of repo
+DENOISING_DIFFUSION/docs/
+DENOISING_DIFFUSION/commands.txt
+DENOISING_DIFFUSION/AGENT_RULES.md
+# also catch old root-level copies and any stray duplicates
+**/AGENT_RULES.md
+**/commands.txt
+**/MIDTERM_PLAN.md
+**/PRE_GSOC_STRATEGY.md
+**/WEEK1_WEEK2_LOG.md
+**/WEEK3_TECHNICAL_DOCUMENTATION.md
+**/MASTER_NOTEBOOK_VERIFICATION.md
+**/presentation_week*.html
+
 # Model weights and checkpoints
 *.pth
 *.pt
