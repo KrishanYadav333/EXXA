@@ -32,6 +32,10 @@ DENOISING_DIFFUSION/data/Line Emission Data/
 DENOISING_DIFFUSION/docs/
 DENOISING_DIFFUSION/commands.txt
 DENOISING_DIFFUSION/AGENT_RULES.md
+DENOISING_DIFFUSION/context.md
+DENOISING_DIFFUSION/progress.md
+**/context.md
+**/progress.md
 # also catch old root-level copies and any stray duplicates
 **/AGENT_RULES.md
 **/commands.txt
