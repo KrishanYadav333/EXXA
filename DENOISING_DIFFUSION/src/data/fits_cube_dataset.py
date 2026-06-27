@@ -115,12 +115,26 @@ class FITSChannelDataset(Dataset):
         return plane
 
     @staticmethod
-    def _minmax_norm(x: np.ndarray) -> np.ndarray:
-        """Per-channel min-max to [0,1]; flat channel -> zeros."""
-        lo, hi = float(x.min()), float(x.max())
+    def _minmax_norm_shared(dirty: np.ndarray, clean: np.ndarray):
+        """
+        Per-channel min-max using the DIRTY channel's (min,max) for BOTH dirty and clean.
+
+        Critical for invertibility at inference: at test time only the dirty (min,max) is
+        known (the clean cube is the unknown we predict). Normalizing the clean target by its
+        OWN (min,max) makes the model output live in a clean-specific scale that cannot be
+        decoded from the dirty scale -> a negative DC floor (decode background = dirty_min < 0
+        vs clean background = 0) that destroys Moment-0. Sharing the dirty scale keeps the
+        background floor consistent and the un-normalization exact.
+
+        Clean is NOT clipped: its peak can exceed the dirty max, so normalized clean may slightly
+        exceed 1 (the model uses a linear output head, not sigmoid, to represent that).
+        """
+        lo, hi = float(dirty.min()), float(dirty.max())
         if hi > lo:
-            return (x - lo) / (hi - lo)
-        return np.zeros_like(x)
+            d = (dirty - lo) / (hi - lo)
+            c = (clean - lo) / (hi - lo)
+            return d, c
+        return np.zeros_like(dirty), np.zeros_like(clean)
 
     def _resize(self, x: np.ndarray) -> torch.Tensor:
         """(H,W) np -> (1, target, target) bilinear-resized tensor."""
@@ -137,9 +151,9 @@ class FITSChannelDataset(Dataset):
         dirty = self._load_channel(dirty_path, ch)
         clean = self._load_channel(clean_path, ch)
 
-        # per-channel min-max normalization (independent per channel — ranges vary a lot)
-        dirty = self._minmax_norm(dirty)
-        clean = self._minmax_norm(clean)
+        # per-channel min-max using the DIRTY (min,max) for BOTH -> invertible at inference,
+        # consistent background floor (see _minmax_norm_shared). NOT independent per array.
+        dirty, clean = self._minmax_norm_shared(dirty, clean)
 
         dirty_t = self._resize(dirty).float()          # (1, target, target)
         clean_t = self._resize(clean).float()
