@@ -61,10 +61,18 @@ class FITSChannelDataset(Dataset):
         n_samples: int = 50,
         target_size: int = 256,
         seed: int = 42,
+        subtract_continuum: bool = False,
+        continuum_n: int = 5,
         verbose: bool = True,
     ):
         self.target_size = target_size
         self.seed = seed
+        # Continuum subtraction (mentor, 2026-06-27): the first/last high-velocity channels are
+        # line-free, so their mean estimates the static continuum (disk dust behind the line).
+        # Subtracting it before normalization isolates the line emission. OFF by default so the
+        # original notebook behavior is unchanged; the continuum notebook flips it on.
+        self.subtract_continuum = subtract_continuum
+        self.continuum_n = continuum_n
 
         # normalise `cubes` into a list of (clean_path, dirty_path, tag)
         self.cube_paths = []
@@ -92,9 +100,20 @@ class FITSChannelDataset(Dataset):
             for ch in chans:
                 self.index.append((ci, ch))
 
+        # precompute per-cube continuum (dirty + clean) once, if enabled — each cube subtracts
+        # its OWN continuum (the dirty and clean baselines differ).
+        self.dirty_continuum = []
+        self.clean_continuum = []
+        if self.subtract_continuum:
+            for ci, (clean, dirty, tag) in enumerate(self.cube_paths):
+                self.dirty_continuum.append(self._compute_continuum(dirty, self.continuum_n))
+                self.clean_continuum.append(self._compute_continuum(clean, self.continuum_n))
+
         if verbose:
+            cont = (f" | continuum-subtracted (mean of first/last {continuum_n} channels)"
+                    if self.subtract_continuum else "")
             print(f"[FITSChannelDataset] {len(self.cube_paths)} cubes x "
-                  f"~{n_samples} channels = {len(self.index)} items | target {target_size}x{target_size}")
+                  f"~{n_samples} channels = {len(self.index)} items | target {target_size}x{target_size}{cont}")
 
     @staticmethod
     def _cube_n_channels(path: str) -> int:
@@ -113,6 +132,21 @@ class FITSChannelDataset(Dataset):
             plane = hdul[0].data[ch]        # lazy slice -> only this plane is read
             plane = _to_native_float32(plane)
         return plane
+
+    @staticmethod
+    def _compute_continuum(path: str, n: int) -> np.ndarray:
+        """
+        2D continuum estimate = mean of the first `n` and last `n` (line-free, high-velocity)
+        channels. Subtracting this from every channel removes the static disk continuum and
+        isolates the line emission (mentor suggestion, 2026-06-27).
+        """
+        with fits.open(path, memmap=True) as hdul:
+            data = hdul[0].data
+            C = data.shape[0]
+            n = max(1, min(n, C // 2))
+            edges = np.concatenate([np.asarray(data[:n]), np.asarray(data[C - n:])], axis=0)
+            cont = edges.mean(axis=0)
+        return _to_native_float32(cont)
 
     @staticmethod
     def _minmax_norm_shared(dirty: np.ndarray, clean: np.ndarray):
@@ -150,6 +184,11 @@ class FITSChannelDataset(Dataset):
 
         dirty = self._load_channel(dirty_path, ch)
         clean = self._load_channel(clean_path, ch)
+
+        # continuum subtraction (before norm) — each cube subtracts its own line-free baseline
+        if self.subtract_continuum:
+            dirty = dirty - self.dirty_continuum[cube_idx]
+            clean = clean - self.clean_continuum[cube_idx]
 
         # per-channel min-max using the DIRTY (min,max) for BOTH -> invertible at inference,
         # consistent background floor (see _minmax_norm_shared). NOT independent per array.
