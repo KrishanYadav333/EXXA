@@ -38,6 +38,21 @@ def _to_native_float32(arr: np.ndarray) -> np.ndarray:
     return np.ascontiguousarray(arr).astype(np.float32)
 
 
+def continuum_of(cube: np.ndarray, n: int) -> np.ndarray:
+    """
+    2D continuum estimate = mean of the first `n` and last `n` (line-free, high-velocity)
+    channels of an in-memory cube (C, H, W). Subtracting this from every channel removes the
+    static disk continuum and isolates the line emission (mentor suggestion, 2026-06-27).
+
+    Array-in variant of `FITSChannelDataset._compute_continuum` (which reads from a path), so
+    notebooks that already hold the cube in memory can reuse the exact same definition.
+    """
+    C = cube.shape[0]
+    n = max(1, min(n, C // 2))
+    edges = np.concatenate([np.asarray(cube[:n]), np.asarray(cube[C - n:])], axis=0)
+    return _to_native_float32(edges.mean(axis=0))
+
+
 class FITSChannelDataset(Dataset):
     """
     Channel-level dataset over a list of line-emission cubes.
@@ -141,12 +156,7 @@ class FITSChannelDataset(Dataset):
         isolates the line emission (mentor suggestion, 2026-06-27).
         """
         with fits.open(path, memmap=True) as hdul:
-            data = hdul[0].data
-            C = data.shape[0]
-            n = max(1, min(n, C // 2))
-            edges = np.concatenate([np.asarray(data[:n]), np.asarray(data[C - n:])], axis=0)
-            cont = edges.mean(axis=0)
-        return _to_native_float32(cont)
+            return continuum_of(hdul[0].data, n)
 
     @staticmethod
     def _minmax_norm_shared(dirty: np.ndarray, clean: np.ndarray):
