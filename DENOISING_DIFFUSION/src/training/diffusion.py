@@ -151,6 +151,7 @@ def generalized_steps(x, x_cond, seq, model, b, eta=0.0):
 
             et = model(torch.cat([x_cond, xt], dim=1), t)
             x0_t = (xt - et * (1 - at).sqrt()) / at.sqrt()
+            x0_t = x0_t.clamp(-1.0, 1.0)   # prevent unbounded blowup compounding over steps
             x0_preds.append(x0_t.to("cpu"))
 
             c1 = eta * ((1 - at / at_next) * (1 - at_next) / (1 - at)).sqrt()
