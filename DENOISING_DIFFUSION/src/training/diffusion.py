@@ -235,6 +235,8 @@ class DenoisingDiffusion:
             self.ema_helper = None
 
         self.optimizer = torch.optim.Adam(self._core.parameters(), lr=lr, eps=1e-8)
+        self.base_lr = lr
+        self.warmup_steps = 0   # set by train(); linear LR warmup over the first epoch
 
         betas = get_beta_schedule(
             beta_schedule=self.config.diffusion.beta_schedule,
@@ -271,6 +273,13 @@ class DenoisingDiffusion:
             if train:
                 self.optimizer.zero_grad()
                 loss.backward()
+                # linear LR warmup: attention-heavy DDPM is unstable at full LR from
+                # step 0 on a short run -- ramp over the first epoch.
+                if self.warmup_steps and self.step < self.warmup_steps:
+                    warmup_lr = self.base_lr * (self.step + 1) / self.warmup_steps
+                    for g in self.optimizer.param_groups:
+                        g["lr"] = warmup_lr
+                torch.nn.utils.clip_grad_norm_(self._core.parameters(), 1.0)
                 self.optimizer.step()
                 self.step += 1
                 if self.use_ema:
@@ -284,7 +293,9 @@ class DenoisingDiffusion:
         return total / max(count, 1)
 
     def train(self, train_loader, val_loader=None, n_epochs: int = 30, log_every: int = 1,
-              log_every_step: int = 0, verbose: bool = True):
+              log_every_step: int = 0, verbose: bool = True, warmup_steps: Optional[int] = None):
+        # default: warm up over one epoch's worth of steps
+        self.warmup_steps = warmup_steps if warmup_steps is not None else len(train_loader)
         if verbose:
             print("=" * 60)
             print("Conditional DDPM training")
@@ -322,7 +333,8 @@ class DenoisingDiffusion:
 
     # ----------------------------- sampling ------------------------------- #
     @torch.no_grad()
-    def sample(self, x_cond01: torch.Tensor, sampling_timesteps: int = 25, use_ema: bool = True) -> torch.Tensor:
+    def sample(self, x_cond01: torch.Tensor, sampling_timesteps: int = 25, use_ema: bool = True,
+               n_avg: int = 1) -> torch.Tensor:
         """
         Denoise dirty observations via DDIM.
 
@@ -330,6 +342,11 @@ class DenoisingDiffusion:
             x_cond01: (B, 1, H, W) dirty condition in [0, 1].
             sampling_timesteps: number of DDIM steps.
             use_ema: temporarily swap in EMA weights for sampling.
+            n_avg: number of independent reverse-process draws to average. A single
+                draw (n_avg=1) is one sample of the posterior p(clean|dirty), which
+                carries full posterior variance and hurts PSNR/SSIM. Averaging
+                n_avg draws approximates the posterior *mean* -- the estimator those
+                metrics actually reward. Cost scales linearly with n_avg.
 
         Returns:
             (B, 1, H, W) denoised estimate in [0, 1].
@@ -342,12 +359,15 @@ class DenoisingDiffusion:
         self.model.eval()
         x_cond = data_transform(x_cond01.to(self.device))
         b, c, h, w = x_cond.shape
-        x = torch.randn(b, c, h, w, device=self.device)
 
         skip = self.num_timesteps // sampling_timesteps
         seq = range(0, self.num_timesteps, skip)
-        xs, _ = generalized_steps(x, x_cond, seq, self.model, self.betas, eta=0.0)
-        out = inverse_data_transform(xs[-1].to(self.device))
+        acc = torch.zeros(b, c, h, w, device=self.device)
+        for _ in range(max(1, n_avg)):
+            x = torch.randn(b, c, h, w, device=self.device)
+            xs, _ = generalized_steps(x, x_cond, seq, self.model, self.betas, eta=0.0)
+            acc += inverse_data_transform(xs[-1].to(self.device))
+        out = acc / max(1, n_avg)
 
         if backup is not None:
             for n, p in self._core.named_parameters():
@@ -357,7 +377,7 @@ class DenoisingDiffusion:
 
     @torch.no_grad()
     def evaluate(self, val_loader, sampling_timesteps: int = 25, max_batches: Optional[int] = None,
-                 use_ema: bool = True) -> dict:
+                 use_ema: bool = True, n_avg: int = 1) -> dict:
         """Sample-denoise validation patches and report PSNR / SSIM / MSE in [0, 1]."""
         from pytorch_msssim import ssim as ssim_fn
 
@@ -369,7 +389,7 @@ class DenoisingDiffusion:
             dirty = x[:, 0:1, :, :].clamp(0, 1)
             clean = x[:, 1:2, :, :].clamp(0, 1).to(self.device)
 
-            pred = self.sample(dirty, sampling_timesteps=sampling_timesteps, use_ema=use_ema)
+            pred = self.sample(dirty, sampling_timesteps=sampling_timesteps, use_ema=use_ema, n_avg=n_avg)
 
             mse = torch.mean((pred - clean) ** 2, dim=(1, 2, 3))
             psnr = 10.0 * torch.log10(1.0 / torch.clamp(mse, min=1e-10))
