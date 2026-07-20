@@ -80,7 +80,6 @@ class EMAHelper:
     def __init__(self, mu: float = 0.9999):
         self.mu = mu
         self.shadow = {}
-        self.num_updates = 0
 
     def register(self, module: nn.Module):
         for name, param in module.named_parameters():
@@ -88,17 +87,9 @@ class EMAHelper:
                 self.shadow[name] = param.data.clone()
 
     def update(self, module: nn.Module):
-        # Bias-corrected decay (Adam-style warmup): at mu=0.999 the shadow needs
-        # ~1000s of steps to leave its random init, but short runs (few hundred
-        # steps/epoch) never get there, so eval/sample pull from a near-random
-        # EMA snapshot despite the raw model training fine. Ramping the decay up
-        # from ~0.1 fixes short runs and converges to `mu` well before long runs
-        # would notice the difference.
-        self.num_updates += 1
-        mu = min(self.mu, (1.0 + self.num_updates) / (10.0 + self.num_updates))
         for name, param in module.named_parameters():
             if param.requires_grad:
-                self.shadow[name].data = (1.0 - mu) * param.data + mu * self.shadow[name].data
+                self.shadow[name].data = (1.0 - self.mu) * param.data + self.mu * self.shadow[name].data
 
     def ema(self, module: nn.Module):
         for name, param in module.named_parameters():
@@ -106,15 +97,10 @@ class EMAHelper:
                 param.data.copy_(self.shadow[name].data)
 
     def state_dict(self):
-        return {"shadow": self.shadow, "num_updates": self.num_updates}
+        return self.shadow
 
     def load_state_dict(self, state_dict):
-        if "shadow" in state_dict:
-            self.shadow = state_dict["shadow"]
-            self.num_updates = state_dict.get("num_updates", 0)
-        else:  # backward compat: old checkpoints stored the shadow dict directly
-            self.shadow = state_dict
-            self.num_updates = 0
+        self.shadow = state_dict
 
 
 # --------------------------------------------------------------------------- #
