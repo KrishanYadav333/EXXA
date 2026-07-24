@@ -29,13 +29,10 @@ DENOISING_DIFFUSION/data/Line Emission Data/
 **/Line Emission Data/
 
 # DENOISING_DIFFUSION local working docs (planning / presentations / reports / agent rules) — keep out of repo
+# context.md/progress.md tracked as of 2026-07-24 (Krishan switching machines, needs them synced)
 DENOISING_DIFFUSION/docs/
 DENOISING_DIFFUSION/commands.txt
 DENOISING_DIFFUSION/AGENT_RULES.md
-DENOISING_DIFFUSION/context.md
-DENOISING_DIFFUSION/progress.md
-**/context.md
-**/progress.md
 # also catch old root-level copies and any stray duplicates
 **/AGENT_RULES.md
 **/commands.txt
