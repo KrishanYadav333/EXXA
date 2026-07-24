@@ -38,6 +38,27 @@ def _to_native_float32(arr: np.ndarray) -> np.ndarray:
     return np.ascontiguousarray(arr).astype(np.float32)
 
 
+def beam_features_of(header) -> np.ndarray:
+    """
+    4-feature beam vector from a FITS header (mentor suggestion, 2026-07-20):
+    [sin(2*BPA), cos(2*BPA), BMAJ*3600, BMIN*3600].
+
+    BPA is stored in degrees (convert to radians before sin/cos; the 2x makes the
+    encoding invariant to the beam's 180-degree ambiguity). BMAJ/BMIN are FWHM in
+    degrees -> *3600 gives arcsec (O(0.1) here, so no further scaling needed).
+    Teaches the model the spatial scale/orientation of the noise (the beam).
+
+    Missing beam keys -> zero vector (clean model-input, and a natural "no beam
+    info" null for cubes without beam metadata).
+    """
+    if header is None or "BPA" not in header or "BMAJ" not in header or "BMIN" not in header:
+        return np.zeros(4, dtype=np.float32)
+    bpa = np.deg2rad(float(header["BPA"]))
+    return np.array([np.sin(2 * bpa), np.cos(2 * bpa),
+                     float(header["BMAJ"]) * 3600.0,
+                     float(header["BMIN"]) * 3600.0], dtype=np.float32)
+
+
 def continuum_of(cube: np.ndarray, n: int) -> np.ndarray:
     """
     2D continuum estimate = mean of the first `n` and last `n` (line-free, high-velocity)
@@ -78,10 +99,15 @@ class FITSChannelDataset(Dataset):
         seed: int = 42,
         subtract_continuum: bool = False,
         continuum_n: int = 5,
+        return_beam: bool = False,
         verbose: bool = True,
     ):
         self.target_size = target_size
         self.seed = seed
+        # Beam conditioning (mentor, 2026-07-20): expose the observation's beam
+        # (noise scale/orientation) as a 4-vector model input. OFF by default so
+        # existing notebooks keep their (dirty, clean) item shape.
+        self.return_beam = return_beam
         # Continuum subtraction (mentor, 2026-06-27): the first/last high-velocity channels are
         # line-free, so their mean estimates the static continuum (disk dust behind the line).
         # Subtracting it before normalization isolates the line emission. OFF by default so the
@@ -123,6 +149,19 @@ class FITSChannelDataset(Dataset):
             for ci, (clean, dirty, tag) in enumerate(self.cube_paths):
                 self.dirty_continuum.append(self._compute_continuum(dirty, self.continuum_n))
                 self.clean_continuum.append(self._compute_continuum(clean, self.continuum_n))
+
+        # precompute per-cube beam vector from the DIRTY header (the beam belongs to
+        # the observation); torch tensors so __getitem__ is a cheap index
+        self.beam_vectors = []
+        if self.return_beam:
+            for clean, dirty, tag in self.cube_paths:
+                with fits.open(dirty, memmap=True) as hdul:
+                    self.beam_vectors.append(torch.from_numpy(beam_features_of(hdul[0].header)))
+            if verbose and len(self.beam_vectors) > 1:
+                stacked = torch.stack(self.beam_vectors)
+                if torch.allclose(stacked, stacked[0].expand_as(stacked)):
+                    print("[FITSChannelDataset] WARNING: beam vector identical across all cubes -- "
+                          "beam conditioning carries no information for this split")
 
         if verbose:
             cont = (f" | continuum-subtracted (mean of first/last {continuum_n} channels)"
@@ -206,6 +245,8 @@ class FITSChannelDataset(Dataset):
 
         dirty_t = self._resize(dirty).float()          # (1, target, target)
         clean_t = self._resize(clean).float()
+        if self.return_beam:
+            return dirty_t, clean_t, self.beam_vectors[cube_idx]
         return dirty_t, clean_t
 
 

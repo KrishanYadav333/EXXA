@@ -166,8 +166,14 @@ class UNet(nn.Module):
         time_emb_dim: Dimension of time embeddings (default 128)
         num_res_blocks: Number of residual blocks per level (default 2)
         groups: Number of groups for group normalization (default 32)
+        beam_dim: Length of an optional per-image metadata vector (e.g. the 4-feature
+            FITS beam vector [sin(2*BPA), cos(2*BPA), BMAJ*3600, BMIN*3600] — mentor
+            suggestion 2026-07-20). When > 0 the vector is embedded and ADDED to the
+            time embedding, so every residual block (encoder, bottleneck, and the
+            upsampling path) is conditioned on it. 0 (default) = no extra params,
+            existing checkpoints load unchanged.
     """
-    
+
     def __init__(
         self,
         in_channels: int = 2,
@@ -177,16 +183,18 @@ class UNet(nn.Module):
         time_emb_dim: int = 128,
         num_res_blocks: int = 2,
         groups: int = 32,
+        beam_dim: int = 0,
     ):
         super().__init__()
-        
+
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.base_channels = base_channels
         self.channel_multipliers = channel_multipliers
         self.time_emb_dim = time_emb_dim
         self.num_res_blocks = num_res_blocks
-        
+        self.beam_dim = beam_dim
+
         # Time embedding
         self.time_emb = nn.Sequential(
             SinusoidalPositionalEmbedding(time_emb_dim),
@@ -194,6 +202,15 @@ class UNet(nn.Module):
             nn.SiLU(),
             nn.Linear(time_emb_dim * 4, time_emb_dim),
         )
+
+        # Beam/metadata embedding: joins the conditioning pathway the blocks already
+        # consume (t_emb), so no per-block changes are needed.
+        if beam_dim > 0:
+            self.beam_emb = nn.Sequential(
+                nn.Linear(beam_dim, time_emb_dim),
+                nn.SiLU(),
+                nn.Linear(time_emb_dim, time_emb_dim),
+            )
         
         # Initial convolution
         self.conv_in = nn.Conv2d(in_channels, base_channels, kernel_size=3, padding=1)
@@ -257,17 +274,25 @@ class UNet(nn.Module):
         self.norm_out = nn.GroupNorm(groups, base_channels)
         self.conv_out = nn.Conv2d(base_channels, out_channels, kernel_size=3, padding=1)
     
-    def forward(self, x: torch.Tensor, timesteps: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, timesteps: torch.Tensor,
+                beam: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
         Args:
             x: (B, in_channels, H, W) - input noisy image
             timesteps: (B,) - timestep indices
-        
+            beam: (B, beam_dim) optional per-image metadata vector (requires
+                the model to have been built with beam_dim > 0)
+
         Returns:
             (B, out_channels, H, W) - predicted noise
         """
         # Time embedding
         t_emb = self.time_emb(timesteps)
+
+        # Beam conditioning joins t_emb -> reaches every block incl. upsampling path
+        if beam is not None:
+            assert self.beam_dim > 0, "model built with beam_dim=0 but beam was passed"
+            t_emb = t_emb + self.beam_emb(beam.float())
         
         # Initial convolution
         h = self.conv_in(x)
@@ -345,6 +370,7 @@ def create_model(
 
 def DenoisingUNet(
     device: str = "cuda" if torch.cuda.is_available() else "cpu",
+    beam_dim: int = 0,
 ) -> UNet:
     """
     Lightweight U-Net preset for single-channel 64x64 patch denoising.
@@ -385,6 +411,7 @@ def DenoisingUNet(
         time_emb_dim=128,
         num_res_blocks=2,
         groups=8,
+        beam_dim=beam_dim,
     )
     return model.to(device)
 
