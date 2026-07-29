@@ -1,7 +1,41 @@
 # Progress Log — Line-Emission Denoising
 
-Local-only tracking doc (gitignored). Newest first. Only entries whose work actually ran
-with real data claim results; implementation-only entries say so.
+Local-only tracking doc, tracked in git as of `b6cdd79`. Newest first. Only entries whose
+work actually ran with real data claim results; implementation-only entries say so.
+
+## 2026-07-26 — Beam A/B + 12-run sweep RAN on Kaggle (Version 15); DDPM notebook split off
+
+- **Beam A/B + sweep (05, from the 2026-07-24 implementation below) ran on Kaggle, pulled and
+  verified from real notebook output — supersedes the "not yet run" status of that entry:**
+  - Control (no beam): PSNR 33.70 | SSIM 0.9865 | MSE 0.000597 (early-stopped ep 48, best ep 43).
+  - Beam: **+1.242 dB PSNR, +0.00169 SSIM** over control → pixel-metric verdict "beam helps."
+  - Beam 5-cube moment-map holdout is mixed: M0 +59.8%±33.0% (V12: +69.8%±15.2% — mean
+    *dropped*, variance more than doubled; one cube fell to +3.0% M0), M1 +19.2%±8.4%
+    (slightly better), M2 +23.2%±20.2% (slightly better, more variance). Beam trades M0
+    reliability for a small pixel-metric gain — not an unambiguous win.
+  - 12-run random sweep: **best config base=48, mult 1×2×4×8, lr=0.00082, alpha=0.888,
+    use_beam=False → PSNR 37.11 | SSIM 0.9902 | MSE 0.000290** — beats V12 by +4.16 dB.
+    Alpha correlates strongest with PSNR (r=+0.62); **beam correlates negatively (r=-0.33)**,
+    contradicting the A/B's own verdict — all top-5 configs have `use_beam=False`.
+  - **Not done yet: the PSNR-37.11 config has never been through the all-5-holdout moment-map
+    eval** — only the beam model got that. Real but unverified on the metric that matters.
+- **DDPM split into its own standalone notebook** (`06-ddpm-line-emission.ipynb`, root,
+  self-contained git-clone bootstrap — not a separate git branch; that plan changed once a
+  standalone-notebook approach proved workable without depending on Kaggle's native
+  GitHub-linked-notebook sync). Never touches U-Net/V12 files.
+  - The 2026-07-20 retune (N_SAMPLES 150, 60 ep, ema 0.99, K_AVG=4 posterior-mean, DDIM 25
+    steps) **did run**, correcting this log's prior "retrain never ran" status: checkpoint
+    saved, best val loss 18.3447 @ epoch 43.
+  - Validation (300 ch): PSNR 18.75 | SSIM 0.4652 | MSE 0.0284. PSNR up vs the original broken
+    run (14.25 → 18.75) but **SSIM down** (0.55 → 0.4652) — "better than last time" only half
+    true. Still far below V12.
+  - All-5-holdout moment-map eval crashed before scoring any cube: missing
+    `torch.nn.functional` import (`F.interpolate` called, never imported). Fixed and pushed
+    (`aedf0f9`, moved to root in `09bfcb9`) — **not yet re-run to completion**, no DDPM
+    moment-map number exists.
+- **Correction, not a recurrence:** `context.md`/`progress.md` (this file) were never "lost" —
+  both have been tracked in git since `b6cdd79`. Today's context.md rewrite folded in the
+  above beam/sweep/DDPM results that a stale draft had omitted; this entry does the same here.
 
 ## 2026-07-24 — Beam conditioning + sweep harness implemented (NOT yet run)
 
@@ -60,10 +94,14 @@ with real data claim results; implementation-only entries say so.
 
 ## Open items
 
-1. Run beam A/B + sweep on Kaggle → paste numbers back.
-2. V12 not yet archived in `notebooks/kaggle_versions/` (V7/V9 are).
-3. n=1 vs n=5 continuum decision (V9 finding) — ask Jason.
-4. Self-gravitating cubes from Jason — not received.
-5. Bayesian sweep seeded from random runs — after random stats exist.
-6. DDPM retrain with all fixes — only if time/interest permits (parked).
-7. Midterm evaluation Aug 10–14 (week 7/22 now).
+1. Run the PSNR-37.11 sweep winner through the all-5-holdout moment-map eval — the real
+   open question now, ahead of everything below.
+2. Re-run `06-ddpm-line-emission.ipynb` Section 11 (import fix already committed) for the
+   first real DDPM-vs-V12 moment-map comparison.
+3. Resolve the beam M0-variance tradeoff — decide whether beam ships given the sweep's
+   negative correlation with PSNR.
+4. V12 not yet archived in `notebooks/kaggle_versions/` (V7/V9 are).
+5. n=1 vs n=5 continuum decision (V9 finding) — ask Jason.
+6. Self-gravitating cubes from Jason — not received.
+7. Bayesian sweep seeded from the 12 random runs now that alpha stands out (r=+0.62).
+8. Midterm evaluation Aug 10–14 (week 7-8/22 now).
