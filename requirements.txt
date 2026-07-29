@@ -3,7 +3,12 @@
 # Install with: pip install -r requirements.txt
 
 # Core Scientific Computing
-numpy>=1.24.0
+# numpy>=2.0 is REQUIRED, not merely preferred: bettermoments 1.10 calls
+# np.trapezoid (the numpy-2.0 rename of np.trapz), so the whole moment-map
+# evaluation path raises AttributeError on numpy 1.x. The previous >=1.24.0 bound
+# permitted that broken combination -- installing bettermoments can even pull numpy
+# back to 1.26. No code here uses any numpy-1.x-only alias, so the floor is safe.
+numpy>=2.0.0
 scipy>=1.10.0
 pandas>=2.0.0
 matplotlib>=3.7.0
@@ -17,7 +22,11 @@ pytorch-lightning>=2.0.0
 
 # Data Handling
 h5py>=3.8.0
-astropy>=5.3.0
+# astropy>=6.1 is the first release that accepts numpy 2.x; 6.0.x pins numpy<2 and
+# therefore cannot coexist with bettermoments (see the numpy note above). The old
+# >=5.3.0 bound allowed pip to resolve a mutually unsatisfiable environment.
+# Requires Python >=3.10, which Kaggle satisfies.
+astropy>=6.1.0
 Pillow>=9.0.0
 
 # Denoising / line-emission pipeline
