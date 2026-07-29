@@ -80,5 +80,9 @@ Thumbs.db
 .env
 .env.local
 
-# local CPU-only test virtualenv (run the suite before burning a Kaggle session)
+# local test virtualenv, if one is ever created inside the repo -- prefer keeping it
+# OUTSIDE (see DENOISING_DIFFUSION/readme.md): a venv is ~25k files and floods the
+# IDE's file tree even when git correctly ignores it.
 .venv-test/
+.venv/
+venv/
