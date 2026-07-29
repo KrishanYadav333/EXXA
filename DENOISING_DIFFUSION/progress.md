@@ -3,6 +3,79 @@
 Local-only tracking doc, tracked in git as of `b6cdd79`. Newest first. Only entries whose
 work actually ran with real data claim results; implementation-only entries say so.
 
+## 2026-07-30 — V16: sweep winner FAILED to reproduce; two artifact "known issues" corrected
+
+Kaggle Version 16 (`227d2fc`, on `line-emission`) retrained the sweep winner and ran the
+artifact diagnostics. Three findings, all from real notebook output.
+
+**1. The +4.16 dB headline was not real.**
+- Sweep run 7 recorded **37.109 dB**. Retrained under the same config/split/patience:
+  **30.278 dB**. Reproduction delta **−6.831 dB**, and **−2.672 dB vs V12** — i.e. worse
+  than the reference it was supposed to beat.
+- Mechanism: the sweep run reached epoch 38 (best 33); the retrain early-stopped at
+  **epoch 21** (best 16). Only the seed differed (sweep used 49, retrain 42). The val curve
+  plateaued sooner by luck, `patience=5` fired, and the model undertrained.
+- **Early stopping amplifies seed variance into ~7 dB swings** on this small, noisy
+  300-channel val set. That is the real finding, and it is a methodological one.
+- Moment maps agree the winner is not an improvement: M0 **+64.4%±14.6** (V12 +69.8±15.2,
+  −5.4 pts), M1 +13.8±6.9 (−3.7 pts), M2 +23.1±13.0 (+3.0 pts). 5/5 cubes positive.
+  Notebook verdict correctly refused promotion. **V12 remains the reference checkpoint.**
+
+**2. The sweep's stated conclusion is confounded** (`src/evaluation/sweep_analysis.py`,
+re-analysis of the committed CSV — no GPU). `epochs_run` correlates **+0.650** with PSNR,
+more than any hyperparameter, and is itself correlated **+0.535** with alpha. Partialling
+out training duration reorders everything:
+
+| predictor | raw r | partial r | shift |
+|---|---|---|---|
+| base_channels | +0.430 | **+0.821** | +0.391 (suppressed) |
+| epochs_run | +0.650 | +0.480 | −0.170 |
+| alpha | +0.622 | **+0.428** | −0.195 (inflated) |
+| use_beam | −0.327 | −0.390 | −0.063 |
+| log10 lr | −0.116 | +0.183 | +0.299 |
+
+Wider models early-stop sooner, masking their benefit. **Model width, not alpha, looks like
+the driver** — the opposite of what the sweep concluded and of what would have seeded the
+Bayesian follow-up. Caveat carried with every citation: n=12, partial correlations on 12
+points are noisy, not significance tests.
+
+**3. Two documented artifacts do not survive n=100** (artifact diagnostics over 100 val
+channels, on the *winner* checkpoint — not V12, so these do not retroactively disprove V12's
+figures):
+- **Peak overshoot**: documented as "~15% overshoot (1.151×)" from channel 100 alone. Actual
+  distribution **mean 0.929, median 0.907** — the model *undershoots* on average. Only 19% of
+  channels overshoot by >10% (p90 1.161, max 1.424).
+- **Negative floor leak**: documented as −0.0017. Actual **mean min +0.145, most negative
+  +0.086** — strictly positive, no negative leak. New hypothesis worth testing: a +0.145
+  positive pedestal summed over 201 channels would inflate M0, a plausible cause of the M0
+  regression above.
+- **Invented structure ("hallucination")**: **0% of 100 channels** contained a fake blob
+  (background >20% of clean peak, ≥20 px). Report as *not detected under this definition*,
+  not solved — may be config-specific or the threshold may be lenient.
+
+Same lesson as V7/V9 in a new guise: the artifact list was built from single-channel
+anecdotes and does not survive a distribution.
+
+**Infrastructure built this session** (branch `midterm-prep`, `line-emission` untouched):
+- `src/evaluation/classical.py` + `07-classical-baselines.ipynb` — tuned Gaussian/median/
+  Wiener on the 5-cube moment protocol. **No classical filter had ever been run on
+  line-emission data**, so "how much better than a Gaussian filter?" had no answer. CPU-only,
+  zero GPU quota. Deliberately generous to classical: native 600×600 (no 256 round-trip
+  penalty the U-Net pays) and per-filter tuning on validation.
+- `FITSChannelDataset(augment=True)` — D4 augmentation (8 lossless orientations, applied
+  identically to dirty and clean). Pipeline had none, on 14 cubes. Off by default.
+- `repeat_config` + `08-seeds-and-augmentation.ipynb` — 3 configs × 3 seeds with a verdict
+  that refuses gaps inside the combined spread. Built before V16 landed; V16 is exactly the
+  failure mode it exists to catch.
+- Test suite runnable locally on **Python 3.12.13** (matches Kaggle exactly): 11 script
+  modules + 60 pytest cases green. Previously the suite could not run at all on this machine,
+  which is why the DDPM missing-import bug cost a whole GPU session.
+- `requirements.txt` permitted an environment where moment-map evaluation **crashes**:
+  bettermoments 1.10 needs `np.trapezoid` (numpy ≥2.0) while astropy <6.1 pins numpy <2.
+  Empirically confirmed — astropy 6.0.1 + numpy 2 breaks FITS loading itself
+  (`numpy._core.umath has no attribute '_ljust'`). Pinned numpy≥2.0.0, astropy≥6.1.0.
+- Fixed a latent bug: `normalize_image(method="percentile")` returned 1.0000001 on float32.
+
 ## 2026-07-26 — Beam A/B + 12-run sweep RAN on Kaggle (Version 15); DDPM notebook split off
 
 - **Beam A/B + sweep (05, from the 2026-07-24 implementation below) ran on Kaggle, pulled and
