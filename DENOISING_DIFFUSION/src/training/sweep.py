@@ -290,3 +290,112 @@ def run_sweep(
         print(f"\nSweep done: {len(results)}/{n_runs} runs OK. "
               f"Best PSNR {best['psnr']:.3f} dB -> {out_csv}")
     return results
+
+
+# --------------------------------------------------------------------------- #
+# Multi-seed repeats                                                          #
+# --------------------------------------------------------------------------- #
+def repeat_config(
+    train_ds,
+    val_ds,
+    device,
+    *,
+    n_seeds: int = 3,
+    base_seed: int = 42,
+    out_csv: Optional[str] = None,
+    ckpt_dir: Optional[str] = None,
+    tag: str = "config",
+    verbose: bool = True,
+    **config,
+):
+    """
+    Train the SAME configuration under several seeds and report mean +/- std.
+
+    Why this exists
+    ---------------
+    V7 and V9 were the identical configuration trained twice, and the Moment-2
+    improvement moved from +18.4% to +2.5% on the same test cube -- pure run-to-run
+    variance. That finding is what forced multi-cube evaluation, but every headline
+    number since has still come from a SINGLE training run, so a claim like
+    "37.11 dB beats V12's 32.95 dB" has no error bar on either side and could be
+    seed noise. This runs a config `n_seeds` times so the comparison has one.
+
+    What is varied, and what is not
+    -------------------------------
+    Only `train_unet`'s seed changes -- weight init, data order, and any
+    augmentation stream. The cube split is seeded separately (`split_cubes`) and
+    is deliberately held FIXED: re-splitting per seed would mix split variance
+    into the estimate and stop the runs being comparable to V12, which used one
+    fixed split. So the spread reported here is training variance on a fixed split,
+    which is exactly the quantity the V7/V9 lesson is about.
+
+    Args:
+        n_seeds: number of repeats. 3 is the practical floor for a std to mean
+            anything; the std is reported with ddof=1 and is itself noisy at n=3.
+        base_seed: seeds used are base_seed, base_seed+1, ...
+        out_csv: append one row per seed (crash-safe, same pattern as `run_sweep`).
+        ckpt_dir: if given, each seed's best checkpoint is saved as
+            `{ckpt_dir}/{tag}_seed{N}.pth`, so the moment-map protocol can be run
+            per seed instead of only on the last model.
+        tag: label used in the CSV and checkpoint filenames.
+        **config: forwarded to `train_unet` (base_channels, lr, alpha, use_beam, ...).
+
+    Returns:
+        {"tag", "n_seeds", "rows": [per-seed dicts], "psnr": {"mean","std","values"},
+         "ssim": {...}, "mse": {...}, "best_val_loss": {...}}
+
+    Note that the model objects are dropped from the returned rows -- keeping
+    `n_seeds` models alive is what makes a repeat loop run the GPU out of memory.
+    """
+    fields = ["tag", "seed", "best_epoch", "epochs_run", "best_val_loss",
+              "psnr", "ssim", "mse", "wall_time_s"]
+    if out_csv:
+        os.makedirs(os.path.dirname(out_csv) or ".", exist_ok=True)
+    if ckpt_dir:
+        os.makedirs(ckpt_dir, exist_ok=True)
+
+    rows = []
+    if verbose:
+        print(f"=== repeating '{tag}' over {n_seeds} seeds "
+              f"(split held fixed; only training seed varies) ===", flush=True)
+
+    for k in range(n_seeds):
+        seed = base_seed + k
+        ckpt = os.path.join(ckpt_dir, f"{tag}_seed{seed}.pth") if ckpt_dir else None
+        if verbose:
+            print(f"\n--- {tag}: seed {seed} ({k+1}/{n_seeds}) ---", flush=True)
+        res = train_unet(train_ds, val_ds, device, seed=seed, ckpt_path=ckpt,
+                         verbose=verbose, **config)
+        res.pop("model", None)          # free the GPU before the next seed
+        row = {"tag": tag, "seed": seed,
+               **{f: res[f] for f in fields if f in res}}
+        rows.append(row)
+        if out_csv:
+            new_file = not os.path.exists(out_csv)
+            with open(out_csv, "a", newline="") as f:
+                w = csv.DictWriter(f, fieldnames=fields)
+                if new_file:
+                    w.writeheader()
+                w.writerow({k2: row.get(k2) for k2 in fields})
+        if verbose:
+            print(f"  seed {seed}: PSNR {res['psnr']:.4f} | SSIM {res['ssim']:.4f} "
+                  f"| MSE {res['mse']:.6f}")
+        if str(device).startswith("cuda"):
+            torch.cuda.empty_cache()
+
+    out = {"tag": tag, "n_seeds": n_seeds, "rows": rows}
+    for metric in ("psnr", "ssim", "mse", "best_val_loss"):
+        vals = [r[metric] for r in rows if isinstance(r.get(metric), (int, float))]
+        out[metric] = {
+            "mean": float(np.mean(vals)) if vals else float("nan"),
+            "std": float(np.std(vals, ddof=1)) if len(vals) > 1 else 0.0,
+            "values": vals,
+        }
+
+    if verbose:
+        print(f"\n=== '{tag}' over {len(rows)} seeds ===")
+        for metric in ("psnr", "ssim", "mse"):
+            m = out[metric]
+            print(f"  {metric.upper():<5} {m['mean']:.4f} +/- {m['std']:.4f}  "
+                  f"(values: {', '.join(f'{v:.4f}' for v in m['values'])})")
+    return out
