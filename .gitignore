@@ -33,6 +33,7 @@ DENOISING_DIFFUSION/data/Line Emission Data/
 DENOISING_DIFFUSION/docs/
 DENOISING_DIFFUSION/commands.txt
 DENOISING_DIFFUSION/AGENT_RULES.md
+DENOISING_DIFFUSION/EXXA Proposal GSoC 2026 by Krishan.pdf
 # also catch old root-level copies and any stray duplicates
 **/AGENT_RULES.md
 **/commands.txt
@@ -59,6 +60,9 @@ DENOISING_DIFFUSION/AGENT_RULES.md
 logs/
 wandb/
 tensorboard/
+
+# Accidental directory dumps (a 13 MB Windows `tree` output was committed once)
+structure.txt
 
 # OS files
 .DS_Store
