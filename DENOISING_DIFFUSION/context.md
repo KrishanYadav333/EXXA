@@ -143,15 +143,32 @@ normalization, seed=42, n_holdout=3 RunIDs (=5 cubes), 7 train / 2 val cubes.
 **Summary: M0 +69.8%±15.2%, M1 +17.5%±7.8%, M2 +20.1%±14.3%.** All 5 cubes positive on all 3
 moments — strongest, most honestly-evaluated result to date.
 
-### Known Open Issues (as of V12)
-1. **~15% peak overshoot:** denoised max (0.0191) vs clean max (0.0165) = ratio 1.151.
-   Consistent across V7/V9/V12.
-2. **Small negative floor leak:** denoised min -0.0017 vs clean's true min ~0 (3.2e-6).
-3. **M2 highest cube-to-cube variance** (std 14.3% on mean 20.1%) — likely a small-dataset
-   effect (14 cubes total, no more available from mentor).
-4. **Hallucination on low-SNR channels:** at least one faint validation channel got a second,
-   invented source on a raised background. Flagged to mentor, unresolved. Suspected cause:
-   MSE+SSIM loss doesn't penalize inventing structure.
+### Known Open Issues — REVISED 2026-07-30 after measuring distributions (V16)
+
+Items 1, 2 and 4 below were each recorded from a **single channel (ch 100)**. V16 ran the
+diagnostics over **100 validation channels** and two of them do not survive. Measured on the
+*sweep-winner* checkpoint, not V12, so V12's own published figures are not retroactively
+disproved — but the anecdotal framing is not trustworthy for either model.
+
+1. **Peak overshoot — CORRECTED.** Documented as "~15% overshoot (1.151×)". Measured
+   distribution: **mean 0.929, median 0.907** — the model *undershoots* on average. 19% of
+   channels overshoot by >10%; p90 1.161, max 1.424. So overshoot is a tail behaviour, not
+   the central tendency.
+2. **Negative floor leak — NOT PRESENT.** Documented as −0.0017. Measured: **mean min +0.145,
+   most negative +0.086** — strictly positive. Open hypothesis in the other direction: a
+   +0.145 pedestal summed over 201 channels would *inflate* M0, a plausible contributor to
+   the winner's M0 regression (+64.4% vs V12's +69.8%).
+3. **M2 highest cube-to-cube variance** (std 14.3% on mean 20.1%) — still open; likely a
+   small-dataset effect (14 cubes, no more available).
+4. **Hallucination — NOT DETECTED at n=100.** Zero of 100 channels contained an invented
+   blob (background pixels >20% of clean peak, connected region ≥20 px). Treat as *not
+   reproduced under this definition*, NOT as solved: it may be config-specific, or the
+   threshold may be too lenient to catch what was seen by eye.
+5. **Early stopping is a major variance source — NEW, and the most consequential.**
+   `patience=5` on the noisy 300-channel validation set turns seed differences into large
+   performance swings: the sweep winner scored 37.11 dB at epoch 38 in the sweep and
+   30.28 dB stopping at epoch 21 on retrain. `epochs_run` correlates +0.650 with PSNR, more
+   than any hyperparameter. Any config comparison that does not control for it is unreliable.
 
 ### Phase E — Beam-Metadata Conditioning + Hyperparameter Sweep (Week 7, RUN, verified 2026-07-26)
 Per the 2026-07-20 mentor meeting: brief beam-metadata investigation first (drop if no help),
@@ -180,10 +197,17 @@ use_beam {T,F}):**
 - Alpha correlates strongest with PSNR (r=+0.62, higher alpha/more-MSE-weight -> better).
 - **Beam correlates NEGATIVELY with PSNR across the sweep (r=-0.33)** — contradicts the A/B's
   own "beam helps" verdict. All top-5 sweep configs have `use_beam=False`.
-- **Not yet done: the winning sweep config (PSNR 37.11) has never been run through the
-  all-5-holdout moment-map eval** — only the beam model got that. The 37.11 number is real but
-  unverified on the metric that actually matters for the scientific deliverable.
-- Next per Jason: seed a Bayesian sweep with these 12 runs now that alpha stands out.
+- **RESOLVED 2026-07-30 by V16, negatively: the 37.11 dB did not reproduce.** Retrained under
+  the same config and split it scored **30.28 dB** (−6.83 dB reproduction gap, −2.67 dB vs
+  V12) because early stopping fired at epoch 21 instead of 38 under a different seed. Moment
+  maps confirm it is not an improvement: M0 +64.4%±14.6 vs V12's +69.8%±15.2. **V12 stays the
+  reference.** See progress.md 2026-07-30.
+- **The "alpha matters most" reading is confounded.** `epochs_run` correlates +0.650 with PSNR
+  and +0.535 with alpha. Controlling for it, `base_channels` rises +0.430 → **+0.821** while
+  alpha falls +0.622 → +0.428. A Bayesian sweep seeded on alpha would chase the wrong
+  parameter; **width is the better target**. Reproduce with
+  `python src/evaluation/sweep_analysis.py --csv results/sweep_results.csv`. Caveat: n=12,
+  noisy, not a significance test.
 
 ### Diffusion Model — Standalone Notebook, Partially Run (Recent, still not comparable to V12)
 `06-ddpm-line-emission.ipynb` (root, standalone, self-contained git-clone bootstrap — no
