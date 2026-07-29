@@ -111,6 +111,43 @@ try:
         (again["psnr"]["values"], psnrs[:2])
     print("[8] reproducible: same base_seed reproduces the same per-seed metrics")
 
+    # [9] schedule kwargs (min_epochs / max_epochs / patience) forward to train_unet.
+    # Notebook 08 puts the schedule INSIDE each config dict so its `winner_p10` arm can
+    # differ from `winner` on patience alone. If **config silently dropped or overrode
+    # patience, that arm would be a duplicate of `winner` and the early-stopping question
+    # would go unanswered while still costing an hour of GPU. Asserted on the forwarded
+    # kwargs rather than on epochs_run, because a run that never plateaus stops at
+    # max_epochs under any patience and would make the check vacuously pass.
+    from src.training import sweep as _sweep
+
+    seen = []
+    _real = _sweep.train_unet
+
+    def _spy(train_ds, val_ds, dev, **kw):
+        seen.append(kw)
+        return {"model": None, "best_val_loss": 0.1, "best_epoch": 3, "epochs_run": 5,
+                "train_losses": [1.0, 0.5], "val_losses": [1.0, 0.5],
+                "wall_time_s": 1.0, "psnr": 30.0, "ssim": 0.9, "mse": 0.001}
+
+    _sweep.train_unet = _spy
+    try:
+        sched = dict(min_epochs=20, max_epochs=60, patience=5)
+        arm_a = dict(CFG, **sched)
+        arm_b = dict(arm_a, patience=10)
+        _sweep.repeat_config(ds, ds, device, n_seeds=1, base_seed=1, tag="a",
+                             verbose=False, **arm_a)
+        _sweep.repeat_config(ds, ds, device, n_seeds=1, base_seed=1, tag="b",
+                             verbose=False, **arm_b)
+    finally:
+        _sweep.train_unet = _real
+
+    assert seen[0]["patience"] == 5 and seen[1]["patience"] == 10, seen
+    assert seen[0]["max_epochs"] == 60 and seen[0]["min_epochs"] == 20, seen[0]
+    differing = {k for k in set(seen[0]) | set(seen[1])
+                 if seen[0].get(k) != seen[1].get(k)}
+    assert differing == {"patience"}, f"arms differ on more than patience: {differing}"
+    print("[9] schedule kwargs forward; a patience-only arm differs on exactly one axis")
+
     print("\n" + "=" * 64)
     print("All multi-seed repeat tests PASSED")
     print("=" * 64)
