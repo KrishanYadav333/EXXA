@@ -55,7 +55,10 @@ def normalize_image(
             return np.zeros_like(image)
             
         image_clipped = np.clip(image, vmin, vmax)
-        return (image_clipped - vmin) / (vmax - vmin)
+        # The input is already clipped to [vmin, vmax], so the result is [0, 1] up to
+        # rounding -- but in float32 the division alone can land at 1.0000001. Clip the
+        # output too, so the documented [0, 1] range holds exactly.
+        return np.clip((image_clipped - vmin) / (vmax - vmin), 0.0, 1.0)
     
     elif method == "zscore":
         mean = image.mean()

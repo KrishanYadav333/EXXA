@@ -1,5 +1,10 @@
 """Noise scheduler for the forward and reverse diffusion process."""
 
+# `X | None` annotations below are evaluated at runtime on Python < 3.10 and raise
+# TypeError there. Deferring annotation evaluation keeps the module importable on
+# 3.9, so the test suite runs locally before a Kaggle session is spent.
+from __future__ import annotations
+
 import math
 import torch
 import torch.nn.functional as F

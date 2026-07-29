@@ -79,3 +79,6 @@ Thumbs.db
 # Environment variables
 .env
 .env.local
+
+# local CPU-only test virtualenv (run the suite before burning a Kaggle session)
+.venv-test/

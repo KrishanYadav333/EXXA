@@ -5,6 +5,11 @@ Handles loading and batching of paired noisy/clean observations
 from FITS files or numpy arrays.
 """
 
+# `X | Y` annotations below are evaluated at runtime on Python < 3.10 and raise
+# TypeError there. Deferring annotation evaluation keeps the module importable on
+# 3.9, so the test suite runs locally before a Kaggle session is spent.
+from __future__ import annotations
+
 import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
