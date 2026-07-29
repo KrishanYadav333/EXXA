@@ -87,6 +87,9 @@ class FITSChannelDataset(Dataset):
         target_size: output H=W after bilinear downsample (default 256).
         seed: base seed; each cube gets a deterministic per-cube seed so the channel set is
             fixed across epochs (reproducible) but differs between cubes.
+        augment: apply random dihedral (D4) augmentation to each (dirty, clean) pair.
+            TRAIN SPLITS ONLY -- enabling it on val/holdout makes evaluation
+            non-deterministic. Off by default; see `_augment_pair`.
         cache_channel_stats: unused placeholder for future per-channel stat caching.
     """
 
@@ -100,10 +103,16 @@ class FITSChannelDataset(Dataset):
         subtract_continuum: bool = False,
         continuum_n: int = 5,
         return_beam: bool = False,
+        augment: bool = False,
         verbose: bool = True,
     ):
         self.target_size = target_size
         self.seed = seed
+        # Dihedral (D4) augmentation -- 8 lossless orientations, applied identically
+        # to dirty and clean. OFF by default so every existing checkpoint and result
+        # (V12 included) stays reproducible; TRAIN splits only, never val/holdout,
+        # or the evaluation stops being deterministic. See `_augment_pair`.
+        self.augment = augment
         # Beam conditioning (mentor, 2026-07-20): expose the observation's beam
         # (noise scale/orientation) as a 4-vector model input. OFF by default so
         # existing notebooks keep their (dirty, clean) item shape.
@@ -166,8 +175,9 @@ class FITSChannelDataset(Dataset):
         if verbose:
             cont = (f" | continuum-subtracted (mean of first/last {continuum_n} channels)"
                     if self.subtract_continuum else "")
+            aug = " | D4 augmentation ON" if self.augment else ""
             print(f"[FITSChannelDataset] {len(self.cube_paths)} cubes x "
-                  f"~{n_samples} channels = {len(self.index)} items | target {target_size}x{target_size}{cont}")
+                  f"~{n_samples} channels = {len(self.index)} items | target {target_size}x{target_size}{cont}{aug}")
 
     @staticmethod
     def _cube_n_channels(path: str) -> int:
@@ -245,9 +255,45 @@ class FITSChannelDataset(Dataset):
 
         dirty_t = self._resize(dirty).float()          # (1, target, target)
         clean_t = self._resize(clean).float()
+
+        # dihedral augmentation, TRAIN ONLY (see _augment_pair)
+        if self.augment:
+            dirty_t, clean_t = self._augment_pair(dirty_t, clean_t)
+
         if self.return_beam:
             return dirty_t, clean_t, self.beam_vectors[cube_idx]
         return dirty_t, clean_t
+
+    @staticmethod
+    def _augment_pair(dirty_t: torch.Tensor, clean_t: torch.Tensor):
+        """
+        Apply one random element of the dihedral group D4 to BOTH channels alike.
+
+        The group is the 4 multiples of 90 degrees times an optional horizontal
+        flip -- 8 orientations, each an exact array permutation. Arbitrary-angle
+        rotation would need interpolation, which smooths the very pixel noise the
+        model is being trained to remove, so only the lossless subgroup is used.
+
+        The identical transform is applied to dirty and clean, which is what keeps
+        the pair a valid training example. Sampling uses torch's global RNG, so
+        `DataLoader` worker seeding gives every worker a distinct but reproducible
+        stream, and the orientation varies across epochs (the point of augmenting,
+        as opposed to just enlarging a fixed dataset).
+
+        Why this is safe here: a channel map's noise is beam-shaped and therefore
+        oriented, but rotating dirty and clean together only ever shows the network
+        the same denoising problem at a new orientation. With 14 cubes total the
+        regularisation is worth far more than the orientation prior being diluted,
+        and the sweep found beam orientation carries little signal anyway.
+        """
+        k = int(torch.randint(0, 4, (1,)).item())
+        if k:
+            dirty_t = torch.rot90(dirty_t, k, dims=(-2, -1))
+            clean_t = torch.rot90(clean_t, k, dims=(-2, -1))
+        if bool(torch.randint(0, 2, (1,)).item()):
+            dirty_t = torch.flip(dirty_t, dims=(-1,))
+            clean_t = torch.flip(clean_t, dims=(-1,))
+        return dirty_t.contiguous(), clean_t.contiguous()
 
 
 if __name__ == "__main__":
