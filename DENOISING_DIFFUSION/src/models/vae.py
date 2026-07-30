@@ -68,39 +68,61 @@ class DenoisingVAE(nn.Module):
                           Default: 128  -> latent tensor is (B, 128, 8, 8).
     """
 
-    def __init__(self, latent_dim: int = 128):
+    def __init__(self, latent_dim: int = 128, base_channels: int = 32,
+                 linear_head: bool = False):
+        """
+        Args:
+            latent_dim: channels in the latent mu/log_var maps.
+            base_channels: width of the first encoder stage; the ladder is
+                (c, 2c, 4c) with an 8c pre-latent trunk, so the default 32
+                reproduces the original fixed 32/64/128/256 architecture.
+            linear_head: drop the output sigmoid.
+
+        `linear_head` is required for line-emission data and defaults to False
+        only so continuum-era results stay reproducible. Under the shared
+        dirty-scale normalisation the clean target can exceed 1, which a sigmoid
+        cannot represent -- the same defect that made the U-Net's Moment-0
+        catastrophic before 5ed8fc6. Comparing a sigmoid VAE against a
+        linear-head U-Net would penalise the VAE for the normalisation scheme
+        rather than for its architecture.
+
+        The latent map is spatial, so the network is resolution-agnostic: the
+        "8x8" in the class docstring is the 64x64 case, and a 256x256 input
+        simply gives a 32x32 latent.
+        """
         super().__init__()
         self.latent_dim = latent_dim
+        c = base_channels
 
         # ------------------------------------------------------------------ #
         # Encoder
         # ------------------------------------------------------------------ #
-        self.enc1 = ConvBlock(1, 32)
-        self.enc2 = ConvBlock(32, 64)
-        self.enc3 = ConvBlock(64, 128)
+        self.enc1 = ConvBlock(1, c)
+        self.enc2 = ConvBlock(c, 2 * c)
+        self.enc3 = ConvBlock(2 * c, 4 * c)
         self.pool = nn.MaxPool2d(2)
 
         # Pre-latent feature extraction (shared trunk before mu/log_var split)
-        self.pre_latent = ConvBlock(128, 256)
+        self.pre_latent = ConvBlock(4 * c, 8 * c)
 
         # Latent distribution parameters — 1x1 convs preserve spatial dims
-        self.conv_mu      = nn.Conv2d(256, latent_dim, 1)
-        self.conv_log_var = nn.Conv2d(256, latent_dim, 1)
+        self.conv_mu      = nn.Conv2d(8 * c, latent_dim, 1)
+        self.conv_log_var = nn.Conv2d(8 * c, latent_dim, 1)
 
         # ------------------------------------------------------------------ #
         # Decoder
         # ------------------------------------------------------------------ #
-        self.up3  = nn.ConvTranspose2d(latent_dim, 128, 2, stride=2)
-        self.dec3 = ConvBlock(128, 128)
+        self.up3  = nn.ConvTranspose2d(latent_dim, 4 * c, 2, stride=2)
+        self.dec3 = ConvBlock(4 * c, 4 * c)
 
-        self.up2  = nn.ConvTranspose2d(128, 64, 2, stride=2)
-        self.dec2 = ConvBlock(64, 64)
+        self.up2  = nn.ConvTranspose2d(4 * c, 2 * c, 2, stride=2)
+        self.dec2 = ConvBlock(2 * c, 2 * c)
 
-        self.up1  = nn.ConvTranspose2d(64, 32, 2, stride=2)
-        self.dec1 = ConvBlock(32, 32)
+        self.up1  = nn.ConvTranspose2d(2 * c, c, 2, stride=2)
+        self.dec1 = ConvBlock(c, c)
 
-        self.out_conv = nn.Conv2d(32, 1, 1)
-        self.sigmoid  = nn.Sigmoid()
+        self.out_conv = nn.Conv2d(c, 1, 1)
+        self.sigmoid  = nn.Identity() if linear_head else nn.Sigmoid()
 
     # ---------------------------------------------------------------------- #
     # Reparameterization
