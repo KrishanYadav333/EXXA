@@ -43,16 +43,23 @@ def _split_batch(batch, device, use_beam):
 
 
 @torch.no_grad()
-def val_metrics(model, val_loader, device, use_beam=False):
-    """Fixed sweep metric: PSNR / SSIM / MSE on val, prediction clamped to [0,1]."""
-    from pytorch_msssim import ssim as ssim_fn
+def val_metrics(model, val_loader, device, use_beam=False, arch: str = "unet"):
+    """
+    Fixed sweep metric: PSNR / SSIM / MSE on val, prediction clamped to [0,1].
 
+    `arch` selects the forward adapter, so the *same* metric function scores every
+    architecture. That matters: a comparison is only fair if the models differ and
+    the measurement does not.
+    """
+    from pytorch_msssim import ssim as ssim_fn
+    from src.training.architectures import forward_fn
+
+    fwd = forward_fn(arch)
     model.eval()
     psnrs, ssims, mses = [], [], []
     for batch in val_loader:
         d, c, beam = _split_batch(batch, device, use_beam)
-        t = torch.zeros(d.size(0), dtype=torch.long, device=device)
-        pred = model(d, t, beam) if beam is not None else model(d, t)
+        pred, _ = fwd(model, d, beam)
         pred = pred.clamp(0, 1)
         mse = torch.mean((pred - c) ** 2, dim=(1, 2, 3))
         psnrs += (10 * torch.log10(1.0 / torch.clamp(mse, min=1e-10))).cpu().tolist()
@@ -80,25 +87,45 @@ def train_unet(
     num_workers: int = 0,
     seed: int = 42,
     ckpt_path: Optional[str] = None,
+    arch: str = "unet",
+    latent_dim: int = 128,
+    kl_weight: float = 0.0,
     verbose: bool = True,
 ):
     """
-    Train one U-Net config with early stopping; return fixed metrics + history.
+    Train one config with early stopping; return fixed metrics + history.
 
     Early stopping (mentor, 2026-07-20): train at least `min_epochs`, at most
     `max_epochs`, stop after `patience` epochs without val-loss improvement.
     Best-epoch weights are restored (and saved to `ckpt_path` if given) before
     the final fixed-metric evaluation.
+
+    Args:
+        arch: "unet" | "autoencoder" | "vae". Selects the model builder and
+            forward adapter; everything else about the protocol is identical
+            across architectures, which is what makes the scores comparable.
+            Only the U-Net has ever been swept on this data, so the previously
+            published AE/VAE numbers (Week-2, 64x64 continuum patches) are not a
+            fair basis for an architecture claim.
+        latent_dim: VAE only -- channels in the latent map.
+        kl_weight: VAE only -- weight on the KL term. Ignored by architectures
+            with no extra loss, so a single sweep driver can pass it blindly.
+
+    Note the name kept for backwards compatibility: `train_unet` now trains any
+    supported architecture. Renaming it would break the notebooks and the
+    committed sweep CSVs that reference it.
     """
     torch.manual_seed(seed)
     np.random.seed(seed)
 
+    from src.training.architectures import build_model, extra_loss_fn, forward_fn
+
     n_gpu = torch.cuda.device_count() if str(device).startswith("cuda") else 0
-    beam_dim = 4 if use_beam else 0
-    net = UNet(in_channels=1, out_channels=1, base_channels=base_channels,
-               channel_multipliers=list(channel_multipliers), time_emb_dim=128,
-               num_res_blocks=2, groups=math.gcd(8, base_channels),
-               beam_dim=beam_dim).to(device)
+    net = build_model(arch, base_channels=base_channels,
+                      channel_multipliers=channel_multipliers,
+                      use_beam=use_beam, latent_dim=latent_dim).to(device)
+    fwd = forward_fn(arch)
+    extra = extra_loss_fn(arch)
     model = torch.nn.DataParallel(net) if n_gpu > 1 else net
 
     criterion = HybridLoss(alpha=alpha, beta=1.0 - alpha)
@@ -118,9 +145,12 @@ def train_unet(
         torch.set_grad_enabled(train)
         for batch in loader:
             d, c, beam = _split_batch(batch, device, use_beam)
-            t = torch.zeros(d.size(0), dtype=torch.long, device=device)
-            pred = model(d, t, beam) if beam is not None else model(d, t)
+            pred, aux = fwd(model, d, beam)
             total, _, _ = criterion(pred, c)
+            # architecture-specific term (the VAE's KL); weight 0 leaves the
+            # objective identical to the other architectures'
+            if extra is not None and kl_weight:
+                total = total + kl_weight * extra(aux)
             if train:
                 optimizer.zero_grad()
                 total.backward()
@@ -165,14 +195,22 @@ def train_unet(
         _unwrap(model).load_state_dict(best_state)
         if ckpt_path:
             os.makedirs(os.path.dirname(ckpt_path), exist_ok=True)
+            # `arch` is written so a checkpoint can be rebuilt without the caller
+            # having to remember which architecture produced it. The legacy
+            # "UNet" string is preserved for arch="unet" so existing checkpoints
+            # and the loaders in notebooks 05/08 keep working unchanged.
             torch.save({"epoch": best_epoch, "model_state_dict": best_state,
-                        "val_loss": best_val, "arch": "UNet",
+                        "val_loss": best_val,
+                        "arch": "UNet" if arch == "unet" else arch,
+                        "arch_key": arch,
                         "base_channels": base_channels,
                         "channel_multipliers": list(channel_multipliers),
-                        "alpha": alpha, "use_beam": use_beam, "beam_dim": beam_dim},
+                        "alpha": alpha, "use_beam": use_beam,
+                        "beam_dim": 4 if use_beam else 0,
+                        "latent_dim": latent_dim, "kl_weight": kl_weight},
                        ckpt_path)
 
-    metrics = val_metrics(model, val_loader, device, use_beam=use_beam)
+    metrics = val_metrics(model, val_loader, device, use_beam=use_beam, arch=arch)
     return {
         "model": _unwrap(model),
         "best_val_loss": best_val,
