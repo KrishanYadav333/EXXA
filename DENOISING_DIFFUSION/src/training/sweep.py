@@ -1,7 +1,7 @@
 """
 src/training/sweep.py
 =====================
-U-Net training with early stopping + random hyperparameter sweep
+Training with early stopping + random hyperparameter sweep, across architectures
 (mentor direction, 2026-07-20 meeting):
 
   * random search first -- explore the space, gather statistics (a Bayesian
@@ -226,7 +226,16 @@ def train_unet(
 # --------------------------------------------------------------------------- #
 # Random sweep                                                                #
 # --------------------------------------------------------------------------- #
-# Default search space. lr is log-uniform; alpha uniform; the rest choices.
+# Legacy default space, kept only so old callers importing SPACE still resolve.
+# `sample_config` now reads the per-architecture space from
+# src.training.architectures, which is where search spaces are defined.
+#
+# Note `use_beam` is NOT in the U-Net's current space. The 12-run sweep found it
+# correlated NEGATIVELY with PSNR (-0.327 raw, -0.390 after controlling for
+# training duration) and the beam A/B showed it degrading Moment-0 reliability
+# (+59.8+/-33.0 against V12's +69.8+/-15.2). Continuing to sample it would spend
+# budget re-answering a settled question; pass space={"use_beam": [False, True]}
+# to reinstate it.
 SPACE = {
     "base_channels": [16, 32, 48, 64],
     "channel_multipliers": [(1, 2, 4), (1, 2, 2, 4), (1, 2, 4, 8)],
@@ -237,18 +246,30 @@ SPACE = {
 }
 
 
-def sample_config(rng: random.Random, space=None) -> dict:
-    s = dict(SPACE, **(space or {}))
-    lo, hi = s["lr"]
-    a_lo, a_hi = s["alpha"]
-    return {
-        "base_channels": rng.choice(s["base_channels"]),
-        "channel_multipliers": rng.choice(s["channel_multipliers"]),
-        "lr": float(np.exp(rng.uniform(np.log(lo), np.log(hi)))),
-        "alpha": rng.uniform(a_lo, a_hi),
-        "sched_patience": rng.choice(s["sched_patience"]),
-        "use_beam": rng.choice(s["use_beam"]),
-    }
+def sample_config(rng: random.Random, space=None, arch: str = "unet") -> dict:
+    """
+    Draw one configuration from `arch`'s search space.
+
+    Ranges given as a 2-tuple are sampled continuously -- log-uniform for `lr` and
+    `kl_weight`, whose useful ranges span orders of magnitude, uniform otherwise.
+    Lists are sampled by choice. Keys absent from an architecture's space are
+    simply not drawn, so the autoencoder never samples `channel_multipliers` and
+    only the VAE samples `kl_weight`.
+    """
+    from src.training.architectures import search_space
+
+    s = dict(search_space(arch), **(space or {}))
+    LOG_UNIFORM = {"lr", "kl_weight"}
+    cfg = {}
+    for key, spec in s.items():
+        if isinstance(spec, tuple) and len(spec) == 2 and all(
+                isinstance(v, (int, float)) for v in spec):
+            lo, hi = spec
+            cfg[key] = (float(np.exp(rng.uniform(np.log(lo), np.log(hi))))
+                        if key in LOG_UNIFORM else rng.uniform(lo, hi))
+        else:
+            cfg[key] = rng.choice(list(spec))
+    return cfg
 
 
 def run_sweep(
@@ -265,18 +286,25 @@ def run_sweep(
     max_epochs: int = 60,
     patience: int = 5,
     num_workers: int = 0,
+    arch: str = "unet",
     verbose: bool = True,
 ):
     """
     Random hyperparameter sweep. Each run samples a config, trains with early
     stopping, and appends a CSV row immediately (crash-safe on Kaggle). Runs
     that OOM are retried at half batch (up to 2 halvings), else recorded failed.
+
+    `arch` selects both the model and its search space. Giving every architecture
+    the same `n_runs` under the same `seed`, split and scoring metric is what makes
+    a cross-architecture comparison mean anything: the alternative -- a swept U-Net
+    against hand-tuned rivals -- measures tuning effort, not architecture.
     """
     rng = random.Random(seed)
     os.makedirs(os.path.dirname(out_csv) or ".", exist_ok=True)
-    fields = ["run", "base_channels", "channel_multipliers", "lr", "alpha",
-              "sched_patience", "use_beam", "batch_size", "best_epoch",
-              "epochs_run", "best_val_loss", "psnr", "ssim", "mse", "wall_time_s"]
+    fields = ["arch", "run", "base_channels", "channel_multipliers", "lr", "alpha",
+              "sched_patience", "use_beam", "latent_dim", "kl_weight", "batch_size",
+              "best_epoch", "epochs_run", "best_val_loss", "psnr", "ssim", "mse",
+              "wall_time_s"]
     new_file = not os.path.exists(out_csv)
     results = []
 
@@ -286,24 +314,20 @@ def run_sweep(
             writer.writeheader()
 
         for i in range(n_runs):
-            cfg = sample_config(rng, space)
+            cfg = sample_config(rng, space, arch=arch)
             if verbose:
-                print(f"\n=== sweep run {i+1}/{n_runs}: {cfg} ===", flush=True)
+                print(f"\n=== [{arch}] sweep run {i+1}/{n_runs}: {cfg} ===", flush=True)
             bs = batch_size
-            row = {"run": i, **cfg,
-                   "channel_multipliers": "x".join(map(str, cfg["channel_multipliers"]))}
+            row = {"arch": arch, "run": i, **cfg}
+            if "channel_multipliers" in cfg:
+                row["channel_multipliers"] = "x".join(map(str, cfg["channel_multipliers"]))
             for attempt in range(3):
                 try:
                     res = train_unet(
-                        train_ds, val_ds, device,
-                        base_channels=cfg["base_channels"],
-                        channel_multipliers=cfg["channel_multipliers"],
-                        lr=cfg["lr"], alpha=cfg["alpha"],
-                        sched_patience=cfg["sched_patience"],
-                        use_beam=cfg["use_beam"], batch_size=bs,
+                        train_ds, val_ds, device, arch=arch, batch_size=bs,
                         min_epochs=min_epochs, max_epochs=max_epochs,
                         patience=patience, num_workers=num_workers,
-                        seed=seed + i, verbose=verbose,
+                        seed=seed + i, verbose=verbose, **cfg,
                     )
                     row.update({k: res[k] for k in
                                 ("best_epoch", "epochs_run", "best_val_loss",
@@ -325,7 +349,7 @@ def run_sweep(
 
     if verbose and results:
         best = max((r for r in results if "psnr" in r), key=lambda r: r["psnr"])
-        print(f"\nSweep done: {len(results)}/{n_runs} runs OK. "
+        print(f"\n[{arch}] sweep done: {len(results)}/{n_runs} runs OK. "
               f"Best PSNR {best['psnr']:.3f} dB -> {out_csv}")
     return results
 
