@@ -88,6 +88,46 @@ print(f"[8] summarise OK: overshoot mean {s['overshoot_mean']:.3f}, "
       f"channels with a blob {s['frac_channels_with_blob']:.0%}, "
       f"SNR split at {s['snr_median']:.1f}")
 
+# [9] THE CASE THE ORIGINAL TESTS MISSED: an elevated background floor.
+#
+# Every case above puts the clean background at 0, which is true in physical units
+# but NOT after the shared dirty-scale normalisation the pipeline actually feeds in:
+# continuum subtraction makes DIRTY's minimum negative, so normalising CLEAN by
+# dirty's (min,max) maps clean's zero background to a strongly positive value. The
+# original background test `clean < 0.10 * peak` then selected ZERO pixels, which
+# silently made SNR NaN and `invented_*` zero by construction. The V16 run reported
+# "0 of 100 channels contain invented structure" purely because of this.
+OFFSET = 0.32                                     # ~ what a real normalised channel shows
+clean_off = clean + OFFSET
+dirty_off = dirty + OFFSET
+
+r = channel_artifacts(clean_off, dirty_off, clean_off.copy())
+assert r["n_background_px"] > 0, "background mask empty on an offset floor"
+assert np.isfinite(r["snr"]), "SNR is NaN on an offset floor"
+assert abs(r["overshoot"] - 1.0) < 1e-5, r["overshoot"]
+assert abs(r["floor_leak"]) < 1e-2, r["floor_leak"]
+print(f"[9] offset floor (+{OFFSET}): background {r['n_background_px']} px, "
+      f"SNR {r['snr']:.1f}, overshoot {r['overshoot']:.4f}")
+
+# and an invented source on that offset floor must still be caught
+r = channel_artifacts(clean_off, dirty_off, clean_off + blob(45, 45, 0.6))
+assert r["invented_blobs"] == 1, f"invented structure missed on an offset floor: {r}"
+print(f"[9] invented source still detected with an offset floor: "
+      f"{r['invented_blobs']} blob")
+
+# [10] the metrics must be invariant to an affine rescale of the whole channel
+base = channel_artifacts(clean, dirty, clean * 1.15)
+scaled = channel_artifacts(clean * 3.0 + 5.0, dirty * 3.0 + 5.0, (clean * 1.15) * 3.0 + 5.0)
+assert abs(base["overshoot"] - scaled["overshoot"]) < 1e-4, (base["overshoot"], scaled["overshoot"])
+print(f"[10] affine-invariant: overshoot {base['overshoot']:.4f} vs "
+      f"{scaled['overshoot']:.4f} after scale x3 + offset 5")
+
+# summarise must expose whether the masks were usable at all
+s = summarise([base, scaled])
+assert s["frac_channels_with_background"] == 1.0 and s["snr_finite_frac"] == 1.0, s
+print(f"[10] summarise reports mask health: background in "
+      f"{s['frac_channels_with_background']:.0%}, SNR finite in {s['snr_finite_frac']:.0%}")
+
 # empty input must not explode
 assert summarise([]) == {}
 
