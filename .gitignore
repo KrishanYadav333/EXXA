@@ -52,6 +52,11 @@ DENOISING_DIFFUSION/EXXA Proposal GSoC 2026 by Krishan.pdf
 results/checkpoints/*.zip
 **/results/checkpoints/*.zip
 *.crdownload
+# A torch checkpoint IS a zip container, so double-clicking one gets it unpacked by
+# macOS Archive Utility into a directory of raw tensor shards (data/0, data/1, ...).
+# One 110 MB checkpoint becomes ~240 untracked files; nine of them, 2175 files and
+# 710 MB. Re-zip the directory to recover a loadable .pth -- see progress.md.
+**/results/checkpoints/*/
 *.pth
 *.pt
 *.pth.tar
