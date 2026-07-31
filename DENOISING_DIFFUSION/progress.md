@@ -89,7 +89,32 @@ the driver** — the opposite of what the sweep concluded and of what would have
 Bayesian follow-up. Caveat carried with every citation: n=12, partial correlations on 12
 points are noisy, not significance tests.
 
-**3. Two documented artifacts do not survive n=100** (artifact diagnostics over 100 val
+**3. CORRECTION 2026-07-31 — the artifact diagnostics were measuring nothing.** The SNR
+column came back `NaN` for every channel, and the cause invalidates the whole panel:
+`channel_artifacts` defined background as `clean < 10% of peak`, which assumes the clean
+background sits near zero. Under shared dirty-scale normalisation it does not — continuum
+subtraction makes DIRTY's minimum negative, so clean's zero background maps to
+`-lo/(hi-lo)`, about **+0.32** on a representative channel. The mask therefore selected
+**zero pixels**, which means:
+- **"0 of 100 channels contain invented structure" is vacuous**, not evidence — `invented`
+  is `background & (...)`, and an empty background is empty by construction.
+- **"floor leak +0.145, no negative leak" restates the offset**, since clean's floor is not
+  ~0 in this normalisation.
+- **the low-SNR split never ran**, so "is hallucination low-SNR specific?" — the question
+  flagged to Jason — remains completely open.
+- **overshoot 0.929 is offset-compressed**: a shared positive offset drags `max/max` toward
+  1, so the "model undershoots" reading understates the true deviation.
+
+Fixed: all four quantities are now measured relative to each channel's own floor and span,
+making them invariant to any affine rescaling, and `summarise` reports mask health so an
+empty background can never again pass as a clean result. Verified that an invented source the
+old code scored as zero blobs is now detected. **Nothing about hallucination is currently
+established; the panel must be re-run.**
+
+The original point does still stand — a single channel cannot characterise an artifact — but
+the replacement numbers below were not evidence either, and are struck.
+
+~~**3. Two documented artifacts do not survive n=100**~~ (superseded by the correction above) (artifact diagnostics over 100 val
 channels, on the *winner* checkpoint — not V12, so these do not retroactively disprove V12's
 figures):
 - **Peak overshoot**: documented as "~15% overshoot (1.151×)" from channel 100 alone. Actual

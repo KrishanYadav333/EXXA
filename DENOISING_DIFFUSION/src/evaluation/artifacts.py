@@ -48,28 +48,53 @@ def channel_artifacts(
     normalisation, so clean may exceed 1).
 
     Returns a dict with:
-        snr:            clean peak / std of dirty over clean's background pixels.
-                        NaN when the background is empty or noiseless.
-        overshoot:      denoised.max() / clean.max(); 1.0 is perfect.
-        floor_leak:     denoised.min(); clean's floor is ~0, so negative is leak.
+        snr:            clean's peak-above-floor / std of dirty over clean's
+                        background pixels. NaN only when the background is genuinely
+                        empty or noiseless.
+        overshoot:      (denoised.max() - floor) / (clean.max() - floor); 1.0 is
+                        perfect, >1 overshoots the true peak.
+        floor_leak:     denoised.min() - clean's floor; negative means the
+                        prediction dips below the true background.
         invented_frac:  fraction of background pixels pushed above the assert
                         threshold.
         invented_blobs: count of connected invented regions of >= blob_min_px,
                         i.e. how many distinct fake structures.
+        n_background_px: size of the background mask. Report it: an empty or tiny
+                        mask makes `invented_*` vacuously zero, which is how the
+                        first run's "no invented structure" result arose.
 
-    Raises ValueError if clean has no positive peak (nothing to normalise against).
+    Raises ValueError if clean has no finite peak or no positive dynamic range.
     """
     cmax = float(clean.max())
-    if not np.isfinite(cmax) or cmax <= 0:
-        raise ValueError("clean channel has no positive peak; cannot score artifacts")
+    if not np.isfinite(cmax):
+        raise ValueError("clean channel has no finite peak; cannot score artifacts")
 
-    background = clean < floor_frac * cmax
+    # Everything below is measured relative to the channel's OWN floor and span,
+    # never as an absolute fraction of the peak.
+    #
+    # The original version used `clean < floor_frac * cmax` and reported
+    # `denoised.min()` directly, both of which assume the clean background sits at
+    # ~0. Under the shared dirty-scale normalisation it does not: continuum
+    # subtraction gives DIRTY a negative minimum, and normalising CLEAN by dirty's
+    # (min,max) maps clean's zero background to -lo/(hi-lo), a strongly positive
+    # number -- 0.32 on a representative channel. The background mask then selected
+    # ZERO pixels, which silently made SNR NaN, `invented_frac` 0 by construction
+    # rather than by evidence, and turned `floor_leak` into a restatement of where
+    # the background happens to land. Measuring against the floor makes all four
+    # quantities invariant to any affine rescaling of the channel.
+    floor = float(np.percentile(clean, 1))       # robust floor, not a lone hot/cold pixel
+    span = cmax - floor
+    if not np.isfinite(span) or span <= 0:
+        raise ValueError("clean channel has no positive dynamic range; cannot score artifacts")
+
+    background = clean < floor + floor_frac * span
     # Noise proxy from DIRTY over clean-background pixels: measures what the model
     # had to see through, not what it produced.
     noise = float(dirty[background].std()) if background.any() else float("nan")
-    snr = cmax / noise if np.isfinite(noise) and noise > 0 else float("nan")
+    # peak-above-floor over background noise -- a genuine amplitude SNR
+    snr = span / noise if np.isfinite(noise) and noise > 0 else float("nan")
 
-    invented = background & (denoised > invent_frac * cmax)
+    invented = background & (denoised > floor + invent_frac * span)
     labels, n_labels = ndimage.label(invented)
     if n_labels:
         sizes = ndimage.sum(invented, labels, range(1, n_labels + 1))
@@ -79,10 +104,13 @@ def channel_artifacts(
 
     return {
         "snr": snr,
-        "overshoot": float(denoised.max() / cmax),
-        "floor_leak": float(denoised.min()),
+        # both ratios are taken above the floor, so a shared positive offset cannot
+        # compress them toward 1 and disguise a real deviation
+        "overshoot": float((float(denoised.max()) - floor) / span),
+        "floor_leak": float(float(denoised.min()) - floor),
         "invented_frac": float(invented.sum() / max(int(background.sum()), 1)),
         "invented_blobs": n_blobs,
+        "n_background_px": int(background.sum()),
     }
 
 
@@ -102,8 +130,13 @@ def summarise(rows) -> Dict[str, float]:
     blob = np.array([r["invented_blobs"] for r in rows], dtype=float)
     snr = np.array([r["snr"] for r in rows], dtype=float)
 
+    nbg = np.array([r.get("n_background_px", np.nan) for r in rows], dtype=float)
     out = {
         "n_channels": len(rows),
+        # If this is not ~1.0 the invented-structure numbers are not trustworthy:
+        # an empty background mask makes them zero by construction.
+        "frac_channels_with_background": float(np.mean(nbg > 0)) if np.isfinite(nbg).any() else float("nan"),
+        "snr_finite_frac": float(np.mean(np.isfinite([r["snr"] for r in rows]))),
         "overshoot_mean": float(ov.mean()),
         "overshoot_median": float(np.median(ov)),
         "overshoot_p90": float(np.percentile(ov, 90)),
