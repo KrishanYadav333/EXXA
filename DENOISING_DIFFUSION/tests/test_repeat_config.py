@@ -148,6 +148,32 @@ try:
     assert differing == {"patience"}, f"arms differ on more than patience: {differing}"
     print("[9] schedule kwargs forward; a patience-only arm differs on exactly one axis")
 
+    # [10] resume: a session killed part-way must not retrain finished seeds.
+    # The 12-run repeat is several GPU-hours and Kaggle times sessions out, so this
+    # is the difference between losing one arm and losing the whole run.
+    rcsv = os.path.join(tmp, "resume.csv")
+    rck = os.path.join(tmp, "rck")
+    first = repeat_config(ds, ds, device, n_seeds=2, base_seed=42, out_csv=rcsv,
+                          ckpt_dir=rck, tag="armA", verbose=False, **CFG)
+    second = repeat_config(ds, ds, device, n_seeds=3, base_seed=42, out_csv=rcsv,
+                           ckpt_dir=rck, tag="armA", verbose=False, **CFG)
+    assert len(second["rows"]) == 3, second["rows"]
+    # the reused rows must carry the ORIGINAL metrics -- if they were silently
+    # retrained the numbers would drift and the "resume" would be a lie
+    for r0 in first["rows"]:
+        got = [r for r in second["rows"] if r["seed"] == r0["seed"]][0]
+        assert abs(got["psnr"] - r0["psnr"]) < 1e-9, (r0["psnr"], got["psnr"])
+    # a different tag must NOT be skipped just because seeds collide
+    other = repeat_config(ds, ds, device, n_seeds=1, base_seed=42, out_csv=rcsv,
+                          ckpt_dir=rck, tag="armB", verbose=False, **CFG)
+    assert len(other["rows"]) == 1 and other["rows"][0]["tag"] == "armB", other["rows"]
+    # resume=False forces a genuine re-run
+    forced = repeat_config(ds, ds, device, n_seeds=1, base_seed=42, out_csv=rcsv,
+                           ckpt_dir=rck, tag="armA", resume=False, verbose=False, **CFG)
+    assert len(forced["rows"]) == 1
+    print(f"[10] resume reused {len(first['rows'])} seeds with identical metrics; "
+          "tags isolated; resume=False still retrains")
+
     print("\n" + "=" * 64)
     print("All multi-seed repeat tests PASSED")
     print("=" * 64)

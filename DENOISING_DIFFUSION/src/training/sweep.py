@@ -357,6 +357,40 @@ def run_sweep(
 # --------------------------------------------------------------------------- #
 # Multi-seed repeats                                                          #
 # --------------------------------------------------------------------------- #
+def _completed_rows(out_csv: Optional[str], tag: str) -> dict:
+    """
+    Seeds already recorded for `tag` in `out_csv`, mapped to their metric rows.
+
+    A row counts as complete only if it carries a finite PSNR: `run_sweep` writes
+    a placeholder row on failure, and a half-written row from a session killed
+    mid-flush must be retrained rather than silently reused.
+    """
+    if not out_csv or not os.path.exists(out_csv):
+        return {}
+    out = {}
+    try:
+        with open(out_csv, newline="") as f:
+            for r in csv.DictReader(f):
+                if r.get("tag") != tag:
+                    continue
+                try:
+                    seed = int(r["seed"])
+                    row = {"tag": tag, "seed": seed}
+                    for k in ("best_epoch", "epochs_run", "best_val_loss",
+                              "psnr", "ssim", "mse", "wall_time_s"):
+                        v = r.get(k, "")
+                        row[k] = float(v) if v not in ("", None) else float("nan")
+                    if not np.isfinite(row["psnr"]):
+                        continue
+                except (TypeError, ValueError, KeyError):
+                    continue
+                out[seed] = row          # a later row for the same seed wins
+    except OSError:
+        return {}
+    return out
+
+
+
 def repeat_config(
     train_ds,
     val_ds,
@@ -367,6 +401,7 @@ def repeat_config(
     out_csv: Optional[str] = None,
     ckpt_dir: Optional[str] = None,
     tag: str = "config",
+    resume: bool = True,
     verbose: bool = True,
     **config,
 ):
@@ -400,6 +435,10 @@ def repeat_config(
             `{ckpt_dir}/{tag}_seed{N}.pth`, so the moment-map protocol can be run
             per seed instead of only on the last model.
         tag: label used in the CSV and checkpoint filenames.
+        resume: skip any (tag, seed) already recorded in `out_csv` and reuse its
+            metrics. A 12-run repeat is several GPU-hours and Kaggle sessions time
+            out mid-way; without this, resuming means retraining arms that already
+            finished. Set False to force a clean re-run.
         **config: forwarded to `train_unet` (base_channels, lr, alpha, use_beam, ...).
 
     Returns:
@@ -416,6 +455,11 @@ def repeat_config(
     if ckpt_dir:
         os.makedirs(ckpt_dir, exist_ok=True)
 
+    done = _completed_rows(out_csv, tag) if resume else {}
+    if done and verbose:
+        print(f"  [resume] reusing {len(done)} completed seed(s) for '{tag}': "
+              f"{sorted(done)}", flush=True)
+
     rows = []
     if verbose:
         print(f"=== repeating '{tag}' over {n_seeds} seeds "
@@ -423,6 +467,12 @@ def repeat_config(
 
     for k in range(n_seeds):
         seed = base_seed + k
+        if seed in done:
+            rows.append(done[seed])
+            if verbose:
+                print(f"--- {tag}: seed {seed} ({k+1}/{n_seeds}) SKIPPED, already done "
+                      f"(PSNR {done[seed]['psnr']:.4f}) ---", flush=True)
+            continue
         ckpt = os.path.join(ckpt_dir, f"{tag}_seed{seed}.pth") if ckpt_dir else None
         if verbose:
             print(f"\n--- {tag}: seed {seed} ({k+1}/{n_seeds}) ---", flush=True)
