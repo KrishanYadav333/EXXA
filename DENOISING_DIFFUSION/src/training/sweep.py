@@ -272,6 +272,31 @@ def sample_config(rng: random.Random, space=None, arch: str = "unet") -> dict:
     return cfg
 
 
+def _completed_sweep_runs(out_csv: Optional[str], arch: str) -> set:
+    """
+    Run indices already scored for `arch` in `out_csv`.
+
+    A row counts only with a finite PSNR, so the placeholder row written on OOM or
+    crash is retried rather than silently treated as done.
+    """
+    if not out_csv or not os.path.exists(out_csv):
+        return set()
+    done = set()
+    try:
+        with open(out_csv, newline="") as f:
+            for r in csv.DictReader(f):
+                if r.get("arch", "unet") != arch:
+                    continue
+                try:
+                    if np.isfinite(float(r["psnr"])):
+                        done.add(int(r["run"]))
+                except (TypeError, ValueError, KeyError):
+                    continue
+    except OSError:
+        return set()
+    return done
+
+
 def run_sweep(
     train_ds,
     val_ds,
@@ -287,6 +312,7 @@ def run_sweep(
     patience: int = 5,
     num_workers: int = 0,
     arch: str = "unet",
+    resume: bool = True,
     verbose: bool = True,
 ):
     """
@@ -298,8 +324,21 @@ def run_sweep(
     the same `n_runs` under the same `seed`, split and scoring metric is what makes
     a cross-architecture comparison mean anything: the alternative -- a swept U-Net
     against hand-tuned rivals -- measures tuning effort, not architecture.
+
+    `resume` skips run indices already scored for this architecture in `out_csv`.
+    A 24-run sweep is many GPU-hours and Kaggle sessions time out inside it; without
+    this, resuming re-trains configurations that already have results.
+
+    Note the config is drawn for EVERY index even when skipping. The sampler is a
+    seeded RNG consumed in order, so skipping the draw would shift every subsequent
+    configuration and a resumed sweep would explore a different space than the one
+    it is continuing.
     """
     rng = random.Random(seed)
+    done_runs = _completed_sweep_runs(out_csv, arch) if resume else set()
+    if done_runs and verbose:
+        print(f"[{arch}] [resume] skipping {len(done_runs)} completed run(s): "
+              f"{sorted(done_runs)}", flush=True)
     os.makedirs(os.path.dirname(out_csv) or ".", exist_ok=True)
     fields = ["arch", "run", "base_channels", "channel_multipliers", "lr", "alpha",
               "sched_patience", "use_beam", "latent_dim", "kl_weight", "batch_size",
@@ -314,7 +353,13 @@ def run_sweep(
             writer.writeheader()
 
         for i in range(n_runs):
-            cfg = sample_config(rng, space, arch=arch)
+            cfg = sample_config(rng, space, arch=arch)   # drawn even when skipped,
+            # so the RNG stays aligned and run i keeps the config it would have had
+            if i in done_runs:
+                if verbose:
+                    print(f"=== [{arch}] sweep run {i+1}/{n_runs}: SKIPPED "
+                          f"(already scored) ===", flush=True)
+                continue
             if verbose:
                 print(f"\n=== [{arch}] sweep run {i+1}/{n_runs}: {cfg} ===", flush=True)
             bs = batch_size
