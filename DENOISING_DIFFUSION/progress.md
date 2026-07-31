@@ -3,6 +3,56 @@
 Local-only tracking doc, tracked in git as of `b6cdd79`. Newest first. Only entries whose
 work actually ran with real data claim results; implementation-only entries say so.
 
+## 2026-07-31 — First classical baseline on line emission (07 v2); tuning bug found
+
+**The project's central claim now has evidence.** No classical filter had ever been scored on
+line-emission data, so "the learned denoiser beats traditional processing" was unsupported on
+this dataset. Notebook 07 ran (CPU-only, zero GPU quota) and produced it.
+
+Channel-level, 300 validation channels at 256px:
+
+| method | param | PSNR | SSIM | MSE |
+|---|---|---|---|---|
+| dirty (unfiltered) | – | 20.43 | 0.3095 | 0.010952 |
+| **gaussian** | σ=4.0 | **24.96** | 0.7005 | 0.004022 |
+| median | 9 | 22.80 | 0.5300 | 0.006658 |
+| wiener | 9 | 22.83 | 0.5383 | 0.006596 |
+| **U-Net V12** | – | **32.95** | 0.9857 | 0.000681 |
+
+5-cube holdout moment maps (mean ± std):
+
+| method | M0 | M1 | M2 |
+|---|---|---|---|
+| gaussian σ=4 (native 600) | +11.7 ± 2.1 | +1.1 ± 0.9 | +0.5 ± 0.4 |
+| median 9 | +3.9 ± 0.9 | +0.3 ± 0.3 | +0.2 ± 0.1 |
+| wiener 9 | +5.0 ± 1.0 | +0.3 ± 0.5 | +0.2 ± 0.2 |
+| **gaussian @256 round trip** | **+36.5 ± 3.5** | +4.3 ± 3.7 | +2.1 ± 1.8 |
+| **U-Net V12** | **+69.8 ± 15.2** | +17.5 ± 7.8 | +20.1 ± 14.3 |
+
+**A methodology bug the run itself exposed.** Section 6 pushes the best filter through the
+network's 256 round trip and labelled the difference a "penalty", assuming a round trip can only
+hurt. It came out **+24.9 pp POSITIVE** on M0. A filter tripling its score by being downsampled
+first is a symptom, not a result.
+
+Cause: `tune_on_validation` ran on 256×256 channels while `denoise_cube` applied the chosen
+parameter at native 600×600. Filter parameters are in **pixels**, so σ=4 tuned at 256 smooths
+2.3× too little at 600 — and the round trip scored better precisely because it restored the
+resolution the filter was tuned for. Compounding it, the optimum σ=4.0 sat on the **grid edge**
+(old grid topped out at 4.0), so the filter was never given its best. Both handicapped the
+classical side, the opposite of the notebook's stated "generous to classical" framing.
+
+Fixed in `be7d79d`: tuning now runs at native resolution, grids widened to bracket the optimum
+(gaussian to 16.0, windows to 21), an explicit warning fires on grid-edge hits, and the headline
+reports whichever classical *configuration* scores best rather than the native row.
+
+**What to quote until 07 is re-run:** the defensible U-Net advantage is **+33.3 pp on M0**
+(69.8 vs the round-trip figure 36.5), not the +58.1 pp the notebook printed against the
+mis-tuned native row. Still decisive. A re-run (~10 min, CPU) gives the final number.
+
+Run outputs are preserved in git at `7dbd17b`; the current notebook is the fixed version and
+carries no outputs. The result CSVs were persisted to `/kaggle/working` but never downloaded —
+re-run and commit those instead, since these numbers are superseded.
+
 ## 2026-07-30 — V16: sweep winner FAILED to reproduce; two artifact "known issues" corrected
 
 Kaggle Version 16 (`227d2fc`, on `line-emission`) retrained the sweep winner and ran the
