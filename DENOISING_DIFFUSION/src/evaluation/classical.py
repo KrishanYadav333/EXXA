@@ -19,12 +19,22 @@ to the V12 line (M0 +69.8 +/- 15.2 %).
 
 Fairness
 --------
-The comparison is deliberately generous to the classical side, so that a win for
-the network is a real win and not a straw man:
+The comparison is meant to be generous to the classical side, so that a win for
+the network is a real win and not a straw man. The first real run showed the setup
+was accidentally doing the opposite, in two ways, both now fixed:
 
-  * **filters run at native 600x600.** The network denoises at 256x256 and is
-    bilinearly resampled back, paying a round-trip resolution penalty the filters
-    never pay.
+  * **tune at the resolution you evaluate at.** Parameters were swept on 256x256
+    validation channels and then applied to the native 600x600 holdout cubes. A
+    sigma is in PIXELS, so sigma=4 tuned at 256 smooths 2.3x too little at 600.
+    The symptom was unmistakable: pushing the filter through the network's own
+    256 round trip scored M0 +36.5% against +11.7% at native resolution -- the
+    "penalty" control came out strongly positive, because the round trip happened
+    to restore the resolution the filter was tuned for.
+  * **the grid must bracket the optimum.** Tuning selected sigma=4.0, the top of
+    the old grid, so the true optimum was never reachable. `tune_on_validation`
+    prints the whole sweep precisely so an edge hit is visible; the grids are now
+    wide enough that it is interior.
+
   * **each filter's parameter is tuned**, not guessed -- swept on the VALIDATION
     cubes with the same fixed metric used to score sweep runs, then frozen for
     the holdout evaluation. Tuning on validation (never on holdout) is the same
@@ -47,10 +57,17 @@ from scipy.signal import wiener
 
 # Parameter grids swept on validation. Ranges cover "barely smooths" to
 # "visibly over-smooths" so the optimum is interior, not at an edge.
+#
+# WIDENED after the first real run: tuning picked gaussian sigma=4.0, the old grid's
+# top value, so the grid never bracketed the optimum and the filter was scored below
+# its best. Every parameter here is in PIXELS, so the useful range depends on image
+# size -- these now span far enough to bracket the optimum at native 600x600, where
+# the holdout evaluation runs. A sigma of 4 px at 256 is the same physical scale as
+# 9.4 px at 600, which the old grid could not even express.
 DEFAULT_GRIDS: Dict[str, Sequence] = {
-    "gaussian": (0.5, 1.0, 1.5, 2.0, 3.0, 4.0),   # sigma, pixels
-    "median": (3, 5, 7, 9),                        # square window, pixels
-    "wiener": (3, 5, 7, 9),                        # square window, pixels
+    "gaussian": (1.0, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0, 12.0, 16.0),   # sigma, pixels
+    "median": (3, 5, 7, 9, 13, 17, 21),                              # square window, px
+    "wiener": (3, 5, 7, 9, 13, 17, 21),                              # square window, px
 }
 
 
