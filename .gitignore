@@ -45,6 +45,13 @@ DENOISING_DIFFUSION/EXXA Proposal GSoC 2026 by Krishan.pdf
 **/presentation_week*.html
 
 # Model weights and checkpoints
+# Kaggle serves notebook outputs as .zip, and torch.save itself writes a zip
+# container -- so a downloaded checkpoint often arrives named *.zip and would NOT
+# be caught by the *.pth rule below. These run 13-110 MB each; a full 12-arm run
+# is close to a gigabyte.
+results/checkpoints/*.zip
+**/results/checkpoints/*.zip
+*.crdownload
 *.pth
 *.pt
 *.pth.tar
