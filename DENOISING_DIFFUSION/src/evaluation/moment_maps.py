@@ -32,6 +32,7 @@ def generate_moment_maps(
     save_path: Optional[str] = None,
     data_velax: Optional[Tuple[np.ndarray, np.ndarray]] = None,
     title: Optional[str] = None,
+    clip_sigma: float = 3.0,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Generate Moment 0/1/2 maps for a line-emission FITS cube.
@@ -43,6 +44,14 @@ def generate_moment_maps(
         data_velax: optional pre-loaded (data, velax) to collapse instead of reading
             from disk — used to make moment maps from an in-memory DENOISED cube.
         title: optional suptitle for the figure.
+        clip_sigma: channels below `clip_sigma * rms` are zeroed before collapsing.
+            `bettermoments.collapse_{first,second}` divide by the per-pixel flux sum
+            with no threshold of their own; on a spectral background where flux
+            oscillates near zero, that sum crosses zero and the moment blows up
+            (M2 is a sqrt of a ratio, so it is unbounded, not just noisy). One cube's
+            worth of these pixels is enough to saturate a shared colour scale and to
+            dominate a mean-absolute-difference metric taken over the whole map. Set
+            to 0 to disable and reproduce the old unclipped behaviour.
 
     Returns:
         (moment0, moment1, moment2) as numpy arrays, each shape (H, W).
@@ -59,6 +68,9 @@ def generate_moment_maps(
 
     # noise estimate from the line-free edge channels
     rms = bm.estimate_RMS(data=data, N=rms_n_channels)
+
+    if clip_sigma > 0:
+        data = np.where(np.abs(data) >= clip_sigma * rms, data, 0.0)
 
     moment0, _ = bm.collapse_zeroth(velax=velax, data=data, rms=rms)
     moment1, _ = bm.collapse_first(velax=velax, data=data, rms=rms)
