@@ -1,0 +1,23 @@
+{
+  "notebook": "05-unet-line-emission",
+  "filed_retrospectively": true,
+  "files": {
+    "moment_maps_continuum_comparison.png": {
+      "bytes": 1650045,
+      "sha256_16": "12505825c5a86f55"
+    },
+    "moment_maps_denoised_comparison.png": {
+      "bytes": 1635590,
+      "sha256_16": "635b64a1ca03d22d"
+    }
+  },
+  "kaggle_version": 7,
+  "kaggle_push_commit": "95d9034",
+  "code_commit": "662fef5",
+  "utc": "2026-07-02T13:59Z",
+  "psnr": [
+    31.0179,
+    33.1781
+  ],
+  "attribution": "filename written only by v7/v9/v12; three continuum + two denoised figures downloaded for three/two such versions, assigned by download order (base, (1), (2)). MODERATE confidence -- see note in RUNS.md."
+}

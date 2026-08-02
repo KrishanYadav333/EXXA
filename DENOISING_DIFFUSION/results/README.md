@@ -21,7 +21,7 @@ Written automatically by the last cell of each notebook
 
 | Folder | Run | Kaggle ver | Status |
 |---|---|---|---|
-| `05-unet-line-emission/` | `analysis_2026-07-30T0048_2edd875` | — | Sweep, correlation analysis, beam A/B, committed directly. Versions 16 and 17 both completed but their artifacts were never downloaded. |
+| `05-unet-line-emission/` | `v7_…`, `v9_…`, `v12_…`, `v16_…`, `analysis_…` | 7, 9, 12, 16 | Five run folders. **v12 is the published reference**; v16 is the sweep-winner reproduction failure. v15 and v17 completed but were never downloaded. |
 | `08-seeds-and-augmentation/` | `v4_2026-08-02T0421_1ca611f` | 4 | Complete — 4 arms × 3 seeds = 12/12 runs. |
 | `09-architecture-comparison/` | `v4_2026-08-02T0313_29bffd4` | 4 | Complete — 24/24 sweep, 3 retrains, 15 cube evaluations. Versions 6 and 7 resumed and reported these same numbers. |
 | `_archive-continuum-era/` | `superseded_2026-07-25T1305_bf7a819` | — | Week 2/3 dust-continuum work at 64×64, superseded. |
