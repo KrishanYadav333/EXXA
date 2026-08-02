@@ -26,5 +26,8 @@
     "status": "complete -- 12-run U-Net sweep, correlation analysis, beam A/B",
     "note": "the notebook's own V16/V17 artifacts (moment_map_holdout_summary_sweepwinner.csv, artifact_diagnostics_sweepwinner.csv, sweepwinner_loss.png) were never downloaded from Kaggle and are NOT present here",
     "filed_retrospectively": true
-  }
+  },
+  "kaggle_version": null,
+  "code_commit": "2edd875",
+  "origin": "NOT a Kaggle notebook run -- sweep/correlation/beam analysis artifacts committed directly. Kaggle versions 16 and 17 both completed and wrote their own artifacts, but those were never downloaded."
 }

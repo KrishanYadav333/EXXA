@@ -81,5 +81,7 @@
     "status": "superseded",
     "note": "Week 2/3 dust-continuum work at 64x64, predating the numbered line-emission notebooks. Kept for provenance; not comparable to any line-emission result and must not be quoted alongside them.",
     "filed_retrospectively": true
-  }
+  },
+  "kaggle_version": null,
+  "code_commit": "bf7a819"
 }

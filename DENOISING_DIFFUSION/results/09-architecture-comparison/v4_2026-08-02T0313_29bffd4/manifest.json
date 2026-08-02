@@ -36,5 +36,10 @@
     },
     "caveat": "M2 predates the noise-clip fix (bab16d0, MOMENT_VER=2). The M2 column of architecture_moment_maps.png is saturated for every row except clean truth -- that figure is what exposed the unmasked-M2 bug.",
     "filed_retrospectively": true
-  }
+  },
+  "kaggle_version": 4,
+  "kaggle_notebook": "09-architecture-comparison2",
+  "kaggle_push_commit": "cb51254",
+  "code_commit": "29bffd4",
+  "origin": "these numbers were PRODUCED by Kaggle version 4; versions 6 and 7 resumed from this CSV and reported them unchanged"
 }
