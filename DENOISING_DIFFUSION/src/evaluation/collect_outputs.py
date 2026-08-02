@@ -45,6 +45,23 @@ def git_sha(short: bool = True) -> str:
         return "nogit"
 
 
+def kaggle_version() -> Optional[int]:
+    """This kernel's Kaggle version number, if the platform will tell us.
+
+    Kaggle does not document an environment variable for it, and in practice none of the
+    KAGGLE_* variables carries it -- the version only becomes visible afterwards, in the
+    commit message its GitHub integration writes ('Kaggle Notebook | <name> | Version N').
+    So this returns None on Kaggle far more often than not, and results/RUNS.md is what
+    maps a run folder to its version. Probed anyway because it costs nothing and the
+    platform may start exposing it.
+    """
+    for key in ("KAGGLE_KERNEL_VERSION", "KAGGLE_NOTEBOOK_VERSION", "KERNEL_VERSION"):
+        v = os.environ.get(key)
+        if v and v.strip().isdigit():
+            return int(v.strip())
+    return None
+
+
 def _sha256(path: str, chunk: int = 1 << 20) -> str:
     h = hashlib.sha256()
     with open(path, "rb") as f:
@@ -89,6 +106,7 @@ def collect_outputs(
     extra: Optional[dict] = None,
     stamp: Optional[str] = None,
     sha: Optional[str] = None,
+    version: Optional[int] = None,
     move: bool = False,
     verbose: bool = True,
 ) -> str:
@@ -106,6 +124,9 @@ def collect_outputs(
             in the 5000-file git clone) and ../results locally.
         roots: directories to search for the artifacts.
         extra: anything else worth recording -- key config, headline metrics.
+        version: Kaggle version number, if known. Prefixes the run folder with 'v<N>_'.
+            Left None it is probed from the environment and usually stays None; see
+            results/RUNS.md, which maps run folders to versions from the push commits.
         stamp / sha: override the run tag. Only for filing results produced BEFORE this
             collector existed, where "now" and "current HEAD" would both be wrong; a live
             run must leave these unset so the tag reflects what actually ran.
@@ -121,10 +142,16 @@ def collect_outputs(
 
     sha = sha or git_sha()
     stamp = stamp or time.strftime("%Y-%m-%dT%H%M%S", time.gmtime())
+    version = version if version is not None else kaggle_version()
+    # 'v<N>_' when the version is known, plain timestamp otherwise -- an invented or
+    # guessed version number in a path is worse than none, since the whole point of the
+    # tag is that it can be trusted without checking
+    prefix = f"v{version}_" if version is not None else ""
+
     # Uniqueness is enforced by the filesystem, not by clock resolution. Two collections
     # inside the same second would otherwise share a folder and merge -- silently mixing
     # two runs' artifacts, the exact failure this versioning exists to prevent.
-    base = os.path.join(root, notebook_id, f"{stamp}_{sha}")
+    base = os.path.join(root, notebook_id, f"{prefix}{stamp}_{sha}")
     run_dir, n = base, 1
     while os.path.exists(run_dir):
         n += 1
@@ -155,6 +182,8 @@ def collect_outputs(
         "notebook": notebook_id,
         "utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "git_sha": sha,
+        "kaggle_version": version,
+        "kaggle_run_type": os.environ.get("KAGGLE_KERNEL_RUN_TYPE"),
         "on_kaggle": on_kaggle,
         "python": platform.python_version(),
         "files": files,

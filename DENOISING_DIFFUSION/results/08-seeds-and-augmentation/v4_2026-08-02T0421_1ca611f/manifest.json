@@ -37,5 +37,9 @@
     ],
     "caveat": "M2 predates the noise-clip fix (bab16d0, MOMENT_VER=2); M0/M1/PSNR unaffected, M2 needs re-scoring",
     "filed_retrospectively": true
-  }
+  },
+  "kaggle_version": 4,
+  "kaggle_notebook": "08-seeds-and-augmentationa369c56f22",
+  "kaggle_push_commit": "ba328ea",
+  "code_commit": "1ca611f"
 }

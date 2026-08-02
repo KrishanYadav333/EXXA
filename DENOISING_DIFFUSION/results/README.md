@@ -2,7 +2,12 @@
 
 One folder per notebook, one subfolder per run:
 
-    <notebook-id>/<UTC timestamp>_<git sha>/
+    <notebook-id>/v<kaggle version>_<UTC timestamp>_<git sha>/
+
+The `v<N>_` prefix appears when the Kaggle version is known. Kaggle does not expose it to
+the running kernel — it only shows up afterwards in the commit its GitHub integration
+pushes — so **[`RUNS.md`](RUNS.md) is the index that maps every version to its run**,
+including the versions that completed but whose artifacts were never downloaded.
 
 Each run folder carries a `manifest.json` recording the notebook, the commit, the UTC time,
 and a byte count plus sha256 prefix for every file. Run folders never overwrite each other,
@@ -14,15 +19,16 @@ Written automatically by the last cell of each notebook
 
 ## What is here
 
-| Folder | Run | Status |
-|---|---|---|
-| `05-unet-line-emission/` | `2026-07-30T0048_2edd875` | 12-run U-Net sweep, correlation analysis, beam A/B. The notebook's own V16/V17 artifacts were never downloaded and are **not** here. |
-| `08-seeds-and-augmentation/` | `2026-08-02T0333_ba328ea` | Complete — 4 arms × 3 seeds = 12/12 runs. |
-| `09-architecture-comparison/` | `2026-08-02T0338_29bffd4` | Complete — 24/24 sweep runs, 3 retrains, 15 cube evaluations. |
-| `_archive-continuum-era/` | `2026-07-25T1305_bf7a819` | Week 2/3 dust-continuum work at 64×64, superseded. |
+| Folder | Run | Kaggle ver | Status |
+|---|---|---|---|
+| `05-unet-line-emission/` | `analysis_2026-07-30T0048_2edd875` | — | Sweep, correlation analysis, beam A/B, committed directly. Versions 16 and 17 both completed but their artifacts were never downloaded. |
+| `08-seeds-and-augmentation/` | `v4_2026-08-02T0421_1ca611f` | 4 | Complete — 4 arms × 3 seeds = 12/12 runs. |
+| `09-architecture-comparison/` | `v4_2026-08-02T0313_29bffd4` | 4 | Complete — 24/24 sweep, 3 retrains, 15 cube evaluations. Versions 6 and 7 resumed and reported these same numbers. |
+| `_archive-continuum-era/` | `superseded_2026-07-25T1305_bf7a819` | — | Week 2/3 dust-continuum work at 64×64, superseded. |
 
-Not present: **06** (DDPM section 11 has never completed a run) and **07** (classical
-baselines have not been re-run at native resolution since the tuning fix).
+No folder for **06** (section 11 has never completed) or **07** (version 2 completed, but
+its artifacts were never downloaded and it needs a native-resolution re-run anyway).
+See [`RUNS.md`](RUNS.md) for the full version history.
 
 ## Two things to know before quoting these numbers
 
