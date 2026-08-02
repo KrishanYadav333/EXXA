@@ -1,0 +1,85 @@
+{
+  "notebook": "_archive-continuum-era",
+  "utc": "2026-08-02T21:53:50Z",
+  "git_sha": "bf7a819",
+  "on_kaggle": false,
+  "python": "3.12.13",
+  "files": {
+    "autoencoder_hybrid_loss.png": {
+      "bytes": 85725,
+      "sha256_16": "37cf311d873e9a00",
+      "source": "./autoencoder_hybrid_loss.png"
+    },
+    "autoencoder_loss.png": {
+      "bytes": 88866,
+      "sha256_16": "8cb6d66c5bbc4239",
+      "source": "./autoencoder_loss.png"
+    },
+    "channel_sampling_distribution.png": {
+      "bytes": 42352,
+      "sha256_16": "b21d5a0c31d4dcc6",
+      "source": "./channel_sampling_distribution.png"
+    },
+    "diffusion_loss.png": {
+      "bytes": 50043,
+      "sha256_16": "2fa61d55c8f91473",
+      "source": "./diffusion_loss.png"
+    },
+    "evaluation_report.txt": {
+      "bytes": 1300,
+      "sha256_16": "5320667d21098849",
+      "source": "./evaluation_report.txt"
+    },
+    "line_emission_sample.png": {
+      "bytes": 472028,
+      "sha256_16": "aacf9d133c058864",
+      "source": "./line_emission_sample.png"
+    },
+    "metrics_final.csv": {
+      "bytes": 385,
+      "sha256_16": "58c1929a0b464a08",
+      "source": "./metrics_final.csv"
+    },
+    "metrics_week3_final.csv": {
+      "bytes": 335,
+      "sha256_16": "c4ab101bfd3a83ca",
+      "source": "./metrics_week3_final.csv"
+    },
+    "moment_maps_test.png": {
+      "bytes": 1576793,
+      "sha256_16": "92d420e4968eda22",
+      "source": "./moment_maps_test.png"
+    },
+    "noise_progression.png": {
+      "bytes": 114820,
+      "sha256_16": "2689c154e4a389ae",
+      "source": "./noise_progression.png"
+    },
+    "presentation.html": {
+      "bytes": 14388,
+      "sha256_16": "b99f29ba4f4cc722",
+      "source": "./presentation.html"
+    },
+    "speaker_notes.md": {
+      "bytes": 6817,
+      "sha256_16": "3948f11f0975b040",
+      "source": "./speaker_notes.md"
+    },
+    "unet_loss.png": {
+      "bytes": 84132,
+      "sha256_16": "c2ae97f93f3b6c08",
+      "source": "./unet_loss.png"
+    },
+    "vae_loss.png": {
+      "bytes": 92647,
+      "sha256_16": "7131cade35f6d717",
+      "source": "./vae_loss.png"
+    }
+  },
+  "missing_patterns": [],
+  "extra": {
+    "status": "superseded",
+    "note": "Week 2/3 dust-continuum work at 64x64, predating the numbered line-emission notebooks. Kept for provenance; not comparable to any line-emission result and must not be quoted alongside them.",
+    "filed_retrospectively": true
+  }
+}

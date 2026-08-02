@@ -1,0 +1,41 @@
+{
+  "notebook": "08-seeds-and-augmentation",
+  "utc": "2026-08-02T21:53:49Z",
+  "git_sha": "ba328ea",
+  "on_kaggle": false,
+  "python": "3.12.13",
+  "files": {
+    "artifact_diagnostics_seeds.csv": {
+      "bytes": 814,
+      "sha256_16": "9cfc3e72ba0b124b",
+      "source": "./artifact_diagnostics_seeds.csv"
+    },
+    "seed_moment_summary.csv": {
+      "bytes": 1315,
+      "sha256_16": "095bb65d930b8457",
+      "source": "./seed_moment_summary.csv"
+    },
+    "seed_repeats.csv": {
+      "bytes": 1484,
+      "sha256_16": "dae9a2219699bcf9",
+      "source": "./seed_repeats.csv"
+    },
+    "seed_spread.png": {
+      "bytes": 102171,
+      "sha256_16": "0146398efdc2bf83",
+      "source": "./seed_spread.png"
+    }
+  },
+  "missing_patterns": [],
+  "extra": {
+    "status": "complete -- 4 arms x 3 seeds = 12/12 runs",
+    "arms": [
+      "v12",
+      "winner",
+      "winner_aug",
+      "winner_p10"
+    ],
+    "caveat": "M2 predates the noise-clip fix (bab16d0, MOMENT_VER=2); M0/M1/PSNR unaffected, M2 needs re-scoring",
+    "filed_retrospectively": true
+  }
+}
