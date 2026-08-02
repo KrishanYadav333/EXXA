@@ -1,0 +1,114 @@
+Cloning into '/kaggle/working/EXXA'...
+Updating files: 100% (5084/5084), done.
+
+cwd: /kaggle/working/EXXA/DENOISING_DIFFUSION/notebooks | DATA_DIR: /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+
+From https://github.com/KrishanYadav333/EXXA
+ * branch            line-emission -> FETCH_HEAD
+
+HEAD is now at ef0a37b docs: midterm report, rewritten READMEs, drop dead root files
+ef0a37b docs: midterm report, rewritten READMEs, drop dead root files
+src.* cleared from module cache -- now re-run the imports cell below.
+
+device: cuda | GPUs: 2 -> ['Tesla T4', 'Tesla T4']
+
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+
+[FITSChannelDataset] 7 cubes x ~50 channels = 350 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+[FITSChannelDataset] 2 cubes x ~50 channels = 100 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+train items: 350 | val items: 100
+
+winner config: {'base_channels': 48, 'channel_multipliers': (1, 2, 4, 8), 'lr': 0.0008196504330730313, 'alpha': 0.8877681051398497, 'sched_patience': 8, 'use_beam': False, 'batch_size': 16}
+  ep   1 | train 0.0801 | val 0.0184 | lr 8.2e-04 (29s) *best
+  ep   2 | train 0.0163 | val 0.0139 | lr 8.2e-04 (27s) *best
+  ep   3 | train 0.0086 | val 0.0092 | lr 8.2e-04 (28s) *best
+  ep   4 | train 0.0073 | val 0.0075 | lr 8.2e-04 (31s) *best
+  ep   5 | train 0.0055 | val 0.0074 | lr 8.2e-04 (30s) *best
+  ep   6 | train 0.0087 | val 0.0062 | lr 8.2e-04 (29s) *best
+  ep   7 | train 0.0062 | val 0.0053 | lr 8.2e-04 (30s) *best
+  ep   8 | train 0.0045 | val 0.0050 | lr 8.2e-04 (30s) *best
+  ep   9 | train 0.0042 | val 0.0054 | lr 8.2e-04 (30s)
+  ep  10 | train 0.0047 | val 0.0060 | lr 8.2e-04 (30s)
+  ep  11 | train 0.0058 | val 0.0049 | lr 8.2e-04 (30s) *best
+  ep  12 | train 0.0047 | val 0.0074 | lr 8.2e-04 (30s)
+  ep  13 | train 0.0072 | val 0.0051 | lr 8.2e-04 (30s)
+  ep  14 | train 0.0045 | val 0.0044 | lr 8.2e-04 (30s) *best
+  ep  15 | train 0.0038 | val 0.0037 | lr 8.2e-04 (30s) *best
+  ep  16 | train 0.0035 | val 0.0031 | lr 8.2e-04 (30s) *best
+  ep  17 | train 0.0031 | val 0.0032 | lr 8.2e-04 (30s)
+  ep  18 | train 0.0032 | val 0.0034 | lr 8.2e-04 (30s)
+  ep  19 | train 0.0027 | val 0.0035 | lr 8.2e-04 (30s)
+  ep  20 | train 0.0026 | val 0.0033 | lr 8.2e-04 (30s)
+  ep  21 | train 0.0027 | val 0.0032 | lr 8.2e-04 (30s)
+  early stop at epoch 21 (no improvement for 5 epochs)
+
+trained in 630s
+winner: PSNR 30.2779 | SSIM 0.9812 | MSE 0.001155 | best ep 16 (21 run)
+sweep-time PSNR was 37.109 dB -> reproduction delta -6.831 dB
+vs V12     : PSNR -2.672 dB | SSIM -0.00450 | MSE +0.000474
+
+winner checkpoint loaded: epoch 16 | val_loss 0.0031
+
+cube                             dirty_M0    imp_M0%   dirty_M1    imp_M1%   dirty_M2    imp_M2%
+------------------------------------------------------------------------------------------------
+  denoising run_0002_00560_rt_00 ... done
+run_0002_00560_rt_00             0.006489      70.4%     0.7699      13.4%      5.017      11.0%
+  denoising run_0002_00560_rt_01 ... done
+run_0002_00560_rt_01             0.004833      53.4%     0.4649      19.3%      5.343      20.4%
+  denoising run_0002_00560_rt_04 ... done
+run_0002_00560_rt_04             0.006434      83.5%     0.3272       5.8%      5.392      15.1%
+  denoising run_0025_01000_rt_04 ... done
+run_0025_01000_rt_04             0.004987      68.0%     0.6145      22.0%      4.907      44.5%
+  denoising run_0026_00005_rt_04 ... done
+run_0026_00005_rt_04             0.008393      46.4%      1.141       8.4%      3.534      24.4%
+
+================================================================================================
+SWEEP-WINNER SUMMARY (n=5 cubes)   vs   V12 baseline
+  M0: +64.4% +/-14.6%   |  V12 +69.8% +/-15.2%   |  delta -5.4 pts
+  M1: +13.8% +/-6.9%   |  V12 +17.5% +/-7.8%   |  delta -3.7 pts
+  M2: +23.1% +/-13.0%   |  V12 +20.1% +/-14.3%   |  delta +3.0 pts
+  cubes positive on all 3 moments: 5/5  (V12: 5/5)
+
+VERDICT: NOT a clean improvement -- M0 mean and/or variance regressed; V12 stays the reference. Pixel metrics improved but the scientific deliverable did not (same pattern as the beam A/B).
+
+CSV saved -> ../results/moment_map_holdout_summary_sweepwinner.csv
+
+validation channels analysed: 100
+
+PEAK OVERSHOOT  denoised.max / clean.max   (1.0 = perfect; prior ch-100 figure 1.151)
+  mean 0.929 | median 0.907 | p90 1.161 | max 1.424
+  channels overshooting by >10%: 19%
+
+NEGATIVE FLOOR LEAK  denoised.min  (clean floor ~0; prior figure -0.0017)
+  mean +0.14518 | most negative +0.08567
+
+INVENTED STRUCTURE  (background pixels pushed above 20% of clean peak, blobs >= 20 px)
+  channels with >=1 fake blob: 0% | blobs/channel 0.00
+  mean invented area fraction of background: 0.0000% | worst channel: 0.0000%
+
+per-channel diagnostics saved -> ../results/artifact_diagnostics_sweepwinner.csv
+
+saved -> experiments/hallucination_worst_channels.png
+
+persisted -> /kaggle/working/unet_line_emission_sweepwinner_best.pth (116.3 MB)
+persisted -> /kaggle/working/moment_map_holdout_summary_sweepwinner.csv (0.0 MB)
+persisted -> /kaggle/working/artifact_diagnostics_sweepwinner.csv (0.0 MB)
+
+remember: download the CSVs from the kernel Output tab and commit them to results/

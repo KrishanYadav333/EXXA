@@ -29,7 +29,7 @@ Full lineage, recovered from every branch (`line-emission`, `midterm-prep`, `wee
 | **12** | 2026-07-10 19:28 | `c61d112` | `82abd23` | **32.95** | **+69.8% ±15.2** | [`v12_.../`](05-unet-line-emission/v12_2026-07-10T1928_c61d112/) · also in [`for_jason/`](for_jason/) |
 | 15 | 2026-07-26 04:42 | `09bfcb9` | `0307cc9` | 33.70 / 34.94 | +59.8% ±33.0 | not downloaded |
 | 16 | 2026-07-30 03:34 | `ef0a37b` | `227d2fc` | **30.28** | +64.4% ±14.6 (−5.4 pt) | [`v16_.../`](05-unet-line-emission/v16_2026-07-30T0334_ef0a37b/) |
-| 17 | 2026-08-02 04:13 | `227d2fc` | `7305455` | **29.92** | **+48.2% ±12.6 (−21.6 pt)** | not downloaded |
+| 17 | 2026-08-02 04:13 | `227d2fc` | `7305455` | **29.92** | **+48.2% ±12.6 (−21.6 pt)** | [`v17_.../`](05-unet-line-emission/v17_2026-08-02T0413_227d2fc/) — recovered from git |
 | — | 2026-07-30 00:48 | `2edd875` | — | — | — | [`analysis_.../`](05-unet-line-emission/analysis_2026-07-30T0048_2edd875/) |
 
 ### How these were attributed
@@ -51,6 +51,22 @@ versions write it (v7, v9). The set is therefore certain; only which file belong
 version rests on browser download order (`name`, `(1)`, `(2)`) plus the timestamp clustering,
 which independently puts the third continuum file in the same batch as v12's two unique
 figures. Pixel comparison agreed but too weakly to count (candidate diffs 44.8 / 45.0 / 45.9).
+
+**v17 — recovered from git, not downloaded.** Its artifacts were never pulled off the
+Output tab, but the executed notebook was pushed to `7305455` with its outputs still
+embedded, so all four figures and the full stdout came straight out of the commit
+(`src/evaluation/recover_version.py`). The moment table is `.RECONSTRUCTED.csv`: `imp_*`
+are v17's own printed per-cube figures and `dirty_*` are copied from v16's committed CSV,
+which they must equal — they depend only on the cubes, and v17's printed table matches them
+digit for digit. `artifact_diagnostics_sweepwinner.csv` is **not** recoverable, being
+per-channel with only its summary printed. The same recovery filled v16's two missing
+figures; v16's downloaded files were left untouched, since a recovered figure is the
+notebook's display copy and not the `savefig` artifact.
+
+Figures are named from the `savefig` call in their own cell. Naming by output order had
+mislabelled three of v17's four — it writes `sweepwinner_loss.png`, not
+`unet_line_emission_loss.png`, and writes no `moment_map_holdout_summary.png` at all, which
+also confirms that file belongs to v12.
 
 **`unet_line_emission_loss.png` — unattributed.** v7, v9 and v12 all write it, one copy was
 downloaded, and pixel matching cannot separate them (29.1 / 29.2 / 29.6). Parked in
