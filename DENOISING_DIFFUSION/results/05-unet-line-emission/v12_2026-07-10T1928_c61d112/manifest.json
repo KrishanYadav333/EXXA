@@ -1,0 +1,26 @@
+{
+  "notebook": "05-unet-line-emission",
+  "filed_retrospectively": true,
+  "files": {
+    "moment_maps_continuum_comparison.png": {
+      "bytes": 1693625,
+      "sha256_16": "c566fa61c173e565"
+    },
+    "moment_maps_holdout.png": {
+      "bytes": 1440049,
+      "sha256_16": "7303fcabd645e06c"
+    },
+    "moment_map_holdout_summary.png": {
+      "bytes": 71663,
+      "sha256_16": "ae1321571df99ece"
+    }
+  },
+  "kaggle_version": 12,
+  "kaggle_push_commit": "82abd23",
+  "code_commit": "c61d112",
+  "utc": "2026-07-10T19:28Z",
+  "psnr": 32.9542,
+  "role": "THE PUBLISHED V12 REFERENCE -- every comparison in the project is quoted against this run (M0 +69.8%+/-15.2, M1 +17.5%+/-7.8, M2 +20.1%+/-14.3)",
+  "caveat": "those three moment figures are NOT in any committed CSV; they survive only as prose and as hardcoded V12 constants in notebooks 07/08/09. 08 v4 supersedes them with error bars: M0 +71.9%+/-10.3 over 3 seeds.",
+  "attribution": "moment_maps_holdout / moment_map_holdout_summary are unambiguous (v12 is the only downloaded version writing this combination); the continuum figure is MODERATE, assigned by download order."
+}

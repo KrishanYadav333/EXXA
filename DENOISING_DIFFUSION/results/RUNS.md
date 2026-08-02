@@ -19,24 +19,57 @@ and wrote their CSVs to the kernel Output tab, which was never downloaded.
 Full lineage, recovered from every branch (`line-emission`, `midterm-prep`, `week-4`).
 `PSNR` is the holdout figure the version itself printed.
 
-| Ver | Date (UTC) | code | push | PSNR | Holdout M0 | Note |
+| Ver | Date (UTC) | code | push | PSNR | Holdout M0 | Artifacts |
 |----:|---|---|---|---|---|---|
 | — | 2026-06-24 19:42 | `a4ac1fe` | `27fa388` | 26.46 | — | first run, 30-epoch baseline |
-| #5 | 2026-06-26 17:15 | `f548947` | `d307a29` | 28.16 | — | |
-| 6 | 2026-06-27 16:00 | `5ed8fc6` | `01aaf88` | 31.73 | — | |
-| 7 | 2026-07-02 13:59 | `662fef5` | `95d9034` | 31.02 / 33.18 | — | outputs also synced into folder 06 (`d4ff643`) |
-| 9 | 2026-07-02 18:39 | `7fa5fce` | `d0adb14` | 32.31 / 33.04 | — | ablation; outputs synced to folder 06 (`5933292`) |
-| **12** | 2026-07-10 19:28 | `c61d112` | `82abd23` | **32.95** | **+69.8% ±15.2** | **the published V12 reference** |
-| 15 | 2026-07-26 04:42 | `09bfcb9` | `0307cc9` | 33.70 / 34.94 | +59.8% ±33.0 | 12-run sweep + beam A/B |
-| 16 | 2026-07-30 03:34 | `ef0a37b` | `227d2fc` | **30.28** | +64.4% ±14.6 (−5.4 pt) | sweep winner failed to reproduce: 37.11 → 30.28 |
-| 17 | 2026-08-02 04:13 | `227d2fc` | `7305455` | **29.92** | **+48.2% ±12.6 (−21.6 pt)** | worse again |
-| — | 2026-07-30 00:48 | `2edd875` | — | — | — | sweep/correlation/beam analysis, committed directly → [`analysis_.../`](05-unet-line-emission/analysis_2026-07-30T0048_2edd875/) |
+| #5 | 2026-06-26 17:15 | `f548947` | `d307a29` | 28.16 | — | — |
+| 6 | 2026-06-27 16:00 | `5ed8fc6` | `01aaf88` | 31.73 | — | — |
+| 7 | 2026-07-02 13:59 | `662fef5` | `95d9034` | 31.02 / 33.18 | — | [`v7_.../`](05-unet-line-emission/v7_2026-07-02T1359_662fef5/) · also in [`for_jason/`](for_jason/) |
+| 9 | 2026-07-02 18:39 | `7fa5fce` | `d0adb14` | 32.31 / 33.04 | — | [`v9_.../`](05-unet-line-emission/v9_2026-07-02T1839_7fa5fce/) · also in [`for_jason/`](for_jason/) |
+| **12** | 2026-07-10 19:28 | `c61d112` | `82abd23` | **32.95** | **+69.8% ±15.2** | [`v12_.../`](05-unet-line-emission/v12_2026-07-10T1928_c61d112/) · also in [`for_jason/`](for_jason/) |
+| 15 | 2026-07-26 04:42 | `09bfcb9` | `0307cc9` | 33.70 / 34.94 | +59.8% ±33.0 | not downloaded |
+| 16 | 2026-07-30 03:34 | `ef0a37b` | `227d2fc` | **30.28** | +64.4% ±14.6 (−5.4 pt) | [`v16_.../`](05-unet-line-emission/v16_2026-07-30T0334_ef0a37b/) |
+| 17 | 2026-08-02 04:13 | `227d2fc` | `7305455` | **29.92** | **+48.2% ±12.6 (−21.6 pt)** | not downloaded |
+| — | 2026-07-30 00:48 | `2edd875` | — | — | — | [`analysis_.../`](05-unet-line-emission/analysis_2026-07-30T0048_2edd875/) |
+
+### How these were attributed
+
+**v16 — certain.** `moment_map_holdout_summary_sweepwinner.csv` reads MEAN 64.36 / 13.78 /
+23.08, matching v16's printed +64.4% / +13.8% / +23.1%, and
+`artifact_diagnostics_sweepwinner.csv` reproduces v16's overshoot statistics exactly
+(mean 0.929, median 0.907, p90 1.162, max 1.424, 19% above 1.10). v17 printed
+1.220 / 1.198 / 1.423 / 1.924 / 69%. Pixel-matching the figures had *preferred v17* — the
+numbers overruled it, which is why the CSVs decided this and the images did not.
+
+**v12 — partly certain.** `moment_maps_holdout.png` and `moment_map_holdout_summary.png`
+are written by v12 and by no other downloaded version.
+
+**v7 / v9 / v12 continuum + denoised figures — moderate.** Three
+`moment_maps_continuum_comparison` files were downloaded and exactly three versions write
+that filename (v7, v9, v12); two `moment_maps_denoised_comparison` files and exactly two
+versions write it (v7, v9). The set is therefore certain; only which file belongs to which
+version rests on browser download order (`name`, `(1)`, `(2)`) plus the timestamp clustering,
+which independently puts the third continuum file in the same batch as v12's two unique
+figures. Pixel comparison agreed but too weakly to count (candidate diffs 44.8 / 45.0 / 45.9).
+
+**`unet_line_emission_loss.png` — unattributed.** v7, v9 and v12 all write it, one copy was
+downloaded, and pixel matching cannot separate them (29.1 / 29.2 / 29.6). Parked in
+[`_unattributed/`](05-unet-line-emission/_unattributed/) rather than guessed.
+
+`unet_loss.png` was dropped: byte-identical (sha `c2ae97f9`) to the continuum-era copy
+already archived, so it was a stray download rather than a 05 artifact.
 
 **No version of 05 has beaten V12 on the scientific metric.** The sweep found 37.11 dB;
 v16 retrained it to 30.28 and v17 to 29.92, with M0 falling from V12's +69.8% to +64.4%
 then +48.2%. Both later versions print *"NOT a clean improvement — V12 stays the reference"*
-as their own verdict. **V12 remains the reference model**, and none of v15–v17 artifacts
-were ever downloaded.
+as their own verdict. **V12 remains the reference model.**
+
+**V12's headline moment figures are not in any committed CSV.** `+69.8% ±15.2 / +17.5% ±7.8
+/ +20.1% ±14.3` is quoted in `readme.md`, `MIDTERM_REPORT.md`, `context.md` and hardcoded as
+a `V12 = {...}` dict in notebooks 07/08/09, but the only moment CSV in the entire git history
+is the beam variant (+59.83). What was downloaded for v12 is figures, not the table.
+**08 v4 supersedes it anyway**, retraining that configuration over 3 seeds for
+**M0 +71.9% ±10.3** — a stronger number than the single run it replaces.
 
 Versions 16 and 17 also report overshoot mean 0.929 and 1.220 respectively for the same
 notebook, each alongside "0% invented structure" — which the floor-relative fix later showed

@@ -1,0 +1,25 @@
+{
+  "notebook": "05-unet-line-emission",
+  "filed_retrospectively": true,
+  "files": {
+    "moment_maps_continuum_comparison.png": {
+      "bytes": 1671103,
+      "sha256_16": "0e5f18e85ca96b3c"
+    },
+    "moment_maps_denoised_comparison.png": {
+      "bytes": 1609471,
+      "sha256_16": "baa430cc42234a48"
+    }
+  },
+  "kaggle_version": 9,
+  "kaggle_push_commit": "d0adb14",
+  "code_commit": "7fa5fce",
+  "utc": "2026-07-02T18:39Z",
+  "psnr": [
+    32.3111,
+    33.0417,
+    33.0188
+  ],
+  "note": "ablation run; its outputs were also synced into the continuum-era folder 06 by 5933292",
+  "attribution": "MODERATE -- assigned by download order, see RUNS.md."
+}
