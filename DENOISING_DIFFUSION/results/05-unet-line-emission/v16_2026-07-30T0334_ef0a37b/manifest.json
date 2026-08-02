@@ -2,21 +2,40 @@
   "notebook": "05-unet-line-emission",
   "filed_retrospectively": true,
   "files": {
-    "moment_map_holdout_summary_sweepwinner.csv": {
-      "bytes": 433,
-      "sha256_16": "9d2fd80fda521215"
-    },
     "artifact_diagnostics_sweepwinner.csv": {
       "bytes": 7473,
-      "sha256_16": "98dc40f39df12fca"
+      "sha256_16": "98dc40f39df12fca",
+      "provenance": "downloaded from the Kaggle Output tab (the savefig artifact)"
     },
     "artifact_diagnostics_sweepwinner.png": {
       "bytes": 71282,
-      "sha256_16": "3ec934f6e4f96df9"
+      "sha256_16": "3ec934f6e4f96df9",
+      "provenance": "downloaded from the Kaggle Output tab (the savefig artifact)"
+    },
+    "hallucination_worst_channels.png": {
+      "bytes": 622414,
+      "sha256_16": "cee02e396e371d09",
+      "provenance": "recovered from the notebook embedded in commit 227d2fc -- this is the display copy, not the savefig output, so it differs from what the Output tab would give"
+    },
+    "moment_map_holdout_summary_sweepwinner.csv": {
+      "bytes": 433,
+      "sha256_16": "9d2fd80fda521215",
+      "provenance": "downloaded from the Kaggle Output tab (the savefig artifact)"
     },
     "moment_map_sweepwinner_vs_v12.png": {
       "bytes": 57057,
-      "sha256_16": "1040d9223848bd74"
+      "sha256_16": "1040d9223848bd74",
+      "provenance": "downloaded from the Kaggle Output tab (the savefig artifact)"
+    },
+    "run_log.txt": {
+      "bytes": 6239,
+      "sha256_16": "1de4fa40a830529d",
+      "provenance": "recovered from the notebook embedded in commit 227d2fc -- this is the display copy, not the savefig output, so it differs from what the Output tab would give"
+    },
+    "sweepwinner_loss.png": {
+      "bytes": 46233,
+      "sha256_16": "9ddb9f5909b729a0",
+      "provenance": "recovered from the notebook embedded in commit 227d2fc -- this is the display copy, not the savefig output, so it differs from what the Output tab would give"
     }
   },
   "kaggle_version": 16,
@@ -26,5 +45,10 @@
   "psnr": 30.2779,
   "role": "the sweep winner's reproduction FAILURE: sweep recorded 37.11 dB, this retrain got 30.28. Holdout M0 +64.4%+/-14.6 vs V12 +69.8%+/-15.2.",
   "attribution": "CERTAIN -- moment CSV reads MEAN 64.36/13.78/23.08 and the artifact CSV reproduces v16's printed overshoot statistics exactly (mean 0.929, median 0.907, p90 1.162, max 1.424, 19% >1.10). v17 printed 1.220 / 1.198 / 1.423 / 1.924 / 69%.",
-  "caveat": "ran at code ef0a37b, BEFORE the floor-relative artifacts fix (04b3f2c). Every snr is NaN and invented_frac is 0 by construction -- the background mask selected zero pixels. This file is evidence of that bug, not a hallucination measurement."
+  "caveat": "ran at code ef0a37b, BEFORE the floor-relative artifacts fix (04b3f2c). Every snr is NaN and invented_frac is 0 by construction -- the background mask selected zero pixels. This file is evidence of that bug, not a hallucination measurement.",
+  "recovered_from_git": [
+    "hallucination_worst_channels.png",
+    "run_log.txt",
+    "sweepwinner_loss.png"
+  ]
 }
