@@ -16,23 +16,42 @@ and wrote their CSVs to the kernel Output tab, which was never downloaded.
 
 ## 05 — U-Net line emission (`05_unet_line_emission`)
 
-| Ver | Date (UTC) | code | push | Outcome | Artifacts |
-|----:|---|---|---|---|---|
-| 15 | 2026-07-26 04:42 | `09bfcb9` | `0307cc9` | completed | not downloaded |
-| 16 | 2026-07-30 03:34 | `ef0a37b` | `227d2fc` | completed. Holdout: M2 +23.1%±13.0 vs V12 +20.1%±14.3. Verdict *not a clean improvement* — M0 regressed. Overshoot mean **0.929**, 19% of channels >10%. | not downloaded |
-| 17 | 2026-08-02 04:13 | `227d2fc` | `7305455` | completed. Same verdict. Overshoot mean **1.220**, 69% of channels >10%. | not downloaded |
-| — | 2026-07-30 00:48 | `2edd875` | — | 12-run sweep + correlation analysis + beam A/B, committed directly (not a Kaggle run) | [`analysis_2026-07-30T0048_2edd875/`](05-unet-line-emission/analysis_2026-07-30T0048_2edd875/) |
+Full lineage, recovered from every branch (`line-emission`, `midterm-prep`, `week-4`).
+`PSNR` is the holdout figure the version itself printed.
 
-Versions 16 and 17 are the *same notebook* reporting overshoot 0.929 against 1.220 — the
-artifact metrics changed underneath them between runs. Both report **0% invented structure**,
-which the floor-relative fix later showed to be vacuous: the background mask was selecting
-zero pixels. Neither number should be quoted.
+| Ver | Date (UTC) | code | push | PSNR | Holdout M0 | Note |
+|----:|---|---|---|---|---|---|
+| — | 2026-06-24 19:42 | `a4ac1fe` | `27fa388` | 26.46 | — | first run, 30-epoch baseline |
+| #5 | 2026-06-26 17:15 | `f548947` | `d307a29` | 28.16 | — | |
+| 6 | 2026-06-27 16:00 | `5ed8fc6` | `01aaf88` | 31.73 | — | |
+| 7 | 2026-07-02 13:59 | `662fef5` | `95d9034` | 31.02 / 33.18 | — | outputs also synced into folder 06 (`d4ff643`) |
+| 9 | 2026-07-02 18:39 | `7fa5fce` | `d0adb14` | 32.31 / 33.04 | — | ablation; outputs synced to folder 06 (`5933292`) |
+| **12** | 2026-07-10 19:28 | `c61d112` | `82abd23` | **32.95** | **+69.8% ±15.2** | **the published V12 reference** |
+| 15 | 2026-07-26 04:42 | `09bfcb9` | `0307cc9` | 33.70 / 34.94 | +59.8% ±33.0 | 12-run sweep + beam A/B |
+| 16 | 2026-07-30 03:34 | `ef0a37b` | `227d2fc` | **30.28** | +64.4% ±14.6 (−5.4 pt) | sweep winner failed to reproduce: 37.11 → 30.28 |
+| 17 | 2026-08-02 04:13 | `227d2fc` | `7305455` | **29.92** | **+48.2% ±12.6 (−21.6 pt)** | worse again |
+| — | 2026-07-30 00:48 | `2edd875` | — | — | — | sweep/correlation/beam analysis, committed directly → [`analysis_.../`](05-unet-line-emission/analysis_2026-07-30T0048_2edd875/) |
+
+**No version of 05 has beaten V12 on the scientific metric.** The sweep found 37.11 dB;
+v16 retrained it to 30.28 and v17 to 29.92, with M0 falling from V12's +69.8% to +64.4%
+then +48.2%. Both later versions print *"NOT a clean improvement — V12 stays the reference"*
+as their own verdict. **V12 remains the reference model**, and none of v15–v17 artifacts
+were ever downloaded.
+
+Versions 16 and 17 also report overshoot mean 0.929 and 1.220 respectively for the same
+notebook, each alongside "0% invented structure" — which the floor-relative fix later showed
+to be vacuous, the background mask having selected zero pixels. Neither is quotable.
 
 ## 06 — DDPM line emission
 
-No version has completed section 11. Attempts stopped at 88/201 channels twice
+No Kaggle version has completed section 11. Attempts stopped at 88/201 channels twice
 (DataParallel deadlock, fixed in `7e49e62`), then died just after sampling finished
 (host RAM during the moment collapse, addressed in `aa2a41d`). **No artifacts.**
+
+Note that the *continuum-era* folder 06 was populated by syncing **05's** outputs into it
+(`d4ff643` from 05 v7, `5933292` from 05 v9, snapshots in `800474c`/`2024360`). Those are
+05 results filed under a 06 directory and are not DDPM line-emission runs — do not read
+them as such.
 
 ## 07 — Classical baselines
 
