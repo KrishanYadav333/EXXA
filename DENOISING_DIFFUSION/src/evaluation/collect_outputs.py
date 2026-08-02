@@ -87,6 +87,9 @@ def collect_outputs(
     root: Optional[str] = None,
     roots: Sequence[str] = DEFAULT_ROOTS,
     extra: Optional[dict] = None,
+    stamp: Optional[str] = None,
+    sha: Optional[str] = None,
+    move: bool = False,
     verbose: bool = True,
 ) -> str:
     """
@@ -103,6 +106,11 @@ def collect_outputs(
             in the 5000-file git clone) and ../results locally.
         roots: directories to search for the artifacts.
         extra: anything else worth recording -- key config, headline metrics.
+        stamp / sha: override the run tag. Only for filing results produced BEFORE this
+            collector existed, where "now" and "current HEAD" would both be wrong; a live
+            run must leave these unset so the tag reflects what actually ran.
+        move: git mv the files instead of copying, so history follows them. Used when
+            reorganising an existing flat results/ directory, not by a live run.
 
     Returns:
         Path to the run folder.
@@ -111,8 +119,8 @@ def collect_outputs(
     if root is None:
         root = "/kaggle/working/outputs" if on_kaggle else "../results"
 
-    sha = git_sha()
-    stamp = time.strftime("%Y-%m-%dT%H%M%S", time.gmtime())
+    sha = sha or git_sha()
+    stamp = stamp or time.strftime("%Y-%m-%dT%H%M%S", time.gmtime())
     # Uniqueness is enforced by the filesystem, not by clock resolution. Two collections
     # inside the same second would otherwise share a folder and merge -- silently mixing
     # two runs' artifacts, the exact failure this versioning exists to prevent.
@@ -131,7 +139,12 @@ def collect_outputs(
     files = {}
     for name, src in sorted(found.items()):
         dst = os.path.join(run_dir, name)
-        shutil.copy2(src, dst)
+        if move:
+            r = subprocess.run(["git", "mv", src, dst], capture_output=True, text=True)
+            if r.returncode != 0:          # untracked, or not a checkout
+                shutil.move(src, dst)
+        else:
+            shutil.copy2(src, dst)
         files[name] = {
             "bytes": os.path.getsize(dst),
             "sha256_16": _sha256(dst),
