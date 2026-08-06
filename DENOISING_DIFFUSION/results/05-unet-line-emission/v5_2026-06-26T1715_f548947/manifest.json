@@ -1,0 +1,37 @@
+{
+  "notebook": "05-unet-line-emission",
+  "kaggle_version": 5,
+  "kaggle_push_commit": "d307a29",
+  "code_commit": "f548947",
+  "utc": "2026-06-26T17:15Z",
+  "psnr": 28.1578,
+  "note": "pushed as '#5' rather than 'Version 5'",
+  "recovered_from_git": true,
+  "files": {
+    "line_emission_unet_comparison.png": {
+      "bytes": 829752,
+      "sha256_16": "c7a62fbaa4312c33",
+      "provenance": "recovered from d307a29 (notebook display copy, not the savefig artifact)"
+    },
+    "moment_maps_denoised_comparison.png": {
+      "bytes": 857290,
+      "sha256_16": "051248c80a54d7b2",
+      "provenance": "recovered from d307a29 (notebook display copy, not the savefig artifact)"
+    },
+    "moment_maps_holdout.png": {
+      "bytes": 858521,
+      "sha256_16": "0c9b29422d72bdb4",
+      "provenance": "recovered from d307a29 (notebook display copy, not the savefig artifact)"
+    },
+    "run_log.txt": {
+      "bytes": 6027,
+      "sha256_16": "f189bdf4df7ba9de",
+      "provenance": "recovered from d307a29 (notebook display copy, not the savefig artifact)"
+    },
+    "unet_line_emission_loss.png": {
+      "bytes": 43183,
+      "sha256_16": "d323f7ea99379999",
+      "provenance": "recovered from d307a29 (notebook display copy, not the savefig artifact)"
+    }
+  }
+}

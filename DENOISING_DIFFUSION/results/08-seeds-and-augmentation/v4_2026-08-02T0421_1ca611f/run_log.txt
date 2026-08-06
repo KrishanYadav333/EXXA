@@ -1,0 +1,243 @@
+Cloning into '/kaggle/working/EXXA'...
+Updating files: 100% (5108/5108), done.
+
+cwd: /kaggle/working/EXXA/DENOISING_DIFFUSION/notebooks | DATA_DIR: /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+
+From https://github.com/KrishanYadav333/EXXA
+ * branch            midterm-prep -> FETCH_HEAD
+
+HEAD is now at 1ca611f Kaggle Notebook | 09-architecture-comparison2 | Version 6
+1ca611f Kaggle Notebook | 09-architecture-comparison2 | Version 6
+src.* cleared — re-run the imports cell below.
+
+device: cuda | GPUs: 2 -> ['Tesla T4', 'Tesla T4']
+3 seeds per config (configs defined in section 4)
+
+restored seed_repeats.csv from /kaggle/input/notebooks/krishanyadav333/08-seeds-and-augmentationa369c56f22/seed_repeats.csv
+restored 12 checkpoint(s) into ../results/checkpoints
+
+completed runs already on record:
+  v12            seeds [42, 43, 44] | PSNR 38.659, 36.671, 37.466
+  winner         seeds [42, 43, 44] | PSNR 37.230, 37.724, 38.969
+  winner_aug     seeds [42, 43, 44] | PSNR 38.939, 39.808, 39.141
+  winner_p10     seeds [42, 43, 44] | PSNR 38.954, 39.034, 39.830
+
+these will be SKIPPED below; everything else trains normally.
+
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+
+split is seeded separately and never varies per training seed, so the spread measured below is training variance on a fixed split.
+
+[FITSChannelDataset] 7 cubes x ~150 channels = 1050 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+[FITSChannelDataset] 7 cubes x ~150 channels = 1050 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels) | D4 augmentation ON
+[FITSChannelDataset] 2 cubes x ~150 channels = 300 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+train: 1050 | train(aug): 1050 | val: 300
+augmented train item takes 8 distinct orientations | val deterministic: True
+
+12 checkpoint(s) on disk, 12 CSV row(s) — nothing to rebuild
+
+v12          patience=5   base=32  mult=(1, 2, 4)
+winner       patience=5   base=48  mult=(1, 2, 4, 8)
+winner_aug   patience=5   base=48  mult=(1, 2, 4, 8) [augmented]
+winner_p10   patience=10  base=48  mult=(1, 2, 4, 8)
+
+4 configs x 3 seeds = 12 training runs
+
+  [resume] reusing 3 completed seed(s) for 'v12': [42, 43, 44]
+=== repeating 'v12' over 3 seeds (split held fixed; only training seed varies) ===
+--- v12: seed 42 (1/3) SKIPPED, already done (PSNR 38.6593) ---
+--- v12: seed 43 (2/3) SKIPPED, already done (PSNR 36.6707) ---
+--- v12: seed 44 (3/3) SKIPPED, already done (PSNR 37.4657) ---
+
+=== 'v12' over 3 seeds ===
+  PSNR  37.5986 +/- 1.0009  (values: 38.6593, 36.6707, 37.4657)
+  SSIM  0.9922 +/- 0.0011  (values: 0.9934, 0.9912, 0.9920)
+  MSE   0.0003 +/- 0.0001  (values: 0.0002, 0.0003, 0.0003)
+--- v12 finished in 0.0 min ---
+
+  [resume] reusing 3 completed seed(s) for 'winner': [42, 43, 44]
+=== repeating 'winner' over 3 seeds (split held fixed; only training seed varies) ===
+--- winner: seed 42 (1/3) SKIPPED, already done (PSNR 37.2303) ---
+--- winner: seed 43 (2/3) SKIPPED, already done (PSNR 37.7237) ---
+--- winner: seed 44 (3/3) SKIPPED, already done (PSNR 38.9694) ---
+
+=== 'winner' over 3 seeds ===
+  PSNR  37.9745 +/- 0.8962  (values: 37.2303, 37.7237, 38.9694)
+  SSIM  0.9926 +/- 0.0003  (values: 0.9923, 0.9926, 0.9929)
+  MSE   0.0003 +/- 0.0000  (values: 0.0003, 0.0003, 0.0003)
+--- winner finished in 0.0 min ---
+
+  [resume] reusing 3 completed seed(s) for 'winner_aug': [42, 43, 44]
+=== repeating 'winner_aug' over 3 seeds (split held fixed; only training seed varies) ===
+--- winner_aug: seed 42 (1/3) SKIPPED, already done (PSNR 38.9389) ---
+--- winner_aug: seed 43 (2/3) SKIPPED, already done (PSNR 39.8084) ---
+--- winner_aug: seed 44 (3/3) SKIPPED, already done (PSNR 39.1412) ---
+
+=== 'winner_aug' over 3 seeds ===
+  PSNR  39.2962 +/- 0.4550  (values: 38.9389, 39.8084, 39.1412)
+  SSIM  0.9929 +/- 0.0005  (values: 0.9924, 0.9935, 0.9928)
+  MSE   0.0002 +/- 0.0000  (values: 0.0003, 0.0002, 0.0002)
+--- winner_aug finished in 0.0 min ---
+
+  [resume] reusing 3 completed seed(s) for 'winner_p10': [42, 43, 44]
+=== repeating 'winner_p10' over 3 seeds (split held fixed; only training seed varies) ===
+--- winner_p10: seed 42 (1/3) SKIPPED, already done (PSNR 38.9538) ---
+--- winner_p10: seed 43 (2/3) SKIPPED, already done (PSNR 39.0344) ---
+--- winner_p10: seed 44 (3/3) SKIPPED, already done (PSNR 39.8298) ---
+
+=== 'winner_p10' over 3 seeds ===
+  PSNR  39.2727 +/- 0.4842  (values: 38.9538, 39.0344, 39.8298)
+  SSIM  0.9938 +/- 0.0004  (values: 0.9935, 0.9936, 0.9943)
+  MSE   0.0002 +/- 0.0000  (values: 0.0002, 0.0002, 0.0002)
+--- winner_p10 finished in 0.0 min ---
+
+all 12 runs in 0.0 min -> ../results/seed_repeats.csv
+
+========================================================================================
+config                      PSNR (dB)                 SSIM                    MSE
+----------------------------------------------------------------------------------------
+v12                  37.5986 +/- 1.0009      0.9922 +/- 0.0011     0.000283 +/- 0.000053
+winner               37.9745 +/- 0.8962      0.9926 +/- 0.0003     0.000271 +/- 0.000018
+winner_aug           39.2962 +/- 0.4550      0.9929 +/- 0.0005     0.000230 +/- 0.000025
+winner_p10           39.2727 +/- 0.4842      0.9938 +/- 0.0004     0.000212 +/- 0.000022
+V12 (published)       32.9500   (n=1)      0.9857   (n=1)     0.000681
+========================================================================================
+
+winner - v12: +0.376 dB  (spreads 0.896 / 1.001, combined 1.344)
+  -> gap is within the combined spread: INDISTINGUISHABLE from seed noise
+
+winner_aug - winner: +1.322 dB  (spreads 0.455 / 0.896, combined 1.005)
+  -> gap is 1-2x the combined spread: SUGGESTIVE, not established at n=3
+
+winner_p10 - winner: +1.298 dB  (spreads 0.484 / 0.896, combined 1.019)
+  -> gap is 1-2x the combined spread: SUGGESTIVE, not established at n=3
+
+NOTE: with n=3 the std is itself a noisy estimate. These thresholds are a guard against over-claiming, not a significance test.
+
+epochs_run vs PSNR, per config (does a longer run score better?)
+--------------------------------------------------------------------------
+v12          epochs 60, 22, 26             PSNR 38.66, 36.67, 37.47        r=+0.952
+winner       epochs 26, 28, 28             PSNR 37.23, 37.72, 38.97        r=+0.719
+winner_aug   epochs 31, 51, 34             PSNR 38.94, 39.81, 39.14        r=+0.996
+winner_p10   epochs 40, 45, 60             PSNR 38.95, 39.03, 39.83        r=+0.987
+--------------------------------------------------------------------------
+ALL          pooled over all 12 runs                                  r=+0.721
+  (sweep reference: r = +0.650 over its 12 runs)
+
+patience 5  -> mean 27.3 epochs, PSNR 37.974 +/- 0.896
+patience 10 -> mean 48.3 epochs, PSNR 39.273 +/- 0.484
+  extra epochs bought: +21.0   PSNR change: +1.298 dB
+  variance change: std 0.896 -> 0.484
+
+sweep recorded 37.11 dB for this config; V16 retrain got 30.28 dB.
+  >50% closed  -> the shortfall was largely an early-stopping artifact;
+  <20% closed  -> the configuration genuinely is not better and 37.11 dB was luck.
+
+saved -> ../results/seed_spread.png
+
+cached clean/dirty moment maps for 5 cubes
+
+=== v12 (best seed 42, epoch 59) ===
+  run_0002_00560_rt_00     M0    24.2%  M1    68.4%  M2   -28.4%
+  run_0002_00560_rt_01     M0    11.8%  M1    87.7%  M2   -40.4%
+  run_0002_00560_rt_04     M0    55.7%  M1    76.5%  M2     0.9%
+  run_0025_01000_rt_04     M0    14.9%  M1    65.2%  M2    54.1%
+  run_0026_00005_rt_04     M0    32.1%  M1    61.9%  M2   -38.9%
+  -> M0 +27.7%+/-17.6  M1 +71.9%+/-10.3  M2 -10.5%+/-39.7
+
+=== winner (best seed 44, epoch 23) ===
+  run_0002_00560_rt_00     M0    49.7%  M1    73.4%  M2   -10.6%
+  run_0002_00560_rt_01     M0    17.1%  M1    86.5%  M2   -69.9%
+  run_0002_00560_rt_04     M0    68.0%  M1    86.0%  M2    77.1%
+  run_0025_01000_rt_04     M0   -51.2%  M1    48.3%  M2    44.8%
+  run_0026_00005_rt_04     M0     7.1%  M1    62.2%  M2   -55.1%
+  -> M0 +18.1%+/-45.9  M1 +71.3%+/-16.3  M2 -2.7%+/-63.1
+
+=== winner_aug (best seed 43, epoch 46) ===
+  run_0002_00560_rt_00     M0    59.8%  M1    88.9%  M2    66.5%
+  run_0002_00560_rt_01     M0    49.1%  M1    79.7%  M2     9.4%
+  run_0002_00560_rt_04     M0    75.4%  M1    85.6%  M2    70.4%
+  run_0025_01000_rt_04     M0   -44.6%  M1    55.4%  M2    48.9%
+  run_0026_00005_rt_04     M0    53.9%  M1    67.4%  M2     6.5%
+  -> M0 +38.7%+/-47.6  M1 +75.4%+/-13.9  M2 +40.3%+/-30.7
+
+=== winner_p10 (best seed 44, epoch 54) ===
+  run_0002_00560_rt_00     M0   -35.8%  M1    67.7%  M2   -34.2%
+  run_0002_00560_rt_01     M0    53.9%  M1    86.7%  M2  -117.4%
+  run_0002_00560_rt_04     M0    68.5%  M1    90.8%  M2    80.0%
+  run_0025_01000_rt_04     M0   -65.0%  M1    43.7%  M2    29.0%
+  run_0026_00005_rt_04     M0    36.6%  M1    66.7%  M2   -98.8%
+  -> M0 +11.6%+/-58.7  M1 +71.1%+/-18.8  M2 -28.3%+/-83.6
+
+================================================================================================
+config                    PSNR (dB)             M0 (%)             M1 (%)             M2 (%)
+------------------------------------------------------------------------------------------------
+v12                     37.60+/-1.00       27.7 +/-17.6        71.9 +/-10.3       -10.5 +/-39.7 
+winner                  37.97+/-0.90       18.1 +/-45.9        71.3 +/-16.3        -2.7 +/-63.1 
+winner_aug              39.30+/-0.46       38.7 +/-47.6        75.4 +/-13.9        40.3 +/-30.7 
+winner_p10              39.27+/-0.48       11.6 +/-58.7        71.1 +/-18.8       -28.3 +/-83.6 
+V12 (published)         32.95 (n=1)       69.8 +/-15.2        17.5 +/-7.8         20.1 +/-14.3 
+U-Net + beam            34.94  (n=1)       59.8 +/-33.0        19.2 +/-8.4         23.2 +/-20.2 
+================================================================================================
+
+Promotion check — a config is only promoted if it wins on the SCIENTIFIC metric:
+
+  winner vs v12 (this notebook, matched schedule):
+    M0:   -9.6 pp  (cube-to-cube spread 49.1 pp) -> within noise
+    M1:   -0.7 pp  (cube-to-cube spread 19.3 pp) -> within noise
+    M2:   +7.8 pp  (cube-to-cube spread 74.6 pp) -> within noise
+
+  winner_aug vs v12 (this notebook, matched schedule):
+    M0:  +11.0 pp  (cube-to-cube spread 50.7 pp) -> within noise
+    M1:   +3.5 pp  (cube-to-cube spread 17.3 pp) -> within noise
+    M2:  +50.9 pp  (cube-to-cube spread 50.2 pp) -> suggestive
+
+saved -> ../results/seed_moment_summary.csv
+
+v12          overshoot 2.741 | floor leak -0.09919 | channels with invented blob 39.0% | blobs/channel 0.897
+             low-SNR blobs/ch 1.580 vs high-SNR 0.213 (split at SNR 3.9)
+winner       overshoot 2.349 | floor leak -0.17282 | channels with invented blob 37.7% | blobs/channel 0.940
+             low-SNR blobs/ch 1.173 vs high-SNR 0.707 (split at SNR 3.9)
+winner_aug   overshoot 1.736 | floor leak -0.04402 | channels with invented blob 29.7% | blobs/channel 0.743
+             low-SNR blobs/ch 1.227 vs high-SNR 0.260 (split at SNR 3.9)
+winner_p10   overshoot 1.889 | floor leak -0.14402 | channels with invented blob 22.3% | blobs/channel 0.857
+             low-SNR blobs/ch 1.520 vs high-SNR 0.193 (split at SNR 3.9)
+
+augmentation effect on invented structure: 37.7% -> 29.7% of channels (-8.0% pp)
+saved -> ../results/artifact_diagnostics_seeds.csv
+
+persisted -> seed_repeats.csv (0.0 MB)
+persisted -> seed_moment_summary.csv (0.0 MB)
+persisted -> artifact_diagnostics_seeds.csv (0.0 MB)
+persisted -> seed_spread.png (0.1 MB)
+persisted -> v12_seed42.pth (13.8 MB)
+persisted -> v12_seed43.pth (13.8 MB)
+persisted -> v12_seed44.pth (13.8 MB)
+persisted -> winner_aug_seed42.pth (116.3 MB)
+persisted -> winner_aug_seed43.pth (116.3 MB)
+persisted -> winner_aug_seed44.pth (116.3 MB)
+persisted -> winner_p10_seed42.pth (116.3 MB)
+persisted -> winner_p10_seed43.pth (116.3 MB)
+persisted -> winner_p10_seed44.pth (116.3 MB)
+persisted -> winner_seed42.pth (116.3 MB)
+persisted -> winner_seed43.pth (116.3 MB)
+persisted -> winner_seed44.pth (116.3 MB)
+
+download the CSVs from the kernel Output tab and commit them to results/

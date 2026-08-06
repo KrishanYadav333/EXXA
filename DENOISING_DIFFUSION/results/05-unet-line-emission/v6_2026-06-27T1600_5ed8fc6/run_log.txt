@@ -1,0 +1,113 @@
+Cloning into '/kaggle/working/EXXA'...
+Updating files: 100% (5043/5043), done.
+
+cwd: /kaggle/working/EXXA/DENOISING_DIFFUSION/notebooks | DATA_DIR: /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+
+From https://github.com/KrishanYadav333/EXXA
+ * branch            line-emission -> FETCH_HEAD
+
+HEAD is now at 5ed8fc6 fix(line-emission): shared dirty-scale normalization + linear output head
+5ed8fc6 fix(line-emission): shared dirty-scale normalization + linear output head
+src.* cleared from module cache — now re-run the imports cell below.
+
+device: cuda | GPUs: 2 -> ['Tesla T4', 'Tesla T4']
+
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+
+[FITSChannelDataset] 7 cubes x ~50 channels = 350 items | target 256x256
+[FITSChannelDataset] 2 cubes x ~50 channels = 100 items | target 256x256
+train items: 350 | val items: 100
+
+DenoisingUNet params: 3,424,065
+forward (1,1,256,256) -> (1, 1, 256, 256)
+
+BATCH SIZE USED: 32 at 256x256  [DataParallel x2 (~16/GPU)]
+
+ ep |   tr_tot   tr_mse  tr_ssim |   va_tot   va_mse  va_ssim |       lr
+------------------------------------------------------------------------
+  1 |   0.1159   0.0676   0.3092 |   0.0349   0.0153   0.1135 |  1.0e-03  13s *best
+  2 |   0.0247   0.0115   0.0773 |   0.0234   0.0097   0.0782 |  1.0e-03  12s *best
+  3 |   0.0161   0.0067   0.0540 |   0.0178   0.0070   0.0612 |  1.0e-03  12s *best
+  4 |   0.0118   0.0035   0.0452 |   0.0110   0.0030   0.0429 |  1.0e-03  12s *best
+  5 |   0.0085   0.0024   0.0328 |   0.0096   0.0026   0.0379 |  1.0e-03  12s *best
+  6 |   0.0083   0.0023   0.0324 |   0.0105   0.0028   0.0411 |  1.0e-03  12s
+  7 |   0.0076   0.0023   0.0288 |   0.0080   0.0024   0.0302 |  1.0e-03  12s *best
+  8 |   0.0136   0.0034   0.0542 |   0.0149   0.0034   0.0611 |  1.0e-03  12s
+  9 |   0.0148   0.0039   0.0585 |   0.0143   0.0045   0.0535 |  1.0e-03  12s
+ 10 |   0.0101   0.0025   0.0406 |   0.0120   0.0024   0.0506 |  1.0e-03  13s
+ 11 |   0.0078   0.0018   0.0320 |   0.0076   0.0020   0.0301 |  1.0e-03  13s *best
+ 12 |   0.0074   0.0018   0.0300 |   0.0095   0.0023   0.0384 |  1.0e-03  13s
+ 13 |   0.0073   0.0018   0.0292 |   0.0078   0.0022   0.0306 |  1.0e-03  12s
+ 14 |   0.0067   0.0017   0.0269 |   0.0087   0.0019   0.0357 |  1.0e-03  12s
+ 15 |   0.0059   0.0015   0.0237 |   0.0074   0.0017   0.0301 |  1.0e-03  12s *best
+ 16 |   0.0054   0.0014   0.0213 |   0.0067   0.0019   0.0261 |  1.0e-03  13s *best
+ 17 |   0.0054   0.0014   0.0212 |   0.0062   0.0015   0.0253 |  1.0e-03  13s *best
+ 18 |   0.0056   0.0015   0.0221 |   0.0080   0.0021   0.0314 |  1.0e-03  12s
+ 19 |   0.0055   0.0015   0.0214 |   0.0067   0.0017   0.0268 |  1.0e-03  12s
+ 20 |   0.0049   0.0013   0.0191 |   0.0059   0.0013   0.0243 |  1.0e-03  13s *best
+ 21 |   0.0045   0.0013   0.0177 |   0.0052   0.0013   0.0207 |  1.0e-03  13s *best
+ 22 |   0.0041   0.0012   0.0156 |   0.0053   0.0015   0.0207 |  1.0e-03  12s
+ 23 |   0.0037   0.0011   0.0140 |   0.0045   0.0011   0.0183 |  1.0e-03  12s *best
+ 24 |   0.0035   0.0010   0.0136 |   0.0054   0.0014   0.0213 |  1.0e-03  12s
+ 25 |   0.0034   0.0009   0.0131 |   0.0046   0.0012   0.0181 |  1.0e-03  12s
+ 26 |   0.0034   0.0010   0.0131 |   0.0046   0.0011   0.0182 |  1.0e-03  12s
+ 27 |   0.0034   0.0010   0.0130 |   0.0043   0.0011   0.0169 |  1.0e-03  12s *best
+ 28 |   0.0030   0.0009   0.0116 |   0.0042   0.0010   0.0170 |  1.0e-03  13s *best
+ 29 |   0.0029   0.0008   0.0113 |   0.0041   0.0010   0.0167 |  1.0e-03  13s *best
+ 30 |   0.0028   0.0008   0.0111 |   0.0036   0.0008   0.0149 |  1.0e-03  13s *best
+
+best val total 0.0036 @ epoch 30; checkpoint -> ../results/checkpoints/unet_line_emission_best.pth
+
+Validation (100 channels):  PSNR 31.7337 dB | SSIM 0.9851 | MSE 0.000743
+
+saved -> experiments/line_emission_unet_comparison.png
+
+held-out cube: run_0002_00560_rt_00
+
+M0: mean|diff| 0.001429 (0.2% of clean max)
+M1: mean|diff| 0.3755 (27.8% of clean max)
+M2: mean|diff| 1.476 (25.8% of clean max)
+
+Held-out cube (never trained/validated): run_0002_00560_rt_00
+loaded checkpoint: epoch 30 | val_loss 0.0036
+cube shape: (201, 600, 600)
+
+UN-NORMALIZATION CONFIRMATION:
+  used each channel's OWN dirty (min,max) -> per-channel, NOT a global cube min/max, NOT clean scale.
+  e.g. ch 100 (min,max)=(-0.004716, 0.036672); ch 50=(-0.0047832, 0.03557)
+  201 distinct per-channel range-widths across 201 channels (global would be 1)
+
+saved denoised cube -> ../results/denoised_cube.fits | shape (201, 600, 600)
+
+
+Held-out cube: run_0002_00560_rt_00
+moment    dirty-vs-clean   denoised-vs-clean   improvement
+----------------------------------------------------------
+M0             0.0014293            0.026253      -1736.8%
+M1               0.37553             0.32635         13.1%
+M2                1.4757              1.2597         14.6%
+(positive improvement = denoised moment map is closer to clean than dirty was)
+
+channel 100 - PHYSICAL value ranges
+  dirty    [-0.004716, +0.036672]  mean +0.00057475  std 0.0025481
+  denoised [+0.00016491, +0.052097]  mean +0.0020006  std 0.0030299
+  clean    [+4.0346e-06, +0.036826]  mean +0.00059245  std 0.0021976
+
+  ratio denoised_max/clean_max = 1.41   (~1 good; off = scale bug)

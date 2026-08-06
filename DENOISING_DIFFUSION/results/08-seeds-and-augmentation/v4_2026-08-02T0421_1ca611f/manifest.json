@@ -24,6 +24,10 @@
       "bytes": 102171,
       "sha256_16": "0146398efdc2bf83",
       "source": "./seed_spread.png"
+    },
+    "run_log.txt": {
+      "bytes": 13133,
+      "provenance": "stdout recovered from ba328ea"
     }
   },
   "missing_patterns": [],

@@ -1,0 +1,32 @@
+{
+  "notebook": "05-unet-line-emission",
+  "kaggle_version": null,
+  "kaggle_push_commit": "27fa388",
+  "code_commit": "a4ac1fe",
+  "utc": "2026-06-24T19:42Z",
+  "psnr": 26.4591,
+  "note": "first Kaggle run, 30-epoch baseline (pushed as '05_unet_line_emission9f63e3bb4d')",
+  "recovered_from_git": true,
+  "files": {
+    "line_emission_unet_comparison.png": {
+      "bytes": 838755,
+      "sha256_16": "5b8f251d6cce095a",
+      "provenance": "recovered from 27fa388 (notebook display copy, not the savefig artifact)"
+    },
+    "moment_maps_holdout.png": {
+      "bytes": 858521,
+      "sha256_16": "0c9b29422d72bdb4",
+      "provenance": "recovered from 27fa388 (notebook display copy, not the savefig artifact)"
+    },
+    "run_log.txt": {
+      "bytes": 5238,
+      "sha256_16": "4bc9bccc40f5d51c",
+      "provenance": "recovered from 27fa388 (notebook display copy, not the savefig artifact)"
+    },
+    "unet_line_emission_loss.png": {
+      "bytes": 42931,
+      "sha256_16": "9b803b799d5f09eb",
+      "provenance": "recovered from 27fa388 (notebook display copy, not the savefig artifact)"
+    }
+  }
+}

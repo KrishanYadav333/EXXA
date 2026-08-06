@@ -1,0 +1,169 @@
+Cloning into '/kaggle/working/EXXA'...
+Updating files: 100% (5108/5108), done.
+
+cwd: /kaggle/working/EXXA/DENOISING_DIFFUSION/notebooks | DATA_DIR: /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+
+From https://github.com/KrishanYadav333/EXXA
+ * branch            midterm-prep -> FETCH_HEAD
+
+HEAD is now at bab16d0 fix(moments): M2 was unmasked, reading noise-floor width as real dispersion
+bab16d0 fix(moments): M2 was unmasked, reading noise-floor width as real dispersion
+src.* cleared — re-run the imports cell below.
+
+device: cuda | GPUs: 2
+
+architectures: ['unet', 'autoencoder', 'vae']  |  8 runs each = 24 trainings
+  unet         search space: ['alpha', 'base_channels', 'channel_multipliers', 'lr', 'sched_patience']
+  autoencoder  search space: ['alpha', 'base_channels', 'lr', 'sched_patience']
+  vae          search space: ['alpha', 'base_channels', 'kl_weight', 'latent_dim', 'lr', 'sched_patience']
+
+restored architecture_sweep.csv from /kaggle/input/notebooks/deepsceneloc/09-architecture-comparison2/architecture_sweep.csv
+restored architecture_moment_rows.csv from /kaggle/input/notebooks/deepsceneloc/09-architecture-comparison2/architecture_moment_rows.csv
+restored architecture_moment_maps.npz from /kaggle/input/notebooks/deepsceneloc/09-architecture-comparison2/architecture_moment_maps.npz
+restored arch_vae_best.pth
+restored arch_unet_best.pth
+restored arch_autoencoder_best.pth
+runs already scored:
+  autoencoder  8 run(s) | best PSNR 33.633
+  unet         8 run(s) | best PSNR 39.235
+  vae          8 run(s) | best PSNR 30.498
+
+these will be SKIPPED; the sweep continues from where it stopped.
+
+section 6 progress: {'unet': 5, 'autoencoder': 5, 'vae': 5} -- fully scored architectures are skipped
+
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+
+[FITSChannelDataset] 7 cubes x ~150 channels = 1050 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+[FITSChannelDataset] 2 cubes x ~150 channels = 300 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+train: 1050 | val: 300
+max clean value seen in validation: 1.085  (exceeds 1 -- linear heads required)
+
+
+==============================================================================
+=== UNET: 8 runs ===
+==============================================================================
+[unet] [resume] skipping 8 completed run(s): [0, 1, 2, 3, 4, 5, 6, 7]
+=== [unet] sweep run 1/8: SKIPPED (already scored) ===
+=== [unet] sweep run 2/8: SKIPPED (already scored) ===
+=== [unet] sweep run 3/8: SKIPPED (already scored) ===
+=== [unet] sweep run 4/8: SKIPPED (already scored) ===
+=== [unet] sweep run 5/8: SKIPPED (already scored) ===
+=== [unet] sweep run 6/8: SKIPPED (already scored) ===
+=== [unet] sweep run 7/8: SKIPPED (already scored) ===
+=== [unet] sweep run 8/8: SKIPPED (already scored) ===
+--- unet took 0.0 min ---
+
+==============================================================================
+=== AUTOENCODER: 8 runs ===
+==============================================================================
+[autoencoder] [resume] skipping 8 completed run(s): [0, 1, 2, 3, 4, 5, 6, 7]
+=== [autoencoder] sweep run 1/8: SKIPPED (already scored) ===
+=== [autoencoder] sweep run 2/8: SKIPPED (already scored) ===
+=== [autoencoder] sweep run 3/8: SKIPPED (already scored) ===
+=== [autoencoder] sweep run 4/8: SKIPPED (already scored) ===
+=== [autoencoder] sweep run 5/8: SKIPPED (already scored) ===
+=== [autoencoder] sweep run 6/8: SKIPPED (already scored) ===
+=== [autoencoder] sweep run 7/8: SKIPPED (already scored) ===
+=== [autoencoder] sweep run 8/8: SKIPPED (already scored) ===
+--- autoencoder took 0.0 min ---
+
+==============================================================================
+=== VAE: 8 runs ===
+==============================================================================
+[vae] [resume] skipping 8 completed run(s): [0, 1, 2, 3, 4, 5, 6, 7]
+=== [vae] sweep run 1/8: SKIPPED (already scored) ===
+=== [vae] sweep run 2/8: SKIPPED (already scored) ===
+=== [vae] sweep run 3/8: SKIPPED (already scored) ===
+=== [vae] sweep run 4/8: SKIPPED (already scored) ===
+=== [vae] sweep run 5/8: SKIPPED (already scored) ===
+=== [vae] sweep run 6/8: SKIPPED (already scored) ===
+=== [vae] sweep run 7/8: SKIPPED (already scored) ===
+=== [vae] sweep run 8/8: SKIPPED (already scored) ===
+--- vae took 0.0 min ---
+
+all 24 runs in 0.0 min -> /kaggle/working/architecture_sweep.csv
+
+======================================================================================
+architecture     runs  best PSNR     median      worst    best SSIM
+--------------------------------------------------------------------------------------
+unet                8     39.235     37.679     37.081       0.9946
+autoencoder         8     33.633     31.648     19.659       0.9904
+vae                 8     30.498     21.152     16.899       0.9819
+--------------------------------------------------------------------------------------
+V12 (published)      1     32.950                      (single run)
+======================================================================================
+
+best configuration per architecture:
+  unet         base_channels=16, channel_multipliers=1x2x4x8, lr=0.0012418126178729, alpha=0.7454149401867574, sched_patience=8
+              PSNR 39.235 | SSIM 0.9946 | 46 epochs
+  autoencoder  base_channels=32, lr=0.0012242138370336, alpha=0.8045147693403101, sched_patience=8
+              PSNR 33.633 | SSIM 0.9904 | 33 epochs
+  vae          base_channels=16, latent_dim=128.0, lr=0.0004771184981345, alpha=0.5561717732839442, kl_weight=2.066335287321196e-06, sched_patience=5
+              PSNR 30.498 | SSIM 0.9819 | 43 epochs
+
+NOTE: the spread WITHIN an architecture is often comparable to the gap BETWEEN
+architectures. Read the best-vs-worst columns before claiming an architecture wins.
+
+cached clean/dirty moment maps for 5 cubes
+resuming: {'unet': 5, 'autoencoder': 5, 'vae': 5} | retrained already: ['autoencoder', 'unet', 'vae']
+
+=== unet: SKIPPED, all 5 cubes already scored (retrain PSNR 37.414) ===
+  -> M0 +77.0%+/-13.6  M1 +22.2%+/-15.2  M2 +8.5%+/-18.1
+
+=== autoencoder: SKIPPED, all 5 cubes already scored (retrain PSNR 33.155) ===
+  -> M0 +54.1%+/-36.2  M1 +25.8%+/-13.5  M2 +21.0%+/-14.8
+
+=== vae: SKIPPED, all 5 cubes already scored (retrain PSNR 29.760) ===
+  -> M0 +46.1%+/-22.3  M1 +1.0%+/-18.1  M2 +12.7%+/-12.8
+
+saved -> ../results/architecture_moment_maps.png
+
+====================================================================================================
+architecture        params        PSNR            M0 (%)            M1 (%)            M2 (%)
+----------------------------------------------------------------------------------------------------
+unet             3,477,665      37.414       77.0+/-13.6        22.2+/-15.2         8.5+/-18.1 
+autoencoder      1,734,305      33.155       54.1+/-36.2        25.8+/-13.5        21.0+/-14.8 
+vae                467,793      29.760       46.1+/-22.3         1.0+/-18.1        12.7+/-12.8 
+----------------------------------------------------------------------------------------------------
+U-Net V12        3,400,000      32.950       69.8+/-15.2        17.5+/-7.8         20.1+/-14.3 
+====================================================================================================
+
+(unet, autoencoder, vae restored from a previous session: PSNR is the one recorded then, epoch count not carried over)
+
+For the classical filters on this same protocol, see 07-classical-baselines.ipynb;
+for the conditional DDPM, see 06-ddpm-line-emission.ipynb.
+
+best M0: unet at +77.0%
+  vs autoencoder   +22.9 pp (pooled spread 38.7) -> within cube-to-cube spread
+  vs vae           +30.9 pp (pooled spread 26.1) -> suggestive
+
+Each architecture is a SINGLE retrained run; only the cube-to-cube spread is
+shown, not seed spread. V16 showed a single run can be 6.8 dB off. Treat an
+architecture gap inside the spread as unproven and repeat it with 08-style seeds.
+
+saved -> ../results/architecture_moment_summary.csv
+persisted -> architecture_moment_summary.csv
+persisted -> architecture_moment_maps.png
+persisted -> arch_unet_best.pth
+persisted -> arch_autoencoder_best.pth
+persisted -> arch_vae_best.pth
+
+download the CSVs from the kernel Output tab and commit them to results/

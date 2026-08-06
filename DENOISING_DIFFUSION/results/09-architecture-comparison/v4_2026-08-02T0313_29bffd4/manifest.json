@@ -24,6 +24,10 @@
       "bytes": 4427,
       "sha256_16": "0f6d7ba93b70bc18",
       "source": "./architecture_sweep.csv"
+    },
+    "run_log.txt": {
+      "bytes": 10332,
+      "provenance": "stdout recovered from cb51254"
     }
   },
   "missing_patterns": [],

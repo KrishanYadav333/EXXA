@@ -21,9 +21,9 @@ Full lineage, recovered from every branch (`line-emission`, `midterm-prep`, `wee
 
 | Ver | Date (UTC) | code | push | PSNR | Holdout M0 | Artifacts |
 |----:|---|---|---|---|---|---|
-| — | 2026-06-24 19:42 | `a4ac1fe` | `27fa388` | 26.46 | — | first run, 30-epoch baseline |
-| #5 | 2026-06-26 17:15 | `f548947` | `d307a29` | 28.16 | — | — |
-| 6 | 2026-06-27 16:00 | `5ed8fc6` | `01aaf88` | 31.73 | — | — |
+| — | 2026-06-24 19:42 | `a4ac1fe` | `27fa388` | 26.46 | — | [`baseline_.../`](05-unet-line-emission/baseline_2026-06-24T1942_a4ac1fe/) — first run, 30 epochs |
+| #5 | 2026-06-26 17:15 | `f548947` | `d307a29` | 28.16 | — | [`v5_.../`](05-unet-line-emission/v5_2026-06-26T1715_f548947/) |
+| 6 | 2026-06-27 16:00 | `5ed8fc6` | `01aaf88` | 31.73 | — | [`v6_.../`](05-unet-line-emission/v6_2026-06-27T1600_5ed8fc6/) |
 | 7 | 2026-07-02 13:59 | `662fef5` | `95d9034` | 31.02 / 33.18 | — | [`v7_.../`](05-unet-line-emission/v7_2026-07-02T1359_662fef5/) · also in [`for_jason/`](for_jason/) |
 | 9 | 2026-07-02 18:39 | `7fa5fce` | `d0adb14` | 32.31 / 33.04 | — | [`v9_.../`](05-unet-line-emission/v9_2026-07-02T1839_7fa5fce/) · also in [`for_jason/`](for_jason/) |
 | **12** | 2026-07-10 19:28 | `c61d112` | `82abd23` | **32.95** | **+69.8% ±15.2** | [`v12_.../`](05-unet-line-emission/v12_2026-07-10T1928_c61d112/) · also in [`for_jason/`](for_jason/) |
@@ -102,16 +102,32 @@ Versions 16 and 17 also report overshoot mean 0.929 and 1.220 respectively for t
 notebook, each alongside "0% invented structure" — which the floor-relative fix later showed
 to be vacuous, the background mask having selected zero pixels. Neither is quotable.
 
-## 06 — DDPM line emission
+## 06-unet-continuum — U-Net continuum experiment (a DIFFERENT notebook)
+
+`06-unet-line-emission-continuum.ipynb` is **not** the DDPM notebook. It is the U-Net
+continuum experiment, and its outputs were synced into a directory called 06 — the whole
+source of the long-standing confusion that "folder 06 contains 05's results". Both runs are
+now filed under their own notebook name.
+
+| Ver | Date (UTC) | push | Artifacts |
+|----:|---|---|---|
+| 7 | 2026-07-02 14:18 | `d4ff643` | [`v7_.../`](06-unet-continuum/v7_2026-07-02T1418_d4ff643/) |
+| 9 | 2026-07-02 18:44 | `5933292` | [`v9_.../`](06-unet-continuum/v9_2026-07-02T1844_5933292/) — the ablation |
+
+Neither records a `HEAD is now at` line, so the code commit is unknown; the push commit is
+the only anchor.
+
+## 06-ddpm-line-emission — DDPM
 
 No Kaggle version has completed section 11. Attempts stopped at 88/201 channels twice
 (DataParallel deadlock, fixed in `7e49e62`), then died just after sampling finished
 (host RAM during the moment collapse, addressed in `aa2a41d`). **No artifacts.**
 
-Note that the *continuum-era* folder 06 was populated by syncing **05's** outputs into it
-(`d4ff643` from 05 v7, `5933292` from 05 v9, snapshots in `800474c`/`2024360`). Those are
-05 results filed under a 06 directory and are not DDPM line-emission runs — do not read
-them as such.
+**No artifacts of any kind.** Everything previously filed under a "06" heading belongs to
+`06-unet-continuum` above.
+
+`d704a7c` ("archive Kaggle Version 6 with outputs") is not a separate run: its five figure
+hashes and its log hash are identical to v6's push commit `01aaf88`.
 
 ## 07 — Classical baselines
 
@@ -141,8 +157,8 @@ overstatement. Needs a ~10 min CPU re-run at native resolution.
 | Ver | Date (UTC) | code | push | Outcome | Artifacts |
 |----:|---|---|---|---|---|
 | 4 | 2026-08-02 03:13 | `29bffd4` | `cb51254` | **complete** — 24/24 sweep, 3 retrains, 15 cube evals. **Origin of the numbers.** | [`v4_2026-08-02T0313_29bffd4/`](09-architecture-comparison/v4_2026-08-02T0313_29bffd4/) |
-| 6 | 2026-08-02 04:04 | `bab16d0` | `1ca611f` | resumed; reused v4's rows unchanged | same as v4 |
-| 7 | 2026-08-02 17:21 | `ee491fc` | `ecaa540` | resumed; reused v4's rows unchanged | same as v4 |
+| 6 | 2026-08-02 04:04 | `bab16d0` | `1ca611f` | resumed; reused v4's rows unchanged | [`v6_.../`](09-architecture-comparison/v6_2026-08-02T0404_bab16d0/) |
+| 7 | 2026-08-02 17:21 | `ee491fc` | `ecaa540` | resumed; reused v4's rows unchanged | [`v7_.../`](09-architecture-comparison/v7_2026-08-02T1721_ee491fc/) |
 | — | 2026-08-03 | `d07f8f4` | — | input not attached → swept from scratch; U-Net 8 runs in 299 min, died in autoencoder run 3 | none (partial) |
 
 Versions 6 and 7 print identical numbers to v4 because section 6 skipped everything already
