@@ -27,7 +27,7 @@ Full lineage, recovered from every branch (`line-emission`, `midterm-prep`, `wee
 | 7 | 2026-07-02 13:59 | `662fef5` | `95d9034` | 31.02 / 33.18 | — | [`v7_.../`](05-unet-line-emission/v7_2026-07-02T1359_662fef5/) · also in [`for_jason/`](for_jason/) |
 | 9 | 2026-07-02 18:39 | `7fa5fce` | `d0adb14` | 32.31 / 33.04 | — | [`v9_.../`](05-unet-line-emission/v9_2026-07-02T1839_7fa5fce/) · also in [`for_jason/`](for_jason/) |
 | **12** | 2026-07-10 19:28 | `c61d112` | `82abd23` | **32.95** | **+69.8% ±15.2** | [`v12_.../`](05-unet-line-emission/v12_2026-07-10T1928_c61d112/) · also in [`for_jason/`](for_jason/) |
-| 15 | 2026-07-26 04:42 | `09bfcb9` | `0307cc9` | 33.70 / 34.94 | +59.8% ±33.0 | not downloaded |
+| 15 | 2026-07-26 04:42 | `09bfcb9` | `0307cc9` | 33.70 / 34.94 | +59.8% ±33.0 | [`v15_.../`](05-unet-line-emission/v15_2026-07-26T0442_09bfcb9/) — recovered from git |
 | 16 | 2026-07-30 03:34 | `ef0a37b` | `227d2fc` | **30.28** | +64.4% ±14.6 (−5.4 pt) | [`v16_.../`](05-unet-line-emission/v16_2026-07-30T0334_ef0a37b/) |
 | 17 | 2026-08-02 04:13 | `227d2fc` | `7305455` | **29.92** | **+48.2% ±12.6 (−21.6 pt)** | [`v17_.../`](05-unet-line-emission/v17_2026-08-02T0413_227d2fc/) — recovered from git |
 | — | 2026-07-30 00:48 | `2edd875` | — | — | — | [`analysis_.../`](05-unet-line-emission/analysis_2026-07-30T0048_2edd875/) |
@@ -41,8 +41,10 @@ Full lineage, recovered from every branch (`line-emission`, `midterm-prep`, `wee
 1.220 / 1.198 / 1.423 / 1.924 / 69%. Pixel-matching the figures had *preferred v17* — the
 numbers overruled it, which is why the CSVs decided this and the images did not.
 
-**v12 — partly certain.** `moment_maps_holdout.png` and `moment_map_holdout_summary.png`
-are written by v12 and by no other downloaded version.
+**v12 — partly certain.** `moment_map_holdout_summary.png` is written by v12 and by no
+other downloaded version. (An earlier note also claimed `moment_maps_holdout.png` was
+v12-unique; recovering v7 and v9 showed they write it too, so that file rests on download
+clustering like the rest.)
 
 **v7 / v9 / v12 continuum + denoised figures — moderate.** Three
 `moment_maps_continuum_comparison` files were downloaded and exactly three versions write
@@ -62,6 +64,15 @@ digit for digit. `artifact_diagnostics_sweepwinner.csv` is **not** recoverable, 
 per-channel with only its summary printed. The same recovery filled v16's two missing
 figures; v16's downloaded files were left untouched, since a recovered figure is the
 notebook's display copy and not the `savefig` artifact.
+
+**v7 / v9 / v12 / v15 and 07 v2 — recovered from git.** Same route as v17. Recovery also
+surfaced two things the first pass had lost. v7 and v9 each contain **two runs in one
+notebook** — a line-emission section (cells 17–27) and an appended continuum section
+(cells 46–56) — which save the same filenames; keying on basename alone kept only the later
+one, so the earlier figure is now suffixed `__2`. And several cells display a figure without
+any `savefig`, which were being dropped entirely; they are kept as `unnamed_cell<N>_<i>.png`.
+07 assigns its path to a variable (`fig_path = os.path.join(...)`) before calling
+`savefig(fig_path)`, which a literal-only pattern missed — the tool now resolves that.
 
 Figures are named from the `savefig` call in their own cell. Naming by output order had
 mislabelled three of v17's four — it writes `sweepwinner_loss.png`, not
@@ -106,7 +117,7 @@ them as such.
 
 | Ver | Date (UTC) | code | push | Outcome | Artifacts |
 |----:|---|---|---|---|---|
-| 2 | 2026-07-31 19:04 | `eb03589` | `7dbd17b` | completed. Headline M0 +69.8% (V12) vs +11.7% (best classical) → +58.1 pp. | not downloaded |
+| 2 | 2026-07-31 19:04 | `eb03589` | `7dbd17b` | completed. Headline M0 +69.8% (V12) vs +11.7% (best classical) → +58.1 pp. | [`v2_.../`](07-classical-baselines/v2_2026-07-31T1904_eb03589/) — recovered from git |
 
 Superseded: this run tuned filters at 256 px and applied them at 600 px, and its optimum sat
 on the edge of the σ grid. Both handicapped the classical side, so the gap above is an

@@ -21,14 +21,20 @@ Written automatically by the last cell of each notebook
 
 | Folder | Run | Kaggle ver | Status |
 |---|---|---|---|
-| `05-unet-line-emission/` | `v7_…`, `v9_…`, `v12_…`, `v16_…`, `analysis_…` | 7, 9, 12, 16 | Five run folders. **v12 is the published reference**; v16 is the sweep-winner reproduction failure. v15 and v17 completed but were never downloaded. |
+| `05-unet-line-emission/` | `v7_…` `v9_…` `v12_…` `v15_…` `v16_…` `v17_…` `analysis_…` | 7, 9, 12, 15, 16, 17 | Every completed version. **v12 is the published reference**; v16/v17 are the sweep-winner reproduction failures. Versions never downloaded were recovered from their push commits. |
 | `08-seeds-and-augmentation/` | `v4_2026-08-02T0421_1ca611f` | 4 | Complete — 4 arms × 3 seeds = 12/12 runs. |
 | `09-architecture-comparison/` | `v4_2026-08-02T0313_29bffd4` | 4 | Complete — 24/24 sweep, 3 retrains, 15 cube evaluations. Versions 6 and 7 resumed and reported these same numbers. |
 | `_archive-continuum-era/` | `superseded_2026-07-25T1305_bf7a819` | — | Week 2/3 dust-continuum work at 64×64, superseded. |
 
-No folder for **06** (section 11 has never completed) or **07** (version 2 completed, but
-its artifacts were never downloaded and it needs a native-resolution re-run anyway).
+| `07-classical-baselines/` | `v2_2026-07-31T1904_eb03589` | 2 | Completed, recovered from git. **Superseded** — tuned at 256 px, applied at 600 px. |
+
+No folder for **06**: section 11 has never completed a run.
 See [`RUNS.md`](RUNS.md) for the full version history.
+
+Files named `*__2.png` come from a notebook that ran the same section twice (05 v7/v9);
+`unnamed_cell*.png` were displayed without a `savefig` call. Anything recovered from a push
+commit is the notebook's **display** copy of a figure, not the `savefig` artifact — lower
+fidelity, different bytes. Each `manifest.json` says which is which per file.
 
 ## Two things to know before quoting these numbers
 
