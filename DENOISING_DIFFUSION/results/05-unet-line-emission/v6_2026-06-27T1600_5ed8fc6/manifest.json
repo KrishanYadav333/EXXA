@@ -1,0 +1,42 @@
+{
+  "notebook": "05-unet-line-emission",
+  "kaggle_version": 6,
+  "kaggle_push_commit": "01aaf88",
+  "code_commit": "5ed8fc6",
+  "utc": "2026-06-27T16:00Z",
+  "psnr": 31.7337,
+  "note": "also archived with outputs under DENOISING_DIFFUSION/notebooks/ by d704a7c",
+  "recovered_from_git": true,
+  "files": {
+    "line_emission_unet_comparison.png": {
+      "bytes": 921795,
+      "sha256_16": "71a9a5cf6716f0c5",
+      "provenance": "recovered from 01aaf88 (notebook display copy, not the savefig artifact)"
+    },
+    "moment_maps_denoised_comparison.png": {
+      "bytes": 956010,
+      "sha256_16": "a9096baf6f40b807",
+      "provenance": "recovered from 01aaf88 (notebook display copy, not the savefig artifact)"
+    },
+    "moment_maps_holdout.png": {
+      "bytes": 858521,
+      "sha256_16": "0c9b29422d72bdb4",
+      "provenance": "recovered from 01aaf88 (notebook display copy, not the savefig artifact)"
+    },
+    "run_log.txt": {
+      "bytes": 6186,
+      "sha256_16": "6f7fd5e8e2cf5b30",
+      "provenance": "recovered from 01aaf88 (notebook display copy, not the savefig artifact)"
+    },
+    "unet_line_emission_loss.png": {
+      "bytes": 38768,
+      "sha256_16": "05d0899d0fb42908",
+      "provenance": "recovered from 01aaf88 (notebook display copy, not the savefig artifact)"
+    },
+    "unnamed_cell27_0.png": {
+      "bytes": 300502,
+      "sha256_16": "ae19eb0032b3db4c",
+      "provenance": "recovered from 01aaf88 (notebook display copy, not the savefig artifact)"
+    }
+  }
+}

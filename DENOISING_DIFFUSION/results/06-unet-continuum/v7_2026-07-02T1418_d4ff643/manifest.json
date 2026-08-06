@@ -1,0 +1,41 @@
+{
+  "notebook": "06-unet-line-emission-continuum",
+  "kaggle_version": 7,
+  "kaggle_push_commit": "d4ff643",
+  "code_commit": null,
+  "utc": "2026-07-02T14:18Z",
+  "note": "A SEPARATE NOTEBOOK from 06-ddpm-line-emission. This is the U-Net continuum experiment whose outputs were synced into a folder 06 -- the source of the long-standing confusion that '06 contains 05's results'. Not a DDPM run.",
+  "recovered_from_git": true,
+  "files": {
+    "line_emission_unet_comparison.png": {
+      "bytes": 903906,
+      "sha256_16": "f48f6b107e4e9e6b",
+      "provenance": "recovered from d4ff643 (notebook display copy, not the savefig artifact)"
+    },
+    "moment_maps_continuum_comparison.png": {
+      "bytes": 988231,
+      "sha256_16": "86b4fbaf9b085d9e",
+      "provenance": "recovered from d4ff643 (notebook display copy, not the savefig artifact)"
+    },
+    "moment_maps_holdout.png": {
+      "bytes": 859340,
+      "sha256_16": "3c917f4529377341",
+      "provenance": "recovered from d4ff643 (notebook display copy, not the savefig artifact)"
+    },
+    "run_log.txt": {
+      "bytes": 6563,
+      "sha256_16": "4fb27875328284e6",
+      "provenance": "recovered from d4ff643 (notebook display copy, not the savefig artifact)"
+    },
+    "unet_line_emission_loss.png": {
+      "bytes": 37151,
+      "sha256_16": "be9d69d410072207",
+      "provenance": "recovered from d4ff643 (notebook display copy, not the savefig artifact)"
+    },
+    "unnamed_cell27_0.png": {
+      "bytes": 282763,
+      "sha256_16": "753c7820f67e263c",
+      "provenance": "recovered from d4ff643 (notebook display copy, not the savefig artifact)"
+    }
+  }
+}

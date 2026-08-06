@@ -1,0 +1,21 @@
+{
+  "notebook": "09-architecture-comparison",
+  "kaggle_version": 6,
+  "kaggle_push_commit": "1ca611f",
+  "code_commit": "bab16d0",
+  "utc": "2026-08-02T04:04Z",
+  "note": "RESUMED from v4 and reported its rows unchanged -- no new numbers. Kept because the log documents that the M2 noise-clip fix pulled in here never actually ran, which is what MOMENT_VER was added to prevent.",
+  "recovered_from_git": true,
+  "files": {
+    "architecture_moment_maps.png": {
+      "bytes": 620317,
+      "sha256_16": "e69f7c8b20e0649e",
+      "provenance": "recovered from 1ca611f (notebook display copy, not the savefig artifact)"
+    },
+    "run_log.txt": {
+      "bytes": 9314,
+      "sha256_16": "3d88bf7d78339e56",
+      "provenance": "recovered from 1ca611f (notebook display copy, not the savefig artifact)"
+    }
+  }
+}
