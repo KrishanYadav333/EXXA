@@ -50,11 +50,25 @@ def recover(commit: str, notebook_path: str, dest: str, verbose: bool = True,
     os.makedirs(dest, exist_ok=True)
 
     files, log, skipped = {}, [], []
-    for cell in nb["cells"]:
+    for ci, cell in enumerate(nb["cells"]):
         src = "".join(cell["source"])
-        # the name a figure was saved under, taken from its own cell
-        names = re.findall(
-            r"savefig\(\s*(?:os\.path\.join\([^,]+,\s*)?['\"]([^'\"]+\.png)['\"]", src)
+        # The name a figure was saved under, taken from its own cell. Two forms occur:
+        # a literal inside savefig(...), and a variable assigned earlier in the same cell
+        # (notebook 07 uses `fig_path = os.path.join(OUT_DIR, '...png')` then
+        # `plt.savefig(fig_path, ...)`), which a literal-only pattern misses entirely.
+        names = []
+        for arg in re.findall(r"savefig\(\s*([^,)]+)", src):
+            arg = arg.strip()
+            lit = re.match(r"""(?:os\.path\.join\([^,]+,\s*)?['"]([^'"]+\.png)['"]""", arg)
+            if lit:
+                names.append(lit.group(1))
+                continue
+            if re.fullmatch(r"\w+", arg):        # a variable: resolve it in this cell
+                m = re.search(
+                    rf"""{arg}\s*=\s*(?:os\.path\.join\([^,]+,\s*)?['"]([^'"]+\.png)['"]""",
+                    src)
+                if m:
+                    names.append(m.group(1))
         imgs = []
         for o in cell.get("outputs", []):
             if o.get("output_type") == "stream":
@@ -62,19 +76,37 @@ def recover(commit: str, notebook_path: str, dest: str, verbose: bool = True,
             p = o.get("data", {}).get("image/png")
             if p:
                 imgs.append(p)
-        for name, payload in zip(names, imgs):
+        for j, payload in enumerate(imgs):
             blob = base64.b64decode(payload)
-            base = os.path.basename(name)
+            if j < len(names):
+                base = os.path.basename(names[j])
+                how = f"named from savefig('{names[j]}')"
+            else:
+                # displayed but never saved -- still a real output of the run, and
+                # dropping it would silently lose a figure
+                base = f"unnamed_cell{ci}_{j}.png"
+                how = "displayed with no savefig call; named after its cell"
+            # A notebook can write the same filename twice: 05 v7 and v9 each contain TWO
+            # runs (a line-emission section and an appended continuum section) that both
+            # save moment_maps_holdout.png. Keying on the basename alone kept only the
+            # last and silently discarded the first.
+            stem, ext = os.path.splitext(base)
+            n = 1
+            while base in files:
+                n += 1
+                base = f"{stem}__{n}{ext}"
             out = os.path.join(dest, base)
             if os.path.exists(out) and not overwrite:
                 skipped.append(base)
+                files[base] = {"kept_existing": True}
                 continue
             with open(out, "wb") as f:
                 f.write(blob)
             files[base] = {
                 "bytes": len(blob),
                 "sha256_16": hashlib.sha256(blob).hexdigest()[:16],
-                "provenance": f"extracted from {commit}; named from savefig('{name}')",
+                "cell": ci,
+                "provenance": f"extracted from {commit}; {how}",
             }
 
     text = "\n".join(log)
@@ -88,11 +120,13 @@ def recover(commit: str, notebook_path: str, dest: str, verbose: bool = True,
     files["run_log.txt"] = {"bytes": len(text),
                             "provenance": f"stdout captured in {commit}"}
     if verbose:
-        print(f"recovered {len(files) - 1} figure(s) + run log -> {dest}")
+        n_new = sum(1 for v in files.values() if not v.get("kept_existing"))
+        print(f"recovered {n_new - 1} figure(s) + run log -> {dest}")
         if skipped:
             print(f"   kept existing (not overwritten): {skipped}")
         for n, v in sorted(files.items()):
-            print(f"   {v['bytes']:>9,}  {n}")
+            if not v.get("kept_existing"):
+                print(f"   {v['bytes']:>9,}  {n}")
     return files
 
 
