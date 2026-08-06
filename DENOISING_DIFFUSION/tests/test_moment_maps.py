@@ -75,3 +75,60 @@ print(f"[3] clipped: background {np.isnan(bg_clip).mean():.0%} masked, "
 print("\n" + "=" * 60)
 print("All moment-map clip tests PASSED")
 print("=" * 60)
+
+
+# ---------------------------------------------------------------------------
+# [4-6] Strip-wise collapse: the fix for the Kaggle host-RAM kills.
+#
+# bettermoments is allocation-hungry out of all proportion to its input -- on a
+# 201x600x600 float32 cube (0.27 GiB) collapse_second alone peaks at 12x the cube. Three
+# collapses per cube is what exhausted the host, not the cubes being held around it.
+# All three collapses are per-pixel along the spectral axis, so strips are exact.
+import tracemalloc
+
+Cb, Hb, Wb = 60, 200, 200          # small enough to run in a test, same shape of problem
+big = rng.normal(0, 1.0, (Cb, Hb, Wb)).astype(np.float32)
+yyb, xxb = np.mgrid[0:Hb, 0:Wb]
+vel_b = np.linspace(-1000, 1000, Cb).astype(np.float32)
+big += (20 * np.exp(-((yyb - Hb / 2) ** 2 + (xxb - Wb / 2) ** 2) / (2 * 25.0 ** 2))
+        )[None] * np.exp(-(vel_b ** 2) / (2 * 200.0 ** 2))[:, None, None]
+one_cube = Cb * Hb * Wb * 4
+
+
+def _peak(tb):
+    tracemalloc.start()
+    m = generate_moment_maps(None, data_velax=(big, vel_b), tile_bytes=tb)
+    _, pk = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+    return m, pk
+
+
+full, pk_full = _peak(0)
+strip, pk_strip = _peak(1 << 18)
+
+# [4] the whole point: a bounded working set
+assert pk_strip < pk_full / 3, (pk_strip, pk_full)
+print(f"[4] strips bound the working set: {pk_full / one_cube:.1f}x cube -> "
+      f"{pk_strip / one_cube:.1f}x  ({pk_full / pk_strip:.1f}x less)")
+
+# [5] M0 must be bit-identical, and NaNs must land in exactly the same places --
+#     a different NaN pattern would mean strips changed which pixels are reportable
+assert np.array_equal(full[0], strip[0], equal_nan=True), "M0 changed under strips"
+for nm, a, b in zip(("M0", "M1", "M2"), full, strip):
+    assert np.array_equal(np.isfinite(a), np.isfinite(b)), f"{nm} NaN pattern changed"
+print("[5] M0 bit-identical; NaN pattern unchanged for M0/M1/M2")
+
+# [6] on the pixels anything is actually reported from -- the bright ones -- M1 and M2
+#     must agree to floating-point noise. Near-zero background is excluded on purpose:
+#     there the denominator is ~0 and the value is meaningless, which is the very
+#     instability clip_sigma exists to suppress.
+bright = np.isfinite(full[0]) & (np.abs(full[0]) > np.nanpercentile(np.abs(full[0]), 90))
+for nm, a, b in zip(("M1", "M2"), full[1:], strip[1:]):
+    ok = bright & np.isfinite(a) & np.isfinite(b)
+    rel = np.abs(a[ok] - b[ok]) / np.maximum(np.abs(a[ok]), 1e-12)
+    assert rel.max() < 1e-4, (nm, rel.max())
+    print(f"[6] {nm} over the brightest 10%: max relative difference {rel.max():.2e}")
+
+print("\n" + "=" * 60)
+print("Strip-collapse tests PASSED")
+print("=" * 60)
