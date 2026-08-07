@@ -298,3 +298,24 @@ No separate `AGENT_RULES.md` file exists in this repo (checked repeatedly — gi
 - Real ALMA DSHARP validation (qualitative, if time allows before midterm)
 - Repo cleanup + comprehensive README
 - Midterm report (Aug 3-9 prep window, evaluation Aug 10-14)
+
+
+---
+
+## Correction (2026-08-07): the sweep winner's "7 dB reproduction failure"
+
+Recorded above as the sweep winner (PSNR 37.11) failing to reproduce, scoring 30.28 in V16
+and 29.92 in V17. That framing is wrong.
+
+`run_sweep` trains run *i* at `seed + i`. The winning row is run index 7, so it was trained
+at **seed 49**. Notebook 05's retrain calls `train_unet(..., seed=SEED)` with **SEED = 42**.
+Identical hyperparameters, different seed. Dataset (350/100), split, early-stopping schedule
+and PSNR calculation were all verified identical.
+
+Every sweep row therefore used a different seed (42-53), so the search confounds
+configuration with seed and its maximum is partly an order statistic. Notebook 08 measured
+this configuration over seeds 42/43/44 at **37.97 +/- 0.90 dB**, which contains 37.109, and
+V12's arm at 37.60 +/- 1.00 -- "INDISTINGUISHABLE from seed noise" in 08's own words.
+
+The sweep results are not invalid, but no single row is reproducible from its
+hyperparameters alone. `run_sweep` now records `seed` per row.

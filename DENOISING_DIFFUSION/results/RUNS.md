@@ -86,10 +86,32 @@ downloaded, and pixel matching cannot separate them (29.1 / 29.2 / 29.6). Parked
 `unet_loss.png` was dropped: byte-identical (sha `c2ae97f9`) to the continuum-era copy
 already archived, so it was a stray download rather than a 05 artifact.
 
-**No version of 05 has beaten V12 on the scientific metric.** The sweep found 37.11 dB;
-v16 retrained it to 30.28 and v17 to 29.92, with M0 falling from V12's +69.8% to +64.4%
-then +48.2%. Both later versions print *"NOT a clean improvement — V12 stays the reference"*
-as their own verdict. **V12 remains the reference model.**
+**No version of 05 has beaten V12 on the scientific metric.** Both v16 and v17 print
+*"NOT a clean improvement — V12 stays the reference"* as their own verdict, with M0 falling
+from V12's +69.8% to +64.4% then +48.2%. **V12 remains the reference model.**
+
+### The "7 dB reproduction failure" was a seed difference, not a failure
+
+v16 and v17 were written up as failing to reproduce the sweep's 37.109 dB, scoring 30.28 and
+29.92. They did not fail. `run_sweep` trains run *i* at **`seed + i`**, so the winning row —
+run index 7 — was trained at **seed 49**. The retrain in notebook 05 calls
+`train_unet(..., seed=SEED)` with **`SEED = 42`**. Same hyperparameters, different draw.
+
+Everything else was verified identical: dataset (350 train / 100 val in both), split
+(seed 42, `n_holdout=3`), early stopping (min 20 / max 60 / patience 5), and the PSNR
+calculation. The trajectories agree early — the sweep's val loss at epoch 11 was 0.0038 and
+v17's *best ever* was 0.0035, also at epoch 11 — then the sweep kept improving to 0.0014 by
+epoch 33 while v17 stalled and early-stopped at epoch 20.
+
+**Consequence for every other sweep row.** Each of the twelve runs used a different seed
+(42–53), so the sweep confounds configuration with seed, and taking the maximum over them
+selects partly on luck. The winner's "+4.16 dB over V12" is an order statistic, not a
+measured effect. Notebook 08 settles it directly: the same configuration over seeds 42/43/44
+gives **37.97 ± 0.90 dB**, a band that contains 37.109 comfortably — and V12's own arm gives
+37.60 ± 1.00. 08's own verdict on the pair is *"INDISTINGUISHABLE from seed noise"*.
+
+`run_sweep` now writes a `seed` column so a row is reproducible from its own record, and
+migrates older CSVs on open, backfilling `seed` as `base_seed + run`.
 
 **V12's headline moment figures are not in any committed CSV.** `+69.8% ±15.2 / +17.5% ±7.8
 / +20.1% ±14.3` is quoted in `readme.md`, `MIDTERM_REPORT.md`, `context.md` and hardcoded as

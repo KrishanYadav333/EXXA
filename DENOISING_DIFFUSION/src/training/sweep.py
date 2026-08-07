@@ -297,6 +297,41 @@ def _completed_sweep_runs(out_csv: Optional[str], arch: str) -> set:
     return done
 
 
+def _migrate_sweep_csv(path: str, fields, base_seed: int) -> None:
+    """Bring an existing sweep CSV up to the current header before appending to it.
+
+    Appending a row with a new field to a file whose header lacks it silently misaligns
+    every subsequent column -- `csv.DictWriter` writes by position against the fieldnames
+    it was given, not against what is on disk. Older files predate the `seed` column, and
+    a resumed sweep opens them in append mode.
+
+    Rows are rewritten under the current header; `seed` is backfilled as base_seed + run,
+    which is exactly how run_sweep assigned it. Unknown columns are preserved as blanks
+    rather than dropped.
+    """
+    if not os.path.exists(path):
+        return
+    with open(path, newline="") as f:
+        rows = list(csv.DictReader(f))
+    if not rows:
+        return
+    if set(rows[0].keys()) == set(fields):
+        return
+    for r in rows:
+        if not (r.get("seed") or "").strip():
+            try:
+                r["seed"] = base_seed + int(r["run"])
+            except (KeyError, TypeError, ValueError):
+                r["seed"] = ""
+    with open(path, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=fields)
+        w.writeheader()
+        for r in rows:
+            w.writerow({k: r.get(k, "") for k in fields})
+    print(f"[sweep] migrated {os.path.basename(path)} to the current header "
+          f"({len(rows)} row(s); seed backfilled as {base_seed}+run)")
+
+
 def run_sweep(
     train_ds,
     val_ds,
@@ -340,10 +375,17 @@ def run_sweep(
         print(f"[{arch}] [resume] skipping {len(done_runs)} completed run(s): "
               f"{sorted(done_runs)}", flush=True)
     os.makedirs(os.path.dirname(out_csv) or ".", exist_ok=True)
-    fields = ["arch", "run", "base_channels", "channel_multipliers", "lr", "alpha",
+    # `seed` is recorded because each run trains at seed+i, NOT at the sweep's base seed.
+    # Without it a row is not reproducible from its hyperparameters alone, and that cost
+    # real time: notebook 05's winner (37.109 dB, run index 7 -> seed 49) was retrained at
+    # SEED=42 and scored 30.28, which was written up as a 7 dB "reproduction failure". It
+    # was a different seed, not a different method -- 08 later measured this configuration
+    # at 37.97 +/- 0.90 dB over three seeds, a band containing 37.109 comfortably.
+    fields = ["arch", "run", "seed", "base_channels", "channel_multipliers", "lr", "alpha",
               "sched_patience", "use_beam", "latent_dim", "kl_weight", "batch_size",
               "best_epoch", "epochs_run", "best_val_loss", "psnr", "ssim", "mse",
               "wall_time_s"]
+    _migrate_sweep_csv(out_csv, fields, seed)
     new_file = not os.path.exists(out_csv)
     results = []
 
@@ -363,7 +405,7 @@ def run_sweep(
             if verbose:
                 print(f"\n=== [{arch}] sweep run {i+1}/{n_runs}: {cfg} ===", flush=True)
             bs = batch_size
-            row = {"arch": arch, "run": i, **cfg}
+            row = {"arch": arch, "run": i, "seed": seed + i, **cfg}
             if "channel_multipliers" in cfg:
                 row["channel_multipliers"] = "x".join(map(str, cfg["channel_multipliers"]))
             for attempt in range(3):
