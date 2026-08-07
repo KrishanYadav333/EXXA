@@ -1,0 +1,18 @@
+{
+  "notebook": "08-seeds-and-augmentation",
+  "status": "SUPERSEDED -- do not quote",
+  "why": "These two CSVs were downloaded from a Kaggle Output tab and filed under v4, but they do not match v4's own run_log.txt. For v12 seed 42 cube run_0002_00560_rt_00 the log reports M0 24.2 / M1 68.4 / M2 -28.4 while this CSV says 74.98 / 22.15 / 13.60. They come from an earlier session.",
+  "dating": "artifact_diagnostics_seeds.csv has blobs_per_channel 0.0 and frac_channels_with_blob 0.0 for every arm -- the vacuous all-zero result caused by the empty background mask, which means this run predates the floor-relative artifacts fix 04b3f2c (2026-07-31). The exact Kaggle version is unknown: no 08 push commit other than ba328ea (v4) exists in the repository.",
+  "superseded_by": "v4's own numbers -- M0 +27.7/+18.1/+38.7/+11.6 and real artifact rates of 39.0/37.7/29.7/22.3 % of channels carrying an invented blob",
+  "note": "seed_repeats.csv and seed_spread.png were NOT moved: their PSNR values (38.6593, 36.6707, 37.4657 for v12) match v4's log exactly, because every run reuses the same 12 checkpoints and the training numbers do not change.",
+  "files": {
+    "artifact_diagnostics_seeds.csv": {
+      "bytes": 814,
+      "sha256_16": "9cfc3e72ba0b124b"
+    },
+    "seed_moment_summary.csv": {
+      "bytes": 1315,
+      "sha256_16": "095bb65d930b8457"
+    }
+  }
+}

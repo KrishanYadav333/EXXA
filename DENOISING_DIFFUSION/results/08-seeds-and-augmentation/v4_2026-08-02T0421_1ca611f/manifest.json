@@ -5,16 +5,6 @@
   "on_kaggle": false,
   "python": "3.12.13",
   "files": {
-    "artifact_diagnostics_seeds.csv": {
-      "bytes": 814,
-      "sha256_16": "9cfc3e72ba0b124b",
-      "source": "./artifact_diagnostics_seeds.csv"
-    },
-    "seed_moment_summary.csv": {
-      "bytes": 1315,
-      "sha256_16": "095bb65d930b8457",
-      "source": "./seed_moment_summary.csv"
-    },
     "seed_repeats.csv": {
       "bytes": 1484,
       "sha256_16": "dae9a2219699bcf9",
@@ -45,5 +35,41 @@
   "kaggle_version": 4,
   "kaggle_notebook": "08-seeds-and-augmentationa369c56f22",
   "kaggle_push_commit": "ba328ea",
-  "code_commit": "1ca611f"
+  "code_commit": "1ca611f",
+  "pending_download": [
+    "seed_moment_summary.csv",
+    "artifact_diagnostics_seeds.csv"
+  ],
+  "pending_note": "v4's run_log.txt contains these numbers, but the CSVs themselves were never downloaded from this run -- the ones previously here belonged to an earlier session and are now in ../superseded_pre-artifacts-fix/.",
+  "headline": {
+    "M0": {
+      "v12": 27.7,
+      "winner": 18.1,
+      "winner_aug": 38.7,
+      "winner_p10": 11.6
+    },
+    "M1": {
+      "v12": 71.9,
+      "winner": 71.3,
+      "winner_aug": 75.4,
+      "winner_p10": 71.1
+    },
+    "M2_PRE_CLIP_FIX": {
+      "v12": -10.5,
+      "winner": -2.7,
+      "winner_aug": 40.3,
+      "winner_p10": -28.3
+    },
+    "frac_channels_with_invented_blob_pct": {
+      "v12": 39.0,
+      "winner": 37.7,
+      "winner_aug": 29.7,
+      "winner_p10": 22.3
+    },
+    "low_vs_high_snr_blobs_per_channel": {
+      "low": 1.58,
+      "high": 0.213,
+      "split_at_snr": 3.9
+    }
+  }
 }
