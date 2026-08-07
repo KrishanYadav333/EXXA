@@ -95,8 +95,10 @@ as their own verdict. **V12 remains the reference model.**
 / +20.1% ±14.3` is quoted in `readme.md`, `MIDTERM_REPORT.md`, `context.md` and hardcoded as
 a `V12 = {...}` dict in notebooks 07/08/09, but the only moment CSV in the entire git history
 is the beam variant (+59.83). What was downloaded for v12 is figures, not the table.
-**08 v4 supersedes it anyway**, retraining that configuration over 3 seeds for
-**M0 +71.9% ±10.3** — a stronger number than the single run it replaces.
+**Correction:** an earlier note here claimed 08 v4 superseded it with "M0 +71.9% ±10.3".
+That figure is 08's **M1**, not M0 — the table it was read from had been mis-transcribed.
+08 v4's v12 arm actually scores **M0 +27.7% ±17.6**, well *below* the published +69.8%, so
+it does not supersede that number. The published V12 M0 remains unsourced by any CSV.
 
 Versions 16 and 17 also report overshoot mean 0.929 and 1.220 respectively for the same
 notebook, each alongside "0% invented structure" — which the floor-relative fix later showed
@@ -143,14 +145,46 @@ overstatement. Needs a ~10 min CPU re-run at native resolution.
 
 | Ver | Date (UTC) | code | push | Outcome | Artifacts |
 |----:|---|---|---|---|---|
-| 4 | 2026-08-02 04:21 | `1ca611f` | `ba328ea` | **complete** — 4 arms × 3 seeds = 12/12 | [`v4_2026-08-02T0421_1ca611f/`](08-seeds-and-augmentation/v4_2026-08-02T0421_1ca611f/) |
+| 4 | 2026-08-02 04:21 | `1ca611f` | `ba328ea` | **complete** — 4 arms × 3 seeds = 12/12 | [`v4_.../`](08-seeds-and-augmentation/v4_2026-08-02T0421_1ca611f/) |
 
-| arm | PSNR | M0 | M2 |
+`seed_repeats.csv` and `seed_spread.png` are v4's (their PSNRs match its log exactly — every
+run reuses the same 12 checkpoints, so training numbers never change). The moment and
+artifact CSVs previously filed here did **not** match v4's log and came from an earlier
+session; they are in [`superseded_pre-artifacts-fix/`](08-seeds-and-augmentation/superseded_pre-artifacts-fix/).
+v4's own values are in its `run_log.txt` and in the tables below, pending a download of the
+CSVs themselves.
+
+| arm | PSNR | M0 | M1 | M2 (pre-fix) |
+|---|---|---|---|---|
+| v12 | 37.60 ± 1.00 | +27.7 ± 17.6 | +71.9 ± 10.3 | −10.5 ± 39.7 |
+| winner | 37.97 ± 0.90 | +18.1 ± 45.9 | +71.3 ± 16.3 | −2.7 ± 63.1 |
+| winner_aug | **39.30 ± 0.46** | **+38.7 ± 47.6** | **+75.4 ± 13.9** | +40.3 ± 30.7 |
+| winner_p10 | 39.27 ± 0.48 | +11.6 ± 58.7 | +71.1 ± 18.8 | −28.3 ± 83.6 |
+
+**Correction.** An earlier version of this table listed 71.9 / 71.3 / 75.4 / 71.1 under an
+"M0" heading. Those are **M1**; the M0 column was omitted and the numbers shifted left. The
+real M0 values are far lower and every arm sits *below* the published V12 M0 of +69.8%.
+
+### Invented structure — the first real measurement
+
+The artifact diagnostics finally return evidence rather than an artefact of an empty mask
+(they ran at `1ca611f`, after the floor-relative fix `04b3f2c`):
+
+| arm | channels with an invented blob | blobs/channel | peak overshoot |
 |---|---|---|---|
-| v12 | 37.60 ± 1.00 | 71.9 ± 10.3 | −10.5 ± 39.7 |
-| winner | 37.97 ± 0.90 | 71.3 ± 16.3 | −2.7 ± 63.1 |
-| winner_aug | **39.30 ± 0.46** | **75.4 ± 13.9** | 40.3 ± 30.7 |
-| winner_p10 | 39.27 ± 0.48 | 71.1 ± 18.8 | −28.3 ± 83.6 |
+| v12 | 39.0% | 0.897 | 2.741 |
+| winner | 37.7% | 0.940 | 2.349 |
+| **winner_aug** | **29.7%** | **0.743** | 1.736 |
+| winner_p10 | 22.3% | 0.857 | 1.889 |
+
+Two results worth reporting. **Invented structure is concentrated in faint channels** —
+1.580 blobs/channel below the median SNR against 0.213 above it, a ~7x difference at a split
+of SNR 3.9. That answers the open question of whether hallucination is a low-SNR-specific
+failure: it is. And **augmentation reduces it**, 37.7% → 29.7% of channels (−8.0 pp), which
+is the hypothesis this notebook was built to test.
+
+The earlier "0% invented structure, 0.00 blobs/channel" for every arm was the empty-mask
+artefact, and those CSVs are now in `superseded_pre-artifacts-fix/`.
 
 ## 09 — Architecture comparison (`09-architecture-comparison2`)
 

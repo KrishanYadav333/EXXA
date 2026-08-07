@@ -22,7 +22,7 @@ Written automatically by the last cell of each notebook
 | Folder | Run | Kaggle ver | Status |
 |---|---|---|---|
 | `05-unet-line-emission/` | `baseline_…` `v5_…` `v6_…` `v7_…` `v9_…` `v12_…` `v15_…` `v16_…` `v17_…` `analysis_…` | all | Every completed version. **v12 is the published reference**; v16/v17 are the sweep-winner reproduction failures. Versions never downloaded were recovered from their push commits. |
-| `08-seeds-and-augmentation/` | `v4_2026-08-02T0421_1ca611f` | 4 | Complete — 4 arms × 3 seeds = 12/12 runs. |
+| `08-seeds-and-augmentation/` | `v4_…`, `superseded_pre-artifacts-fix/` | 4 | Complete — 4 arms × 3 seeds = 12/12. Moment/artifact CSVs from an earlier session were separated out; v4's own numbers are in its `run_log.txt`. |
 | `09-architecture-comparison/` | `v4_2026-08-02T0313_29bffd4` | 4 | Complete — 24/24 sweep, 3 retrains, 15 cube evaluations. Versions 6 and 7 resumed and reported these same numbers. |
 | `_archive-continuum-era/` | `superseded_2026-07-25T1305_bf7a819` | — | Week 2/3 dust-continuum work at 64×64, superseded. |
 
