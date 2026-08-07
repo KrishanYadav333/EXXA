@@ -286,18 +286,34 @@ No separate `AGENT_RULES.md` file exists in this repo (checked repeatedly — gi
 
 ## 7. UPCOMING MILESTONES
 
-- Run the winning sweep config (PSNR 37.11) through the all-5-holdout moment-map eval — the
-  real open question right now, not the overshoot/floor-leak refinements below
-- Re-run `06-ddpm-line-emission.ipynb` Section 11 (import fix already committed) to get the
-  first real DDPM-vs-V12 moment-map comparison
+**Midterm deliverable, confirmed by Jason 2026-08-07 (email): a WordPress blog post**, not a
+formal report or notebook walkthrough — background + methods + initial results, explicitly
+allowed to be unfinished/imperfect, with a link to a public notebook. **ALMA real-data
+validation is deferred to the final blog**, not required for midterm. Jason's own words:
+"Don't worry about passing your evaluation though. You're fine there." This resets the bar
+for the items below — they remain worth finishing, but none of them gate Aug 10–14.
+
+Blog structure as sent to Jason: classical baselines → architecture comparison (autoencoder,
+VAE, U-Net, DDPM) → U-Net results on synthetic line-emission data → public notebook link.
+
+- Run the winning sweep config (PSNR 37.11) through the all-5-holdout moment-map eval — see
+  the 2026-08-07 correction below: this was already done (V16/V17), and the "failure" was a
+  seed mismatch (sweep row used seed 49, retrain used SEED=42), not a real regression.
+- Re-run `06-ddpm-line-emission.ipynb` Section 11 — **done 2026-08-07**, first completed run:
+  PSNR ~18–19 dB vs U-Net's 37–39 dB. Real, if weak, result — sufficient for the blog's
+  "why U-Net over DDPM" comparison section without further tuning.
 - Resolve the beam M0-variance tradeoff — decide whether beam ships at all given the sweep's
   negative correlation
 - Loss reweighting / non-negativity-penalty refinement for overshoot + floor leak — lower
   priority than the sweep-winner validation above
-- Resolve or characterize the low-SNR hallucination issue
-- Real ALMA DSHARP validation (qualitative, if time allows before midterm)
+- Resolve or characterize the low-SNR hallucination issue — quantified 2026-08-06/07 via
+  notebook 08's artifact diagnostics (floor-relative fix): invented structure in 22–39% of
+  channels depending on config, ~7x worse below median SNR than above it
+- Real ALMA DSHARP validation — **confirmed deferred to the FINAL blog**, not midterm
+- Two new cubes (self-gravitating + matching dirty) received from Jason via Google Drive
+  2026-08-07, not yet pulled into the repo or examined
 - Repo cleanup + comprehensive README
-- Midterm report (Aug 3-9 prep window, evaluation Aug 10-14)
+- Midterm blog post (Aug 3-9 prep window, evaluation Aug 10-14) — write-up not yet started
 
 
 ---

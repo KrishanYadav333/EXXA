@@ -250,6 +250,39 @@ anecdotes and does not survive a distribution.
    negative correlation with PSNR.
 4. V12 not yet archived in `notebooks/kaggle_versions/` (V7/V9 are).
 5. n=1 vs n=5 continuum decision (V9 finding) — ask Jason.
-6. Self-gravitating cubes from Jason — not received.
+6. ~~Self-gravitating cubes from Jason — not received.~~ Received 2026-08-07 (see below).
 7. Bayesian sweep seeded from the 12 random runs now that alpha stands out (r=+0.62).
 8. Midterm evaluation Aug 10–14 (week 7-8/22 now).
+
+## 2026-08-07 — Jason clarifies midterm deliverable: a blog post, not a report
+
+Emailed Jason 2026-08-03 asking what to prepare for Aug 10–14: format, whether current
+U-Net result is sufficient, whether ALMA validation is needed by then. Reply came 2026-08-07:
+
+- **Deliverable is a WordPress blog post** (ML4Sci's standard midterm ask), not a formal
+  written report or a notebook walkthrough. Should cover background, methods, initial
+  results. Explicitly **does not need to be complete or polished** ("we don't expect it to
+  be perfect because you're not done yet").
+- **U-Net is fine to present as the focus** — Jason confirmed directly, no further tuning
+  demanded before midterm.
+- **ALMA real-data validation is deferred to the FINAL blog**, not midterm. "For now, just
+  focus on the synthetic data, we can get to ALMA data for the final blog."
+- Include a link to a public notebook alongside the post.
+- **"Don't worry about passing your evaluation though. You're fine there."** — direct
+  reassurance from the mentor; the bar for Aug 10–14 is lower than the rigor this session has
+  been pursuing (seed bands, corrected metrics, cross-notebook comparability). That rigor is
+  still worth finishing for the *final* evaluation and for the blog's own credibility, but it
+  is not gating the midterm.
+- **New data received**: self-gravitating cube + a matching dirty cube, shared via Google
+  Drive (link in the email thread, not the repo). Jason: "I'll give you more later." Not yet
+  pulled into the repo or looked at — open item.
+
+Replied same day with the planned blog structure: classical baselines → architecture
+comparison (autoencoder, VAE, U-Net, DDPM) → U-Net results on synthetic line-emission data →
+link to public notebook. ALMA left for the final blog per Jason's steer.
+
+**Consequence for priority ordering**: the blog needs the U-Net story to be presentable, not
+every notebook to be re-run under the corrected metric. 06 (DDPM) having a real, if weak,
+completed result (PSNR ~18–19 dB) is enough to write the "why U-Net over DDPM" comparison
+section — it does not need the memory/seed fixes chased earlier today to be *good*, just to
+exist and be honestly reported.
