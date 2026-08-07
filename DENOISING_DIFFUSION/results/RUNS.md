@@ -201,10 +201,40 @@ and v7 never actually ran — which is why `MOMENT_VER` was added in `ee491fc`.
 
 ---
 
-## The M2 caveat
+## The metric changed — which runs are comparable
 
-Every M2 figure above predates the noise-clip fix (`bab16d0`, `MOMENT_VER=2`).
-`bettermoments.collapse_second` was fed an unmasked cube, so pure background noise reads a
-dispersion near the velocity axis' own RMS width — far above a real line width, and
-uniform across the whole background rather than confined to a few outliers. **M0, M1 and
-PSNR are unaffected. Every M2 needs re-scoring.**
+`bab16d0` added a 3-sigma noise clip before the collapse. It was introduced to fix M2, but
+it changes **M1 and M2 substantially and M0 modestly**, because zeroing sub-3-sigma channels
+alters the integrated intensity and the intensity-weighted velocity as well. On a synthetic
+cube with a known answer:
+
+    unclipped   M0 +69.8%   M1  +8.7%   M2 +11.9%
+    clipped     M0 +64.7%   M1 +31.3%   M2 +24.3%
+
+So runs sit on one of two metrics, and **numbers may only be compared within a group**:
+
+| Metric | Runs |
+|---|---|
+| **clipped** (current) | 08 v4 (`1ca611f`) |
+| unclipped (old) | 05 all versions, 07 v2, 09 v4 / v6 / v7 |
+
+`1ca611f` is *after* `bab16d0`, so 08 v4 is the only run already on the current metric — the
+opposite of what an earlier note here claimed. Its M0 +27.7 / M1 +71.9 cannot be set beside
+05's +69.8 / +17.5 or 09's +77.0 / +22.2; the gap is the metric, not the models.
+
+`d1f0f66` (strip-wise collapse) changes memory and speed, not values: M0 is bit-identical
+and bright pixels agree to 1e-10, so it does not split the groups further.
+
+**To restore comparability, 05 and 09 must be re-scored.** Neither needs retraining —
+checkpoints exist for both, and 09's `MOMENT_VER` already forces its cube rows to be redone.
+
+## M2 is genuinely weak, and that survives the fix
+
+On the corrected metric 08 v4 still reports M2 −10.5 / −2.7 / +40.3 / −28.3 with standard
+deviations up to 83.6 — three of four arms make dispersion *worse* than the dirty cube. The
+clip made M2 measure line width rather than band width; it did not make the result good.
+That is consistent with 09, where M2 was the U-Net's weakest moment (+8.5 ± 18.1) and the
+only one where it lost to both baselines.
+
+Each 08 arm is a single seed evaluated over 5 cubes, so the spread is cube-to-cube. Treat
+M2 as an open weakness of the method, not as a metric artefact.
