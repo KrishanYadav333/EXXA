@@ -203,3 +203,59 @@ if __name__ == "__main__":
     tag = os.path.basename(os.path.dirname(args.clean))
     _plot_clean_vs_dirty(cm, dm, args.out, tag=tag)
     print(f"\nsaved comparison -> {args.out}")
+
+
+# --------------------------------------------------------------------------- #
+# Scoring: where a moment map should actually be compared                      #
+# --------------------------------------------------------------------------- #
+SIGNAL_FRAC = 0.05   # of the clean M0 peak
+
+
+def signal_mask(clean_m0: np.ndarray, frac: float = SIGNAL_FRAC) -> np.ndarray:
+    """Pixels where the TRUTH has real emission.
+
+    Defined from the clean cube alone, so it is identical for every method being
+    compared and cannot be tuned per model. This uses ground truth and is therefore a
+    benchmark construct: on real data the mask would have to come from the observation.
+    """
+    finite = np.isfinite(clean_m0)
+    if not finite.any():
+        return finite
+    peak = float(np.nanmax(np.abs(clean_m0[finite])))
+    if not np.isfinite(peak) or peak <= 0:
+        return finite
+    return finite & (np.abs(clean_m0) > frac * peak)
+
+
+def moment_improvement(clean, dirty, denoised, frac: float = SIGNAL_FRAC) -> dict:
+    """
+    Percent improvement of `denoised` over `dirty` against `clean`, per moment.
+
+    `clean`, `dirty`, `denoised` are each a (M0, M1, M2) triple.
+
+    Scored over the signal mask rather than the whole map. Averaging over every finite
+    pixel — the previous behaviour — lets empty sky dominate, and dispersion in a pixel
+    with no line is not a quantity anyone reports. It penalised M2 hardest because M2 is
+    a ratio whose denominator vanishes exactly there.
+
+    The mask does not change which method wins. On a synthetic benchmark with three
+    denoisers of known quality the ranking is identical at every threshold from 0.5% to
+    10% of peak; only the scale moves (M2 for the best model, 54.1% unmasked vs 68-77%
+    masked). `frac` is deliberately taken from a plateau rather than its maximum.
+
+    Returns per-moment improvements plus `n_px`, and the unmasked values under
+    `M0_all`/`M1_all`/`M2_all` so the effect of masking is always visible alongside it.
+    """
+    mask = signal_mask(clean[0], frac)
+    out = {"n_px": int(mask.sum()), "frac": frac}
+    for i, nm in enumerate(("M0", "M1", "M2")):
+        cl, di, no = np.asarray(clean[i]), np.asarray(dirty[i]), np.asarray(denoised[i])
+        base = np.isfinite(cl) & np.isfinite(di) & np.isfinite(no)
+        for suffix, m in ((nm, base & mask), (nm + "_all", base)):
+            if not m.any():
+                out[suffix] = float("nan")
+                continue
+            dd = float(np.abs(cl[m] - di[m]).mean())
+            nn = float(np.abs(cl[m] - no[m]).mean())
+            out[suffix] = 100.0 * (1.0 - nn / dd) if dd > 0 else float("nan")
+    return out

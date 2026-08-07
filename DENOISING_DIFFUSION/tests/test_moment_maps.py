@@ -132,3 +132,53 @@ for nm, a, b in zip(("M1", "M2"), full[1:], strip[1:]):
 print("\n" + "=" * 60)
 print("Strip-collapse tests PASSED")
 print("=" * 60)
+
+
+# ---------------------------------------------------------------------------
+# [7-9] Signal-masked scoring.
+#
+# The improvement metric averaged over every finite pixel, so empty sky dominated it.
+# Dispersion in a pixel with no line is not a quantity anyone reports, and M2 suffered
+# most because it is a ratio whose denominator vanishes exactly there.
+from src.evaluation.moment_maps import moment_improvement, signal_mask
+
+Cs, Hs, Ws = 80, 160, 160
+vs = np.linspace(-1000, 1000, Cs).astype(np.float32)
+ys, xs = np.mgrid[0:Hs, 0:Ws]
+rr = np.sqrt((ys - Hs / 2) ** 2 + (xs - Ws / 2) ** 2)
+src_ = 20 * np.exp(-rr ** 2 / (2 * 20.0 ** 2))          # compact: most of the map is sky
+vf = 300 * (xs - Ws / 2) / (Ws / 2)
+wd = 120 + 80 * np.exp(-rr ** 2 / (2 * 15.0 ** 2))
+clean_c = np.zeros((Cs, Hs, Ws), np.float32)
+for i, v in enumerate(vs):
+    clean_c[i] = src_ * np.exp(-((v - vf) ** 2) / (2 * wd ** 2))
+dirty_c = clean_c + rng.normal(0, 1.0, clean_c.shape).astype(np.float32)
+
+cm = generate_moment_maps(None, data_velax=(clean_c, vs))
+dm = generate_moment_maps(None, data_velax=(dirty_c, vs))
+qual = {"good": 0.2, "ok": 0.45, "poor": 0.8}
+pred = {k: generate_moment_maps(
+            None, data_velax=(clean_c + rng.normal(0, s, clean_c.shape).astype(np.float32), vs))
+        for k, s in qual.items()}
+
+# [7] the mask must select the source and exclude the sky, not most of the map
+msk = signal_mask(cm[0])
+assert 0.01 < msk.mean() < 0.5, f"mask covers {msk.mean():.1%} of the map"
+print(f"[7] signal mask keeps {msk.mean():.1%} of pixels (compact source, mostly sky)")
+
+# [8] masking must not change WHICH method wins -- otherwise it moves the goalposts
+res = {k: moment_improvement(cm, dm, pred[k]) for k in qual}
+for nm in ("M0", "M1", "M2"):
+    masked = sorted(res, key=lambda k: res[k][nm], reverse=True)
+    unmask = sorted(res, key=lambda k: res[k][nm + "_all"], reverse=True)
+    assert masked == unmask == ["good", "ok", "poor"], (nm, masked, unmask)
+print("[8] ranking identical masked vs unmasked for M0/M1/M2: good > ok > poor")
+
+# [9] and it should lift M2, which the sky was dragging down
+assert res["good"]["M2"] > res["good"]["M2_all"], (res["good"]["M2"], res["good"]["M2_all"])
+print(f"[9] M2 for the good model: {res['good']['M2_all']:.1f}% over all pixels "
+      f"-> {res['good']['M2']:.1f}% over signal")
+
+print("\n" + "=" * 60)
+print("Signal-mask scoring tests PASSED")
+print("=" * 60)
