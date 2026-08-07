@@ -38,14 +38,18 @@ Files named `*__2.png` come from a notebook that ran the same section twice (05 
 commit is the notebook's **display** copy of a figure, not the `savefig` artifact — lower
 fidelity, different bytes. Each `manifest.json` says which is which per file.
 
-## Two things to know before quoting these numbers
+## Before quoting any of these numbers
 
-**M2 in the 08 and 09 runs predates the noise-clip fix** (`bab16d0`, `MOMENT_VER=2`).
-`bettermoments.collapse_second` was being fed an unmasked cube, so background noise read as
-a dispersion of roughly the velocity axis' own RMS width — far above a real line width.
-M0, M1 and PSNR are unaffected; **M2 needs re-scoring**. The saturated M2 column in
-`09-architecture-comparison/.../architecture_moment_maps.png` is what exposed it.
+**Two different metrics are in play.** `bab16d0` added a 3-sigma noise clip before the
+moment collapse, which shifts **M1 and M2 substantially and M0 modestly** — not M2 alone, as
+an earlier version of this note claimed. Measured on a synthetic cube:
 
-**`_archive-continuum-era/` is not comparable to anything else here.** Different data,
-different resolution, no tuning. It is kept for provenance and must not be quoted alongside
-line-emission results.
+    unclipped   M0 +69.8%   M1  +8.7%   M2 +11.9%
+    clipped     M0 +64.7%   M1 +31.3%   M2 +24.3%
+
+Only **08 v4** ran on the clipped (current) metric. Every 05, 07 and 09 run predates it.
+Do not compare moment numbers across that line — see [`RUNS.md`](RUNS.md). Re-scoring 05 and
+09 needs no retraining.
+
+**`_archive-continuum-era/` is not comparable to anything here.** Different data, different
+resolution, no tuning. Kept for provenance only.
