@@ -86,7 +86,12 @@ def default_diffusion_config(image_size: int = 64) -> DotDict:
             "resamp_with_conv": True,
         },
         "diffusion": {
-            "beta_schedule": "linear",
+            "beta_schedule": "linear",   # "cosine" recommended -- see get_beta_schedule
+            # Training objective. "eps" reproduces the original behaviour exactly;
+            # "v" + min_snr_gamma=5.0 is the configuration the literature reports as
+            # converging fastest and degrading least at low SNR.
+            "prediction_type": "eps",
+            "min_snr_gamma": 0.0,
             "beta_start": 1e-4,
             "beta_end": 2e-2,
             "num_diffusion_timesteps": 1000,
