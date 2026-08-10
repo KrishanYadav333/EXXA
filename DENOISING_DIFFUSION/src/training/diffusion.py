@@ -54,6 +54,21 @@ def get_beta_schedule(beta_schedule, *, beta_start, beta_end, num_diffusion_time
     def sigmoid(x):
         return 1 / (np.exp(-x) + 1)
 
+    if beta_schedule == "cosine":
+        # Nichol & Dhariwal (2021), "Improved DDPM". The linear schedule destroys
+        # information too early -- by the midpoint the signal is nearly gone, so a large
+        # share of training steps sit at timesteps carrying no usable signal. Cosine keeps
+        # alpha_bar high longer and only collapses near the end. That matters more here
+        # than for natural images: an emission line occupies a small fraction of a mostly
+        # empty field, so it drowns sooner than a photograph would.
+        s_off = 0.008
+        steps = num_diffusion_timesteps + 1
+        x = np.linspace(0, num_diffusion_timesteps, steps, dtype=np.float64)
+        ab = np.cos(((x / num_diffusion_timesteps) + s_off) / (1 + s_off) * np.pi * 0.5) ** 2
+        ab = ab / ab[0]
+        betas = np.clip(1 - (ab[1:] / ab[:-1]), 0.0, 0.999)
+        assert betas.shape == (num_diffusion_timesteps,)
+        return betas
     if beta_schedule == "quad":
         betas = np.linspace(beta_start ** 0.5, beta_end ** 0.5, num_diffusion_timesteps, dtype=np.float64) ** 2
     elif beta_schedule == "linear":
@@ -120,24 +135,59 @@ class EMAHelper:
 # --------------------------------------------------------------------------- #
 # Conditional noise-estimation loss                                          #
 # --------------------------------------------------------------------------- #
-def noise_estimation_loss(model, x0, t, e, b):
+def noise_estimation_loss(model, x0, t, e, b, *, prediction_type="eps",
+                          min_snr_gamma=0.0):
     """
     Conditional DDPM loss.
 
     Args:
-        model: predicts noise from ``cat([cond, x_t], dim=1)`` and ``t``.
+        model: predicts from ``cat([cond, x_t], dim=1)`` and ``t``.
         x0: (B, 2, H, W) with channel 0 = dirty (cond), channel 1 = clean (gt), in [-1, 1].
         t:  (B,) timesteps.
         e:  (B, 1, H, W) sampled noise.
         b:  (T,) betas.
+        prediction_type: ``"eps"`` (classic) or ``"v"``.
+
+            v-prediction (Salimans & Ho 2022) regresses
+            ``v = sqrt(a)*eps - sqrt(1-a)*x0``. It behaves like eps-prediction at high
+            noise and like x0-prediction at low noise, so neither end of the schedule is
+            trivially predictable. Plain eps-prediction degenerates as SNR -> 0: when
+            everything is noise, echoing the input is near-optimal and the model learns
+            nothing there -- which is exactly the regime a faint line in an empty field
+            occupies.
+        min_snr_gamma: if > 0, apply Min-SNR-gamma loss weighting (Hang et al. 2023).
+
+            Untouched, low-noise timesteps carry enormous SNR and dominate the gradient,
+            so training over-fits the easy end of the schedule. Clipping effective SNR at
+            gamma rebalances across timesteps; the paper reports fastest convergence at
+            gamma=5 for every prediction target.
 
     Returns:
         Scalar loss (per-pixel squared error summed over CHW, averaged over batch).
     """
     a = (1 - b).cumprod(dim=0).index_select(0, t).view(-1, 1, 1, 1)
-    x = x0[:, 1:, :, :] * a.sqrt() + e * (1.0 - a).sqrt()          # noise the clean channel
+    clean = x0[:, 1:, :, :]
+    x = clean * a.sqrt() + e * (1.0 - a).sqrt()                    # noise the clean channel
     output = model(torch.cat([x0[:, :1, :, :], x], dim=1), t.float())
-    return (e - output).square().sum(dim=(1, 2, 3)).mean(dim=0)
+
+    if prediction_type == "v":
+        target = a.sqrt() * e - (1.0 - a).sqrt() * clean
+    elif prediction_type == "eps":
+        target = e
+    else:
+        raise ValueError(f"unknown prediction_type {prediction_type!r}")
+
+    per_sample = (target - output).square().sum(dim=(1, 2, 3))
+
+    if min_snr_gamma and min_snr_gamma > 0:
+        snr = (a / (1.0 - a)).view(-1)                             # alpha_bar / (1 - alpha_bar)
+        clipped = torch.clamp(snr, max=float(min_snr_gamma))
+        # eps-prediction already carries an implicit 1/SNR and v-prediction 1/(SNR+1);
+        # divide by the matching term so the applied weight is the intended ratio.
+        w = clipped / (snr + 1.0) if prediction_type == "v" else clipped / snr
+        per_sample = per_sample * w
+
+    return per_sample.mean(dim=0)
 
 
 # --------------------------------------------------------------------------- #
@@ -149,8 +199,13 @@ def compute_alpha(beta, t):
     return a
 
 
-def generalized_steps(x, x_cond, seq, model, b, eta=0.0):
-    """DDIM reverse process conditioned on ``x_cond`` (already in [-1, 1])."""
+def generalized_steps(x, x_cond, seq, model, b, eta=0.0, prediction_type="eps"):
+    """DDIM reverse process conditioned on ``x_cond`` (already in [-1, 1]).
+
+    ``prediction_type`` must match what the model was TRAINED with. A v-trained model
+    decoded as eps (or the reverse) produces plausible-looking noise rather than an
+    error, so this is threaded through from the checkpoint rather than defaulted.
+    """
     with torch.no_grad():
         n = x.size(0)
         seq_next = [-1] + list(seq[:-1])
@@ -163,8 +218,14 @@ def generalized_steps(x, x_cond, seq, model, b, eta=0.0):
             at_next = compute_alpha(b, next_t.long())
             xt = xs[-1].to(x.device)
 
-            et = model(torch.cat([x_cond, xt], dim=1), t)
-            x0_t = (xt - et * (1 - at).sqrt()) / at.sqrt()
+            out = model(torch.cat([x_cond, xt], dim=1), t)
+            if prediction_type == "v":
+                # v = sqrt(a)*eps - sqrt(1-a)*x0  =>  invert for both x0 and eps
+                x0_t = at.sqrt() * xt - (1 - at).sqrt() * out
+                et = (1 - at).sqrt() * xt + at.sqrt() * out
+            else:
+                et = out
+                x0_t = (xt - et * (1 - at).sqrt()) / at.sqrt()
             x0_t = x0_t.clamp(-1.0, 1.0)   # prevent unbounded blowup compounding over steps
             x0_preds.append(x0_t.to("cpu"))
 
@@ -245,6 +306,11 @@ class DenoisingDiffusion:
             num_diffusion_timesteps=self.config.diffusion.num_diffusion_timesteps,
         )
         self.betas = torch.from_numpy(betas).float().to(self.device)
+        # Training objective. Defaults reproduce the original eps-prediction exactly, so
+        # checkpoints trained before these existed still load and sample correctly.
+        _d = self.config.diffusion
+        self.prediction_type = getattr(_d, "prediction_type", "eps")
+        self.min_snr_gamma = float(getattr(_d, "min_snr_gamma", 0.0) or 0.0)
         self.num_timesteps = self.betas.shape[0]
 
         self.step = 0
@@ -268,7 +334,9 @@ class DenoisingDiffusion:
             t = torch.randint(low=0, high=self.num_timesteps, size=(n // 2 + 1,), device=self.device)
             t = torch.cat([t, self.num_timesteps - t - 1], dim=0)[:n]
 
-            loss = noise_estimation_loss(self.model, x, t, e, self.betas)
+            loss = noise_estimation_loss(self.model, x, t, e, self.betas,
+                                         prediction_type=self.prediction_type,
+                                         min_snr_gamma=self.min_snr_gamma)
 
             if train:
                 self.optimizer.zero_grad()
@@ -365,7 +433,8 @@ class DenoisingDiffusion:
         acc = torch.zeros(b, c, h, w, device=self.device)
         for _ in range(max(1, n_avg)):
             x = torch.randn(b, c, h, w, device=self.device)
-            xs, _ = generalized_steps(x, x_cond, seq, self.model, self.betas, eta=0.0)
+            xs, _ = generalized_steps(x, x_cond, seq, self.model, self.betas, eta=0.0,
+                                      prediction_type=self.prediction_type)
             acc += inverse_data_transform(xs[-1].to(self.device))
         out = acc / max(1, n_avg)
 
@@ -416,6 +485,7 @@ class DenoisingDiffusion:
             "optimizer": self.optimizer.state_dict(),
             "ema_helper": self.ema_helper.state_dict() if self.use_ema else None,
             "config": self.config,
+            "prediction_type": self.prediction_type,
             "train_losses": self.train_losses,
             "val_losses": self.val_losses,
             "best_val_loss": self.best_val_loss,
@@ -431,6 +501,13 @@ class DenoisingDiffusion:
             self.ema_helper.load_state_dict(ckpt["ema_helper"])
             if load_ema_into_model:
                 self.ema_helper.ema(self._core)
+        # A v-trained model decoded as eps yields plausible noise rather than an error,
+        # so the objective travels with the weights instead of the notebook config.
+        saved_pt = ckpt.get("prediction_type")
+        if saved_pt and saved_pt != self.prediction_type:
+            print(f"   [prediction_type] checkpoint was trained with '{saved_pt}', "
+                  f"overriding configured '{self.prediction_type}'")
+            self.prediction_type = saved_pt
         self.start_epoch = ckpt.get("epoch", 0)
         self.step = ckpt.get("step", 0)
         self.train_losses = ckpt.get("train_losses", [])
