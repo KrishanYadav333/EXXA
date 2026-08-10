@@ -286,3 +286,46 @@ every notebook to be re-run under the corrected metric. 06 (DDPM) having a real,
 completed result (PSNR ~18–19 dB) is enough to write the "why U-Net over DDPM" comparison
 section — it does not need the memory/seed fixes chased earlier today to be *good*, just to
 exist and be honestly reported.
+
+## 2026-08-11 — DDPM rebuilt; DDRM deliberately deferred past midterm
+
+Overhauled 06 after asking what could actually improve the DDPM rather than continuing to
+patch the runner.
+
+**Implemented and tested** (`750cf38`, `85d1408`, `687fcec`, `fd80a68`, `e7c9bec`):
+- Cosine noise schedule, v-prediction, Min-SNR-gamma weighting — all opt-in, so eps/linear
+  reproduces every earlier run exactly. Measured: alpha_bar at the schedule midpoint 0.078
+  (linear) vs 0.492 (cosine); Min-SNR at gamma=5 scales high-SNR timesteps by 0.004.
+- Patch training (`PatchPairDataset`) and overlap-blended tiled inference
+  (`tiled_denoise`). 1050 full images become ~8400 patch samples; native-600 tiling removes
+  the 600->256->600 round trip that caps every reported number. Hann blending holds the
+  worst-case tile seam to a 0.051 neighbour jump against 1.0 for a naive stitch.
+- Notebook restructured for unattended overnight runs: the baseline holdout on the restored
+  checkpoint now runs BEFORE any training, so a session killed mid-sweep still produces
+  moment maps. Objective sweep + seed repeats + moment-map visuals added.
+
+**DEFERRED TO AFTER MIDTERM — DDRM.** The single strongest untried idea, and the only one
+with a principled reason to beat the current setup rather than tune it. DDRM projects each
+reverse step onto the subspace consistent with the actual measurement, using the known
+forward operator — here the PSF/dirty beam, which this project already has in the FITS
+headers (BMAJ/BMIN/BPA, extracted for the beam-conditioning experiment).
+
+It targets the failure that matters: invented structure, measured at 22-39% of channels and
+~7x worse below the median SNR. A freely-generating diffusion model has no constraint tying
+its output to what the telescope saw; DDRM adds exactly that.
+
+Not started before midterm because it is a new sampling path — measurement-consistency
+projection every reverse step, plus an SVD or efficient approximation of the beam operator
+— not a config flag. Wrong thing to begin the night before a run, and Jason's steer was the
+U-Net.
+
+**Also parked:** patch/native-600 arms are implemented but unmeasured; cross-validation over
+all 11 RunIDs instead of the fixed 6/2/3 split; folding in the new self-gravitating cubes
+(6 -> 7 independent training disks, a bigger relative gain than any hyperparameter change
+in this project).
+
+**Reference claim NOT adopted:** the DDPM briefing supplied says diffusion models are
+"highly sample-efficient and generalise well on limited datasets". True against GANs; not
+true against a supervised U-Net on a denoising task, and contradicted directly by this
+project's own numbers (DDPM 18.3 dB vs U-Net 37-39 dB on identical data). Not repeated in
+the write-up.
