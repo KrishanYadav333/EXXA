@@ -69,6 +69,29 @@ def _module_level_loads(tree):
                 continue          # deferred execution -- not an ordering error
             if isinstance(child, ast.Name) and isinstance(child.ctx, ast.Load):
                 loads.add(child.id)
+            elif isinstance(child, ast.Lambda):
+                # A lambda's parameters are bound by the lambda, not read from the
+                # enclosing scope: `key=lambda item: item[1]` reads nothing named `item`.
+                # Without this every notebook using a sort key false-positived, and the
+                # only reason it went unnoticed is that other notebooks happened to use
+                # parameter names that also existed as real module-level variables.
+                params = {a.arg for a in child.args.args}
+                params |= {a.arg for a in getattr(child.args, "posonlyargs", [])}
+                params |= {a.arg for a in child.args.kwonlyargs}
+                for extra in (child.args.vararg, child.args.kwarg):
+                    if extra is not None:
+                        params.add(extra.arg)
+                inner = set()
+
+                def grab_l(n):
+                    for c in ast.iter_child_nodes(n):
+                        if isinstance(c, ast.Name) and isinstance(c.ctx, ast.Load):
+                            inner.add(c.id)
+                        grab_l(c)
+
+                grab_l(child)
+                loads.update(inner - params)
+                continue
             elif isinstance(child, (ast.ListComp, ast.SetComp, ast.DictComp,
                                     ast.GeneratorExp)):
                 inner = set()
