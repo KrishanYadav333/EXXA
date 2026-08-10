@@ -315,6 +315,32 @@ VAE, U-Net, DDPM) → U-Net results on synthetic line-emission data → public n
 - Repo cleanup + comprehensive README
 - Midterm blog post (Aug 3-9 prep window, evaluation Aug 10-14) — write-up not yet started
 
+### Deferred to AFTER midterm (deliberately, 2026-08-11)
+
+**DDRM — Denoising Diffusion Restoration Models.** The strongest untried idea for the DDPM,
+and the only one with a principled reason to beat the current setup rather than merely
+tuning it. DDRM couples the diffusion prior to the *known* forward operator: instead of
+letting the reverse chain generate freely, each step is projected onto the subspace
+consistent with the actual measurement. For radio interferometry that operator is the
+PSF/dirty beam, which this project already has — beam metadata (BMAJ, BMIN, BPA) is in the
+FITS headers and was extracted for the beam-conditioning experiment.
+
+Why it should help here specifically: the measured failure mode is invented structure
+(22-39% of channels, ~7x worse at low SNR). DDRM constrains the output to remain consistent
+with what the telescope actually observed, which is exactly the constraint a hallucinating
+generative model lacks. It is the difference between "generate something plausible" and
+"generate something that could have produced this dirty image".
+
+Not started before midterm because it is a new sampling path (measurement-consistency
+projection at every reverse step, plus an SVD or an efficient approximation of the beam
+operator), not a config change — too much to begin the night before a run, and Jason's
+steer was to focus on the U-Net.
+
+Also deferred: patch-based training and native-600 tiled inference are *implemented*
+(`src/data/patches.py`, wired into 06 as opt-in arms) but unmeasured; cross-validation over
+all 11 RunIDs instead of the fixed 6/2/3 split; and folding in the new self-gravitating
+cubes, which would take training from 6 to 7 independent disks.
+
 
 ---
 
