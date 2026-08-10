@@ -98,3 +98,9 @@ Thumbs.db
 .venv-test/
 .venv/
 venv/
+
+# Raw cube data from the mentor (Google Drive drops). These arrive as multi-GB zips of
+# FITS cubes -- the *.fits rule above misses the archive itself, and a single `git add -A`
+# would otherwise commit 1.6 GB. Data lives on disk and on Kaggle, never in the repo.
+**/self-gravitating cube and dirty cube/
+**/kinematic_data*.zip
