@@ -345,9 +345,15 @@ projection at every reverse step, plus an SVD or an efficient approximation of t
 operator), not a config change — too much to begin the night before a run, and Jason's
 steer was to focus on the U-Net.
 
-**VIREO is blocked on data we do not have**: it needs raw uv-visibilities, and this project
-holds image-plane FITS cubes only -- no visibility handling exists anywhere in `src/`. Ask
-Jason for the PSF image and whether the visibilities were kept; he generated the cubes.
+**VIREO is planned in two parts.** *2a, VIREO-lite*, needs no new data and is the best
+value in the whole plan: condition on the beam as a MAP rather than four scalars, and add a
+data-consistency loss `lambda * ||A(pred) - dirty||^2` that penalises any prediction which
+could not have produced the observed dirty image. That aims straight at the measured
+hallucination failure, needs no sampler change, and applies to the **U-Net** as well as the
+DDPM -- where DDRM helps only the DDPM. *2b, VIREO-full*, adds uv-plane consistency and is
+blocked: no visibility handling exists anywhere in `src/`, the data is image-plane FITS
+only. Ask Jason for the PSF image, the visibilities, and how the dirty cubes were made --
+his answer to the last may settle Phase 0 outright.
 
 Also deferred: patch-based training and native-600 tiled inference are *implemented*
 (`src/data/patches.py`, wired into 06 as opt-in arms) but unmeasured; cross-validation over
