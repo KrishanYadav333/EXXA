@@ -128,36 +128,85 @@ synthetic data with a known kernel before touching real cubes.
 
 ---
 
-## Phase 2 — VIREO (blocked on data we do not have)
+## Phase 2 — VIREO, in two parts
 
-VIREO feeds the PSF **and raw interferometric uv-visibilities** into the network.
+VIREO as published feeds the PSF **and** raw uv-visibilities into the network. The
+visibilities are not available here, but most of the mechanism does not need them, and that
+part is implementable today.
 
-**Blocker: there are no visibilities in this project.** A search of `src/` finds no
-visibility, uv-plane or measurement-set handling anywhere — the data is image-plane FITS
-cubes (clean/dirty pairs) only. The uv data either was never exported from the simulation
-or is not shared.
+Splitting it accordingly:
 
-Consequences:
+### Phase 2a — VIREO-lite: PSF map + data-consistency loss (NO new data needed)
 
-- VIREO as published **cannot be implemented** with the current dataset.
-- What *can* be done is a reduced version: condition on the beam **kernel image** rather
-  than four scalars — a spatial map the network can convolve against, instead of a hint.
-  That is weaker than VIREO and stronger than what was tried.
-- The real unlock is asking Jason for the visibilities or at minimum the PSF image. Worth
-  raising after midterm; he generated the cubes with PHANTOM + MCFOST and will have both.
+Two changes, both of which work for the **U-Net as well as the DDPM** — which matters,
+because the U-Net is the primary model and DDRM only helps the DDPM.
 
-**Recommendation: do not plan VIREO until the data question is answered.** Phase 1 delivers
-most of the measurement-consistency benefit and needs nothing new from the mentor beyond
-the PSF (and possibly not even that).
+**(i) Condition on the beam as a MAP, not four scalars.**
+Beam conditioning fed `[sin(2·BPA), cos(2·BPA), BMAJ·3600, BMIN·3600]` — four numbers, no
+spatial structure, trivially ignorable, and measured at r=−0.33. Instead append the beam
+kernel itself as a second input channel, at the same resolution as the image. The network
+can then convolve features against the actual beam shape rather than being told about it in
+the abstract. Input becomes `(2, H, W)` = `[dirty, beam_kernel]`.
 
----
+**(ii) Add a data-consistency term to the loss.** This is the important half.
+
+```
+L = alpha * L_recon(pred, clean)  +  lambda_dc * || A(pred) - dirty ||^2
+```
+
+where `A` is the beam convolution from Phase 1. The second term asks: *if this prediction
+were observed by the same telescope, would it reproduce the dirty image we actually got?*
+An invented blob has no counterpart in `dirty`, so it is penalised directly. That is a loss
+aimed precisely at the measured failure — 22–39% of channels carrying hallucinated
+structure — rather than at pixel error in general.
+
+Unlike DDRM this needs no change to the sampler, applies to any architecture, and costs one
+extra convolution per training step.
+
+**Effort:** beam-map channel ~half a day (reuses the Phase 1 kernel); data-consistency loss
+~half a day including a test that an invented blob raises the term while a faithful
+reconstruction does not. **Both depend on the same Phase 0 answer** — if `A = I` the
+consistency term reduces to `||pred − dirty||`, which would actively push the model *toward*
+the noisy input and must not be shipped.
+
+**Risk:** `lambda_dc` needs tuning on validation. Too large and the model reproduces the
+dirty image, undoing the denoising; too small and it changes nothing. Sweep it as its own
+arm in notebook 09 rather than picking a value.
+
+### Phase 2b — VIREO-full: uv-visibilities (blocked on data)
+
+**Blocker: no visibilities exist in this project.** A search of `src/` finds no visibility,
+uv-plane or measurement-set handling; the data is image-plane FITS cubes only. Either they
+were never exported from the simulation or they were not shared.
+
+What full VIREO adds over 2a is a consistency constraint in the **uv plane** rather than the
+image plane. That is strictly better for interferometry, because the instrument samples the
+Fourier plane sparsely and *unsampled* baselines carry no information at all. An image-plane
+constraint cannot distinguish "the telescope measured this and it was zero" from "the
+telescope never measured this" — a uv-plane constraint can, and only lets the prior fill in
+the genuinely unmeasured baselines.
+
+**Ask Jason for, in priority order:**
+1. the **PSF / dirty-beam image** — unlocks the correct operator for Phase 1 and 2a even
+   without visibilities;
+2. the **uv-visibilities** (measurement sets, or the uv sampling function) — unlocks 2b;
+3. whether the dirty cubes were made by Gaussian convolution or a real dirty beam — this
+   answers Phase 0 directly and costs him one sentence.
+
+**Effort once data arrives:** substantially larger than 2a — a uv-plane forward model,
+gridding/degridding, and the sampling mask, plus handling that the FFT of a 600x600 image at
+every training step is not free. Treat as a multi-week item, not a follow-up.
 
 ## Ordering
 
-1. **Phase 0** — determine the forward operator. Cheap, and it can cancel Phase 1 outright.
-2. **Phase 1** — DDRM with a Gaussian beam, if Phase 0 supports it.
-3. **Ask Jason** — PSF image, and whether uv-visibilities exist.
-4. **Phase 2** — only if the visibilities arrive.
+1. **Phase 0** — determine the forward operator. Cheap, and it gates everything below.
+2. **Ask Jason** — PSF image, visibilities, and how the dirty cubes were made. Send this at
+   the same time as Phase 0; his answer to (3) may settle Phase 0 outright.
+3. **Phase 2a — VIREO-lite** *before* DDRM. The data-consistency loss is cheaper to build,
+   needs no sampler changes, applies to the **U-Net** as well as the DDPM, and attacks the
+   measured hallucination failure directly. Best value per day of work in this document.
+4. **Phase 1 — DDRM**, which reuses 2a's beam operator and helps the DDPM only.
+5. **Phase 2b — VIREO-full**, only if visibilities arrive; multi-week.
 
 Both sit behind the higher-value post-midterm items already recorded in `context.md`:
 measuring the patch and native-600 arms that are implemented but unmeasured, cross-validation
