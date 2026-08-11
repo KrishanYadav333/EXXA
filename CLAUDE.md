@@ -12,9 +12,10 @@ The six rules, in short — the file has the incident behind each:
 1. **Persist a trained model the instant it finishes training**, never in a cleanup cell.
    `CKPT_DIR` is inside the git clone, which the bootstrap wipes and which is not part of
    the notebook Output. Call `persist_ckpt(...)` after every `.train(...)`.
-2. **Kaggle notebook cells never update from git** — only `src/` does. The push runs the
-   other way and silently reverts committed work. Import/pull the notebook by hand, then
-   verify a marker from the newest commit.
+2. **The in-notebook git pull (cell 0b) updates `src/` only, never the cells.** Kaggle's
+   own GitHub pull does update them — use it. The push is the danger: it is automatic and
+   sends a stale Kaggle copy back over committed work. Cell 0b printing the newest SHA
+   says nothing about the cells; verify a marker from the latest commit instead.
 3. **Never upload a checkpoint as a Kaggle Dataset.** A torch checkpoint is a zip; Kaggle
    unpacks it into a directory `torch.load` rejects. Attach the producing notebook's
    Output instead.

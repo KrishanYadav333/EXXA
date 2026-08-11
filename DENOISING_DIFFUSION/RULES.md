@@ -30,26 +30,36 @@ it.
 
 ---
 
-## 2. Kaggle notebook cells never update from git
+## 2. The in-notebook git pull updates `src/` only, never the cells
 
-Section 0b's `git fetch` + `reset --hard` genuinely updates `src/`, because the cells
-`import` from it and the module cache is cleared. It does **not** touch the cells. Kaggle
-loads those from its own database before any code runs, and nothing a running cell can do
-will rewrite them.
+Two different mechanisms, easy to conflate:
 
-The sync runs the **other** way: saving a version pushes Kaggle's notebook into this repo.
-So a stale Kaggle copy silently reverts committed work.
+| | updates `src/` | updates the cells |
+|---|---|---|
+| **cell 0b** — `git fetch` + `reset --hard`, inside the kernel | yes | **no** |
+| **Kaggle's GitHub integration** — the editor's push/pull | no | **yes** |
 
-> **Incidents, all on 2026-08-11.** 06 ran without its cell-18 checkpoint fix, printed
-> `no checkpoint found`, and trained from scratch instead of resuming. Push `b24c84d`
-> ("Kaggle Notebook | 05_unet_line_emission | Version 18") overwrote `c1f21e1` and
-> `718ca3e` — the D4-augmentation arm and the moment-map figures — with a 23-cell copy
-> predating `1d3022b`. That same run's results then had to be caveated in RUNS.md, because
-> the notebook that produced them had no `SEEDS` and no `CONFIGS`.
+Cell 0b runs after Kaggle has already loaded the cells into the kernel, so nothing it does
+can rewrite them. It clears `src.*` from the module cache, which is why library changes do
+take effect mid-session. Kaggle's own pull is a platform operation and does replace the
+cells — use it, or `File -> Import Notebook`.
 
-Before every run: import or pull the notebook, then **verify a marker that changed in the
-latest commit**. After every run: check whether Kaggle's push reverted anything before
-building on top of it.
+The danger is the **push**: saving a version sends Kaggle's copy of the notebook into this
+repo. A stale Kaggle copy therefore silently reverts committed work, and the push is
+automatic where the pull is not.
+
+> **Incidents, all on 2026-08-11.** 06 ran with `src/` at `3397823` but cells from
+> `41df52d` — cell 0b reported the new commit, which read as "everything is current" — so it
+> ran without the checkpoint fix, printed `no checkpoint found`, and trained from scratch
+> instead of resuming. Push `b24c84d` ("Kaggle Notebook | 05_unet_line_emission | Version
+> 18") then overwrote `c1f21e1` and `718ca3e` — the D4-augmentation arm and the moment-map
+> figures — with a 23-cell copy predating `1d3022b`. That run's results had to be caveated
+> in RUNS.md, because the notebook that produced them had no `SEEDS` and no `CONFIGS`.
+
+Before every run: pull the notebook **through Kaggle**, then verify a marker that changed
+in the latest commit. Cell 0b printing the newest SHA proves nothing about the cells — that
+line is exactly what made the 06 failure look fine. After every run: check whether Kaggle's
+push reverted anything before building on top of it.
 
 ---
 
