@@ -317,6 +317,15 @@ VAE, U-Net, DDPM) → U-Net results on synthetic line-emission data → public n
 
 ### Deferred to AFTER midterm (deliberately, 2026-08-11)
 
+**See `PHYSICS_INFORMED_PLAN.md` for the full DDRM/VIREO plan**, including the Phase 0 gate
+that can cancel it. Summary below.
+
+**Correction (2026-08-11):** an earlier note here implied physics-informed conditioning had
+already been tried and failed. That overstates it. What was tried is *beam conditioning* --
+four scalars `[sin(2·BPA), cos(2·BPA), BMAJ·3600, BMIN·3600]` fed as network input, which
+scored r=-0.33 against PSNR. That is a hint the network can ignore, and did. DDRM and VIREO
+constrain the output to be consistent with the measurement, which is different in kind.
+
 **DDRM — Denoising Diffusion Restoration Models.** The strongest untried idea for the DDPM,
 and the only one with a principled reason to beat the current setup rather than merely
 tuning it. DDRM couples the diffusion prior to the *known* forward operator: instead of
@@ -335,6 +344,10 @@ Not started before midterm because it is a new sampling path (measurement-consis
 projection at every reverse step, plus an SVD or an efficient approximation of the beam
 operator), not a config change — too much to begin the night before a run, and Jason's
 steer was to focus on the U-Net.
+
+**VIREO is blocked on data we do not have**: it needs raw uv-visibilities, and this project
+holds image-plane FITS cubes only -- no visibility handling exists anywhere in `src/`. Ask
+Jason for the PSF image and whether the visibilities were kept; he generated the cubes.
 
 Also deferred: patch-based training and native-600 tiled inference are *implemented*
 (`src/data/patches.py`, wired into 06 as opt-in arms) but unmeasured; cross-validation over
