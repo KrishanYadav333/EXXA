@@ -114,6 +114,25 @@ assert b_mean > u_mean * 1.5, (b_mean, u_mean)
 print(f"[5] signal bias lands patches on the source: mean clean flux "
       f"{u_mean:.4f} (uniform) -> {b_mean:.4f} (biased)")
 
+# ------------------------------------------------------------------ [6] flat patch view
+# train_unet takes one (dirty, clean) pair per item and convolves a 4-D batch; the stacked
+# view above would hand it 5-D. The flat view must expose the SAME patches, or a
+# comparison between the two training views measures the crop rather than the batching.
+from src.data.patches import FlatPatchDataset
+
+_base = _Fake()
+_flat = FlatPatchDataset(_base, patch_size=32, n_patches=8, seed=1, signal_bias=0.5)
+_stk = PatchPairDataset(_base, patch_size=32, n_patches=8, seed=1, signal_bias=0.5)
+assert len(_flat) == len(_base) * 8, len(_flat)
+_d, _c = _flat[0]
+assert _d.shape == (1, 32, 32) and _c.shape == (1, 32, 32), (_d.shape, _c.shape)
+for _i in range(len(_base)):
+    for _k in range(8):
+        assert torch.equal(_flat[_i * 8 + _k][0], _stk[_i][0][_k, 0][None]), (_i, _k)
+assert torch.equal(_flat[3][0], _flat[3][0]), "flat patches not deterministic"
+print(f"[6] flat view: {len(_base)} images x 8 = {len(_flat)} items of {tuple(_d.shape)}, "
+      "patch-for-patch identical to the stacked view")
+
 print("\n" + "=" * 60)
 print("All patch/tiling tests PASSED")
 print("=" * 60)
