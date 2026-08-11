@@ -269,6 +269,70 @@ worth labelling honestly.
 
 **Effort:** ~2 hours. **Risk:** low technically; moderate in interpretation, per the above.
 
+### 3d — SNR-aware training (the reference's own strongest suggestion)
+
+The briefing says it twice and it is right: *"models optimized with a known noise
+distribution profile dramatically outperform general blind models"*, citing SNRAware for MRI
+denoising. This is the best fit to this project's measured failure of anything in that text,
+and it was missed on the first pass.
+
+**Why it fits here specifically.** Hallucination is not uniform — it is **~7x worse below
+the median SNR** (1.580 vs 0.213 blobs/channel, notebook 08). The model currently has no
+idea which regime it is in. It treats a bright line-core channel and an empty band-edge
+channel identically, then invents structure in the latter. Telling it the noise level is the
+minimum information needed to behave differently where behaving differently matters.
+
+**And the noise level is already known, per channel, for free.** `bettermoments.estimate_RMS`
+computes it from the line-free edge channels and is already called on every cube in
+`generate_moment_maps`. No new data, no new estimator — the quantity exists and is discarded.
+
+Two routes, usable together:
+
+**(i) Condition on it.** Feed per-channel `rms` (or `peak/rms`) as an extra input, either as
+a scalar broadcast to a plane or via FiLM-style modulation. Unlike the four beam scalars —
+which described the *instrument*, were constant across channels, and were duly ignored
+(r=-0.33) — this varies per sample and carries information the model provably lacks.
+
+**(ii) Weight the loss by it.** Down-weight channels whose SNR makes the target
+unrecoverable. A channel that is pure noise has no learnable signal, and forcing the model
+to fit it teaches it to invent plausible structure from nothing, which is exactly the
+observed failure. This is the same reasoning as Min-SNR weighting on the diffusion timestep
+axis, applied instead across channels.
+
+**Effort:** (i) ~half a day; (ii) ~2 hours. **Risk:** low, and it is architecture-agnostic —
+it applies to the U-Net, not just the DDPM.
+**Falsifiable prediction:** the low-SNR blob rate should fall relative to the high-SNR rate.
+If the ~7x gap does not narrow, the SNR-blindness explanation is wrong.
+
+---
+
+## Phase 4 — Transformer architectures (Restormer / SwinIR)
+
+The only *architecture* in the briefing not already tried. Notebook 09 exists precisely for
+this: it gives every architecture an equal tuning budget, so adding a fourth arm to the
+existing `ARCHITECTURES` registry is a contained change rather than a new pipeline.
+
+**Restormer** is the right one to try first. It applies self-attention across the feature
+*channel* dimension rather than spatial pixels, so cost does not blow up quadratically with
+image size — the property that makes ViTs impractical at 256px, let alone 600px.
+
+**Expected to lose, and worth running anyway.** The briefing's own table lists the data
+requirement as *"large synthetic/paired datasets"*. This project has **6 independent training
+disks**. Attention carries weaker inductive bias than convolution, so it needs more data, not
+less; the same argument that predicts the DDPM underperforms predicts a transformer will too.
+"We gave a transformer an equal budget and the U-Net still won at this data scale" is a
+legitimate result, and 09 is built to make exactly that claim fairly.
+
+**Effort:** ~1 day for the architecture entry plus its search space; then one 09 sweep arm.
+**Risk:** low technically. The honest risk is spending a day to confirm an expected negative
+— acceptable, since the negative is itself reportable.
+
+**A caveat on the SNR figures in that briefing.** Its 30–45 dB ranges come from *fluorescence
+microscopy and MRI*. This project's U-Net sits at 37–39 dB, which looks competitive against
+that table and means nothing: different noise statistics, different dynamic range, different
+data. PSNR is not portable across domains. Cite the **classical baselines in notebook 07**,
+which are measured on this data, not a microscopy benchmark.
+
 ## Ordering
 
 1. **Phase 0** — determine the forward operator. Cheap, and it gates everything below.
@@ -280,10 +344,15 @@ worth labelling honestly.
 4. **Phase 2a — VIREO-lite.** Data-consistency loss plus beam-as-map: no sampler change,
    applies to the **U-Net** as well as the DDPM, and attacks the measured hallucination
    failure directly.
-5. **Phase 3b / 3c** — non-negativity and flux conservation. Hours each, but check 3b's
+5. **Phase 3d — SNR-aware training.** Also unblocked and also cheap. The noise level is
+   already computed per channel and thrown away, and hallucination is 7x worse at low SNR --
+   the model is blind to precisely the variable that predicts its worst failure.
+6. **Phase 3b / 3c** — non-negativity and flux conservation. Hours each, but check 3b's
    continuum-subtraction caveat before enforcing, and label 3c's M0 gain honestly.
-6. **Phase 1 — DDRM**, which reuses 2a's beam operator and helps the DDPM only.
-7. **Phase 2b — VIREO-full**, only if visibilities arrive; multi-week.
+7. **Phase 1 — DDRM**, which reuses 2a's beam operator and helps the DDPM only.
+8. **Phase 4 — Restormer** as a notebook 09 arm. Expected to lose at 6 disks; the negative
+   is reportable and 09 is built to make the comparison fair.
+9. **Phase 2b — VIREO-full**, only if visibilities arrive; multi-week.
 
 Note the reordering: **3a needs no beam and no mentor input**, so it is not blocked by
 Phase 0 or by anything Jason has to send. It is the only item here that can start today.
