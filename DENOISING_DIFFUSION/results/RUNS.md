@@ -31,6 +31,22 @@ Full lineage, recovered from every branch (`line-emission`, `midterm-prep`, `wee
 | 16 | 2026-07-30 03:34 | `ef0a37b` | `227d2fc` | **30.28** | +64.4% ±14.6 (−5.4 pt) | [`v16_.../`](05-unet-line-emission/v16_2026-07-30T0334_ef0a37b/) |
 | 17 | 2026-08-02 04:13 | `227d2fc` | `7305455` | **29.92** | **+48.2% ±12.6 (−21.6 pt)** | [`v17_.../`](05-unet-line-emission/v17_2026-08-02T0413_227d2fc/) — recovered from git |
 | — | 2026-07-30 00:48 | `2edd875` | — | — | — | [`analysis_.../`](05-unet-line-emission/analysis_2026-07-30T0048_2edd875/) |
+| **18** | 2026-08-11 | stale | `b24c84d` | **35.94** | **+81.2% ±12.6** | [`v18_.../`](05-unet-line-emission/v18_2026-08-11_b24c84d/) |
+
+**v18 is the best 05 run to date, and the first with every moment positive on every cube.**
+M0 +81.2% ±12.6, M1 +31.5% ±9.2, M2 +19.9% ±18.8, 5/5 cubes positive on all three, against
+V12's +69.8 / +17.5 / +20.1. PSNR 35.94, +2.99 dB over V12. The sweep-time 37.109 dB
+reproduces at −1.166 dB, consistent with the seed-49 explanation.
+
+The negative M2 values that dogged earlier runs are gone. They were the unmasked metric
+scoring empty sky, where dispersion is a ratio with a vanishing denominator; the signal
+mask removed them without changing any ranking.
+
+Caveat on provenance: the Kaggle notebook was a **stale copy predating `1d3022b`** — 23
+cells, no `SEEDS`, no `CONFIGS`, no V12-checkpoint restore. So v18 is a single seed on one
+configuration, not the 3-seed comparison the current notebook runs, and its "vs V12" column
+compares against V12's *published* numbers rather than a re-scored V12 checkpoint. The push
+`b24c84d` also reverted `c1f21e1` and `718ca3e` in the repo; restored in `f0a2e31`.
 
 ### How these were attributed
 
@@ -143,13 +159,44 @@ the only anchor.
 
 ## 06-ddpm-line-emission — DDPM
 
-No Kaggle version has completed section 11. Attempts stopped at 88/201 channels twice
-(DataParallel deadlock, fixed in `7e49e62`), then died just after sampling finished
-(host RAM during the moment collapse, addressed in `aa2a41d`). **No artifacts.**
+| Ver | Date (UTC) | code | Outcome | Artifacts |
+|----:|---|---|---|---|
+| ? | 2026-08-11 14:55 | `41df52d` | sweep + 60-epoch train complete; improved holdout crashed at the CSV write | [`run_.../`](06-ddpm-line-emission/run_2026-08-11T1455_41df52d/) |
 
-**No artifacts of any kind.** Everything previously filed under a "06" heading belongs to
-`06-unet-continuum` above.
+The Kaggle version number is not in the log; the folder is named by the code commit.
 
+**This run overturns the standing explanation for the DDPM gap.** Every earlier DDPM run
+used eps-prediction on a linear schedule, and the deficit against the U-Net was attributed
+to the data regime — 6 training disks being too few to learn a distribution. The 12-epoch
+objective sweep says otherwise, on identical data:
+
+| objective | pred | schedule | minSNR | PSNR | SSIM |
+|---|---|---|---|---:|---:|
+| C_v_cosine | v | cosine | 0.0 | **37.822** | 0.9892 |
+| D_v_cosine_minsnr5 | v | cosine | 5.0 | 36.326 | 0.9919 |
+| patch_view | v | cosine | 0.0 | 35.966 | **0.9928** |
+| A_eps_linear | eps | linear | 0.0 | 17.907 | 0.5040 |
+
+`A_eps_linear` is the configuration every previous run used. The 19.9 dB spread is the
+objective, not the data. The full 60-epoch run at the winner reaches **PSNR 38.363 / SSIM
+0.9930**, and 38.154 dB over 300 validation channels — within ~1 dB of the best U-Net
+(`winner_aug`, 39.30). Caveats: 12-epoch sweep runs at one seed, scored on 8 validation
+batches; 08 measured ~1 dB of pure seed spread, so only the A-vs-C gap is beyond doubt.
+
+`patch_view` ran at all only because `295fa38` relaxed the U-Net's exact-resolution assert;
+before that it raised `expected 256x256, got (64, 64)` on its first batch.
+
+Not obtained: moment maps. Section 13 sampled every held-out cube and then died at the
+write with `ValueError: dict contains fields not in fieldnames: 'imp_M0_all', ...` — fixed
+in `2fe7f61`. The baseline pass was also skipped, because the run predates the
+checkpoint-discovery fix and printed `no checkpoint found`, so it trained from scratch to
+epoch 41 rather than resuming the epoch-99 checkpoint.
+
+Earlier attempts stopped at 88/201 channels twice (DataParallel deadlock, fixed in
+`7e49e62`), then died just after sampling (host RAM during the moment collapse, `aa2a41d`).
+Kaggle v8 is the source of the epoch-99 / `best_val 13.4706` checkpoint.
+
+Everything previously filed under a "06" heading belongs to `06-unet-continuum` above.
 `d704a7c` ("archive Kaggle Version 6 with outputs") is not a separate run: its five figure
 hashes and its log hash are identical to v6's push commit `01aaf88`.
 
