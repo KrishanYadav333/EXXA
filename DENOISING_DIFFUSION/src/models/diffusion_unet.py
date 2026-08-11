@@ -339,8 +339,14 @@ class DiffusionUNet(nn.Module):
         self.conv_out = torch.nn.Conv2d(block_in, out_ch, kernel_size=3, stride=1, padding=1)
 
     def forward(self, x, t):
-        assert x.shape[2] == x.shape[3] == self.resolution, \
-            f"expected {self.resolution}x{self.resolution}, got {tuple(x.shape[2:])}"
+        # The net is fully convolutional and its attention is 1x1-conv based, so any size
+        # the down/up path can halve and restore works -- not just the configured one.
+        # Required for the patch arm (train on 64px patches, score on full 256px channels)
+        # and for tiled native-resolution inference.
+        div = 2 ** (self.num_resolutions - 1)
+        assert x.shape[2] % div == 0 and x.shape[3] % div == 0, \
+            (f"spatial dims must be multiples of {div} for {self.num_resolutions} "
+             f"resolution levels, got {tuple(x.shape[2:])}")
 
         # timestep embedding
         temb = get_timestep_embedding(t, self.ch)
