@@ -259,3 +259,95 @@ def moment_improvement(clean, dirty, denoised, frac: float = SIGNAL_FRAC) -> dic
             nn = float(np.abs(cl[m] - no[m]).mean())
             out[suffix] = 100.0 * (1.0 - nn / dd) if dd > 0 else float("nan")
     return out
+
+
+# --------------------------------------------------------------------------- #
+# Publication figure: clean / dirty / denoised on one honest scale             #
+# --------------------------------------------------------------------------- #
+MOMENT_LABELS = ("Moment 0 — integrated intensity",
+                 "Moment 1 — line-of-sight velocity",
+                 "Moment 2 — velocity dispersion")
+
+
+def _limits(maps, mask, kind, lo=1.0, hi=99.0):
+    """Shared colour limits for one moment, taken from masked CLEAN + DIRTY + DENOISED.
+
+    Percentiles rather than min/max: a single hot pixel otherwise sets the ceiling and
+    flattens everything else. Velocity is forced symmetric about the systemic value so
+    the diverging colormap's white point means "not rotating" instead of landing wherever
+    the data happens to average.
+    """
+    vals = np.concatenate([m[mask & np.isfinite(m)].ravel() for m in maps])
+    if vals.size == 0:
+        return None, None
+    if kind == "velocity":
+        centre = float(np.median(vals))
+        span = float(np.percentile(np.abs(vals - centre), hi)) or 1.0
+        return centre - span, centre + span
+    return float(np.percentile(vals, lo)), float(np.percentile(vals, hi))
+
+
+def plot_moment_comparison(clean, dirty, denoised, save_path=None, tag="",
+                           frac: float = SIGNAL_FRAC, show_mask: bool = True):
+    """
+    3x3 moment-map figure: rows = dirty / denoised / clean truth, columns = M0/M1/M2.
+
+    Three things make this readable where a plain ``imshow`` is not:
+
+    * **Off-source pixels are blanked.** Outside the disk there is no line, so M1 and M2
+      are fits to noise and take arbitrary values across the whole range. Left in, they
+      set the colour limits and squeeze the disk itself into a few shades -- the real
+      reason these maps look like static. The mask is ``signal_mask`` on the CLEAN M0,
+      the same one ``moment_improvement`` scores over, so the figure shows exactly the
+      region the reported numbers describe.
+    * **One scale per column, shared by all three rows.** Autoscaling each panel
+      separately makes a denoised map that lost half its dynamic range look identical to
+      the truth. Sharing the scale is what lets the eye do the comparison.
+    * **Velocity centred.** ``RdBu_r`` is diverging; centring on the systemic velocity
+      makes red/blue mean receding/approaching rather than "above/below the mean of
+      whatever was in frame".
+
+    Returns the Matplotlib figure, so a notebook can display it inline. Pass
+    ``save_path`` to also write it.
+    """
+    import matplotlib.pyplot as plt          # no backend forced: notebooks display inline
+
+    mask = signal_mask(np.asarray(clean[0]), frac)
+    rows = [("Dirty (ALMA-like input)", dirty),
+            ("Denoised (U-Net)", denoised),
+            ("Clean (ground truth)", clean)]
+    cmaps = ("inferno", "RdBu_r", "viridis")
+    kinds = ("intensity", "velocity", "dispersion")
+
+    fig, ax = plt.subplots(3, 3, figsize=(13.5, 12.5), constrained_layout=True)
+    for col in range(3):
+        maps = [np.asarray(r[1][col]) for r in rows]
+        vmin, vmax = _limits(maps, mask, kinds[col])
+        cmap = plt.get_cmap(cmaps[col]).copy()
+        cmap.set_bad("#0d0d0d")              # blanked sky reads as background, not data
+        for row, (label, _) in enumerate(rows):
+            m = np.where(mask, maps[row], np.nan) if col > 0 else maps[row]
+            im = ax[row, col].imshow(m, origin="lower", cmap=cmap, vmin=vmin, vmax=vmax,
+                                     interpolation="nearest")
+            ax[row, col].set_xticks([]); ax[row, col].set_yticks([])
+            for sp in ax[row, col].spines.values():
+                sp.set_color("#444444")
+            if show_mask and col == 0:
+                # outline the scored region on M0, where the full field is still shown
+                ax[row, col].contour(mask.astype(float), levels=[0.5],
+                                     colors="cyan", linewidths=0.7, alpha=0.8)
+            if col == 0:
+                ax[row, col].set_ylabel(label, fontsize=11, fontweight="bold")
+            if row == 0:
+                ax[row, col].set_title(MOMENT_LABELS[col], fontsize=11)
+        fig.colorbar(im, ax=ax[:, col], fraction=0.046, pad=0.02, location="bottom")
+
+    n_px = int(mask.sum())
+    fig.suptitle(f"Moment maps  {tag}".strip() +
+                 f"\nM1/M2 shown over the scored region only "
+                 f"({n_px:,} px, >{frac:.0%} of clean M0 peak); one colour scale per column",
+                 fontweight="bold", fontsize=13)
+    if save_path:
+        os.makedirs(os.path.dirname(save_path) or ".", exist_ok=True)
+        fig.savefig(save_path, dpi=160, bbox_inches="tight", facecolor="white")
+    return fig
