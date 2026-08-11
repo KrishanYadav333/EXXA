@@ -46,7 +46,7 @@ Caveat on provenance: the Kaggle notebook was a **stale copy predating `1d3022b`
 cells, no `SEEDS`, no `CONFIGS`, no V12-checkpoint restore. So v18 is a single seed on one
 configuration, not the 3-seed comparison the current notebook runs, and its "vs V12" column
 compares against V12's *published* numbers rather than a re-scored V12 checkpoint. The push
-`b24c84d` also reverted `c1f21e1` and `718ca3e` in the repo; restored in `f0a2e31`.
+`b24c84d` also reverted `c1f21e1` and `718ca3e` in the repo; restored in `b8cc16d`.
 
 ### How these were attributed
 
@@ -102,9 +102,16 @@ downloaded, and pixel matching cannot separate them (29.1 / 29.2 / 29.6). Parked
 `unet_loss.png` was dropped: byte-identical (sha `c2ae97f9`) to the continuum-era copy
 already archived, so it was a stray download rather than a 05 artifact.
 
-**No version of 05 has beaten V12 on the scientific metric.** Both v16 and v17 print
-*"NOT a clean improvement — V12 stays the reference"* as their own verdict, with M0 falling
-from V12's +69.8% to +64.4% then +48.2%. **V12 remains the reference model.**
+**v18 is the first version to beat V12 on the scientific metric**, and it does so on M0 and
+M1 together (+81.2 / +31.5 vs +69.8 / +17.5), with M2 level. Its own printed verdict is
+*"sweep winner supersedes V12 as reference checkpoint"*.
+
+Before it, no version had: v16 and v17 both printed *"NOT a clean improvement — V12 stays
+the reference"*, with M0 falling from +69.8% to +64.4% then +48.2%. Those two ran on the
+**unmasked** metric, so their numbers are not directly comparable to v18's; the mask is what
+made M2 positive, and it raises M0 as well. v18 vs V12 is a like-for-like comparison only
+because both rows quote V12's published figures — a V12 checkpoint re-scored under the
+current metric is what the present notebook adds, and has not yet been run.
 
 ### The "7 dB reproduction failure" was a seed difference, not a failure
 
