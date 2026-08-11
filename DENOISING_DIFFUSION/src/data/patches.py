@@ -107,6 +107,38 @@ class PatchPairDataset(Dataset):
         return torch.stack(out, dim=0), 0           # (n_patches, 2, p, p)
 
 
+class FlatPatchDataset(Dataset):
+    """Patch pairs as ``(dirty, clean)``, one patch per item — the U-Net's input shape.
+
+    ``PatchPairDataset`` returns all of an image's patches stacked as
+    ``(n_patches, 2, p, p)``, which is what the DDPM trainer folds into its batch axis.
+    ``train_unet`` instead expects each item to be a single ``(dirty, clean)`` pair of
+    ``(1, H, W)`` tensors, and would receive a 5-D batch it cannot convolve.
+
+    This flattens the same sampling: item ``i`` is patch ``i % n_patches`` of image
+    ``i // n_patches``, so ``len`` is ``len(base) * n_patches`` and every patch is one
+    training example. Positions come from the same seeded draw, so the two views see
+    identical patches and a comparison between them isolates the batching, not the crop.
+    """
+
+    def __init__(self, base: Dataset, patch_size: int = 64, n_patches: int = 8,
+                 seed: int = 42, signal_bias: float = 0.5):
+        self._inner = PatchPairDataset(base, patch_size=patch_size, n_patches=n_patches,
+                                       seed=seed, signal_bias=signal_bias)
+        self.n_patches = int(n_patches)
+        self.patch_size = int(patch_size)
+
+    def __len__(self):
+        return len(self._inner) * self.n_patches
+
+    def __getitem__(self, idx: int):
+        img_i, patch_i = divmod(int(idx), self.n_patches)
+        dirty, clean = self._inner.base[img_i]
+        p = self.patch_size
+        i, j = self._inner._positions(clean, img_i)[patch_i]
+        return dirty[:, i:i + p, j:j + p], clean[:, i:i + p, j:j + p]
+
+
 # --------------------------------------------------------------------------- #
 # Inference: overlap-blended tiling                                           #
 # --------------------------------------------------------------------------- #
