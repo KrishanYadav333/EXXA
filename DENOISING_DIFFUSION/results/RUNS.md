@@ -168,9 +168,10 @@ the only anchor.
 
 | Ver | Date (UTC) | code | Outcome | Artifacts |
 |----:|---|---|---|---|
-| ? | 2026-08-11 14:55 | `41df52d` | sweep + 60-epoch train complete; improved holdout crashed at the CSV write | [`run_.../`](06-ddpm-line-emission/run_2026-08-11T1455_41df52d/) |
+| 11 | 2026-08-11 14:55 | `41df52d` | sweep + 60-epoch train complete; improved holdout crashed at the CSV write | [`v11_.../`](06-ddpm-line-emission/v11_2026-08-11T1455_41df52d/) |
 
-The Kaggle version number is not in the log; the folder is named by the code commit.
+The version number is not in the log — Kaggle does not expose it to the kernel and this
+notebook is not GitHub-linked, so no push commit records it either. v11 is from the author.
 
 **This run overturns the standing explanation for the DDPM gap.** Every earlier DDPM run
 used eps-prediction on a linear schedule, and the deficit against the U-Net was attributed
