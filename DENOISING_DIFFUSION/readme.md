@@ -7,6 +7,11 @@ evaluated on the moment maps astronomers actually use rather than pixel metrics 
 Active work is on the [`line-emission`](https://github.com/KrishanYadav333/EXXA/tree/line-emission)
 branch.
 
+> **Before creating or changing any notebook, read [RULES.md](RULES.md).** Six operating
+> rules, each with the run that was lost to it — persisting models the moment they train,
+> the fact that Kaggle cells never update from git, and why a raw `best_val_loss` minimum
+> picks the wrong checkpoint.
+
 ---
 
 ## Result
