@@ -367,6 +367,18 @@ legitimately contain negatives, so verify against the clean cubes before enforci
 conservation (cheap, but it optimises M0 close to directly, so any gain must be reported as
 such).
 
+**SNR-aware training (Phase 3d)** is the other unblocked item and arguably the best-targeted
+in the plan: hallucination is ~7x worse below the median SNR, the model has no idea which
+regime a channel is in, and the per-channel noise level is *already computed* by
+`bettermoments.estimate_RMS` on every cube and then discarded. Condition on it, or weight the
+loss by it, or both. Architecture-agnostic, so it helps the U-Net too.
+
+**Restormer (Phase 4)** is the only architecture in the reference material not yet tried, and
+notebook 09 already gives every architecture an equal budget, so it is a contained fourth arm.
+Expected to lose at 6 independent disks -- attention has weaker inductive bias than
+convolution and the reference itself lists "large paired datasets" as its requirement -- but
+the negative is reportable and 09 exists to make that comparison fair.
+
 Also deferred: patch-based training and native-600 tiled inference are *implemented*
 (`src/data/patches.py`, wired into 06 as opt-in arms) but unmeasured; cross-validation over
 all 11 RunIDs instead of the fixed 6/2/3 split; and folding in the new self-gravitating
