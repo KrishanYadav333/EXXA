@@ -287,8 +287,28 @@ def _limits(maps, mask, kind, lo=1.0, hi=99.0):
     return float(np.percentile(vals, lo)), float(np.percentile(vals, hi))
 
 
+def _intensity_norm(vmin, vmax, stretch="asinh"):
+    """Normalisation for M0. Linear wastes the ramp on the bright ring.
+
+    Disk emission is centrally concentrated and spans orders of magnitude, so under a
+    linear scale the peak saturates a small area and the extended outer disk -- the part a
+    denoiser either recovers or invents -- sits in the bottom few percent of the colormap
+    and reads as black. `asinh` is the standard radio/mm choice: near-linear through zero,
+    so noise around the background is not exaggerated the way `log` exaggerates it, and
+    compressive at the bright end.
+    """
+    if stretch != "asinh":
+        return None
+    try:
+        from astropy.visualization import AsinhStretch, ImageNormalize
+    except ImportError:                      # astropy always present on Kaggle; be safe
+        return None
+    return ImageNormalize(vmin=vmin, vmax=vmax, stretch=AsinhStretch(a=0.15), clip=False)
+
+
 def plot_moment_comparison(clean, dirty, denoised, save_path=None, tag="",
-                           frac: float = SIGNAL_FRAC, show_mask: bool = True):
+                           frac: float = SIGNAL_FRAC, show_mask: bool = True,
+                           stretch: str = "asinh", contours: bool = True):
     """
     3x3 moment-map figure: rows = dirty / denoised / clean truth, columns = M0/M1/M2.
 
@@ -325,17 +345,39 @@ def plot_moment_comparison(clean, dirty, denoised, save_path=None, tag="",
         vmin, vmax = _limits(maps, mask, kinds[col])
         cmap = plt.get_cmap(cmaps[col]).copy()
         cmap.set_bad("#0d0d0d")              # blanked sky reads as background, not data
+        norm = _intensity_norm(vmin, vmax, stretch) if col == 0 else None
         for row, (label, _) in enumerate(rows):
             m = np.where(mask, maps[row], np.nan) if col > 0 else maps[row]
-            im = ax[row, col].imshow(m, origin="lower", cmap=cmap, vmin=vmin, vmax=vmax,
-                                     interpolation="nearest")
+            kw = ({"norm": norm} if norm is not None else {"vmin": vmin, "vmax": vmax})
+            im = ax[row, col].imshow(m, origin="lower", cmap=cmap,
+                                     interpolation="bilinear", **kw)
             ax[row, col].set_xticks([]); ax[row, col].set_yticks([])
             for sp in ax[row, col].spines.values():
                 sp.set_color("#444444")
-            if show_mask and col == 0:
-                # outline the scored region on M0, where the full field is still shown
-                ax[row, col].contour(mask.astype(float), levels=[0.5],
-                                     colors="cyan", linewidths=0.7, alpha=0.8)
+            if col == 0:
+                if contours:
+                    # Intensity contours at fixed fractions of the CLEAN peak, identical on
+                    # all three rows. This is what makes over- and under-smoothing legible:
+                    # the same contour sitting at a different radius is a structural error,
+                    # which a colour difference alone is easy to talk yourself out of.
+                    #
+                    # Contour a lightly smoothed COPY -- the displayed image is untouched.
+                    # Tracing a level through per-pixel noise produces spaghetti that hides
+                    # the shape it was drawn to show; smoothing first is the usual practice
+                    # and the levels still come from the unsmoothed clean peak.
+                    peak = float(np.nanmax(maps[2])) or 1.0
+                    src = maps[row]
+                    try:
+                        from scipy.ndimage import gaussian_filter
+                        src = gaussian_filter(np.nan_to_num(src), sigma=2.0)
+                    except ImportError:
+                        pass
+                    ax[row, col].contour(src, levels=[l * peak for l in (0.1, 0.3, 0.6)],
+                                         colors="white", linewidths=0.7, alpha=0.6)
+                if show_mask:
+                    # outline the scored region, where the full field is still shown
+                    ax[row, col].contour(mask.astype(float), levels=[0.5],
+                                         colors="cyan", linewidths=0.9, alpha=0.9)
             if col == 0:
                 ax[row, col].set_ylabel(label, fontsize=11, fontweight="bold")
             if row == 0:
@@ -343,9 +385,13 @@ def plot_moment_comparison(clean, dirty, denoised, save_path=None, tag="",
         fig.colorbar(im, ax=ax[:, col], fraction=0.046, pad=0.02, location="bottom")
 
     n_px = int(mask.sum())
-    fig.suptitle(f"Moment maps  {tag}".strip() +
-                 f"\nM1/M2 shown over the scored region only "
-                 f"({n_px:,} px, >{frac:.0%} of clean M0 peak); one colour scale per column",
+    bits = [f"M1/M2 over the scored region only ({n_px:,} px, >{frac:.0%} of clean M0 peak)",
+            "one colour scale per column"]
+    if stretch == "asinh":
+        bits.append("M0 on an asinh stretch")
+    if contours:
+        bits.append("contours at 10/30/60% of clean peak")
+    fig.suptitle(f"Moment maps  {tag}".strip() + "\n" + "; ".join(bits),
                  fontweight="bold", fontsize=13)
     if save_path:
         os.makedirs(os.path.dirname(save_path) or ".", exist_ok=True)
