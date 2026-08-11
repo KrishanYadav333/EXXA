@@ -197,16 +197,96 @@ the genuinely unmeasured baselines.
 gridding/degridding, and the sampling mask, plus handling that the FFT of a 600x600 image at
 every training step is not free. Treat as a multi-week item, not a follow-up.
 
+---
+
+## Phase 3 — Physics-informed constraints beyond the beam
+
+The beam is one piece of physics; it is not the only one the reconstruction violates. Three
+further constraints are known to hold for this data and are currently unenforced. Each maps
+onto a specific measured failure rather than being added for elegance.
+
+| Constraint | Physical statement | Failure it targets | Currently |
+|---|---|---|---|
+| non-negativity | sky brightness cannot be negative | floor leak | unenforced (linear head) |
+| flux conservation | denoising must not create or destroy total flux | M0 error | unenforced |
+| spectral continuity | a line profile is smooth along velocity | **M1 / M2 weakness** | unenforced |
+
+### 3a — Spectral continuity (highest value in this document)
+
+**The one that addresses the diagnosed root cause.** M0 is a spectral *sum* and scores
+~+70%. M1 and M2 are spectral *shape* statistics and lag badly. The models denoise each
+channel independently, so nothing constrains consistency along the velocity axis — which is
+exactly the axis M1 and M2 are computed over. No amount of per-channel improvement fixes
+this, because the information is not being used.
+
+Two options, cheapest first:
+
+**(i) A spectral-smoothness penalty.** Add `mu * || d^2 pred / dv^2 ||^2` — a second-derivative
+penalty along the channel axis — to the loss. Requires training on channel *triples* (or any
+contiguous run) rather than independent channels, so the dataset must yield neighbours. Cheap,
+architecture-agnostic, no model change.
+
+**(ii) 2.5D input: feed adjacent channels.** Input becomes `(2k+1, H, W)` — channel *i* plus
+*k* neighbours each side — output stays 1 channel. `in_channels = 2k+1` instead of 1;
+negligible extra parameters; roughly unchanged training time. Standard in video and medical
+denoising. This gives the model spectral context rather than merely penalising its absence,
+and is the stronger of the two.
+
+**Effort:** (i) ~half a day plus a dataset change to emit neighbours; (ii) ~1 day.
+**Risk:** low. Both are additive and can be swept as arms in notebook 09.
+**Expected effect:** should move M1 and M2 specifically. If it does not, the
+per-channel-independence explanation for their weakness is wrong and worth revisiting.
+
+### 3b — Non-negativity
+
+Sky brightness is non-negative. The model has a linear output head (deliberately — a sigmoid
+could not represent shared-dirty-scale clean values that exceed 1, which was a real bug) and
+so may emit negatives. Floor leak was measured, though on the pre-fix artifact code, so the
+magnitude needs re-establishing after the current metric lands.
+
+Options: a softplus head, a clamp at inference, or a penalty `nu * ||min(pred, 0)||^2`. The
+penalty is preferable — a hard clamp hides the problem rather than training it away, and
+would make the floor-leak diagnostic read zero regardless of what the model learned.
+
+**Caveat that must be checked first:** the data is *continuum-subtracted*, and a subtracted
+map legitimately contains negative pixels where the continuum estimate over-subtracts. So
+non-negativity applies to the physical sky, not necessarily to the arrays being trained on.
+Verify against the clean cubes before enforcing it — this is exactly the kind of constraint
+that looks obviously correct and quietly is not.
+
+**Effort:** ~half a day. **Risk:** low, but gated on the caveat above.
+
+### 3c — Flux conservation
+
+Total flux in a channel should survive denoising. Add `kappa * (sum(pred) - sum(clean))^2`,
+or the softer `| sum(pred) / sum(dirty) - 1 |`, which needs no ground truth and so would also
+work on real observations later.
+
+M0 is integrated intensity, so this is close to optimising the reported metric directly.
+That is a reason for care rather than enthusiasm: it would improve M0 partly by construction,
+and any gain must be reported as such rather than as better reconstruction. Worth trying,
+worth labelling honestly.
+
+**Effort:** ~2 hours. **Risk:** low technically; moderate in interpretation, per the above.
+
 ## Ordering
 
 1. **Phase 0** — determine the forward operator. Cheap, and it gates everything below.
 2. **Ask Jason** — PSF image, visibilities, and how the dirty cubes were made. Send this at
    the same time as Phase 0; his answer to (3) may settle Phase 0 outright.
-3. **Phase 2a — VIREO-lite** *before* DDRM. The data-consistency loss is cheaper to build,
-   needs no sampler changes, applies to the **U-Net** as well as the DDPM, and attacks the
-   measured hallucination failure directly. Best value per day of work in this document.
-4. **Phase 1 — DDRM**, which reuses 2a's beam operator and helps the DDPM only.
-5. **Phase 2b — VIREO-full**, only if visibilities arrive; multi-week.
+3. **Phase 3a — spectral continuity.** Ungated by Phase 0 (it needs no beam operator), so
+   it can start immediately, and it targets the diagnosed cause of the M1/M2 weakness rather
+   than a symptom. Cheapest route to the weakest numbers in the project.
+4. **Phase 2a — VIREO-lite.** Data-consistency loss plus beam-as-map: no sampler change,
+   applies to the **U-Net** as well as the DDPM, and attacks the measured hallucination
+   failure directly.
+5. **Phase 3b / 3c** — non-negativity and flux conservation. Hours each, but check 3b's
+   continuum-subtraction caveat before enforcing, and label 3c's M0 gain honestly.
+6. **Phase 1 — DDRM**, which reuses 2a's beam operator and helps the DDPM only.
+7. **Phase 2b — VIREO-full**, only if visibilities arrive; multi-week.
+
+Note the reordering: **3a needs no beam and no mentor input**, so it is not blocked by
+Phase 0 or by anything Jason has to send. It is the only item here that can start today.
 
 Both sit behind the higher-value post-midterm items already recorded in `context.md`:
 measuring the patch and native-600 arms that are implemented but unmeasured, cross-validation

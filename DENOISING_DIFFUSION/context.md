@@ -355,6 +355,18 @@ blocked: no visibility handling exists anywhere in `src/`, the data is image-pla
 only. Ask Jason for the PSF image, the visibilities, and how the dirty cubes were made --
 his answer to the last may settle Phase 0 outright.
 
+**Physics-informed constraints beyond the beam (Phase 3)** are also planned, and one of
+them can start immediately: *spectral continuity*. M0 is a spectral sum and scores ~+70%;
+M1 and M2 are spectral shape statistics and lag, because the models denoise each channel
+independently and nothing constrains consistency along the velocity axis -- the exact axis
+M1 and M2 are computed over. Either a second-derivative penalty along the channel axis or
+2.5D input (channel i plus k neighbours) addresses the cause rather than a symptom, needs no
+beam operator, and is therefore blocked by neither Phase 0 nor anything Jason has to send.
+Also in Phase 3: non-negativity (gated on a real caveat -- continuum-subtracted maps
+legitimately contain negatives, so verify against the clean cubes before enforcing) and flux
+conservation (cheap, but it optimises M0 close to directly, so any gain must be reported as
+such).
+
 Also deferred: patch-based training and native-600 tiled inference are *implemented*
 (`src/data/patches.py`, wired into 06 as opt-in arms) but unmeasured; cross-validation over
 all 11 RunIDs instead of the fixed 6/2/3 split; and folding in the new self-gravitating
