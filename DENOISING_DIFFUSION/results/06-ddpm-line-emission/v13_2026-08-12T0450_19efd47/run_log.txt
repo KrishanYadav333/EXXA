@@ -1,0 +1,492 @@
+----- cell 2 -----
+Cloning into '/kaggle/working/EXXA'...
+Updating files: 100% (5243/5243), done.
+
+----- cell 2 -----
+cwd: /kaggle/working/EXXA/DENOISING_DIFFUSION/notebooks | DATA_DIR: /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+
+----- cell 4 -----
+HEAD is now at 19efd47 feat(nb05): add the winner_p10 arm, matching notebook 08
+19efd47 feat(nb05): add the winner_p10 arm, matching notebook 08
+src.* cleared from module cache -- now re-run the imports cell below.
+
+----- cell 4 -----
+From https://github.com/KrishanYadav333/EXXA
+ * branch            midterm-prep -> FETCH_HEAD
+   b19d6a0..19efd47  midterm-prep -> origin/midterm-prep
+
+----- cell 6 -----
+device: cuda | GPUs: 2 -> ['Tesla T4', 'Tesla T4']
+
+----- cell 8 -----
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+
+----- cell 10 -----
+[FITSChannelDataset] 7 cubes x ~150 channels = 1050 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+[FITSChannelDataset] 2 cubes x ~150 channels = 300 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+train items: 1050 | val items: 300
+
+----- cell 12 -----
+DDPM budget: 60 epochs | lr 0.0002 | batch 8 | 25 DDIM steps | K_avg 4
+sweep: True | 12 epochs/run | seeds [42]
+
+Holdout cost is exactly linear in all three of:
+  201 channels / DENOISE_BS_DDPM  x  SAMPLING_STEPS  x  K_AVG  model calls per cube
+The smoke test in 10c measures one batch and projects the total before you commit.
+
+----- cell 14 -----
+DDPM train items: 1050 | val items: 300
+patch view: 1050 items x 8 patches of 64px = 8,400 training samples
+  (full-image view: 1,050 samples of 256px)
+native-600 tiled inference would need 9 tiles/channel at 256px overlap 64
+
+----- cell 16 -----
+config: ch 64 | ch_mult [1, 2, 2, 2, 4] | attn [16] | T 1000
+objective: {'prediction_type': 'v', 'beta_schedule': 'cosine', 'min_snr_gamma': 0.0}
+DDPM params: 20,682,945   (published ALMA reference: ~95M)
+forward (2,2,256,256) -> (2, 1, 256, 256)
+
+----- cell 18 -----
+no .pth/.pth.tar anywhere under /kaggle/input. Attached inputs:
+    /kaggle/input/datasets/krishanyadav333/line-emission-data
+no checkpoint found -- section 7 must run (about 2 h)
+
+----- cell 20 -----
+BATCH SIZE USED: 8 at 256x256  [DataParallel x2 (~4/GPU)]
+
+----- cell 24 -----
+no restored checkpoint (or RUN_BASELINE_EVAL=False) -- skipping the baseline pass
+
+----- cell 26 -----
+
+======================================================================
+=== A_eps_linear: {'prediction_type': 'eps', 'beta_schedule': 'linear', 'min_snr_gamma': 0.0}
+======================================================================
+============================================================
+Conditional DDPM training
+  params : 20,682,945
+  device : cuda (single device), timesteps: 1000
+============================================================
+[epoch   1/12] train 10695.2146 | val 525.7616  *best  (222.3s)
+[epoch   5/12] train 107.0358 | val 92.9081  *best  (232.9s)
+[epoch   9/12] train 65.1777 | val 54.1540  *best  (233.5s)
+  -> PSNR 18.014 | SSIM 0.5403 | best_val 36.3212 | 3200s
+    [persisted] ddpm_sweep_A_eps_linear.pth (332 MB) -- A_eps_linear
+
+======================================================================
+=== C_v_cosine: {'prediction_type': 'v', 'beta_schedule': 'cosine', 'min_snr_gamma': 0.0}
+======================================================================
+============================================================
+Conditional DDPM training
+  params : 20,682,945
+  device : cuda (single device), timesteps: 1000
+============================================================
+[epoch   1/12] train 8607.4900 | val 1501.4185  *best  (237.2s)
+[epoch   5/12] train 289.9017 | val 286.1574  *best  (236.6s)
+[epoch   9/12] train 190.2393 | val 194.2397  *best  (236.1s)
+    [persisted] ddpm_objective_sweep.csv (0 MB)
+  -> PSNR 37.195 | SSIM 0.9881 | best_val 139.1472 | 3259s
+    [persisted] ddpm_sweep_C_v_cosine.pth (332 MB) -- C_v_cosine
+
+======================================================================
+=== D_v_cosine_minsnr5: {'prediction_type': 'v', 'beta_schedule': 'cosine', 'min_snr_gamma': 5.0}
+======================================================================
+============================================================
+Conditional DDPM training
+  params : 20,682,945
+  device : cuda (single device), timesteps: 1000
+============================================================
+[epoch   1/12] train 2708.2228 | val 378.4385  *best  (236.3s)
+[epoch   5/12] train 49.7084 | val 112.7539  (236.2s)
+[epoch   9/12] train 36.4539 | val 45.3262  (236.0s)
+    [persisted] ddpm_objective_sweep.csv (0 MB)
+  -> PSNR 36.248 | SSIM 0.9913 | best_val 31.2026 | 3258s
+    [persisted] ddpm_sweep_D_v_cosine_minsnr5.pth (332 MB) -- D_v_cosine_minsnr5
+
+======================================================================
+=== patch_view: {'prediction_type': 'v', 'beta_schedule': 'cosine', 'min_snr_gamma': 0.0} on 64px patches
+======================================================================
+============================================================
+Conditional DDPM training
+  params : 20,682,945
+  device : cuda (single device), timesteps: 1000
+============================================================
+[epoch   1/12] train 421.6779 | val 71.4547  *best  (106.2s)
+[epoch   5/12] train 26.4699 | val 28.6579  *best  (107.1s)
+[epoch   9/12] train 20.2986 | val 21.5338  *best  (106.6s)
+  -> PSNR 35.787 | SSIM 0.9925 | 1700s
+    [persisted] ddpm_sweep_patch.pth (332 MB) -- patch_view
+
+======================================================================================
+objective                   pred  schedule    minSNR        PSNR        SSIM
+--------------------------------------------------------------------------------------
+C_v_cosine                     v    cosine       0.0      37.195      0.9881
+D_v_cosine_minsnr5             v    cosine       5.0      36.248      0.9913
+patch_view                     v    cosine       0.0      35.787      0.9925
+A_eps_linear                 eps    linear       0.0      18.014      0.5403
+======================================================================================
+
+winner -> C_v_cosine {'prediction_type': 'v', 'beta_schedule': 'cosine', 'min_snr_gamma': 0.0}
+spread across objectives: 19.18 dB
+These are 12-epoch runs at ONE seed. Notebook 08 measured ~1.0 dB of pure seed
+spread on the U-Net, so treat a gap below ~1 dB here as unresolved, not as a win.
+
+----- cell 28 -----
+
+======================================================================
+=== seed 42 | {'prediction_type': 'v', 'beta_schedule': 'cosine', 'min_snr_gamma': 0.0}
+======================================================================
+============================================================
+Conditional DDPM training
+  params : 20,682,945
+  device : cuda (single device), timesteps: 1000
+============================================================
+[epoch   1/60] train 8607.4893 | val 1501.4254  *best  (236.9s)
+[epoch   2/60] train 805.3151 | val 663.4956  *best  (237.1s)
+[epoch   3/60] train 420.1515 | val 391.8520  *best  (237.0s)
+[epoch   4/60] train 355.4877 | val 418.3109  (236.8s)
+[epoch   5/60] train 285.1069 | val 317.4340  *best  (237.1s)
+[epoch   6/60] train 255.7346 | val 298.5156  *best  (237.5s)
+[epoch   7/60] train 203.4075 | val 230.5557  *best  (236.9s)
+[epoch   8/60] train 196.4126 | val 197.5960  *best  (237.0s)
+[epoch   9/60] train 159.8263 | val 177.7216  *best  (237.8s)
+[epoch  10/60] train 170.1697 | val 183.1237  (237.2s)
+[epoch  11/60] train 150.4654 | val 129.3603  *best  (236.7s)
+[epoch  12/60] train 154.3797 | val 141.4466  (237.0s)
+[epoch  13/60] train 131.0406 | val 175.3963  (237.1s)
+[epoch  14/60] train 133.1973 | val 134.0917  (235.7s)
+[epoch  15/60] train 105.3637 | val 141.2533  (236.4s)
+[epoch  16/60] train 140.3747 | val 138.8233  (236.0s)
+[epoch  17/60] train 148.0282 | val 145.6597  (236.2s)
+[epoch  18/60] train 112.3832 | val 119.0431  *best  (236.9s)
+[epoch  19/60] train 92.7965 | val 111.5767  *best  (236.8s)
+[epoch  20/60] train 102.0508 | val 114.9057  (236.4s)
+[epoch  21/60] train 94.2487 | val 114.1053  (236.4s)
+[epoch  22/60] train 105.6403 | val 96.2990  *best  (237.6s)
+[epoch  23/60] train 114.6600 | val 130.9323  (236.5s)
+[epoch  24/60] train 97.0418 | val 146.1125  (236.5s)
+[epoch  25/60] train 96.8983 | val 155.8499  (236.5s)
+[epoch  26/60] train 100.4133 | val 133.5227  (236.4s)
+[epoch  27/60] train 89.8579 | val 128.5370  (235.9s)
+[epoch  28/60] train 102.8194 | val 129.4155  (236.1s)
+[epoch  29/60] train 105.1157 | val 133.9063  (236.4s)
+[epoch  30/60] train 101.7138 | val 92.2326  *best  (236.3s)
+[epoch  31/60] train 107.3021 | val 115.4594  (236.6s)
+[epoch  32/60] train 86.0401 | val 100.6746  (236.1s)
+[epoch  33/60] train 81.9687 | val 124.0304  (236.3s)
+[epoch  34/60] train 86.5629 | val 82.3324  *best  (235.9s)
+[epoch  35/60] train 84.7197 | val 93.7354  (236.8s)
+[epoch  36/60] train 101.3946 | val 116.4396  (236.5s)
+[epoch  37/60] train 95.2428 | val 99.9879  (236.0s)
+[epoch  38/60] train 82.2295 | val 102.2104  (235.8s)
+[epoch  39/60] train 75.4752 | val 90.3814  (236.6s)
+[epoch  40/60] train 88.5502 | val 112.3569  (237.3s)
+[epoch  41/60] train 69.9513 | val 117.3371  (236.0s)
+[epoch  42/60] train 67.3454 | val 80.1962  *best  (236.2s)
+[epoch  43/60] train 78.5600 | val 98.0248  (236.3s)
+[epoch  44/60] train 87.1114 | val 89.6827  (237.0s)
+[epoch  45/60] train 86.3811 | val 125.2518  (236.2s)
+[epoch  46/60] train 75.3556 | val 94.9795  (236.4s)
+[epoch  47/60] train 77.2844 | val 105.2790  (236.5s)
+[epoch  48/60] train 72.2776 | val 121.1920  (237.0s)
+[epoch  49/60] train 73.0093 | val 81.3718  (236.0s)
+[epoch  50/60] train 67.5112 | val 57.8768  *best  (237.0s)
+[epoch  51/60] train 72.3578 | val 91.9549  (237.5s)
+[epoch  52/60] train 72.5531 | val 95.9497  (237.9s)
+[epoch  53/60] train 73.4639 | val 93.9089  (237.8s)
+[epoch  54/60] train 68.7154 | val 92.4818  (237.1s)
+[epoch  55/60] train 58.5741 | val 76.0557  (237.4s)
+[epoch  56/60] train 77.6048 | val 82.8357  (235.6s)
+[epoch  57/60] train 66.3532 | val 105.0916  (236.2s)
+[epoch  58/60] train 69.3173 | val 56.6989  *best  (237.1s)
+[epoch  59/60] train 61.3014 | val 101.2298  (236.6s)
+[epoch  60/60] train 68.4154 | val 94.5267  (235.6s)
+    [persisted] ddpm_seed42.pth (332 MB) -- seed 42
+  seed 42: PSNR 38.180 | SSIM 0.9933
+
+=== DDPM over 1 seed(s) ===
+  PSNR 38.180 +/- 0.000   (38.180)
+  best seed 42 -> ddpm_seed42.pth.tar
+=> loaded '../results/checkpoints/ddpm_seed42.pth.tar' (epoch 58, step 7656)
+  loaded for evaluation: epoch 58 | best_val 56.6989
+
+----- cell 30 -> figure_cell30.png -----
+
+----- cell 30 -----
+NOTE: loss is NOT comparable across objectives -- eps and v regress different
+targets and Min-SNR rescales the loss. Compare objectives by PSNR (section 7).
+
+----- cell 32 -----
+Validation (300 channels):  PSNR 38.2917 dB | SSIM 0.9929 | MSE 0.000274
+
+----- cell 34 -> figure_cell34.png -----
+
+----- cell 34 -----
+saved -> experiments/line_emission_ddpm_comparison.png
+
+----- cell 36 -----
+device: cuda | GPUs: 2
+  GPU0 Tesla T4: 10.7 / 14.6 GiB free
+  GPU1 Tesla T4: 14.3 / 14.6 GiB free
+=> loaded '../results/checkpoints/ddpm_seed42.pth.tar' (epoch 58, step 7656)
+
+sampler OK: (8, 1, 256, 256) -> (8, 1, 256, 256), range [0.348, 0.701]
+one batch of 8 channels: 27.1 s  (25 DDIM steps x K_AVG 4 = 100 model calls)
+projected: 11.7 min/cube  ->  1.0 h for 5 held-out cubes
+
+OK: 1.0 h fits the 6 h budget. Run section 11.
+
+----- cell 38 -----
+=> loaded '../results/checkpoints/ddpm_seed42.pth.tar' (epoch 58, step 7656)
+[improved] checkpoint epoch 58 | best_val 56.6989 | prediction_type v
+[improved] evaluating 5 held-out cubes (DDIM sampling -- slow)...
+
+cube                             dirty_M0    imp_M0%   dirty_M1    imp_M1%   dirty_M2    imp_M2%
+------------------------------------------------------------------------------------------------
+  denoising run_0002_00560_rt_00 ...
+      [mem] cube start                 RSS 2.70 GiB
+      [mem] velax read, cube freed     RSS 2.70 GiB
+      [mem] dirty loaded               RSS 3.24 GiB
+      [mem] dirty moments done         RSS 3.24 GiB
+      [mem] norm + denoised alloc      RSS 3.24 GiB
+    201 channels in 26 batches of 8 (100 model calls per batch)
+      8/201 channels | 0.9 min elapsed, ~21.8 min left
+     16/201 channels | 1.8 min elapsed, ~20.3 min left
+     24/201 channels | 2.6 min elapsed, ~19.4 min left
+     32/201 channels | 3.5 min elapsed, ~18.6 min left
+     40/201 channels | 4.4 min elapsed, ~17.7 min left
+     48/201 channels | 5.3 min elapsed, ~16.8 min left
+     56/201 channels | 6.1 min elapsed, ~15.9 min left
+     64/201 channels | 7.0 min elapsed, ~15.0 min left
+     72/201 channels | 7.9 min elapsed, ~14.1 min left
+     80/201 channels | 8.8 min elapsed, ~13.3 min left
+     88/201 channels | 9.6 min elapsed, ~12.4 min left
+     96/201 channels | 10.5 min elapsed, ~11.5 min left
+    104/201 channels | 11.4 min elapsed, ~10.6 min left
+    112/201 channels | 12.3 min elapsed, ~9.8 min left
+    120/201 channels | 13.2 min elapsed, ~8.9 min left
+    128/201 channels | 14.0 min elapsed, ~8.0 min left
+    136/201 channels | 14.9 min elapsed, ~7.1 min left
+    144/201 channels | 15.8 min elapsed, ~6.2 min left
+    152/201 channels | 16.7 min elapsed, ~5.4 min left
+    160/201 channels | 17.5 min elapsed, ~4.5 min left
+    168/201 channels | 18.4 min elapsed, ~3.6 min left
+    176/201 channels | 19.3 min elapsed, ~2.7 min left
+    184/201 channels | 20.2 min elapsed, ~1.9 min left
+    192/201 channels | 21.0 min elapsed, ~1.0 min left
+    200/201 channels | 21.9 min elapsed, ~0.1 min left
+    201/201 channels | 22.0 min elapsed, ~0.0 min left
+      [mem] sampling done, norm freed  RSS 3.54 GiB
+      [mem] denoised moments done      RSS 2.70 GiB
+      [mem] clean moments done         RSS 2.97 GiB
+run_0002_00560_rt_00                0.781     -84.8%       1687    -126.5%       1306    -130.8%
+  denoising run_0002_00560_rt_01 ...
+      [mem] cube start                 RSS 2.97 GiB
+      [mem] velax read, cube freed     RSS 2.97 GiB
+      [mem] dirty loaded               RSS 3.51 GiB
+      [mem] dirty moments done         RSS 3.51 GiB
+      [mem] norm + denoised alloc      RSS 3.51 GiB
+    201 channels in 26 batches of 8 (100 model calls per batch)
+      8/201 channels | 0.9 min elapsed, ~21.9 min left
+     16/201 channels | 1.8 min elapsed, ~20.4 min left
+     24/201 channels | 2.6 min elapsed, ~19.5 min left
+     32/201 channels | 3.5 min elapsed, ~18.6 min left
+     40/201 channels | 4.4 min elapsed, ~17.6 min left
+     48/201 channels | 5.3 min elapsed, ~16.8 min left
+     56/201 channels | 6.1 min elapsed, ~15.9 min left
+     64/201 channels | 7.0 min elapsed, ~15.0 min left
+     72/201 channels | 7.9 min elapsed, ~14.1 min left
+     80/201 channels | 8.8 min elapsed, ~13.2 min left
+     88/201 channels | 9.6 min elapsed, ~12.4 min left
+     96/201 channels | 10.5 min elapsed, ~11.5 min left
+    104/201 channels | 11.4 min elapsed, ~10.6 min left
+    112/201 channels | 12.3 min elapsed, ~9.7 min left
+    120/201 channels | 13.1 min elapsed, ~8.9 min left
+    128/201 channels | 14.0 min elapsed, ~8.0 min left
+    136/201 channels | 14.9 min elapsed, ~7.1 min left
+    144/201 channels | 15.8 min elapsed, ~6.2 min left
+    152/201 channels | 16.6 min elapsed, ~5.4 min left
+    160/201 channels | 17.5 min elapsed, ~4.5 min left
+    168/201 channels | 18.4 min elapsed, ~3.6 min left
+    176/201 channels | 19.3 min elapsed, ~2.7 min left
+    184/201 channels | 20.2 min elapsed, ~1.9 min left
+    192/201 channels | 21.0 min elapsed, ~1.0 min left
+    200/201 channels | 21.9 min elapsed, ~0.1 min left
+    201/201 channels | 22.0 min elapsed, ~0.0 min left
+      [mem] sampling done, norm freed  RSS 3.79 GiB
+      [mem] denoised moments done      RSS 2.99 GiB
+      [mem] clean moments done         RSS 2.99 GiB
+run_0002_00560_rt_01               0.5719      41.9%       2915      61.8%       1809      47.8%
+  denoising run_0002_00560_rt_04 ...
+      [mem] cube start                 RSS 2.99 GiB
+      [mem] velax read, cube freed     RSS 2.99 GiB
+      [mem] dirty loaded               RSS 3.53 GiB
+      [mem] dirty moments done         RSS 3.54 GiB
+      [mem] norm + denoised alloc      RSS 3.54 GiB
+    201 channels in 26 batches of 8 (100 model calls per batch)
+      8/201 channels | 0.9 min elapsed, ~21.9 min left
+     16/201 channels | 1.8 min elapsed, ~20.4 min left
+     24/201 channels | 2.6 min elapsed, ~19.5 min left
+     32/201 channels | 3.5 min elapsed, ~18.6 min left
+     40/201 channels | 4.4 min elapsed, ~17.6 min left
+     48/201 channels | 5.3 min elapsed, ~16.8 min left
+     56/201 channels | 6.1 min elapsed, ~15.9 min left
+     64/201 channels | 7.0 min elapsed, ~15.0 min left
+     72/201 channels | 7.9 min elapsed, ~14.1 min left
+     80/201 channels | 8.7 min elapsed, ~13.2 min left
+     88/201 channels | 9.6 min elapsed, ~12.3 min left
+     96/201 channels | 10.5 min elapsed, ~11.5 min left
+    104/201 channels | 11.4 min elapsed, ~10.6 min left
+    112/201 channels | 12.2 min elapsed, ~9.7 min left
+    120/201 channels | 13.1 min elapsed, ~8.8 min left
+    128/201 channels | 14.0 min elapsed, ~8.0 min left
+    136/201 channels | 14.8 min elapsed, ~7.1 min left
+    144/201 channels | 15.7 min elapsed, ~6.2 min left
+    152/201 channels | 16.6 min elapsed, ~5.3 min left
+    160/201 channels | 17.5 min elapsed, ~4.5 min left
+    168/201 channels | 18.3 min elapsed, ~3.6 min left
+    176/201 channels | 19.2 min elapsed, ~2.7 min left
+    184/201 channels | 20.1 min elapsed, ~1.9 min left
+    192/201 channels | 20.9 min elapsed, ~1.0 min left
+    200/201 channels | 21.8 min elapsed, ~0.1 min left
+    201/201 channels | 21.9 min elapsed, ~0.0 min left
+      [mem] sampling done, norm freed  RSS 3.81 GiB
+      [mem] denoised moments done      RSS 3.00 GiB
+      [mem] clean moments done         RSS 3.00 GiB
+run_0002_00560_rt_04               0.5744      18.5%       3066      73.5%       1494      51.2%
+  denoising run_0025_01000_rt_04 ...
+      [mem] cube start                 RSS 3.00 GiB
+      [mem] velax read, cube freed     RSS 3.00 GiB
+      [mem] dirty loaded               RSS 3.54 GiB
+      [mem] dirty moments done         RSS 3.54 GiB
+      [mem] norm + denoised alloc      RSS 3.54 GiB
+    201 channels in 26 batches of 8 (100 model calls per batch)
+      8/201 channels | 0.9 min elapsed, ~21.8 min left
+     16/201 channels | 1.8 min elapsed, ~20.4 min left
+     24/201 channels | 2.6 min elapsed, ~19.5 min left
+     32/201 channels | 3.5 min elapsed, ~18.6 min left
+     40/201 channels | 4.4 min elapsed, ~17.7 min left
+     48/201 channels | 5.3 min elapsed, ~16.8 min left
+     56/201 channels | 6.1 min elapsed, ~15.9 min left
+     64/201 channels | 7.0 min elapsed, ~15.0 min left
+     72/201 channels | 7.9 min elapsed, ~14.1 min left
+     80/201 channels | 8.7 min elapsed, ~13.2 min left
+     88/201 channels | 9.6 min elapsed, ~12.3 min left
+     96/201 channels | 10.5 min elapsed, ~11.5 min left
+    104/201 channels | 11.3 min elapsed, ~10.6 min left
+    112/201 channels | 12.2 min elapsed, ~9.7 min left
+    120/201 channels | 13.1 min elapsed, ~8.8 min left
+    128/201 channels | 14.0 min elapsed, ~8.0 min left
+    136/201 channels | 14.8 min elapsed, ~7.1 min left
+    144/201 channels | 15.7 min elapsed, ~6.2 min left
+    152/201 channels | 16.6 min elapsed, ~5.3 min left
+    160/201 channels | 17.4 min elapsed, ~4.5 min left
+    168/201 channels | 18.3 min elapsed, ~3.6 min left
+    176/201 channels | 19.2 min elapsed, ~2.7 min left
+    184/201 channels | 20.1 min elapsed, ~1.9 min left
+    192/201 channels | 20.9 min elapsed, ~1.0 min left
+    200/201 channels | 21.8 min elapsed, ~0.1 min left
+    201/201 channels | 21.9 min elapsed, ~0.0 min left
+      [mem] sampling done, norm freed  RSS 3.83 GiB
+      [mem] denoised moments done      RSS 3.00 GiB
+      [mem] clean moments done         RSS 3.00 GiB
+run_0025_01000_rt_04                0.704    -310.2%      480.7     -13.2%       1101      15.5%
+  denoising run_0026_00005_rt_04 ...
+      [mem] cube start                 RSS 3.00 GiB
+      [mem] velax read, cube freed     RSS 3.00 GiB
+      [mem] dirty loaded               RSS 3.54 GiB
+      [mem] dirty moments done         RSS 3.54 GiB
+      [mem] norm + denoised alloc      RSS 3.54 GiB
+    201 channels in 26 batches of 8 (100 model calls per batch)
+      8/201 channels | 0.9 min elapsed, ~21.8 min left
+     16/201 channels | 1.8 min elapsed, ~20.4 min left
+     24/201 channels | 2.6 min elapsed, ~19.4 min left
+     32/201 channels | 3.5 min elapsed, ~18.6 min left
+     40/201 channels | 4.4 min elapsed, ~17.7 min left
+     48/201 channels | 5.3 min elapsed, ~16.8 min left
+     56/201 channels | 6.1 min elapsed, ~15.9 min left
+     64/201 channels | 7.0 min elapsed, ~15.0 min left
+     72/201 channels | 7.9 min elapsed, ~14.1 min left
+     80/201 channels | 8.8 min elapsed, ~13.2 min left
+     88/201 channels | 9.6 min elapsed, ~12.4 min left
+     96/201 channels | 10.5 min elapsed, ~11.5 min left
+    104/201 channels | 11.4 min elapsed, ~10.6 min left
+    112/201 channels | 12.3 min elapsed, ~9.7 min left
+    120/201 channels | 13.1 min elapsed, ~8.9 min left
+    128/201 channels | 14.0 min elapsed, ~8.0 min left
+    136/201 channels | 14.9 min elapsed, ~7.1 min left
+    144/201 channels | 15.7 min elapsed, ~6.2 min left
+    152/201 channels | 16.6 min elapsed, ~5.4 min left
+    160/201 channels | 17.5 min elapsed, ~4.5 min left
+    168/201 channels | 18.3 min elapsed, ~3.6 min left
+    176/201 channels | 19.2 min elapsed, ~2.7 min left
+    184/201 channels | 20.1 min elapsed, ~1.9 min left
+    192/201 channels | 21.0 min elapsed, ~1.0 min left
+    200/201 channels | 21.8 min elapsed, ~0.1 min left
+    201/201 channels | 21.9 min elapsed, ~0.0 min left
+      [mem] sampling done, norm freed  RSS 3.86 GiB
+      [mem] denoised moments done      RSS 3.03 GiB
+      [mem] clean moments done         RSS 3.03 GiB
+run_0026_00005_rt_04                1.375      54.1%       2100      79.2%       1417      70.7%
+
+================================================================================================
+DDPM SUMMARY (n=5 cubes):
+  M0: mean -56.1%  std 152.2%  (n=5)
+  M1: mean +15.0%  std 87.4%  (n=5)
+  M2: mean +10.9%  std 81.7%  (n=5)
+
+CSV saved -> ../results/moment_map_holdout_summary_ddpm.csv
+
+----- cell 38 -> figure_cell38.png -----
+
+----- cell 38 -----
+Chart saved -> ../results/moment_map_holdout_summary_ddpm.png
+
+----- cell 40 -> figure_cell40.png -----
+
+----- cell 40 -----
+saved -> ../results/ddpm_moment_maps.png
+
+----- cell 42 -----
+  checkpoint -> ddpm_seed42.pth (332 MB)
+  checkpoint -> ddpm_sweep_A_eps_linear.pth (332 MB)
+  checkpoint -> ddpm_sweep_C_v_cosine.pth (332 MB)
+  checkpoint -> ddpm_sweep_D_v_cosine_minsnr5.pth (332 MB)
+  checkpoint -> ddpm_sweep_patch.pth (332 MB)
+
+persisted 5 checkpoint(s) and 7 result file(s) to /kaggle/working
+
+To resume: Add Input -> Notebooks -> THIS notebook. Do NOT re-upload a .pth as
+a Dataset -- a torch checkpoint is internally a zip, Kaggle unpacks it, and it
+arrives as a directory that torch.load rejects with "Is a directory".
+
+----- cell 44 -----
+collected 8 file(s), 16.3 MiB -> /kaggle/working/outputs/06-ddpm-line-emission/2026-08-12T045041_19efd47
+       0.05 MiB  ddpm_line_emission_loss.png
+      13.54 MiB  ddpm_moment_maps.npz
+       0.83 MiB  ddpm_moment_maps.png
+       0.00 MiB  ddpm_objective_sweep.csv
+       0.00 MiB  ddpm_seed_repeats.csv
+       1.78 MiB  line_emission_ddpm_comparison.png
+       0.00 MiB  moment_map_holdout_summary_ddpm.csv
+       0.06 MiB  moment_map_holdout_summary_ddpm.png
+   NOT FOUND (not written this run?): ['moment_map_holdout_baseline_ddpm.csv']
+
+Anything listed as NOT FOUND above did not get written this run -- check why before quoting the run as complete.
