@@ -112,6 +112,12 @@ M2 = sqrt( ∫ I(v) · (v − M1)² dv  /  ∫ I(v) dv )  velocity dispersion
 M0 tells you where the gas is. M1 is the rotation map, and it is where planet-induced kinks
 appear. M2 traces turbulence and line broadening.
 
+> **[FIGURE]** `results/05-unet-line-emission/v12_2026-07-10T1928_c61d112/moment_maps_holdout.png`
+>
+> *Moment maps of one held-out cube: clean truth against the dirty input. The intensity map
+> survives the noise reasonably well; the velocity and dispersion maps are visibly destroyed.
+> That gap is the thing to close.*
+
 We score improvement over the dirty cube, per moment, on the 5 held-out cubes:
 
 ```
@@ -222,6 +228,11 @@ diagnostic: the denoised minimum moved from −0.0047 (tracking dirty, wrong) to
 inference time.** Keep this in mind for Section 11, where a closely related failure shows up
 in the diffusion model.
 
+> **[FIGURE]** `results/05-unet-line-emission/v12_2026-07-10T1928_c61d112/line_emission_unet_comparison.png`
+>
+> *Five validation channels, dirty against U-Net-denoised against clean truth, after the
+> normalisation fix.*
+
 ---
 
 ## 7. How much is the network actually buying us?
@@ -257,6 +268,12 @@ The honest comparison is the last two rows, both evaluated at the resolution the
 operates at: a **+33.3 percentage point** advantage on integrated intensity. Classical
 filters do help, and they are nearly free, but they plateau early. Smoothing removes noise
 and signal together; there is no σ that separates a faint ring from a sidelobe.
+
+> **[FIGURE]** `results/07-classical-baselines/v2_2026-07-31T1904_eb03589/classical_vs_learned_moments.png`
+>
+> *Learned versus classical denoising across all three moments, identical protocol, 5
+> held-out cubes. The gap widens moving from intensity to the kinematic moments, which are
+> the ones that carry planet signatures.*
 
 This run also caught its own methodology bug: filters were tuned at 256 px but applied at
 the cubes' native 600 px, and filter parameters are in pixels, so σ = 4 tuned at 256 smooths
@@ -340,6 +357,12 @@ V12's published +69.8% in the same column as numbers computed under a different 
 version. That row was measured before either revision. It should not be read as directly
 comparable to the three above it, and the notebook that printed the table did not say so.
 
+> **[FIGURE]** `results/09-architecture-comparison/v4_2026-08-02T0313_29bffd4/architecture_moment_maps.png`
+>
+> *Moment maps by architecture on one held-out cube, from the pre-clip run. The U-Net row is
+> visibly closest to the clean truth on M0 and M1. The autoencoder and VAE rows show the
+> boxy, over-smoothed reconstruction their bottlenecks impose.*
+
 Neither of these runs used the signal mask that Section 11's diffusion figures use, so there
 are effectively **three metric generations** in this project's history. Re-scoring every
 archived checkpoint on one final metric is item 2 of what is next, and it is the largest
@@ -381,6 +404,11 @@ applies the 8 lossless orientations of the dihedral group (4 rotations × option
 identically to dirty and clean. On a 14-cube corpus that is the cheapest regularisation
 available.
 
+> **[FIGURE]** `results/08-seeds-and-augmentation/v4_2026-08-02T0421_1ca611f/seed_spread.png`
+>
+> *Per-seed spread across 3 seeds for four configurations. Dots are individual seeds. The
+> overlap between the first two groups is the entire "reproduction failure" story.*
+
 ### 9.1 Hallucination, and where it lives
 
 The most scientifically serious failure mode is not blur, it is **invented structure**. In a
@@ -409,6 +437,11 @@ A methodological caution attached to this: an earlier version of this diagnostic
 detector — the background mask was defined as `clean < 10% of peak`, which under shared
 dirty-scale normalisation selected **zero pixels**. A zero from a diagnostic is a suspect,
 not a pass. Always check the denominator.
+
+> **[FIGURE]** `results/05-unet-line-emission/v16_2026-07-30T0334_ef0a37b/hallucination_worst_channels.png`
+>
+> *The worst offenders for invented structure: dirty, denoised, clean truth. Row 4 shows the
+> model confidently producing a second source that does not exist in the ground truth.*
 
 **Current best U-Net checkpoint** (v18, 11 August): M0 **+81.2% ± 12.6**, M1 +31.5% ± 9.2,
 M2 +19.9% ± 18.8 — the first run with every moment positive on every one of the 5 held-out
@@ -491,6 +524,8 @@ velocity map recovering the rotation dipole cleanly and the intensity map recove
 disk — while the sky, which is black in the truth, sits at a raised floor, and the dispersion
 map is saturated across the entire field. The smoke test recorded the cause directly:
 
+
+
 ```
 sampler OK: (8,1,256,256) -> (8,1,256,256), range [0.348, 0.701]
 ```
@@ -499,6 +534,17 @@ The sampler emits a narrow band around 0.5 instead of spanning [0, 1]. Inverting
 per-channel normalisation then places the entire field at mid-scale. This is the Section 6.1
 lesson recurring in a new costume: the decode step assumes an output range the model does not
 actually produce.
+
+> **[FIGURE]** `results/06-ddpm-line-emission/v13_2026-08-12T0450_19efd47/ddpm_moment_maps.png`
+>
+> *DDPM moment maps. The velocity map recovers the rotation dipole cleanly. The intensity map
+> shows the problem: the sky, black in the truth, sits at a raised floor. The dispersion map
+> is saturated across the entire field.*
+
+> **[FIGURE]** `results/06-ddpm-line-emission/v13_2026-08-12T0450_19efd47/moment_map_holdout_summary_ddpm.png`
+>
+> *The same result as per-cube improvements. This is not a model that is uniformly bad, it is
+> a model that is fine on three cubes and catastrophic on two.*
 
 ### 11.1 Why moment maps punish this so much harder than PSNR
 
