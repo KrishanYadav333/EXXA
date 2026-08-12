@@ -38,11 +38,24 @@ M0 +81.2% ±12.6, M1 +31.5% ±9.2, M2 +19.9% ±18.8, 5/5 cubes positive on all t
 V12's +69.8 / +17.5 / +20.1. PSNR 35.94, +2.99 dB over V12. The sweep-time 37.109 dB
 reproduces at −1.166 dB, consistent with the seed-49 explanation.
 
-The negative M2 values that dogged earlier runs are gone. They were the unmasked metric
-scoring empty sky, where dispersion is a ratio with a vanishing denominator; the signal
-mask removed them without changing any ranking.
+**Correction — v18 did NOT use the masked metric.** An earlier version of this entry said
+its positive M2 values were the signal mask removing empty sky. That is wrong. Notebook 05
+bootstraps from **`line-emission`**, not `midterm-prep`, and v18's log records
+`HEAD is now at 227d2fc`. At that commit `src/evaluation/moment_maps.py` contains no
+`moment_improvement`, no `signal_mask` and no `clip_sigma` — zero occurrences of each. So
+v18 ran the **original whole-map, unclipped metric**, and why its M2 came out positive where
+earlier runs' did not is unexplained, not attributed to masking.
 
-Caveat on provenance: the Kaggle notebook was a **stale copy predating `1d3022b`** — 23
+What this does *not* undermine: v18 vs V12 is still like-for-like, because V12's published
+figures are on that same original metric. The +81.2 / +31.5 / +19.9 against +69.8 / +17.5 /
++20.1 stands as a comparison.
+
+What it does mean: **v18's numbers are not comparable to anything scored on the masked
+metric** — notebook 08's arms, or any future 05 run once its bootstrap is moved to
+`midterm-prep`. Two different measurements, and the branch is what decides which one a run
+gets.
+
+Caveat on provenance: the Kaggle notebook was also a **stale copy predating `1d3022b`** — 23
 cells, no `SEEDS`, no `CONFIGS`, no V12-checkpoint restore. So v18 is a single seed on one
 configuration, not the 3-seed comparison the current notebook runs, and its "vs V12" column
 compares against V12's *published* numbers rather than a re-scored V12 checkpoint. The push
@@ -107,11 +120,18 @@ M1 together (+81.2 / +31.5 vs +69.8 / +17.5), with M2 level. Its own printed ver
 *"sweep winner supersedes V12 as reference checkpoint"*.
 
 Before it, no version had: v16 and v17 both printed *"NOT a clean improvement — V12 stays
-the reference"*, with M0 falling from +69.8% to +64.4% then +48.2%. Those two ran on the
-**unmasked** metric, so their numbers are not directly comparable to v18's; the mask is what
-made M2 positive, and it raises M0 as well. v18 vs V12 is a like-for-like comparison only
-because both rows quote V12's published figures — a V12 checkpoint re-scored under the
-current metric is what the present notebook adds, and has not yet been run.
+the reference"*, with M0 falling from +69.8% to +64.4% then +48.2%.
+
+**All of v16, v17 and v18 ran the same unmasked metric**, because notebook 05 bootstraps
+from `line-emission` and none of the moment fixes are on that branch — v18's log records
+`HEAD is now at 227d2fc`, where `moment_improvement`, `signal_mask` and `clip_sigma` do not
+exist. So this whole column is internally consistent and comparable to V12's published
+figures, and comparable to **nothing** scored on the masked metric. An earlier version of
+this paragraph credited the mask for v18's positive M2; that was wrong, since v18 had no
+mask.
+
+Re-scoring V12's own checkpoint under the masked metric is what the present notebook adds,
+and it has not yet been run.
 
 ### The "7 dB reproduction failure" was a seed difference, not a failure
 
