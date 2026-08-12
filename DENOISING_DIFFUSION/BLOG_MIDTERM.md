@@ -289,33 +289,63 @@ ranges 16.9 to 30.5 dB across its own 8 configurations, a 13.6 dB range that swa
 entire deficit to the U-Net. An architecture comparison built on one run each would have been
 measuring configuration luck.
 
-On the moment maps, ranked by M0 improvement:
+On the moment maps, with parameter counts, this is the full cross-model comparison:
 
 ```
-Architecture       M0                M1                M2
-U-Net          +77.0% ± 13.6    +22.2% ± 15.2     +8.5% ± 18.1
-Autoencoder    +54.1% ± 36.3    +25.8% ± 13.6    +21.0% ± 14.8
-VAE            +46.1% ± 22.3     +1.0% ± 18.1    +12.7% ± 12.8
+Architecture      params      PSNR         M0              M1              M2
+U-Net          3,477,665    37.414   +77.0% ± 13.6   +22.2% ± 15.2   +8.5% ± 18.1
+Autoencoder    1,734,305    33.155   +54.1% ± 36.3   +25.8% ± 13.6  +21.0% ± 14.8
+VAE              467,793    29.760   +46.1% ± 22.3    +1.0% ± 18.1  +12.7% ± 12.8
+U-Net V12      3,400,000    32.950   +69.8% ± 15.2   +17.5% ±  7.8  +20.1% ± 14.3
 ```
 
 U-Net wins decisively on intensity and has the lowest cube-to-cube variance. The VAE is
 clearly the wrong tool: its latent bottleneck plus KL regularisation is built to produce
 plausible samples, and plausible is not the same as correct. Its M1 score of +1.0% means it
-essentially failed to recover the velocity field at all.
+essentially failed to recover the velocity field at all — and it does that with 7× fewer
+parameters than the U-Net, so the deficit is architectural, not a capacity artefact.
 
 But the U-Net **loses on M2**, behind both other architectures. This is not a one-off; it
 recurs in every experiment below, and we are treating it as an open scientific problem rather
 than something to patch away.
 
-**A caveat that has to be stated, because it is large.** Those moment numbers come from the
-run before the 3σ noise clip was added to the moment computation. A later run of the same
-notebook, on the same checkpoints, with the clip enabled, scores the U-Net at **M0 −33.2%**
-instead of +77.0%. Nothing about the models changed; the metric did. Neither run used the
-signal mask that the current numbers elsewhere in this post use, so this section is
-internally consistent and consistent with V12's published +69.8%, and is **not** comparable
-to Section 11's diffusion figures. Re-scoring every archived checkpoint on one final metric is
-item 2 of what is next, and it is the largest single piece of unfinished bookkeeping in the
-project.
+### 8.1 The same checkpoints, scored twice, disagree
+
+That table is not the end of the story, and the part that follows is the most uncomfortable
+result in this write-up.
+
+Midway through the project a 3σ noise clip was added to the moment computation, to stop the
+dispersion map reading the noise floor. Re-scoring the **identical checkpoints** with it:
+
+```
+Moment    no clip     3σ clip     change
+M0         +77.0%      −33.2%    −110.2 pp
+M1         +22.2%      +68.7%     +46.6 pp
+M2          +8.5%     −152.8%    −161.3 pp
+```
+
+Nothing about the models changed. The metric did, and it did not shift everything one way:
+**M1 more than tripled while M0 and M2 collapsed.** Under the clip the U-Net's M1 rises to
+the best velocity recovery measured anywhere in this project, and its M0 goes negative.
+
+Two honest consequences.
+
+First, **the ranking survives but the magnitudes do not.** U-Net still leads the autoencoder
+and VAE on M0 under the clip (−33.2% against −152.0% and −220.4%), so "U-Net is the right
+architecture" holds. Any *number* attached to that claim depends on which metric version
+produced it.
+
+Second, and this is the trap this project keeps walking into: the comparison table above puts
+V12's published +69.8% in the same column as numbers computed under a different metric
+version. That row was measured before either revision. It should not be read as directly
+comparable to the three above it, and the notebook that printed the table did not say so.
+
+Neither of these runs used the signal mask that Section 11's diffusion figures use, so there
+are effectively **three metric generations** in this project's history. Re-scoring every
+archived checkpoint on one final metric is item 2 of what is next, and it is the largest
+single piece of unfinished bookkeeping here. Until that is done, comparisons are only valid
+within a section, which is why this post never places a Section 8 number beside a Section 11
+number.
 
 ---
 
