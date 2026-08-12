@@ -268,14 +268,34 @@ corrected ones.
 
 ## 8. Which architecture?
 
-An equal-training-budget comparison: same data, same schedule, same 5-cube holdout, three
-architectures.
+An equal-training-budget comparison: same data, same schedule, same 5-cube holdout. Rather
+than pick one configuration per architecture and risk comparing lucky draws, we ran a
+**24-run sweep — 8 configurations per architecture** — and took each one's best.
+
+```
+Architecture   runs   best PSNR   median   worst   best SSIM
+U-Net             8      39.235   37.679  37.081      0.9946
+Autoencoder       8      33.633   31.648  19.659      0.9904
+VAE               8      30.498   21.152  16.899      0.9819
+```
+
+The U-Net's best configuration is `base_channels=16`, multipliers `1×2×4×8`, lr 0.00124,
+α 0.745 — **39.235 dB at SSIM 0.9946**, the best pixel-metric result anywhere in this
+project, and 6.3 dB above V12's published 32.95.
+
+The sweep also earns its cost by showing something a single run per architecture would have
+hidden: **the spread within an architecture rivals the gap between architectures.** The VAE
+ranges 16.9 to 30.5 dB across its own 8 configurations, a 13.6 dB range that swallows its
+entire deficit to the U-Net. An architecture comparison built on one run each would have been
+measuring configuration luck.
+
+On the moment maps, ranked by M0 improvement:
 
 ```
 Architecture       M0                M1                M2
+U-Net          +77.0% ± 13.6    +22.2% ± 15.2     +8.5% ± 18.1
 Autoencoder    +54.1% ± 36.3    +25.8% ± 13.6    +21.0% ± 14.8
 VAE            +46.1% ± 22.3     +1.0% ± 18.1    +12.7% ± 12.8
-U-Net          +77.0% ± 13.6    +22.2% ± 15.2     +8.5% ± 18.1
 ```
 
 U-Net wins decisively on intensity and has the lowest cube-to-cube variance. The VAE is
@@ -286,6 +306,16 @@ essentially failed to recover the velocity field at all.
 But the U-Net **loses on M2**, behind both other architectures. This is not a one-off; it
 recurs in every experiment below, and we are treating it as an open scientific problem rather
 than something to patch away.
+
+**A caveat that has to be stated, because it is large.** Those moment numbers come from the
+run before the 3σ noise clip was added to the moment computation. A later run of the same
+notebook, on the same checkpoints, with the clip enabled, scores the U-Net at **M0 −33.2%**
+instead of +77.0%. Nothing about the models changed; the metric did. Neither run used the
+signal mask that the current numbers elsewhere in this post use, so this section is
+internally consistent and consistent with V12's published +69.8%, and is **not** comparable
+to Section 11's diffusion figures. Re-scoring every archived checkpoint on one final metric is
+item 2 of what is next, and it is the largest single piece of unfinished bookkeeping in the
+project.
 
 ---
 
