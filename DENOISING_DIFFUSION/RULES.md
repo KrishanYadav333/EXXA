@@ -25,6 +25,17 @@ missing file. Call it directly after **every** `.train(...)` — each sweep arm,
 the full run — and after any CSV that is the sole record of a ranking. Keep the
 end-of-notebook bulk copy as a backstop, never as the only save.
 
+Stronger still, where the trainer already saves per seed: point `CKPT_DIR` **at**
+`/kaggle/working` so the training-time write is itself the durable one. Nothing then depends
+on a later cell being reached — there is no call left to skip.
+
+> **Second incident, same rule.** Notebook 08 wrote every seed's checkpoint to
+> `../results/checkpoints` and copied them to `/kaggle/working` only in its final cell. It
+> survived at 12 runs in one session purely by finishing. Section 1b's resume path reads the
+> previous version's Output, which that final cell is what creates — so a timeout would have
+> lost the models *and* the ability to resume. Caught while planning the 15-run rebuild
+> (2026-08-12), before it cost anything.
+
 A run that dies at hour 5 must cost the hours after the last save, not everything before
 it.
 
@@ -132,3 +143,71 @@ are not comparable and must be labelled, not silently tabulated alongside.
 
 Quote the mask, the clip, and the n. State whether a spread is across seeds or across
 cubes — RUNS.md carries both and they are not interchangeable.
+
+---
+
+## 7. One notebook, one file — the Kaggle-linked name is the only real one
+
+Kaggle's GitHub integration pushes to the file named after its kernel slug, and to nothing
+else. Any second copy of the same notebook under a friendlier name stops receiving runs the
+moment the first push lands, and then sits in the repo looking exactly as authoritative as
+the file that is actually executing.
+
+> **Incident.** Both `08-seeds-and-augmentation.ipynb` and
+> `08-seeds-and-augmentationa369c56f22.ipynb` were at HEAD, 33 identical code cells, same
+> title, same section numbers. The slug-named one carried Version 4's outputs — M0 +27.7,
+> invented-blob rate 39.0%. The plain-named one carried an earlier session's — M0 +82.0,
+> blob rate 0.0% — committed by hand at `d418498` and never re-executed. Reading the wrong
+> one first produced a confident, wrong answer about which numbers Version 4 had actually
+> printed, and the CSVs it wrote had already been filed as coming from an "unknown session".
+
+Keep exactly one notebook file per Kaggle kernel, at the slug name Kaggle pushes to. If a
+copy is downloaded for comparison, it goes under `results/<notebook>/v<N>_.../`, never
+beside the live notebook. Before editing, confirm the file you are editing is the one the
+last `Kaggle Notebook | ... | Version N` commit touched.
+
+---
+
+## 8. A zero from a diagnostic is a suspect, not a pass
+
+A detector that reports "no problems found" and a detector that cannot fire produce the
+same number. The clean-looking result is the one that needs checking hardest, because
+nothing about it invites a second look.
+
+> **Incident.** The artifact panel reported `channels with invented blob 0.0% |
+> blobs/channel 0.000` for all four arms of 08 Version 2, and that read as four
+> hallucination-free models. The threshold was a fraction of the map's **peak**, so on a
+> cube with a bright disk nothing in the faint background could ever cross it. `04b3f2c`
+> made it floor-relative; the same checkpoints then scored 22.3–39.0% of channels carrying
+> an invented blob, concentrated at low SNR (1.58 blobs/channel below SNR 3.9 against 0.213
+> above). 05 v18 printed the same `0%` alongside its own warning — *"no channel scored any
+> invented structure -- showing the largest overshoot instead, and check n_background_px
+> before trusting this"* — and the run was still written into RUNS.md as the best to date.
+
+Any diagnostic reporting exactly zero across every arm is failing until proven otherwise.
+Check the denominator: how many pixels were in the mask, how many channels were tested. A
+metric that cannot distinguish between arms is not evidence that the arms are equal.
+
+---
+
+## 9. Check which branch the kernel pulled — it decides the metric
+
+`src/` is fetched by cell 0b from a branch named in the bootstrap. Two notebooks pointed at
+different branches score with different libraries, and their numbers then get tabulated
+side by side as though the difference were the models.
+
+> **Incident.** Notebook 05 clones, fetches and resets to `line-emission`, which is at
+> `ef0a37b` and contains none of `bab16d0` (`clip_sigma`), `04b3f2c` (floor-relative
+> artifacts) or `8f4da16` (signal-masked moments) — `clip_sigma` does not appear in that
+> branch's `moment_maps.py` at all. Notebook 08 pulls `midterm-prep`, which has all three.
+> v18's log reads `* branch line-emission -> FETCH_HEAD` / `HEAD is now at 227d2fc`, a
+> commit from 2026-07-30, before every one of those fixes. Its M0 +81.2% ±12.6 is therefore
+> an **unmasked** number in the same regime as 08 v2's +82.0% ±8.5, not comparable to 08
+> v4's +27.7%. RUNS.md nonetheless recorded it as *"the best 05 run to date, and the first
+> with every moment positive on every cube"* — a description of the broken metric, since
+> the mask is what **creates** the negative M2, as 08 v4 showed on the same models.
+
+Work happens on `midterm-prep`. Every notebook's bootstrap must name that branch, and the
+`HEAD is now at ...` line must be read as a claim about `src/`, checked against the fixes
+the run depends on. Before comparing two notebooks' numbers, confirm they pulled the same
+branch.

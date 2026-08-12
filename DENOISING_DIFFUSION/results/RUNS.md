@@ -189,6 +189,53 @@ the only anchor.
 | Ver | Date (UTC) | code | Outcome | Artifacts |
 |----:|---|---|---|---|
 | 11 | 2026-08-11 14:55 | `41df52d` | sweep + 60-epoch train complete; improved holdout crashed at the CSV write | [`v11_.../`](06-ddpm-line-emission/v11_2026-08-11T1455_41df52d/) |
+| **13** | 2026-08-12 04:50 | `19efd47` | **complete, zero errors** — first DDPM moment maps ever produced | [`v13_.../`](06-ddpm-line-emission/v13_2026-08-12T0450_19efd47/) |
+
+### v13 — the DDPM matches the U-Net on PSNR and fails on the science
+
+PSNR **38.180**, SSIM **0.9933** — within ~1 dB of the best U-Net. The moment maps, on the
+same signal-masked metric 08 uses:
+
+| | M0 | M1 | M2 |
+|---|---|---|---|
+| DDPM (n=5 cubes) | **−56.1% ± 152.2** | +15.0% ± 87.4 | +10.9% ± 81.7 |
+| U-Net V12 (published) | +69.8% ± 15.2 | +17.5% ± 7.8 | +20.1% ± 14.3 |
+
+The mean hides the real structure, which is bimodal — three cubes work, two collapse:
+
+| cube | M0 | M1 | M2 |
+|---|---|---|---|
+| run_0002_00560_rt_00 | −84.8% | −126.5% | −130.8% |
+| run_0002_00560_rt_01 | +41.9% | +61.8% | +47.8% |
+| run_0002_00560_rt_04 | +18.5% | +73.5% | +51.2% |
+| run_0025_01000_rt_04 | **−310.2%** | −13.2% | +15.5% |
+| run_0026_00005_rt_04 | +54.1% | +79.2% | +70.7% |
+
+**The failure is a pedestal, not lost structure.** `ddpm_moment_maps.png` shows the denoised
+M0 recovering the disk and the denoised M1 recovering the rotation pattern — but the sky,
+which is empty in the truth, carries a constant non-zero floor, and M2 is saturated across
+the entire field. The smoke test records the cause directly:
+
+    sampler OK: (8,1,256,256) -> (8,1,256,256), range [0.348, 0.701]
+
+The model emits a narrow band around 0.5 rather than spanning [0,1], so inverting the
+per-channel dirty-scale normalisation puts the whole field at mid-scale. `K_AVG=4` averages
+four reverse draws, which shrinks the spread further — the notebook pays the full cost of
+learning a distribution and then throws the distribution away.
+
+This is a **conditional-mean/variance problem, not a capacity problem**, and it is testable:
+score the same checkpoint at `K_AVG=1`, and rescale the denoised channel to the dirty
+channel's own mean and standard deviation before inverting the normalisation. Neither
+requires retraining.
+
+Not obtained: 6d's baseline pass. No checkpoint was attached (`no .pth/.pth.tar anywhere
+under /kaggle/input`), so it correctly skipped and trained from scratch;
+`moment_map_holdout_baseline_ddpm.csv` is listed as NOT FOUND by the collector for that
+reason. All five checkpoints persisted as they trained (RULES.md #1), so v13 is resumable.
+
+The sweep reproduced v11's ranking at a second seed — C_v_cosine 37.195 / D 36.248 /
+patch 35.787 / A_eps_linear **18.014** — a 19.18 dB spread against v11's 19.92. The
+objective result is now measured twice.
 
 The version number is not in the log — Kaggle does not expose it to the kernel and this
 notebook is not GitHub-linked, so no push commit records it either. v11 is from the author.
