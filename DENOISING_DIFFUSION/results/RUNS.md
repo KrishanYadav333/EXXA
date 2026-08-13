@@ -289,7 +289,39 @@ overstatement. Needs a ~10 min CPU re-run at native resolution.
 
 | Ver | Date (UTC) | code | push | Outcome | Artifacts |
 |----:|---|---|---|---|---|
-| 4 | 2026-08-02 04:21 | `1ca611f` | `ba328ea` | **complete** — 4 arms × 3 seeds = 12/12 | [`v4_.../`](08-seeds-and-augmentation/v4_2026-08-02T0421_1ca611f/) |
+| 2 | 2026-07-31 | `eb03589` | — | complete — 4 arms × 3 seeds; **raw metric**, broken artifact detector | [`v2_.../`](08-seeds-and-augmentation/v2_2026-07-31_eb03589/) |
+| 4 | 2026-08-02 04:21 | `1ca611f` | `ba328ea` | **complete** — 4 arms × 3 seeds = 12/12; **clip metric**, working detector | [`v4_.../`](08-seeds-and-augmentation/v4_2026-08-02T0421_1ca611f/) |
+
+### v2 and v4 are the same 12 checkpoints scored twice — take a different half from each
+
+Both versions reuse the identical 12 checkpoints, so their PSNR/SSIM/MSE rows are
+byte-identical. What differs is the evaluation code, and the difference is large enough that
+neither version is usable whole:
+
+```
+                     v2 (eb03589)                    v4 (1ca611f)
+moment metric        raw: no clip, no mask           3-sigma clip, no mask
+artifact detector    BROKEN -- 0.0% for all arms     working
+
+config           v2: M0      M1      M2         v4: M0      M1      M2
+v12                 +82.0   +28.2   +26.4          +27.7   +71.9   -10.5
+winner              +85.5   +29.1   +27.0          +18.1   +71.3    -2.7
+winner_aug          +87.5   +25.4   +26.7          +38.7   +75.4   +40.3
+winner_p10          +85.8   +35.9   +24.1          +11.6   +71.1   -28.3
+```
+
+**Take v2's moments.** They are on the same raw metric as V12's published +69.8 / +17.5 /
++20.1, so they are the only seed-validated numbers in this project directly comparable to the
+reference checkpoint. On that metric `winner_aug` scores **M0 +87.5% ±4.2** — the highest M0
+anywhere here, at the *lowest* variance, over 3 seeds.
+
+**Take v4's artifact diagnostics.** v2 reports 0.0% invented structure for all four arms,
+which is RULES.md #8: the background mask selected zero pixels, so the detector could not
+fire. v2's overshoot figures (0.89–0.93, all *below* 1.0) are the same artefact. v4's
+22.3–39.0% and its 7× low-SNR concentration are the real measurement.
+
+Do not mix a v2 moment number with a v4 moment number, and do not quote v2's artifact row at
+all.
 
 `seed_repeats.csv` and `seed_spread.png` are v4's (their PSNRs match its log exactly — every
 run reuses the same 12 checkpoints, so training numbers never change). The moment and
