@@ -91,6 +91,47 @@ fig2 = plot_moment_comparison(blank, blank, blank, tag="empty")
 assert len(fig2.axes) == 12
 print("[5] an all-zero (no-emission) cube renders instead of raising")
 
+# ------------------------------------------------------------------ [6] channel triptych
+# The bug this guards: a validation channel can be near-empty (low-SNR end of the sampling
+# Gaussian). Its clean channel is then nearly constant, vmin/vmax collapse together, and
+# imshow normalises everything to ~0.5 -- inferno(0.5) is a solid magenta-pink panel, not
+# the black an empty channel should show. Hit both the U-Net and DDPM validation-channel
+# figures in production, in different rows of each.
+from src.evaluation.moment_maps import plot_channel_triptych
+
+_N = 64
+_yy, _xx = np.mgrid[0:_N, 0:_N]
+_r = np.hypot(_yy - _N / 2, _xx - _N / 2)
+_disk = np.exp(-((_r - 14) ** 2) / (2 * 5.0 ** 2)).astype(np.float32)
+_dirty_sig = (_disk + rng.normal(0, 0.15, (_N, _N))).astype(np.float32)
+_den_sig = (_disk + rng.normal(0, 0.02, (_N, _N))).astype(np.float32)
+
+_floor = 0.301
+_clean_empty = np.full((_N, _N), _floor, np.float32)          # a truly empty channel
+_dirty_empty = (_clean_empty + rng.normal(0, 0.15, (_N, _N))).astype(np.float32)
+_den_empty = (_clean_empty + rng.normal(0, 0.02, (_N, _N))).astype(np.float32)
+
+_fig = plot_channel_triptych(
+    [(_dirty_sig, _den_sig, _disk, "signal"),
+     (_dirty_empty, _den_empty, _clean_empty, "empty")],
+    title="test")
+
+_magenta = np.array([0.7357, 0.2159, 0.3302])
+_black = np.array([0.0015, 0.0005, 0.0139])
+_panels = [im for a in _fig.axes for im in a.images]
+assert len(_panels) == 6, len(_panels)
+for _i, _im in enumerate(_panels):
+    _rgba = _im.cmap(_im.norm(_im.get_array()))[..., :3]
+    _frac_magenta = (np.abs(_rgba - _magenta).sum(axis=-1) < 0.15).mean()
+    assert _frac_magenta < 0.5, f"panel {_i} collapsed to the inferno(0.5) magenta fill"
+# the truly-empty clean panel (index 5: row 1, column 2) must render as solid black
+_empty_clean_frac_black = (np.abs(_panels[5].cmap(_panels[5].norm(_panels[5].get_array()))[..., :3]
+                                  - _black).sum(axis=-1) < 0.15).mean()
+assert _empty_clean_frac_black > 0.99, f"empty clean channel not black: {_empty_clean_frac_black:.2f}"
+print(f"[6] no panel collapses to magenta; a truly-empty clean channel renders "
+      f"{_empty_clean_frac_black:.0%} black")
+
+
 print("\n" + "=" * 60)
 print("All moment figure tests PASSED")
 print("=" * 60)
