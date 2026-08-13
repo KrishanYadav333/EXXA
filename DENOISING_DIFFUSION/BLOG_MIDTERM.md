@@ -565,10 +565,26 @@ Winner, patience 10     39.27 ± 0.48   +11.6 ± 58.7   +71.1 ± 18.8   −28.3 
 ```
 
 The V12 and "winner" bands overlap almost completely: the sweep result was indeed seed noise.
-**Augmentation produces a real gain and halves the variance** — and it is the only arm
-positive on all three moments. D4 augmentation applies the 8 lossless orientations of the
-dihedral group (4 rotations × optional flip) identically to dirty and clean. On a 14-cube
-corpus that is the cheapest regularisation available.
+**Augmentation produces a real gain and halves the variance.** D4 augmentation applies the 8
+lossless orientations of the dihedral group (4 rotations × optional flip) identically to
+dirty and clean. On a 14-cube corpus that is the cheapest regularisation available.
+
+The moment scores above are on the 3σ-clipped metric. The same twelve checkpoints were also
+scored on the raw metric — the one V12's published +69.8% uses — and on that footing
+augmentation is the best U-Net result in the project:
+
+```
+Configuration          PSNR (3 seeds)        M0              M1              M2
+V12 reference           37.60 ± 1.00   +82.0 ±  8.5   +28.2 ± 17.5   +26.4 ± 16.3
+Sweep winner            37.97 ± 0.90   +85.5 ±  9.3   +29.1 ± 14.5   +27.0 ± 17.0
+Winner + D4 aug         39.30 ± 0.46   +87.5 ±  4.2   +25.4 ± 26.4   +26.7 ± 19.7
+Winner, patience 10     39.27 ± 0.48   +85.8 ±  6.6   +35.9 ± 10.9   +24.1 ± 17.3
+V12 as published        32.95 (n=1)    +69.8 ± 15.2   +17.5 ±  7.8   +20.1 ± 14.3
+```
+
+**M0 +87.5% ±4.2 over three seeds** — the highest integrated-intensity recovery measured
+anywhere in this project, at the lowest variance, and directly comparable to V12's published
++69.8% because both use the same metric. That is the headline U-Net result.
 
 > **[FIGURE]** `results/08-seeds-and-augmentation/v4_2026-08-02T0421_1ca611f/seed_spread.png`
 >
@@ -663,10 +679,19 @@ metrics, diffusion and regression are now nearly tied.
 ### 12.1 On the moment maps, they are not tied
 
 ```
-Model                                  M0 (signal-masked metric)
-U-Net (V12 configuration, this metric)      +27.7% ± 17.6
-DDPM                                        −56.1% ± 152.2
+Model                              M0
+DDPM        (mask + clip)     −56.1% ± 152.2
+U-Net V12   (clip only)        +27.7% ± 17.6
+U-Net V12   (raw metric)       +82.0% ±  8.5
 ```
+
+A caveat on that comparison, because this project has three metric generations and it would
+be dishonest to hide it: the DDPM row is scored with both the signal mask and the 3σ clip.
+The U-Net rows are not — no version of the U-Net has yet been scored under the mask. The two
+U-Net numbers are the *same twelve checkpoints* scored under the two earlier metrics, which
+is the clearest available illustration of how much the metric moves the answer. The DDPM's
+deficit is far larger than the spread between them, so the ranking is safe; the exact gap is
+not.
 
 That standard deviation is not a typo, and the mean hides the real structure, which is bimodal:
 
