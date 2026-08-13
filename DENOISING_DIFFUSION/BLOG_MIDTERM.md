@@ -4,11 +4,10 @@
 *Mentors: Jason Terry, PhD · Gaurav S.*
 *Code: https://github.com/KrishanYadav333/EXXA (branch `midterm-prep`)*
 
-> **Status note.** Midterm write-up, covering community bonding through 12 August 2026. One
-> experiment is still running as this is published (the diffusion rescaling test in Section
-> 12); its numbers will be folded in as an update. Everything else comes from a completed
-> run with artifacts on disk, and every number traces to the notebook version that produced
-> it.
+> **Status note.** Midterm write-up, covering community bonding through 13 August 2026.
+> Every number here comes from a completed run with artifacts on disk, and traces to the
+> notebook version that produced it — including the numbers later found to be wrong, which
+> are kept and marked rather than quietly replaced.
 
 ---
 
@@ -707,6 +706,68 @@ not actually produce.
 > *The same result per cube. This is not a model that is uniformly bad; it is a model that is
 > fine on three cubes and catastrophic on two.*
 
+### 12.2 Testing the diagnosis: five re-scores, no retraining
+
+Both suspects were testable on the checkpoint we already had. Because every model was
+persisted the moment it finished training, none of this required a single training step —
+five arms re-scoring the same weights on the same five cubes, so any difference is the
+sampling or the rescale and nothing else.
+
+```
+arm                              M0                M1                M2
+baseline (K=4)          -56.9 ±149.9       13.7 ±90.0         5.2 ±83.6
+kavg1 (K=1)             -51.4 ±148.7       15.1 ±90.3         6.7 ±84.2
+rescaled (K=4)         -264.5 ±158.7       38.3 ±24.6        42.4 ±24.4
+kavg1 + rescaled       -190.5 ±107.2       51.6 ±10.8        61.3 ±10.8
+patch_model            -166.3 ±87.7       -68.1 ±29.0       -28.0 ±37.4
+-----------------------------------------------------------------------
+U-Net V12, same metric    27.7 ±17.6       71.9 ±10.3       -10.5 ±39.7
+```
+
+**Averaging is not the cause.** Dropping from 4 posterior draws to 1 moves M0 by 4.7
+percentage points against a 56% deficit. That closes the hypothesis in Section 13.2 as an
+explanation for the *moment* failure — it explains the ~1 dB PSNR gap and nothing more. K=1
+is also 4× faster, so the averaging was buying nothing here.
+
+**The rescale was wrong for M0, and provably so.** Matching each denoised channel's mean and
+standard deviation to the *dirty* channel's makes M0 dramatically worse, −56% to −264%. The
+reason is structural rather than empirical: M0 is a **sum**, so forcing the output's mean to
+dirty's re-imposes exactly the pedestal that denoising is supposed to remove. On synthetic
+data where the denoiser is *perfect*:
+
+```
+perfect denoiser                    M0 improvement  +100.0%
+same perfect output, rescaled       M0 improvement    -0.0%
+```
+
+The rescale caps M0 at "no better than dirty" **by construction**, no matter how good the
+model is.
+
+**But it transforms the other two moments.** M1 goes +15 → +52 and M2 +11 → +61, and the
+cube-to-cube spread collapses by a factor of eight, from ±90 and ±84 down to ±10.8 on both.
+M1 and M2 are *ratios* normalised by the intensity sum: insensitive to a constant offset,
+highly sensitive to the compressed dynamic range the sampler produces. Fixing the range is
+precisely what they needed.
+
+So the pedestal diagnosis was right about the symptom and wrong about the cure. The output
+range genuinely is wrong; the dirty channel is simply the wrong reference to correct an
+*absolute* quantity against. The obvious next test is to rescale the standard deviation only
+and leave the mean alone — the part M1 and M2 needed, without the part that caps M0.
+
+**And this produces the first result where the diffusion model wins.** On M2, the moment every
+architecture in this project has struggled with, `kavg1 + rescaled` scores **+61.3% ±10.8**
+against the U-Net's **−10.5% ±39.7** — a 72 percentage point gap, at a quarter of the
+variance. It still loses on M0 and M1.
+
+**Patch training does not help either.** Retraining the DDPM on 8400 64-pixel patches instead
+of 1050 full channels — the strongest remaining lever for the small-data hypothesis from
+Section 5 — scores negative on all three moments (−166 / −68 / −28). More, smaller samples of
+the same six disks is not what this model was missing.
+
+A sixth arm, native-600 tiled inference, was cut off by Kaggle's 12-hour session limit: it
+samples 9 overlapping tiles per channel, which needs roughly 14 hours on its own. Every
+completed arm wrote its results per cube as it went, so the timeout cost only that arm.
+
 ---
 
 ## 13. DDPM against U-Net
@@ -755,16 +816,20 @@ documented comparison and as a route to uncertainty estimates, not as a candidat
 final pipeline. That is consistent with the mentors' steer to stay with the U-Net, and it is
 now a measured statement rather than an assumption.
 
-**Both DDPM fixes are testable without retraining**, and that run is in flight as this is
-published: score the same checkpoint at K = 1 to isolate the averaging effect, and rescale the
-denoised channel to the dirty channel's own mean and standard deviation before inverting the
-normalisation, which removes the pedestal directly.
+A caveat this prediction now carries: Section 12.2 tested K = 1 directly, and the moment
+scores barely moved. So this argument explains the **PSNR** gap and only that. It is not an
+explanation for the moment-map failure, which is a bias problem by Section 13.1 and is
+therefore invisible to a variance argument. Two separate deficits, two separate causes, and
+they should not be conflated — as an earlier draft of this post did.
 
 ---
 
 ## 14. What is next
 
-1. **Kill the diffusion pedestal**, using the two no-retrain tests in Section 13.2.
+1. **Kill the diffusion pedestal.** Section 12.2 narrowed it to one test: rescale the
+   standard deviation only and leave the mean alone. Matching the mean to the dirty channel
+   caps M0 at "no better than dirty" by construction; matching the spread is what took M1 and
+   M2 from +15/+11 to +52/+61. One re-score, no retraining.
 2. **Re-score every archived checkpoint on one final metric.** Three metric generations exist
    in this project's history — no clip/no mask, clip only, clip plus signal mask — and results
    computed either side of a revision are not comparable, which is why several tables above are
