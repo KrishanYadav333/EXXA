@@ -313,7 +313,40 @@ winner_p10          +85.8   +35.9   +24.1          +11.6   +71.1   -28.3
 **Take v2's moments.** They are on the same raw metric as V12's published +69.8 / +17.5 /
 +20.1, so they are the only seed-validated numbers in this project directly comparable to the
 reference checkpoint. On that metric `winner_aug` scores **M0 +87.5% ±4.2** — the highest M0
-anywhere here, at the *lowest* variance, over 3 seeds.
+anywhere here, at the *lowest* variance, over 3 seeds. Every arm is positive on M0 on all five
+cubes; nothing goes negative under this metric.
+
+**But v2's own promotion check says none of it is established.** The notebook compares each
+arm to `v12` on a matched schedule and reports the gap against the cube-to-cube spread:
+
+```
+winner_aug vs v12       M0  +5.6 pp  (spread  9.5 pp)  -> within noise
+                        M1  -2.9 pp  (spread 31.7 pp)  -> within noise
+                        M2  +0.3 pp  (spread 25.5 pp)  -> within noise
+winner vs v12           M0  +3.5 pp  (spread 12.6 pp)  -> within noise
+                        M1  +0.9 pp  (spread 22.7 pp)  -> within noise
+                        M2  +0.6 pp  (spread 23.6 pp)  -> within noise
+```
+
+So `winner_aug` has the **highest M0 and the tightest spread**, which makes it the one to
+use — but "augmentation beats V12 on the science" is **not** demonstrated at n=3. The PSNR
+gain is on firmer ground and still not settled: `winner_aug − winner` is +1.322 dB against a
+combined spread of 1.005, which the notebook grades *suggestive, not established*.
+
+**v2 also settles the V16 shortfall, and the answer is early stopping rather than seed
+luck.** The sweep recorded 37.11 dB for this configuration; V16's retrain got 30.28 dB. On a
+matched schedule:
+
+```
+patience  5  ->  mean 27.3 epochs,  PSNR 37.974 ±0.896   113% of the shortfall closed
+patience 10  ->  mean 48.3 epochs,  PSNR 39.273 ±0.484   132% of the shortfall closed
+```
+
+Both clear the notebook's own >50% threshold for "early-stopping artifact", and `winner_p10`
+overshoots the sweep figure outright. Patience 10 buys +21 epochs, +1.298 dB, and *halves*
+the seed spread (0.896 → 0.484). This does not contradict the seed-49 explanation — 37.11
+also sits inside `winner`'s 3-seed band — but the dominant term is the early stop, not the
+draw.
 
 **Take v4's artifact diagnostics.** v2 reports 0.0% invented structure for all four arms,
 which is RULES.md #8: the background mask selected zero pixels, so the detector could not

@@ -584,7 +584,38 @@ V12 as published        32.95 (n=1)    +69.8 ± 15.2   +17.5 ±  7.8   +20.1 ± 
 
 **M0 +87.5% ±4.2 over three seeds** — the highest integrated-intensity recovery measured
 anywhere in this project, at the lowest variance, and directly comparable to V12's published
-+69.8% because both use the same metric. That is the headline U-Net result.
++69.8% because both use the same metric.
+
+**And the notebook's own promotion check refuses to call it an improvement.** It compares
+each arm to the V12 configuration on a matched schedule and weighs the gap against the
+cube-to-cube spread:
+
+```
+winner_aug vs V12 config    M0  +5.6 pp  (spread  9.5 pp)  within noise
+                            M1  −2.9 pp  (spread 31.7 pp)  within noise
+                            M2  +0.3 pp  (spread 25.5 pp)  within noise
+```
+
+So augmentation gives the best numbers and the tightest spread, and "augmentation beats the
+reference on the science" is still **not demonstrated at n=3**. The PSNR gain is on firmer
+ground and not settled either: +1.322 dB against a combined spread of 1.005, which the
+notebook grades *suggestive, not established*.
+
+This is the same discipline that killed the 37.11 dB sweep result, applied to our own best
+number. It would have been easy to quote +87.5% against +69.8% and move on.
+
+**A correction to the story in the paragraph above.** That run also re-tested the V16
+shortfall on a matched schedule, and the answer is mostly *early stopping*, not seed luck:
+
+```
+patience  5   mean 27.3 epochs   PSNR 37.974 ±0.896    113% of the shortfall closed
+patience 10   mean 48.3 epochs   PSNR 39.273 ±0.484    132% of the shortfall closed
+```
+
+Both clear the >50% threshold for "early-stopping artifact", and patience 10 overshoots the
+sweep's 37.11 dB outright while *halving* the seed spread. The seed-49 explanation still
+holds — 37.11 sits comfortably inside the winner's 3-seed band — but the dominant term in
+V16's 30.28 dB was stopping at 27 epochs when the configuration wanted 48.
 
 > **[FIGURE]** `results/08-seeds-and-augmentation/v4_2026-08-02T0421_1ca611f/seed_spread.png`
 >
