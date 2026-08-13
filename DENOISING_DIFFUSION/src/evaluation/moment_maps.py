@@ -306,6 +306,68 @@ def _intensity_norm(vmin, vmax, stretch="asinh"):
     return ImageNormalize(vmin=vmin, vmax=vmax, stretch=AsinhStretch(a=0.15), clip=False)
 
 
+def plot_channel_triptych(rows, save_path=None, title="", model_label="Denoised",
+                          cmap="inferno", min_range=0.03):
+    """
+    dirty | denoised | clean, one row per validation channel, black background.
+
+    `rows`: list of ``(dirty, denoised, clean, label)``, each image ``(H, W)``.
+
+    Used by both notebook 05 (U-Net) and notebook 06 (DDPM) for their validation-channel
+    figures, so the two are visually comparable rather than each carrying its own
+    normalisation.
+
+    **The bug this exists to fix.** A validation channel can be near-empty -- little or no
+    line signal, which happens on the low-SNR end of the sampling Gaussian. Its clean
+    channel is then nearly *constant*, so ``vmin`` and ``vmax`` (taken from the clean
+    channel's low percentile and max, matching `plot_moment_comparison`) collapse onto each
+    other. `imshow` then normalises every pixel in the row to ~0.5, and inferno(0.5) is
+    ``(0.74, 0.22, 0.33)`` -- a solid magenta-pink panel, not the black background an empty
+    channel should show. It hit both notebooks: the U-Net figure's row 1 (denoised) and row
+    3 (all three panels), and the DDPM figure's row 3, all show the exact same fill colour
+    for the exact same reason.
+
+    The guard: when ``hi - lo`` falls below `min_range`, extend ``hi`` upward from the same
+    ``lo`` instead of leaving the window degenerate. Extending only upward, rather than
+    widening around the floor, matters: `lo` is what the asinh stretch anchors to black, and
+    a signal-bearing channel already keeps it there (background floor -> black, peak ->
+    bright). Centring the widened window on the floor instead would put the floor at the
+    *middle* of the colour scale, so an empty channel would render as a flat mid-tone (still
+    wrong, just a different wrong colour) rather than the black an empty region should read
+    as. The added span comes from the *dirty* channel's own 1st-99th percentile spread, not
+    an arbitrary constant: a window narrower than the real noise amplitude trades the
+    magenta wash-out for a different failure, clipping every pixel to the colormap's two
+    endpoints and rendering salt-and-pepper speckle instead of real noise texture.
+    """
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots(len(rows), 3, figsize=(10, 3.4 * len(rows)), squeeze=False)
+    for col, label in enumerate(("Dirty", model_label, "Clean GT")):
+        ax[0, col].set_title(label, fontweight="bold")
+    for r, (dirty, denoised, clean, row_label) in enumerate(rows):
+        lo = float(np.nanpercentile(clean, 1))
+        hi = float(np.nanmax(clean))
+        if hi - lo < min_range:
+            dspread = float(np.nanpercentile(dirty, 99) - np.nanpercentile(dirty, 1))
+            hi = lo + max(dspread, min_range)
+        norm = _intensity_norm(lo, hi, "asinh") or dict(vmin=lo, vmax=hi)
+        kw = {"norm": norm} if not isinstance(norm, dict) else norm
+        for col, im in enumerate((dirty, denoised, clean)):
+            a = ax[r, col]
+            a.set_facecolor("black")           # backstop: NaNs/transparency never show as white
+            a.imshow(im, cmap=cmap, interpolation="nearest", **kw)
+            a.set_xticks([]); a.set_yticks([])
+        ax[r, 0].text(0.0, 1.02, row_label, transform=ax[r, 0].transAxes,
+                      fontsize=8, va="bottom", ha="left")
+    fig.suptitle(title, fontweight="bold")
+    fig.patch.set_facecolor("white")
+    plt.tight_layout(rect=[0, 0, 1, 0.97])
+    if save_path:
+        os.makedirs(os.path.dirname(save_path) or ".", exist_ok=True)
+        fig.savefig(save_path, dpi=140, bbox_inches="tight")
+    return fig
+
+
 def plot_moment_comparison(clean, dirty, denoised, save_path=None, tag="",
                            frac: float = SIGNAL_FRAC, show_mask: bool = True,
                            stretch: str = "asinh", contours: bool = True):
