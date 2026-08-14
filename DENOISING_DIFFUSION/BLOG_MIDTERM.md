@@ -1,13 +1,10 @@
-# Denoising Protoplanetary Disk Line Emission: GSoC 2026 @ Machine Learning for Science (EXXA)
+# Denoising Astronomical Observations of Protoplanetary Disks
 
 *Krishan Yadav, Google Summer of Code 2026, ML4Sci / EXXA*
 *Mentors: Jason Terry, PhD · Gaurav S.*
 *Code: https://github.com/KrishanYadav333/EXXA (branch `midterm-prep`)*
 
-> **Status note.** Midterm write-up, covering community bonding through 13 August 2026.
-> Every number here comes from a completed run with artifacts on disk, and traces to the
-> notebook version that produced it, including the numbers later found to be wrong, which
-> are kept and marked rather than quietly replaced.
+> **Status.** This is the midterm update blog.
 
 ---
 
@@ -272,7 +269,7 @@ matter.
 
 ## 6. The shift to line emission
 
-On 18 June the mentors redirected the project from continuum images to **line-emission
+The mentors redirected the project from continuum images to **line-emission
 velocity cubes**. This was the optional stretch goal in my accepted proposal and became the
 primary track.
 
@@ -282,7 +279,7 @@ quality metric. Line emission is a 201-channel velocity cube where the deliverab
 the evaluation protocol became moment maps on held-out cubes, and the pixel metrics that had
 ranked the continuum models became a secondary check rather than the score.
 
-The first line-emission run (24 June) scored **PSNR 26.46 dB, SSIM 0.810** on validation
+The first line-emission run scored **PSNR 26.46 dB, SSIM 0.810** on validation
 channels. Respectable. It also scored **M0 = −6395%** on the held-out cube, the denoiser had
 made integrated intensity sixty-four times worse than doing nothing.
 
@@ -330,18 +327,18 @@ The 05 notebook is the main U-Net track. Its version history is the project's sp
 worth reading as a sequence rather than a single result.
 
 ```
-Run    Date     PSNR    SSIM    M0 on holdout    What changed
-V-0    24 Jun   26.46   0.810        −6395.4%    first end-to-end line-emission run
-V5     26 Jun   28.16   0.843        −6395.4%    normalisation bug still present
-V6     27 Jun   31.73   0.985        −1736.8%    normalisation FIXED (see 8.1)
-V7     02 Jul   33.18   0.987          +84.9%    continuum subtraction added (see 7)
-V9     02 Jul   33.04   0.986          +61.9%    continuum-window ablation, n=1 vs n=5
-V12    10 Jul   32.95   0.986   +69.8% ± 15.2    5-cube holdout protocol, REFERENCE
-V15    26 Jul   34.94   0.987   +59.8% ± 33.0    beam conditioning + 12-run sweep
-V16    30 Jul   30.28    n/a    +64.4% ± 14.6    sweep-winner retrain, did NOT reproduce
-V17    02 Aug   29.92    n/a    +48.2% ± 12.6    second retrain, M0 fell further
-V18    11 Aug   35.94    n/a    +81.2% ± 12.6    best to date, 5/5 cubes positive
-V19    14 Aug    n/a     n/a           n/a       crashed at 4.0 h, no moment scores
+Run    PSNR    SSIM    M0 on holdout   What changed
+V-0    26.46   0.810        −6395.4%   first end-to-end line-emission run
+V5     28.16   0.843        −6395.4%   normalisation bug still present
+V6     31.73   0.985        −1736.8%   normalisation FIXED (see 8.1)
+V7     33.18   0.987          +84.9%   continuum subtraction added (see 7)
+V9     33.04   0.986          +61.9%   continuum-window ablation, n=1 vs n=5
+V12    32.95   0.986   +69.8% ± 15.2   5-cube holdout protocol, REFERENCE
+V15    34.94   0.987   +59.8% ± 33.0   beam conditioning + 12-run sweep
+V16    30.28   n/a     +64.4% ± 14.6   sweep-winner retrain, did NOT reproduce
+V17    29.92   n/a     +48.2% ± 12.6   second retrain, M0 fell further
+V18    35.94   n/a     +81.2% ± 12.6   best to date, 5/5 cubes positive
+V19    n/a     n/a               n/a   crashed at 4.0 h, no moment scores
 ```
 
 ### 8.1 The normalisation bug, and why it was worth more than any result
@@ -379,9 +376,9 @@ while still being wrong, because the continuum problem of Section 7 remained.
 inference time.** Keep it in mind for Section 12, where a closely related failure appears in
 the diffusion model.
 
-> **[FIGURE]** `results/05-unet-line-emission/v12_2026-07-10T1928_c61d112/line_emission_unet_comparison.png`
+> **[FIGURE]** `results/05-unet-line-emission/v20_2026-08-14_c28b860/figure_cell20.png`
 >
-> *Five validation channels, dirty, U-Net denoised, clean truth, after both fixes.*
+> *Five validation channels, dirty, U-Net denoised, clean truth, from 05 v20 (`sweep_winner_p10` seed 42, the checkpoint selected on M0 rather than PSNR). The same five channels the DDPM figure in Section 12 shows, so the two are directly comparable. Rows 1, 2 and 5 are near-perfect recoveries. Row 3 is the failure mode this project keeps returning to: a channel with almost no signal, where the model invents a smooth structure that is not in the truth.*
 
 ### 8.2 V12, the reference checkpoint
 
@@ -402,7 +399,7 @@ V12, 5 held-out cubes         PSNR 32.95   SSIM 0.9857   MSE 0.000681
 
 ### 8.3 The current best checkpoint
 
-The most recent 05 run (v18, 11 August) is the strongest to date:
+The most recent 05 run (v18) is the strongest to date:
 
 ```
 v18, 5 held-out cubes         PSNR 35.94  (+2.99 dB over V12)
@@ -626,6 +623,34 @@ seeds. It is a useful reminder that "M0 improved by X%" is not a fact about a mo
 the metric is named, and it is why the DDPM comparison later in this post is careful to say
 which of these rulers it is using.
 
+**A third ruler, and the one the DDPM is measured on.** Run 05 v20 scored fifteen U-Net
+checkpoints under the full metric, signal mask *and* 3σ clip, reusing every existing
+checkpoint and training nothing. It adds two exploratory arms the earlier runs never scored:
+
+```
+Configuration          PSNR       M0             M1            M2
+Winner + D4 aug        39.30  +29.2 ±  7.2  +74.0 ±  2.0  +55.0 ± 13.9
+Winner, patience 10    39.27  +33.5 ±  9.6  +70.7 ±  6.7  +31.8 ± 11.1
+Sweep winner           37.52  +11.4 ± 27.4  +55.6 ±  9.0   +6.0 ± 35.1
+V12 config             37.60   −4.4 ± 33.9  +58.0 ± 20.0  +15.5 ± 31.2
+Winner + beam          38.71  −95.7          +14.1         −27.3        (1 seed)
+Winner, 64px patches   33.96  −40.8          +43.9         +18.5        (1 seed)
+```
+
+Augmentation and patience remain the two arms worth having, and augmentation still carries
+the tightest spread on every moment. The two exploratory arms both fail, and the beam arm
+fails hard: **M0 −95.7%**, worse than doing nothing at all. That is the third independent
+time beam conditioning has looked good on a pixel metric and bad on the science, and at
+38.71 dB it is the *second-highest PSNR in the table*. The patch arm is the honest negative
+result of the two, and it is also the cheapest to explain: 64×64 crops cannot see a disk.
+
+> **[FIGURE]** `results/05-unet-line-emission/v20_2026-08-14_c28b860/figure_cell22.png`
+>
+> *All six arms on the full metric, five held-out cubes. Coloured bars span seeds, the hatched
+> bar is V12's published figure on the old unmasked metric and is not comparable, dots are
+> individual cubes. The dots matter more than the bars: M0 spreads from +100% to below −300%
+> on the same model, which is why every claim in this section is stated with its spread.*
+
 **And on the headline table, the notebook's own promotion check refuses to call that +87.5%
 an improvement.** It compares each arm to the V12 configuration on a matched schedule and
 weighs the gap against the cube-to-cube spread:
@@ -755,20 +780,24 @@ metrics, diffusion and regression are now nearly tied.
 
 ### 12.1 On the moment maps, they are not tied
 
+Earlier drafts of this post had to hedge here, because the DDPM was scored with the signal
+mask and the 3σ clip while no U-Net ever had been, so the two sat on different rulers. Run
+05 v20 closed that gap: it re-scored fifteen U-Net checkpoints under the DDPM's exact
+metric, without retraining any of them. The comparison below is finally like for like.
+
 ```
-Model                              M0
-DDPM        (mask + clip)     −56.1% ± 152.2
-U-Net V12   (clip only)        +27.7% ± 17.6
-U-Net V12   (raw metric)       +82.0% ±  8.5
+Model (all rows: mask + clip)        M0             M1             M2
+U-Net, winner + D4 aug          +29.2% ±  7.2  +74.0% ± 2.0  +55.0% ± 13.9
+U-Net, winner + patience 10     +33.5% ±  9.6  +70.7% ± 6.7  +31.8% ± 11.1
+U-Net, V12 config                −4.4% ± 33.9  +58.0% ±20.0  +15.5% ± 31.2
+DDPM                            −56.1% ±152.2  +13.7% ±90.0   +5.2% ± 83.6
 ```
 
-A caveat on that comparison, because this project has three metric generations and it would
-be dishonest to hide it: the DDPM row is scored with both the signal mask and the 3σ clip.
-The U-Net rows are not, no version of the U-Net has yet been scored under the mask. The two
-U-Net numbers are the *same twelve checkpoints* scored under the two earlier metrics, which
-is the clearest available illustration of how much the metric moves the answer. The DDPM's
-deficit is far larger than the spread between them, so the ranking is safe; the exact gap is
-not.
+The ranking the earlier hedge guessed at holds, and the gap is wider than the hedge allowed.
+The best U-Net arm beats the DDPM by **85 percentage points on M0**, and does it with a
+spread twenty times tighter. Note also that the U-Net's own V12 configuration goes *negative*
+on M0 under this metric: the mask is strict, and being on the right side of zero here is not
+automatic for anything.
 
 That standard deviation is not a typo, and the mean hides the real structure, which is bimodal:
 
@@ -927,12 +956,10 @@ they should not be conflated, as an earlier draft of this post did.
 
 ### 13.3 The two current best checkpoints, side by side
 
-The latest run of each track, 05 v18 for the U-Net and 06 v13 for the diffusion model, one day
-apart:
+The latest run of each track, 05 v18 for the U-Net and 06 v13 for the diffusion model:
 
 ```
                        U-Net 05 v18      DDPM 06 v13       comparable?
-date                     11 Aug            12 Aug
 PSNR (dB)                 35.94             38.18             yes
 SSIM                      0.986             0.9933            yes
 ───────────────────────────────────────────────────────────────────────
