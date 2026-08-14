@@ -118,12 +118,14 @@ code {
 strong { font-weight: 600; }
 em { font-style: italic; }
 
-/* Single measure. Figures and data break out wider, the way Medium outsets images. */
-.wrap { max-width: 680px; margin: 0 auto; padding: 0 24px 140px; }
+/* ONE column. Figures, equations, data panels and grids all sit on exactly the same left
+   and right edges as the prose. This used to break them out to 860px against the text's
+   632px, which put every image and code block 114px past the text on each side. */
+.wrap { max-width: 780px; margin: 0 auto; padding: 0 24px 140px; }
 .outset {
-  width: min(860px, calc(100vw - 48px));
-  margin-left: 50%;
-  transform: translateX(-50%);
+  width: 100%;
+  margin-left: 0;
+  transform: none;
 }
 
 /* ---- masthead ---- */
