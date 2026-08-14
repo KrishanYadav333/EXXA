@@ -32,6 +32,8 @@ Full lineage, recovered from every branch (`line-emission`, `midterm-prep`, `wee
 | 17 | 2026-08-02 04:13 | `227d2fc` | `7305455` | **29.92** | **+48.2% ±12.6 (−21.6 pt)** | [`v17_.../`](05-unet-line-emission/v17_2026-08-02T0413_227d2fc/) — recovered from git |
 | — | 2026-07-30 00:48 | `2edd875` | — | — | — | [`analysis_.../`](05-unet-line-emission/analysis_2026-07-30T0048_2edd875/) |
 | **18** | 2026-08-11 | stale | `b24c84d` | **35.94** | **+81.2% ±12.6** | [`v18_.../`](05-unet-line-emission/v18_2026-08-11_b24c84d/) |
+| 19 | 2026-08-14 | `c899750` | — | — | — | [`v19_.../`](05-unet-line-emission/v19_2026-08-14_crashed/) — **CRASHED** at 4.0 h, section 6 never ran, no moment scores |
+| **20** | 2026-08-14 | `c28b860` | — | 39.30 (aug) | **+29.2% ±7.2** (aug) | [`v20_.../`](05-unet-line-emission/v20_2026-08-14_c28b860/) — **mask + clip**, 15 checkpoints, **zero training** |
 
 **v18 is the best 05 run to date, and the first with every moment positive on every cube.**
 M0 +81.2% ±12.6, M1 +31.5% ±9.2, M2 +19.9% ±18.8, 5/5 cubes positive on all three, against
@@ -111,6 +113,36 @@ also confirms that file belongs to v12.
 **`unet_line_emission_loss.png` — unattributed.** v7, v9 and v12 all write it, one copy was
 downloaded, and pixel matching cannot separate them (29.1 / 29.2 / 29.6). Parked in
 [`_unattributed/`](05-unet-line-emission/_unattributed/) rather than guessed.
+
+### v20 — the first U-Net scores on the DDPM's metric
+
+v20 trained nothing. It restored 12 checkpoints from 08 and 3 from v19's Output, scored
+`winner_patch` from its stored weights (v19 died before writing its metric row), and spent
+the whole session in section 6. That is why it exists: **every U-Net number before it was on
+the raw or clip-only metric, and the DDPM was on mask + clip**, so no comparison between the
+two families was ever like for like.
+
+| arm | PSNR | M0 | M1 | M2 |
+|---|---|---|---|---|
+| winner + D4 aug | 39.30 | **+29.2 ± 7.2** | **+74.0 ± 2.0** | **+55.0 ± 13.9** |
+| winner + patience 10 | 39.27 | +33.5 ± 9.6 | +70.7 ± 6.7 | +31.8 ± 11.1 |
+| sweep winner (4 seeds, incl. 49) | 37.52 | +11.4 ± 27.4 | +55.6 ± 9.0 | +6.0 ± 35.1 |
+| v12_cfg | 37.60 | −4.4 ± 33.9 | +58.0 ± 20.0 | +15.5 ± 31.2 |
+| winner + beam (1 seed) | 38.71 | **−95.7** | +14.1 | −27.3 |
+| winner, 64px patches (1 seed) | 33.96 | −40.8 | +43.9 | +18.5 |
+
+**These are a third metric generation and are not comparable to v2's or v4's numbers.** Use
+them only against each other and against the DDPM, which shares this metric.
+
+Two results are new here. **Beam conditioning is refuted a third time**: second-best PSNR in
+the table, worst M0 of any arm by a factor of two. **64px patches fail**, which is the
+cheapest possible statement of why this project abandoned patches for full images: a 64-pixel
+crop cannot contain a disk, so there is no rotation field to recover.
+
+Seed 49 is also finally on record for `sweep_winner`, at PSNR 36.16 against the sweep's
+published 37.109 on the same seed. The two are not comparable (the sweep used `N_SAMPLES=50`
+against this notebook's 150), so the reproduction question stays where 08 left it: the
+sweep's number sits inside this config's 3-seed band, and that is as far as the evidence goes.
 
 `unet_loss.png` was dropped: byte-identical (sha `c2ae97f9`) to the continuum-era copy
 already archived, so it was a stray download rather than a 05 artifact.

@@ -357,8 +357,9 @@ def plot_channel_triptych(rows, save_path=None, title="", model_label="Denoised"
             a.set_facecolor("black")           # backstop: NaNs/transparency never show as white
             a.imshow(im, cmap=cmap, interpolation="nearest", **kw)
             a.set_xticks([]); a.set_yticks([])
-        ax[r, 0].text(0.0, 1.02, row_label, transform=ax[r, 0].transAxes,
-                      fontsize=8, va="bottom", ha="left")
+        # On the left, not above: row 0's label and the "Dirty" column title both want the
+        # space over the first panel, and in 05 v20 they printed on top of each other.
+        ax[r, 0].set_ylabel(row_label, fontsize=8, labelpad=6)
     fig.suptitle(title, fontweight="bold")
     fig.patch.set_facecolor("white")
     plt.tight_layout(rect=[0, 0, 1, 0.97])
