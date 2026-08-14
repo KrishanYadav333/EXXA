@@ -1,0 +1,183 @@
+===== cell 2 =====
+Cloning into '/kaggle/working/EXXA'...
+Updating files: 100% (5279/5279), done.
+cwd: /kaggle/working/EXXA/DENOISING_DIFFUSION/notebooks | DATA_DIR: /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+
+===== cell 4 =====
+From https://github.com/KrishanYadav333/EXXA
+ * branch            midterm-prep -> FETCH_HEAD
+HEAD is now at c899750 fix(nb05): the V12 search cannot tell the original from 08's retrain of its config
+c899750 fix(nb05): the V12 search cannot tell the original from 08's retrain of its config
+src.* cleared from module cache -- now re-run the imports cell below.
+
+===== cell 6 =====
+device: cuda | GPUs: 2 -> ['Tesla T4', 'Tesla T4']
+
+===== cell 8 =====
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+
+===== cell 10 =====
+[FITSChannelDataset] 7 cubes x ~150 channels = 1050 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+[FITSChannelDataset] 2 cubes x ~150 channels = 300 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+[FITSChannelDataset] 7 cubes x ~150 channels = 1050 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels) | D4 augmentation ON
+train items: 1050 | val items: 300
+augmented item takes 8 orientations | val deterministic: True
+[FITSChannelDataset] 7 cubes x ~150 channels = 1050 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+[FITSChannelDataset] 2 cubes x ~150 channels = 300 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+[FITSChannelDataset] 7 cubes x ~150 channels = 1050 items | target 600x600 | continuum-subtracted (mean of first/last 5 channels)
+[FITSChannelDataset] 2 cubes x ~150 channels = 300 items | target 600x600 | continuum-subtracted (mean of first/last 5 channels)
+
+training views:
+  full-image 256 :  1,050 samples
+  augmented 256  :  1,050 samples (same items, 8 orientations each)
+  beam 256       :  1,050 samples + 4-vector
+  patches 64px   :  8,400 samples (8 per channel)
+  native 600     :  1,050 samples
+
+===== cell 12 =====
+  V12-shaped candidate: val_loss 0.0015 | /kaggle/input/datasets/krishanyadav333/exxa-nb08-checkpoints-v4/v12_seed42.ckpt
+  V12-shaped candidate: val_loss 0.0018 | /kaggle/input/datasets/krishanyadav333/exxa-nb08-checkpoints-v4/v12_seed44.ckpt
+  V12-shaped candidate: val_loss 0.0020 | /kaggle/input/datasets/krishanyadav333/exxa-nb08-checkpoints-v4/v12_seed43.ckpt
+restored the original V12 checkpoint from /kaggle/input/datasets/krishanyadav333/exxa-nb08-checkpoints-v4/v12_seed42.ckpt
+original V12 checkpoint available: True 
+[nb08] imported 12 checkpoint(s) and 12 recorded run(s)
+[resume] 12 run(s) already scored: [('sweep_winner', 42), ('sweep_winner', 43), ('sweep_winner', 44), ('sweep_winner_aug', 42), ('sweep_winner_aug', 43), ('sweep_winner_aug', 44), ('sweep_winner_p10', 42), ('sweep_winner_p10', 43), ('sweep_winner_p10', 44), ('v12_cfg', 42), ('v12_cfg', 43), ('v12_cfg', 44)]
+
+==========================================================================
+=== sweep_winner [full view, seeds [42, 43, 44, 49]]: {'base_channels': 48, 'channel_multipliers': (1, 2, 4, 8), 'lr': 0.0008196504330730313, 'alpha': 0.8877681051398497, 'sched_patience': 8, 'use_beam': False, 'batch_size': 16}
+==========================================================================
+--- sweep_winner seed 42: SKIPPED, already done (PSNR 37.2303) ---
+--- sweep_winner seed 43: SKIPPED, already done (PSNR 37.7237) ---
+--- sweep_winner seed 44: SKIPPED, already done (PSNR 38.9694) ---
+
+--- sweep_winner: seed 49 ---
+  ep   1 | train 0.0421 | val 0.0067 | lr 8.2e-04 (85s) *best
+  ep   2 | train 0.0052 | val 0.0050 | lr 8.2e-04 (92s) *best
+  ep   3 | train 0.0036 | val 0.0040 | lr 8.2e-04 (91s) *best
+  ep   4 | train 0.0026 | val 0.0021 | lr 8.2e-04 (91s) *best
+  ep   5 | train 0.0022 | val 0.0024 | lr 8.2e-04 (90s)
+  ep   6 | train 0.0021 | val 0.0023 | lr 8.2e-04 (90s)
+  ep   7 | train 0.0019 | val 0.0018 | lr 8.2e-04 (90s) *best
+  ep   8 | train 0.0016 | val 0.0017 | lr 8.2e-04 (90s) *best
+  ep   9 | train 0.0015 | val 0.0016 | lr 8.2e-04 (90s) *best
+  ep  10 | train 0.0014 | val 0.0014 | lr 8.2e-04 (90s) *best
+  ep  11 | train 0.0013 | val 0.0013 | lr 8.2e-04 (90s) *best
+  ep  12 | train 0.0012 | val 0.0074 | lr 8.2e-04 (90s)
+  ep  13 | train 0.0038 | val 0.0026 | lr 8.2e-04 (90s)
+  ep  14 | train 0.0020 | val 0.0023 | lr 8.2e-04 (90s)
+  ep  15 | train 0.0015 | val 0.0015 | lr 8.2e-04 (90s)
+  ep  16 | train 0.0015 | val 0.0020 | lr 8.2e-04 (90s)
+  ep  17 | train 0.0014 | val 0.0014 | lr 8.2e-04 (90s)
+  ep  18 | train 0.0013 | val 0.0013 | lr 8.2e-04 (90s)
+  ep  19 | train 0.0013 | val 0.0016 | lr 8.2e-04 (90s)
+  ep  20 | train 0.0012 | val 0.0013 | lr 4.1e-04 (90s)
+  early stop at epoch 20 (no improvement for 5 epochs)
+  seed 49: PSNR 36.1624 | SSIM 0.9908 | best ep 11 (20 run)
+
+==========================================================================
+=== sweep_winner_aug [aug view, seeds [42, 43, 44]]: {'base_channels': 48, 'channel_multipliers': (1, 2, 4, 8), 'lr': 0.0008196504330730313, 'alpha': 0.8877681051398497, 'sched_patience': 8, 'use_beam': False, 'batch_size': 16}
+==========================================================================
+--- sweep_winner_aug seed 42: SKIPPED, already done (PSNR 38.9389) ---
+--- sweep_winner_aug seed 43: SKIPPED, already done (PSNR 39.8084) ---
+--- sweep_winner_aug seed 44: SKIPPED, already done (PSNR 39.1412) ---
+
+==========================================================================
+=== sweep_winner_p10 [full view, seeds [42, 43, 44]]: {'base_channels': 48, 'channel_multipliers': (1, 2, 4, 8), 'lr': 0.0008196504330730313, 'alpha': 0.8877681051398497, 'sched_patience': 8, 'use_beam': False, 'batch_size': 16, 'patience': 10}
+==========================================================================
+--- sweep_winner_p10 seed 42: SKIPPED, already done (PSNR 38.9538) ---
+--- sweep_winner_p10 seed 43: SKIPPED, already done (PSNR 39.0344) ---
+--- sweep_winner_p10 seed 44: SKIPPED, already done (PSNR 39.8298) ---
+
+==========================================================================
+=== v12_cfg [full view, seeds [42, 43, 44]]: {'base_channels': 32, 'channel_multipliers': (1, 2, 4), 'lr': 0.001, 'alpha': 0.8, 'sched_patience': 5, 'use_beam': False, 'batch_size': 16}
+==========================================================================
+--- v12_cfg seed 42: SKIPPED, already done (PSNR 38.6593) ---
+--- v12_cfg seed 43: SKIPPED, already done (PSNR 36.6707) ---
+--- v12_cfg seed 44: SKIPPED, already done (PSNR 37.4657) ---
+
+==========================================================================
+=== winner_beam [beam view, seeds [42]]: {'base_channels': 48, 'channel_multipliers': (1, 2, 4, 8), 'lr': 0.0008196504330730313, 'alpha': 0.8877681051398497, 'sched_patience': 8, 'use_beam': True, 'batch_size': 16}
+==========================================================================
+
+--- winner_beam: seed 42 ---
+  ep   1 | train 0.0395 | val 0.0105 | lr 8.2e-04 (90s) *best
+  ep   2 | train 0.0068 | val 0.0059 | lr 8.2e-04 (90s) *best
+  ep   3 | train 0.0046 | val 0.0040 | lr 8.2e-04 (90s) *best
+  ep   4 | train 0.0034 | val 0.0027 | lr 8.2e-04 (90s) *best
+  ep   5 | train 0.0026 | val 0.0028 | lr 8.2e-04 (90s)
+  ep   6 | train 0.0034 | val 0.0048 | lr 8.2e-04 (90s)
+  ep   7 | train 0.0029 | val 0.0023 | lr 8.2e-04 (90s) *best
+  ep   8 | train 0.0017 | val 0.0018 | lr 8.2e-04 (90s) *best
+  ep   9 | train 0.0015 | val 0.0017 | lr 8.2e-04 (90s) *best
+  ep  10 | train 0.0016 | val 0.0026 | lr 8.2e-04 (90s)
+  ep  11 | train 0.0017 | val 0.0019 | lr 8.2e-04 (91s)
+  ep  12 | train 0.0014 | val 0.0013 | lr 8.2e-04 (91s) *best
+  ep  13 | train 0.0013 | val 0.0031 | lr 8.2e-04 (91s)
+  ep  14 | train 0.0014 | val 0.0013 | lr 8.2e-04 (90s) *best
+  ep  15 | train 0.0012 | val 0.0013 | lr 8.2e-04 (91s) *best
+  ep  16 | train 0.0012 | val 0.0015 | lr 8.2e-04 (91s)
+  ep  17 | train 0.0012 | val 0.0012 | lr 8.2e-04 (91s) *best
+  ep  18 | train 0.0011 | val 0.0012 | lr 8.2e-04 (91s)
+  ep  19 | train 0.0011 | val 0.0011 | lr 8.2e-04 (91s) *best
+  ep  20 | train 0.0010 | val 0.0011 | lr 8.2e-04 (91s) *best
+  ep  21 | train 0.0010 | val 0.0011 | lr 8.2e-04 (91s) *best
+  ep  22 | train 0.0010 | val 0.0011 | lr 8.2e-04 (91s)
+  ep  23 | train 0.0010 | val 0.0010 | lr 8.2e-04 (91s) *best
+  ep  24 | train 0.0010 | val 0.0010 | lr 8.2e-04 (91s) *best
+  ep  25 | train 0.0010 | val 0.0011 | lr 8.2e-04 (91s)
+  ep  26 | train 0.0010 | val 0.0012 | lr 8.2e-04 (91s)
+  ep  27 | train 0.0009 | val 0.0012 | lr 8.2e-04 (91s)
+  ep  28 | train 0.0010 | val 0.0011 | lr 8.2e-04 (91s)
+  ep  29 | train 0.0010 | val 0.0010 | lr 8.2e-04 (91s)
+  early stop at epoch 29 (no improvement for 5 epochs)
+  seed 42: PSNR 38.7102 | SSIM 0.9933 | best ep 24 (29 run)
+
+==========================================================================
+=== winner_patch [patch view, seeds [42]]: {'base_channels': 48, 'channel_multipliers': (1, 2, 4, 8), 'lr': 0.0008196504330730313, 'alpha': 0.8877681051398497, 'sched_patience': 8, 'use_beam': False, 'batch_size': 16}
+==========================================================================
+
+--- winner_patch: seed 42 ---
+  ep   1 | train 0.0158 | val 0.0081 | lr 8.2e-04 (113s) *best
+  ep   2 | train 0.0069 | val 0.0072 | lr 8.2e-04 (113s) *best
+  ep   3 | train 0.0063 | val 0.0075 | lr 8.2e-04 (113s)
+  ep   4 | train 0.0059 | val 0.0088 | lr 8.2e-04 (112s)
+  ep   5 | train 0.0056 | val 0.0052 | lr 8.2e-04 (112s) *best
+  ep   6 | train 0.0054 | val 0.0066 | lr 8.2e-04 (111s)
+  ep   7 | train 0.0052 | val 0.0062 | lr 8.2e-04 (111s)
+  ep   8 | train 0.0050 | val 0.0054 | lr 8.2e-04 (112s)
+  ep   9 | train 0.0049 | val 0.0058 | lr 8.2e-04 (112s)
+  ep  10 | train 0.0048 | val 0.0048 | lr 8.2e-04 (112s) *best
+  ep  11 | train 0.0047 | val 0.0066 | lr 8.2e-04 (111s)
+  ep  12 | train 0.0048 | val 0.0049 | lr 8.2e-04 (112s)
+  ep  13 | train 0.0048 | val 0.0062 | lr 8.2e-04 (111s)
+  ep  14 | train 0.0046 | val 0.0054 | lr 8.2e-04 (113s)
+  ep  15 | train 0.0045 | val 0.0051 | lr 8.2e-04 (112s)
+  ep  16 | train 0.0043 | val 0.0047 | lr 8.2e-04 (111s) *best
+  ep  17 | train 0.0042 | val 0.0052 | lr 8.2e-04 (112s)
+  ep  18 | train 0.0042 | val 0.0049 | lr 8.2e-04 (112s)
+  ep  19 | train 0.0041 | val 0.0066 | lr 8.2e-04 (112s)
+  ep  20 | train 0.0040 | val 0.0046 | lr 8.2e-04 (112s) *best
+  ep  21 | train 0.0037 | val 0.0046 | lr 8.2e-04 (112s) *best
+  ep  22 | train 0.0036 | val 0.0050 | lr 8.2e-04 (113s)
+  ep  23 | train 0.0035 | val 0.0052 | lr 8.2e-04 (115s)
+  ep  24 | train 0.0034 | val 0.0046 | lr 8.2e-04 (121s)
+  ep  25 | train 0.0032 | val 0.0052 | lr 8.2e-04 (123s)
+  ep  26 | train 0.0029 | val 0.0048 | lr 8.2e-04 (128s)
+  early stop at epoch 26 (no improvement for 5 epochs)
