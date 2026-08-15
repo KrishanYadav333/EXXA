@@ -138,6 +138,15 @@ inference time.** A closely related failure appears in the diffusion model in Se
 > is the failure mode this project keeps meeting: on a channel with almost no signal, the model
 > invents smooth structure that is not in the truth.*
 
+And the same checkpoint scored where it counts, on the moment maps of a held-out cube:
+
+> **[FIGURE]** `results/05-unet-line-emission/v20_2026-08-14_c28b860/figure_cell18_1.png`
+>
+> *Moment maps for one held-out cube: dirty input, U-Net denoised, clean truth, across all
+> three moments. M1 and M2 are shown over the scored region only. The dirty velocity map is
+> speckled and its dispersion map is pure noise; the denoised row recovers a clean rotation
+> dipole. Per-cube improvements here are M0 +29.2%, M1 +64.0%, M2 +8.0%.*
+
 ---
 
 ## 5. Architectures, and classical baselines
@@ -213,6 +222,12 @@ reference on the science" is still **not demonstrated at n=3**. It would have be
 quote +87.5% against +69.8% and move on. This is the same discipline that killed the 37.11 dB
 sweep result, applied to our own best number.
 
+> **[FIGURE]** `results/05-unet-line-emission/v20_2026-08-14_c28b860/figure_cell22.png`
+>
+> *All six U-Net arms on the full metric, five held-out cubes. Coloured bars span seeds, dots
+> are individual cubes. The dots matter more than the bars: M0 runs from +100% to below −300%
+> on the same model, which is why every claim here carries its spread.*
+
 ### 6.1 Invented structure, and where it lives
 
 The most scientifically serious failure mode is not blur, it is **hallucination**: plausible
@@ -257,11 +272,6 @@ The best U-Net arm beats the DDPM by **85 percentage points on M0** with a sprea
 tighter. (These four rows share one metric. Run 05 v20 re-scored fifteen U-Net checkpoints
 under the DDPM's exact metric, without retraining any of them, specifically so this comparison
 could be made honestly.)
-
-> **[FIGURE]** `results/06-ddpm-line-emission/v13_2026-08-12T0450_19efd47/ddpm_moment_maps.png`
->
-> *The DDPM's moment maps against clean truth. The velocity dipole is recovered cleanly; the
-> sky, black in the truth, sits at a raised floor.*
 
 **The diagnosis is a pedestal, not lost structure.** The sampler returns values in
 `[0.348, 0.701]` when it should span roughly `[0, 1]`: it never learns to output true black,
