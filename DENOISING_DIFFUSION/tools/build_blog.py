@@ -399,6 +399,11 @@ CSS = f"""
 
 
 
+/* Declare display explicitly on every block element. A host theme that sets
+   `p {{ display: inline }}` -- Blogger's did -- otherwise runs the byline lines together,
+   and a property this stylesheet never states is one the scoping pass cannot harden. */
+p, h1, h2, h3, h4, figure, figcaption, footer, hr, div, pre {{ display: block; }}
+li {{ display: list-item; }}
 * {{ box-sizing: border-box; }}
 html {{ -webkit-text-size-adjust: 100%; color-scheme: light; }}
 body {{
@@ -433,12 +438,14 @@ code {{
 strong {{ font-weight: 600; }}
 em {{ font-style: italic; }}
 
-/* Single measure. Figures and data break out wider, the way Medium outsets images. */
-.wrap {{ max-width: 680px; margin: 0 auto; padding: 0 24px 140px; }}
+/* ONE column. Figures, equations, data panels and grids all sit on exactly the same left
+   and right edges as the prose. This used to break them out to 860px against the text's
+   632px, which put every image and code block 114px past the text on each side. */
+.wrap {{ max-width: 780px; margin: 0 auto; padding: 0 24px 140px; }}
 .outset {{
-  width: min(860px, calc(100vw - 48px));
-  margin-left: 50%;
-  transform: translateX(-50%);
+  width: 100%;
+  margin-left: 0;
+  transform: none;
 }}
 
 /* ---- masthead ---- */
@@ -726,6 +733,42 @@ with open(OUT_HTML, "w", encoding="utf-8") as _f:
              '    Source: BLOG_MIDTERM.md &middot; every figure embedded from results/ '
              '&middot;\n    self-contained, no external requests\n  </footer>\n</div>\n')
     _f.write("</body>\n</html>\n")
+
+# ---- Blogger variant -------------------------------------------------------------
+# Blogger drops the page into its own theme, whose CSS then fights this one: the title
+# collapsed onto itself and the byline lines ran together. So emit a FRAGMENT (no doctype,
+# head or body, which Blogger strips anyway) with every rule scoped under one id and the
+# layout-critical properties marked !important, so the theme cannot win.
+import scope_css, inline_css
+BLOGGER = os.path.join(REPO, "blog_midterm_blogger.html")
+
+# Build the body once, then fold the stylesheet into style="" attributes. The scoped
+# <style> block alone was not enough: Blogger's theme carries an id in its selectors, so it
+# outranked "#exxa-post h1.title" and won line-height and display. An inline declaration
+# with !important outranks every stylesheet, whatever its specificity.
+_body_parts = ['<div class="wrap">\n  <div class="masthead">\n'
+               '    <span class="eyebrow">GSoC 2026 &middot; ML4Sci / EXXA &middot; '
+               'Midterm Report</span>\n', masthead_html, "\n  </div>\n\n  <hr>\n\n"]
+_body_parts += [c + "\n" for c in rest_out]
+_body_parts.append('\n  <footer class="colophon">\n'
+                   '    Source: BLOG_MIDTERM.md &middot; every figure embedded from results/\n'
+                   '  </footer>\n</div>\n')
+_body = "".join(_body_parts)
+_inlined = inline_css.inline(_body, CSS)
+
+with open(BLOGGER, "w", encoding="utf-8") as _b:
+    # the <style> block still carries @media and pseudo-element rules, which cannot inline
+    _b.write("<style>\n")
+    _b.write(scope_css.scope(CSS, "#exxa-post"))
+    _b.write("\n</style>\n")
+    _b.write('<div id="exxa-post">\n')
+    _b.write(_inlined)
+    _b.write('</div>\n')
+
+print(f"wrote {BLOGGER}  ({os.path.getsize(BLOGGER)/1024/1024:.2f} MB, Blogger fragment)")
+_SKIP = True
+if not _SKIP:
+    pass
 
 print(f"\nwrote {OUT_HTML}")
 print(f"size: {os.path.getsize(OUT_HTML)/1024/1024:.2f} MB")
