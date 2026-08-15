@@ -6,8 +6,19 @@ HARDEN = ("line-height", "margin", "margin-top", "margin-bottom", "margin-left",
           "max-width", "width", "padding", "color", "background", "text-align",
           "grid-template-columns", "grid-row", "aspect-ratio", "letter-spacing")
 
+def strip_comments(css):
+    """Remove /* ... */ before any brace matching.
+
+    The brace matcher below is naive by design, so a comment containing a literal brace --
+    this stylesheet has one documenting `p {{ display: inline }}` -- desynchronises it and
+    every rule after that point is parsed as garbage. That silently cost the byline its
+    display declaration.
+    """
+    return re.sub(r'/\*.*?\*/', '', css, flags=re.S)
+
 def _split_top(css):
     """Yield (kind, header, body) for each top-level construct."""
+    css = strip_comments(css)
     out, i, n = [], 0, len(css)
     while i < n:
         brace = css.find("{", i)
