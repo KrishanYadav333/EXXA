@@ -167,8 +167,33 @@ U-Net V12      3,400,000    32.950    +69.8% ±  15.2    +17.5% ±  7.8    +20.1
 The U-Net wins PSNR, M0 and M1, and **loses M2 to both weaker models**: −152.8% against the
 autoencoder's −46.1%. Per cube its dispersion score is negative on all five, so it is not one
 bad cube dragging a mean. **Every architecture is negative on M2**, and the model that is best
-everywhere else is worst there. This is treated as an open scientific problem rather than
-something to patch away.
+everywhere else is worst there.
+
+**A candidate mechanism, stated so it can be shot down.** M2 is a second moment weighted by
+(v − M1)², so it is dominated by the faint line *wings* rather than the bright core. The wings
+are also precisely what a denoiser cannot separate from noise: both are low-amplitude, and a
+model trained on a pixel loss has every incentive to flatten them. Suppressing the wings costs
+M0 almost nothing, because they carry little of the total flux, while it narrows the line
+profile directly and drives M2 down. Noise pushes the other way, inflating apparent line width,
+so the dirty cube's M2 sits *above* the truth. A denoiser that strips the noise and the wings
+together does not land on the truth, it overshoots past it, and overshooting is how an
+improvement score goes negative while the map still looks clean.
+
+Two pieces of evidence already in this post support that reading, neither collected for the
+purpose. **The failure is confined to faint pixels.** The table above is scored without a
+signal mask and every architecture is negative; scored *with* the mask, which keeps only
+pixels above 5% of the clean M0 peak, the same family of models runs **+15.5% to +55.0%** on
+M2 (Section 7). Masking out the faint region does not improve the model, it removes the region
+where the model fails, which is exactly what wing truncation predicts and not what a
+core-fitting problem would do. **And M2 responds to range, specifically.** The DDPM rescale in
+Section 7 restores output range and changes nothing else; on its own it moves M2 from +5.2% to
+**+42.4%**, and to +61.3% combined with single-sample decoding.
+
+This is a hypothesis, not a finding, and it predicts things that are cheap to test and have
+not been tested: M2 error should scale with the fraction of a cube's flux sitting in its wings;
+a loss weighted toward low-amplitude channels should recover dispersion at some cost to PSNR;
+and a model given spectral context, rather than one channel at a time, should not show the
+failure at all.
 
 > **[FIGURE]** `results/09-architecture-comparison/v7_2026-08-02T1721_ee491fc/architecture_moment_maps.png`
 >
@@ -302,8 +327,9 @@ from +100% to −0.0% on M0.
 
 But the same rescale **fixes M1 and M2**, which are ratios and therefore insensitive to a
 constant offset while sensitive to range. At **M2 +61.3% ±10.8** the rescaled DDPM beats every
-U-Net arm on dispersion, the one moment on which every architecture had been negative. It is
-the project's first DDPM result that is better than the U-Net at anything.
+U-Net arm on dispersion, the moment every architecture had been negative on under the unmasked
+metric of Section 5. It is the project's first DDPM result that is better than the U-Net at
+anything.
 
 There is also a structural reason a diffusion model should lose on pixel error. A regression
 model trained on MSE learns the posterior **mean**; a single diffusion draw is a **sample**
@@ -317,8 +343,9 @@ pixel gap and **nothing about the moment failure**, which is a bias problem.
 
 1. **Kill the diffusion pedestal.** One test: rescale std only, leaving the mean untouched.
    If M2's +61.3% survives while M0 stops collapsing, the DDPM becomes useful for dispersion.
-2. **Fix M2 for the U-Net.** Negative dispersion recovery is the most consistent failure in
-   the project and is not yet explained.
+2. **Test the wing-truncation hypothesis for M2** (Section 5): correlate per-cube M2 error
+   against wing flux fraction, then retrain with a low-amplitude-weighted loss. Negative
+   dispersion recovery is the most consistent failure in the project.
 3. **Suppress hallucination in faint channels**, where it is concentrated 7:1.
 4. **Score on ALMA-like data**, applying realistic beam convolution and noise, then real
    archival observations.
