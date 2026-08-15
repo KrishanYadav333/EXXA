@@ -1,6 +1,6 @@
 # Denoising Astronomical Observations of Protoplanetary Disks
 
-*Krishan Yadav, Google Summer of Code 2026, ML4Sci / EXXA*
+*Krishan Yadav, Google Summer of Code, ML4Sci / EXXA*
 *Mentors: Jason Terry, PhD · Gaurav S.*
 *Code: https://github.com/KrishanYadav333/EXXA (branch `midterm-prep`)*
 
@@ -82,7 +82,7 @@ Every table below names its metric.
 
 ## 3. How the project got here
 
-The first weeks worked on **continuum** images, single-channel dust maps. Four learned models
+The project began on **continuum** images, single-channel dust maps. Four learned models
 against four classical filters gave a result we did not expect:
 
 ```
@@ -99,7 +99,7 @@ SSIM ranks them the other way round. That is the first sign in this project that
 decides the answer. The U-Net was chosen for what it preserves: skip connections carry
 spatial detail a bottleneck destroys. Training uses `L = α·MSE + (1−α)·(1−SSIM)`, α = 0.8.
 
-**In mid-June the mentors redirected the project to line emission**, velocity cubes rather
+**The mentors then redirected the project to line emission**, velocity cubes rather
 than dust maps, because M1 is what planets perturb. The first line-emission run scored PSNR
 26.46 dB and **M0 = −6395%**. Respectable pixels, useless science.
 

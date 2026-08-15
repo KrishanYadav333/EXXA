@@ -703,7 +703,7 @@ rest_html = "\n".join(rest_out)
 
 
 OUT_HTML = os.path.join(REPO, "blog_midterm.html")
-_desc = ("GSoC 2026 midterm write-up: denoising protoplanetary disk line emission with "
+_desc = ("GSoC midterm write-up: denoising protoplanetary disk line emission with "
          "U-Net and conditional DDPM. ML4Sci / EXXA.")
 
 _head = (
@@ -722,7 +722,7 @@ with open(OUT_HTML, "w", encoding="utf-8") as _f:
     _f.write("<style>"); _f.write(CSS); _f.write("</style>\n")
     _f.write("</head>\n<body>\n")
     _f.write('<div class="wrap">\n  <div class="masthead">\n'
-             '    <span class="eyebrow">GSoC 2026 &middot; ML4Sci / EXXA &middot; '
+             '    <span class="eyebrow">GSoC &middot; ML4Sci / EXXA &middot; '
              'Midterm Report</span>\n')
     _f.write(masthead_html)
     _f.write("\n  </div>\n\n  <hr>\n\n")
@@ -747,7 +747,7 @@ BLOGGER = os.path.join(REPO, "blog_midterm_blogger.html")
 # outranked "#exxa-post h1.title" and won line-height and display. An inline declaration
 # with !important outranks every stylesheet, whatever its specificity.
 _body_parts = ['<div class="wrap">\n  <div class="masthead">\n'
-               '    <span class="eyebrow">GSoC 2026 &middot; ML4Sci / EXXA &middot; '
+               '    <span class="eyebrow">GSoC &middot; ML4Sci / EXXA &middot; '
                'Midterm Report</span>\n', masthead_html, "\n  </div>\n\n  <hr>\n\n"]
 _body_parts += [c + "\n" for c in rest_out]
 _body_parts.append('\n  <footer class="colophon">\n'
