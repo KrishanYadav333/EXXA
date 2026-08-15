@@ -18,13 +18,12 @@ the gas. In a rotating disk the gas follows Keplerian motion, so the line-of-sig
 v_obs(r, φ) = sqrt(G M* / r) · sin(i) · cos(φ) + v_sys
 ```
 
-A planet breaks that clean pattern locally, producing a "kink" in the velocity map. Detecting
+A planet breaks that pattern locally, producing a "kink" in the velocity map, and detecting
 those kinks is how embedded protoplanets have actually been found in ALMA data (Terry et al.
-2022, 2023). The catch: a kink is a small deviation on top of a large smooth pattern, and
-interferometric data is noisy in a way that specifically attacks small deviations.
-
-An interferometer samples the sky's Fourier transform on a sparse set of points. Inverting
-that incomplete measurement gives the "dirty" image:
+2022, 2023). A kink is a small deviation on top of a large smooth pattern, and interferometric
+data is noisy in a way that specifically attacks small deviations. An interferometer samples
+the sky's Fourier transform on a sparse set of points; inverting that incomplete measurement
+gives the "dirty" image:
 
 ```
 I_dirty = F⁻¹[ S(u,v) · V(u,v) ] = I_true ⊛ B_dirty
@@ -72,11 +71,10 @@ That caveat matters more than it sounds. This project has three metric generatio
 clipped, clipped + masked) and **numbers from different generations are not comparable**.
 Every table below names its metric.
 
-> **[FIGURE]** `results/05-unet-line-emission/v12_2026-07-10T1928_c61d112/moment_maps_holdout.png`
->
-> *One held-out cube: clean truth against the dirty input. The intensity map survives the noise
-> reasonably well; the velocity and dispersion maps are visibly destroyed. That gap is the
-> thing to close.*
+Worth stating before any model appears: on a held-out cube the dirty M0 map still resembles
+the truth, because integrating over channels averages noise down, while the dirty M1 and M2
+maps are visibly destroyed (top row of the figure in Section 4). **The moment that matters
+most for finding planets is the one the noise ruins first.**
 
 ---
 
@@ -301,6 +299,17 @@ tighter. (These four rows share one metric. Run 05 v20 re-scored fifteen U-Net c
 under the DDPM's exact metric, without retraining any of them, specifically so this comparison
 could be made honestly.)
 
+The per-channel output is the part that makes this surprising:
+
+> **[FIGURE]** `results/06-ddpm-line-emission/v13_2026-08-12T0450_19efd47/line_emission_ddpm_comparison_4ch.png`
+>
+> *DDPM validation channels: dirty, denoised, clean truth. Channel by channel the output is
+> clean and sharp, and on pixel metrics it is competitive with the U-Net. Nothing here
+> anticipates an M0 of −56%. The failure is invisible until the channels are collapsed into a
+> moment map. Four of this run's five channels are shown; the fifth is dropped because the run
+> predates a fix to the plotting code and renders a near-empty channel as a flat colour block
+> rather than as black.*
+
 **The diagnosis is a pedestal, not lost structure.** The sampler returns values in
 `[0.348, 0.701]` when it should span roughly `[0, 1]`: it never learns to output true black,
 so empty sky is decoded to a constant offset. Because M0 is a **sum** over ~201 channels, a
@@ -360,10 +369,10 @@ The through-line of this midterm is a single lesson, learned repeatedly and expe
 **the metric decides the answer, and pixel metrics are the wrong metric here.**
 
 It showed up as classical filters beating every learned model on PSNR while destroying
-structure. As an untouched noisy input scoring 21.57 dB. As continuum subtraction moving PSNR
-by 2.2 dB and M0 by 1756 points. As a diffusion model reaching 38.18 dB and −56% M0. As beam
-conditioning taking the second-best PSNR in a six-arm table and the worst M0 by a factor of
-two. Every one of those would have been read as a success on pixel error alone.
+structure, as an untouched noisy input scoring 21.57 dB, as continuum subtraction moving PSNR
+by 2.2 dB and M0 by 1756 points, as a diffusion model reaching 38.18 dB and −56% M0, and as
+beam conditioning taking the second-best PSNR in a six-arm table and the worst M0 by a factor
+of two. Every one would have been read as a success on pixel error alone.
 
 What exists now: a reproducible pipeline over five self-bootstrapping notebooks, a
 seed-validated U-Net, moment-map evaluation on genuinely held-out cubes, classical baselines,

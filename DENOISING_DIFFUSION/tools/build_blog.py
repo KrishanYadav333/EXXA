@@ -626,6 +626,21 @@ ul.file-list li::marker {{ color: var(--ink-faint); }}
 /* margin-top/bottom, NOT the `margin` shorthand: this rule sits after .outset, so a
    shorthand would reset .outset's margin-left:50% to 0 and drag the whole grid 316px
    left, off the page. Measured x=-126 against a correct 190 before this. */
+/* Cap tall figures. Two are portrait multi-panel grids that otherwise run most of a printed
+   page each. The frame carries an inline aspect-ratio, so capping the FRAME's height just made
+   the image overflow it and collide with the caption; the cap has to go on the image, with the
+   frame's ratio released so the box tracks the image instead of the other way round. */
+figure .fig-frame {{ aspect-ratio: auto !important; height: auto !important; }}
+figure .fig-frame img {{
+  position: static !important;
+  max-height: 820px;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  object-fit: contain;
+}}
 .figgrid {{ display: grid; gap: 16px; margin-top: 9px; margin-bottom: 9px; }}
 /* min-width:0 keeps a grid item from refusing to shrink below its image's intrinsic width.
    Not what caused the off-page overflow (that was the margin shorthand above), but correct
