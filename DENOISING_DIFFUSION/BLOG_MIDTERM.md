@@ -189,11 +189,10 @@ core-fitting problem would do. **And M2 responds to range, specifically.** The D
 Section 7 restores output range and changes nothing else; on its own it moves M2 from +5.2% to
 **+42.4%**, and to +61.3% combined with single-sample decoding.
 
-This is a hypothesis, not a finding, and it predicts things that are cheap to test and have
-not been tested: M2 error should scale with the fraction of a cube's flux sitting in its wings;
-a loss weighted toward low-amplitude channels should recover dispersion at some cost to PSNR;
-and a model given spectral context, rather than one channel at a time, should not show the
-failure at all.
+This is a hypothesis, not a finding. It predicts that M2 error should scale with the fraction
+of a cube's flux in its wings, that a loss weighted toward low-amplitude channels should
+recover dispersion at some cost to PSNR, and that a model given spectral context rather than
+one channel at a time should not show the failure at all. None of the three has been run.
 
 > **[FIGURE]** `results/09-architecture-comparison/v7_2026-08-02T1721_ee491fc/architecture_moment_maps.png`
 >
@@ -331,11 +330,11 @@ U-Net arm on dispersion, the moment every architecture had been negative on unde
 metric of Section 5. It is the project's first DDPM result that is better than the U-Net at
 anything.
 
-There is also a structural reason a diffusion model should lose on pixel error. A regression
-model trained on MSE learns the posterior **mean**; a single diffusion draw is a **sample**
-from the posterior. For the same posterior, E‖x₀−μ‖² = tr(Σ) while E‖x₀−x̃‖² = 2·tr(Σ), a
-3.01 dB penalty by construction. The measured PSNR gap is ~1 dB, so sampling explains the
-pixel gap and **nothing about the moment failure**, which is a bias problem.
+There is also a structural reason a diffusion model should lose on pixel error: a regression
+model trained on MSE learns the posterior **mean**, while a single diffusion draw is a
+**sample** from it, which costs 3.01 dB by construction (E‖x₀−μ‖² = tr(Σ) against 2·tr(Σ)).
+The measured gap is ~1 dB, so sampling explains the pixel gap and **nothing about the moment
+failure**, which is a bias problem.
 
 ---
 

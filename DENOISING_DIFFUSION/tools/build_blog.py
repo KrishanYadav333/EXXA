@@ -495,7 +495,7 @@ p.byline {{
 }}
 .status p {{ margin: 0; font-size: 18px; color: var(--ink-soft); font-style: italic; line-height: 1.55; }}
 
-hr {{ border: none; border-top: 1px solid var(--rule); margin: 52px 0; }}
+hr {{ border: none; border-top: 1px solid var(--rule); margin: 26px 0; }}
 
 /* ---- headings: sans, bold, plain. No numerals in circles. ---- */
 h2 {{
