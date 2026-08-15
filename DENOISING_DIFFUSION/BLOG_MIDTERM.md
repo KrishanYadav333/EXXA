@@ -122,9 +122,11 @@ on the pixel metric and decides the scientific one.
 The 05 notebook is the main U-Net track. Its most useful lesson was not a model change.
 
 An early version normalised each channel by **its own** min and max, then inverted with the
-*clean* channel's statistics, which do not exist at inference. Worse, dirty backgrounds sit
-near 0.35 after normalisation while clean backgrounds sit near 0, so a model trained against
-one scale and decoded with the other places the entire empty sky at a raised pedestal. Fixing
+*clean* channel's statistics, which do not exist at inference. Worse, the two backgrounds do
+not sit at the same value: clean's floor is essentially zero, because in the truth empty sky
+is exactly empty, while dirty's minimum is negative and its background is smeared into a
+broad hump. A model trained against one scale and decoded with the other therefore places the
+entire empty sky at a raised pedestal. Fixing
 it to a **shared dirty-scale** normalisation, invertible from information available at
 inference, is what made the moment scores meaningful at all.
 
@@ -154,17 +156,19 @@ And the same checkpoint scored where it counts, on the moment maps of a held-out
 Four architectures on identical line-emission data, same split, same schedule:
 
 ```
-Model            PSNR      M0        M1        M2
-U-Net           33.18   +84.9%   +20.9%    −46.1%
-Autoencoder     28.94   +51.2%   +12.4%    −98.3%
-VAE             29.76   −220.4%  +45.7%   −152.8%
-DDPM            18.02   −812.3%   −8.1%    −74.6%
+Architecture      params      PSNR          M0                M1                M2
+U-Net          3,477,665    37.414    −33.2% ±  71.8    +68.7% ± 22.5   −152.8% ± 81.6
+Autoencoder    1,734,305    33.155   −152.0% ± 267.8    +58.2% ± 30.2    −46.1% ± 44.1
+VAE              467,793    29.760   −220.4% ± 295.1    +45.7% ± 29.1    −75.9% ± 70.0
+U-Net V12      3,400,000    32.950    +69.8% ±  15.2    +17.5% ±  7.8    +20.1% ± 14.3
+                                      (V12 row is the OLDER metric, continuity only)
 ```
 
-**Every architecture loses badly on M2**, and the U-Net is the worst of the three
-non-diffusion models on dispersion while winning everything else. Per cube its M2 is negative
-on all five, so it is not one bad cube dragging a mean. This is treated as an open scientific
-problem rather than something to patch away.
+The U-Net wins PSNR, M0 and M1, and **loses M2 to both weaker models**: −152.8% against the
+autoencoder's −46.1%. Per cube its dispersion score is negative on all five, so it is not one
+bad cube dragging a mean. **Every architecture is negative on M2**, and the model that is best
+everywhere else is worst there. This is treated as an open scientific problem rather than
+something to patch away.
 
 > **[FIGURE]** `results/09-architecture-comparison/v7_2026-08-02T1721_ee491fc/architecture_moment_maps.png`
 >
@@ -257,7 +261,7 @@ selected zero pixels, so nothing could fire. A zero from a diagnostic is a suspe
 
 A conditional DDPM is the natural thing to try: it models a distribution rather than a mean,
 so it should not blur. Rebuilt properly on line emission, with v-prediction, a cosine
-schedule and min-SNR weighting, it reached **PSNR 36.03 dB**, genuinely competitive with the
+schedule and min-SNR weighting, it reached **PSNR 38.18 dB**, genuinely competitive with the
 U-Net. Then the moment maps:
 
 ```
@@ -331,7 +335,7 @@ The through-line of this midterm is a single lesson, learned repeatedly and expe
 
 It showed up as classical filters beating every learned model on PSNR while destroying
 structure. As an untouched noisy input scoring 21.57 dB. As continuum subtraction moving PSNR
-by 2.2 dB and M0 by 1756 points. As a diffusion model reaching 36.03 dB and −56% M0. As beam
+by 2.2 dB and M0 by 1756 points. As a diffusion model reaching 38.18 dB and −56% M0. As beam
 conditioning taking the second-best PSNR in a six-arm table and the worst M0 by a factor of
 two. Every one of those would have been read as a success on pixel error alone.
 
