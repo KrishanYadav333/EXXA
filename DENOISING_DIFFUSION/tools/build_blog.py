@@ -441,7 +441,7 @@ em {{ font-style: italic; }}
 /* ONE column. Figures, equations, data panels and grids all sit on exactly the same left
    and right edges as the prose. This used to break them out to 860px against the text's
    632px, which put every image and code block 114px past the text on each side. */
-.wrap {{ max-width: 780px; margin: 0 auto; padding: 0 24px 140px; }}
+.wrap {{ max-width: 780px; margin: 0 auto; padding: 0 24px 60px; }}
 .outset {{
   width: 100%;
   margin-left: 0;
@@ -449,7 +449,7 @@ em {{ font-style: italic; }}
 }}
 
 /* ---- masthead ---- */
-.masthead {{ padding: 72px 0 8px; }}
+.masthead {{ padding: 36px 0 8px; }}
 .eyebrow {{
   font-family: 'Inter', system-ui, sans-serif;
   font-size: 13px;
@@ -457,7 +457,7 @@ em {{ font-style: italic; }}
   letter-spacing: 0.02em;
   color: var(--ink-soft);
   display: block;
-  margin-bottom: 20px;
+  margin-bottom: 9px;
 }}
 h1.title {{
   font-family: 'Inter', system-ui, sans-serif;
@@ -479,7 +479,7 @@ p.byline {{
 }}
 
 .status {{
-  margin: 32px 0 0;
+  margin: 18px 0 0;
   padding: 0 0 0 20px;
   border-left: 3px solid var(--rule);
 }}
@@ -491,7 +491,7 @@ p.byline {{
   text-transform: uppercase;
   font-weight: 600;
   color: var(--ink-faint);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }}
 .status p {{ margin: 0; font-size: 18px; color: var(--ink-soft); font-style: italic; line-height: 1.55; }}
 
@@ -505,7 +505,7 @@ h2 {{
   line-height: 1.25;
   letter-spacing: -0.018em;
   margin: 56px 0 8px;
-  scroll-margin-top: 20px;
+  scroll-margin-top: 9px;
   text-wrap: balance;
   color: var(--ink);
 }}
@@ -516,7 +516,7 @@ h3 {{
   line-height: 1.3;
   letter-spacing: -0.012em;
   margin: 40px 0 6px;
-  scroll-margin-top: 20px;
+  scroll-margin-top: 9px;
   color: var(--ink);
 }}
 h2 .h-num, h3 .h-num {{
@@ -532,7 +532,7 @@ h2 + p, h3 + p {{ margin-top: 0; }}
 
 /* ---- equations ---- */
 .eq {{
-  margin-block: 32px;
+  margin-block: 14px;
   padding: 20px 24px;
   background: var(--panel);
   border-radius: 3px;
@@ -541,7 +541,7 @@ h2 + p, h3 + p {{ margin-top: 0; }}
 .eq pre {{
   margin: 0;
   font-family: 'Plex Mono', ui-monospace, Menlo, monospace;
-  font-size: 14px; line-height: 1.7;
+  font-size: 14px; line-height: 1.58;
   color: var(--ink);
   white-space: pre;
   text-align: center;
@@ -550,7 +550,7 @@ h2 + p, h3 + p {{ margin-top: 0; }}
 /* ---- data panels: the tables this piece is built on ---- */
 .data-panel {{
   position: relative;
-  margin-block: 34px;
+  margin-block: 15px;
   background: var(--panel);
   border: 1px solid var(--panel-rule);
   border-radius: 3px;
@@ -577,7 +577,7 @@ h2 + p, h3 + p {{ margin-top: 0; }}
 
 /* ---- console + shell ---- */
 .console, .term {{
-  margin-block: 30px;
+  margin-block: 14px;
   background: var(--panel);
   border: 1px solid var(--panel-rule);
   border-radius: 3px;
@@ -595,13 +595,13 @@ h2 + p, h3 + p {{ margin-top: 0; }}
 .term-body .ln {{
   display: block;
   font-family: 'Plex Mono', ui-monospace, Menlo, monospace;
-  font-size: 13px; line-height: 1.75;
+  font-size: 13px; line-height: 1.6;
   color: var(--ink);
 }}
 .term-body .ln::before {{ content: '$ '; color: var(--ink-faint); }}
 
 /* ---- figures: outset, plain, sans caption centred under ---- */
-figure {{ margin-block: 44px; }}
+figure {{ margin-block: 20px; }}
 .fig-tag {{ display: none; }}
 .fig-frame {{ width: 100%; background: transparent; }}
 .fig-frame img {{ display: block; width: 100%; height: auto; }}
@@ -618,7 +618,7 @@ figcaption {{
 
 /* ---- lists: plain, serif, Medium-style ---- */
 ol.num-list, ul.file-list {{ margin: 0 0 28px; padding-left: 28px; }}
-ol.num-list li, ul.file-list li {{ margin-bottom: 10px; padding-left: 6px; }}
+ol.num-list li, ul.file-list li {{ margin-bottom: 8px; padding-left: 6px; }}
 ol.num-list {{ list-style: decimal; }}
 ul.file-list {{ list-style: disc; }}
 ul.file-list li::marker {{ color: var(--ink-faint); }}
@@ -626,7 +626,7 @@ ul.file-list li::marker {{ color: var(--ink-faint); }}
 /* margin-top/bottom, NOT the `margin` shorthand: this rule sits after .outset, so a
    shorthand would reset .outset's margin-left:50% to 0 and drag the whole grid 316px
    left, off the page. Measured x=-126 against a correct 190 before this. */
-.figgrid {{ display: grid; gap: 16px; margin-top: 36px; margin-bottom: 36px; }}
+.figgrid {{ display: grid; gap: 16px; margin-top: 9px; margin-bottom: 9px; }}
 /* min-width:0 keeps a grid item from refusing to shrink below its image's intrinsic width.
    Not what caused the off-page overflow (that was the margin shorthand above), but correct
    for a grid whose items are 1500px-wide images. */
@@ -644,7 +644,7 @@ ul.file-list li::marker {{ color: var(--ink-faint); }}
   .figgrid-pair, .figgrid-feature {{ grid-template-columns: 1fr; }}
   .figgrid-feature > figure:first-child {{ grid-row: auto; }}
 }}
-.tags {{ margin: 36px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }}
+.tags {{ margin: 20px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }}
 .chip {{
   font-family: 'Inter', system-ui, sans-serif;
   font-size: 13px;
@@ -656,7 +656,7 @@ ul.file-list li::marker {{ color: var(--ink-faint); }}
 }}
 
 footer.colophon {{
-  margin-top: 72px;
+  margin-top: 32px;
   padding-top: 24px;
   border-top: 1px solid var(--rule);
   font-family: 'Inter', system-ui, sans-serif;
@@ -669,7 +669,7 @@ footer.colophon {{
   body {{ font-size: 19px; line-height: 1.55; }}
   .wrap {{ padding: 0 20px 90px; }}
   .masthead {{ padding: 44px 0 6px; }}
-  h2 {{ font-size: 23px; margin-top: 44px; }}
+  h2 {{ font-size: 23px; margin-top: 20px; }}
   h3 {{ font-size: 18.5px; }}
   .outset {{ width: calc(100vw - 40px); }}
   figcaption {{ font-size: 13px; }}
