@@ -34,7 +34,7 @@ Full lineage, recovered from every branch (`line-emission`, `midterm-prep`, `wee
 | **18** | 2026-08-11 | stale | `b24c84d` | **35.94** | **+81.2% ±12.6** | [`v18_.../`](05-unet-line-emission/v18_2026-08-11_b24c84d/) |
 | 19 | 2026-08-14 | `c899750` | — | — | — | [`v19_.../`](05-unet-line-emission/v19_2026-08-14_crashed/) — **CRASHED** at 4.0 h, section 6 never ran, no moment scores |
 | **20** | 2026-08-14 | `c28b860` | — | 39.30 (aug) | **+29.2% ±7.2** (aug) | [`v20_.../`](05-unet-line-emission/v20_2026-08-14_c28b860/) — **mask + clip**, 15 checkpoints, **zero training** |
-| 21 | 2026-08-17 | `6f5c798` | — | unchanged | unchanged | [`v21_.../`](05-unet-line-emission/v21_2026-08-17_6f5c798/) — sections 7-8 only; artifact CSV finally saved |
+| 22 | 2026-08-17 | `6f5c798` | — | unchanged | unchanged | [`v21_.../`](05-unet-line-emission/v22_2026-08-17_6f5c798/) — sections 7-8 only; artifact CSV finally saved |
 
 **v18 is the best 05 run to date, and the first with every moment positive on every cube.**
 M0 +81.2% ±12.6, M1 +31.5% ±9.2, M2 +19.9% ±18.8, 5/5 cubes positive on all three, against

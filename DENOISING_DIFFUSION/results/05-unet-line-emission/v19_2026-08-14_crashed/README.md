@@ -63,3 +63,16 @@ session that had already shown memory pressure at 64px. Drop it, or run it alone
 
 The three checkpoints this run did train are in its Output. Scoring them needs no
 retraining — attach that Output and section 6 will pick them up.
+
+## Missing from this archive
+
+**The notebook itself was not kept** (RULES.md #10, which this run is part of the reason
+for). Only `run_log.txt`, extracted from the cell outputs before the local copy was
+stripped, survives. Kaggle did not auto-push this version, so there is no copy in git
+either. What is lost: the stored figures, the exact traceback formatting, and the papermill
+per-cell timings that would pin down where the memory pressure began.
+
+The error itself is recorded above in full: `DeadKernelError` at 14413s (4.0 h), preceded by
+`ConnectionResetError: [Errno 104] Connection reset by peer` inside
+`multiprocessing/resource_sharer.py`, after `winner_patch` early-stopped at epoch 26 with
+its epoch times drifting 111 -> 128s.
