@@ -11,13 +11,14 @@ file in [`../notebooks/`](../notebooks/):
 | `08-seeds-and-augmentation/v2_2026-07-31_eb03589/` | v2 | `08-seeds-and-augmentation.ipynb` |
 | `09-architecture-comparison/v7_2026-08-02T1721_ee491fc/` | v7 | `09-architecture-comparison.ipynb` |
 
-Each folder holds the run's log (extracted from the notebook's cell outputs), its figures,
-and a README explaining what the run established and, where relevant, what changed since the
-run before it.
+Each folder holds the run's figures and a README explaining what the run established and,
+where relevant, what changed since the run before it. The notebook itself, with its full
+stdout in the cell outputs, is in [`../notebooks/`](../notebooks/) — not duplicated here.
 
 **This is a pruned view.** `RUNS.md` and `PROGRESS.md` document the full run history back to
 week 1 — every sweep, every seed, every diagnostic pass, in text — but only the five runs
-above have their log/figures/notebook archived on this branch. The rest are on `midterm-prep`.
+above have their figures archived on this branch. The rest, including their logs, are on
+`midterm-prep`.
 
 ## Reading the numbers
 
