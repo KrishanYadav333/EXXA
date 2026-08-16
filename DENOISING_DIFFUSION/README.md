@@ -6,10 +6,10 @@ evaluated on the moment maps astronomers actually use rather than pixel metrics 
 **GSoC 2026 · ML4Sci · EXXA** — Krishan Yadav, mentored by Jason Terry and Gaurav S.
 
 > **This branch, `midterm_completed`, is a frozen submission snapshot** — the five notebooks
-> that produced the midterm's numbers, real outputs intact, plus the library, tests and
-> documentation behind them. It is not where development happens (that is `midterm-prep`)
-> and it is not kept up to date after submission. Everything for this deliverable lives
-> under this one directory, including this file.
+> that produced the midterm's numbers, real outputs intact, plus the library and results
+> behind them. It is not where development happens (that is `midterm-prep`) and it is not
+> kept up to date after submission. Everything for this deliverable lives under this one
+> directory, including this file.
 
 ---
 
@@ -25,12 +25,9 @@ A U-Net denoiser (reference checkpoint **V12**) improves all three moment maps o
 Moment improvement is `100 × (1 − |denoised−clean| / |dirty−clean|)` (mean absolute difference
 over finite pixels), averaged over 5 inference-only holdout cubes ± standard deviation.
 
-A 3-seed hyperparameter search since reached **39.30 dB** with D4 augmentation; its full
+A 3-seed hyperparameter search since reached **39.30 dB** with D4 augmentation. Its full
 moment-map validation, the classical-baseline comparison, the architecture comparison and the
-conditional-DDPM result are all in the midterm write-up:
-**[BLOG_MIDTERM.md](BLOG_MIDTERM.md)** (also rendered as [`blog_midterm.html`](blog_midterm.html)
-and [`blog_midterm_blogger.html`](blog_midterm_blogger.html)), with the fuller
-**[MIDTERM_REPORT.md](MIDTERM_REPORT.md)** covering the same ground in more depth.
+conditional-DDPM result are in `notebooks/` and `results/RUNS.md` — see below.
 
 ---
 
@@ -56,11 +53,7 @@ and [`blog_midterm_blogger.html`](blog_midterm_blogger.html)), with the fuller
 DENOISING_DIFFUSION/
 ├── README.md                      # this file
 ├── MODELS.md                      # every checkpoint referenced, and where it lives
-├── BLOG_MIDTERM.md                # the midterm write-up (+ rendered, self-contained HTML)
-├── MIDTERM_REPORT.md              # the fuller results write-up
-├── ARCHITECTURE.md                # architecture documentation
-├── BEAM_AND_SWEEP.md              # beam conditioning + sweep design notes
-├── context.md                     # project state as of the midterm
+├── requirements.txt
 │
 ├── notebooks/                     # the five notebooks AS THEY RAN, outputs intact
 │   ├── 05-unet-line-emission.ipynb        (v21)
@@ -97,13 +90,13 @@ DENOISING_DIFFUSION/
     ├── RUNS.md                    # every number, mapped to the run that produced it
     ├── PROGRESS.md                # chronological log: runs, arrivals, bugs
     └── <notebook>/<version>/      # the run behind each notebooks/ entry above:
-                                    # log, figures, and a README explaining the run
+                                    # figures and a README explaining the run
 ```
 
 `results/` on this branch holds only the run behind each notebook in `notebooks/` — one
 folder per notebook. `results/RUNS.md` records the full history in text, back to week 1; the
-intermediate runs' logs and figures, and the week-by-week `progress.md`, are on `midterm-prep`,
-not duplicated here.
+intermediate runs' logs, figures and the write-up prose are on `midterm-prep`, not
+duplicated here.
 
 ---
 
@@ -161,8 +154,8 @@ The ones that matter for reading this branch:
 
 ## Status and history
 
-`context.md` (project state as of the midterm) and `results/RUNS.md` (every number, mapped to
-its run) track the project from community bonding through submission. Condensed:
+`results/RUNS.md` maps every number in this branch to the run that produced it, and
+`results/PROGRESS.md` is the chronological log. Condensed:
 
 | Phase | Outcome |
 |---|---|
