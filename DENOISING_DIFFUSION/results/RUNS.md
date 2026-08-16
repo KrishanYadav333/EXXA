@@ -129,7 +129,17 @@ two families was ever like for like.
 | winner + patience 10 | 39.27 | +33.5 ± 9.6 | +70.7 ± 6.7 | +31.8 ± 11.1 |
 | sweep winner (4 seeds, incl. 49) | 37.52 | +11.4 ± 27.4 | +55.6 ± 9.0 | +6.0 ± 35.1 |
 | v12_cfg | 37.60 | −4.4 ± 33.9 | +58.0 ± 20.0 | +15.5 ± 31.2 |
-| winner + beam (1 seed) | 38.71 | **−95.7** | +14.1 | −27.3 |
+| winner + beam (1 seed) | 38.71 | ~~−95.7~~ **RETRACTED** | ~~+14.1~~ | ~~−27.3~~ |
+
+**The beam arm's moment scores are withdrawn.** `denoise_cube` never passed the beam
+vector, and `UNet.forward` ignores `beam=None` silently (it asserts only in the opposite
+direction), so this row was measured with the model's conditioning branch dead. The PSNR
+in the same row is sound, because section 4 does pass the beam, which is exactly why the
+row looked like a dramatic pixel-vs-science split. On a toy beam model the vector shifts
+the output by 0.025 mean absolute, so the two paths were scoring different functions.
+Fixed in the notebook; the arm needs re-scoring before any of these three numbers is
+quoted again. Nothing else in this table is affected -- the other arms are `beam_dim=0`.
+
 | winner, 64px patches (1 seed) | 33.96 | −40.8 | +43.9 | +18.5 |
 
 **These are a third metric generation and are not comparable to v2's or v4's numbers.** Use
