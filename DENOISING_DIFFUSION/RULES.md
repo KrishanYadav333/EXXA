@@ -242,3 +242,28 @@ Checklist per run, before the session's Output expires:
 - `README.md` — the Kaggle version, what changed since the last run, the headline numbers,
   and for a failure: the error, where it hit, and what survived
 - a row in `results/RUNS.md` pointing at the folder
+
+## 11. Log progress the moment a run ends, a notebook lands, or a bug appears
+
+`results/PROGRESS.md` is the chronological record: what was attempted, what happened, what
+it cost, and what it changed. `RUNS.md` answers "which run produced this number"; PROGRESS
+answers "what state is this project in and how did it get here". They are different
+questions and one file cannot do both.
+
+Write an entry on any of three triggers, at the time, not later:
+
+1. **A notebook run finishes**, successfully or not.
+2. **A notebook is downloaded into the repo** after a run. This is also the moment to check
+   whether Kaggle's copy reverted committed cells (rule 2) and to archive it (rule 10).
+3. **A bug is found**, in a notebook, in `src/`, or in a number already published.
+
+An entry is five lines at most: date, trigger, what happened, the evidence, the consequence.
+A bug entry names what was wrong, how it was caught, and which published numbers it touches.
+The last part is the one that matters. `winner_beam`'s M0 sat in RUNS.md and in the blog as
+a finding for days before anyone noticed it had been measured with the model's conditioning
+branch dead, and nothing in the repo recorded that the number was ever in question.
+
+The cost of skipping this is not tidiness. Twice now a run has been repeated because the
+previous attempt's outcome was in a chat log rather than in the repo, and v19's and v20's
+notebooks were lost because nothing prompted anyone to file them while the Output still
+existed.

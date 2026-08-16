@@ -7,7 +7,7 @@ creating or changing any notebook in this repo.** Read it first, not after a rev
 the same bug again. Each rule names the run that was lost to it, so a violation costs
 hours of GPU time that have already been paid once.
 
-The ten rules, in short — the file has the incident behind each:
+The eleven rules, in short — the file has the incident behind each:
 
 1. **Persist a trained model the instant it finishes training**, never in a cleanup cell.
    `CKPT_DIR` is inside the git clone, which the bootstrap wipes and which is not part of
@@ -42,6 +42,11 @@ The ten rules, in short — the file has the incident behind each:
     figures, and a README. `<N>` is the Kaggle version, which only the author or Kaggle's
     push commit knows. A failed run is archived the same way with the error and what
     survived. v19 and v20 were filed without their notebooks and those copies are gone.
+11. **Log progress the moment a run ends, a notebook lands, or a bug appears.**
+    `results/PROGRESS.md` is the chronological record; `RUNS.md` maps numbers to runs, this
+    maps the project to its history. A bug entry names what was wrong, how it was caught,
+    and **which published numbers it touches**. `winner_beam`'s M0 sat in RUNS.md and the
+    blog as a finding before anyone noticed it was measured with a dead branch.
 
 ## Before every Kaggle run
 
@@ -65,4 +70,6 @@ The ten rules, in short — the file has the incident behind each:
   cells; run it after editing a notebook.
 - `DENOISING_DIFFUSION/results/RUNS.md` — the run index. The record of what produced which
   number.
+- `DENOISING_DIFFUSION/results/PROGRESS.md` — the chronological log: runs, arrivals,
+  bugs, and which published numbers each bug touches.
 - Work happens on `midterm-prep`. Leave `line-emission` untouched.
