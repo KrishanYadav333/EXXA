@@ -1,6 +1,6 @@
 # Notebooks, as they ran
 
-Each file here is the **executed** copy — real cell outputs, not a re-runnable script. Same
+Each file here is the **executed** copy, real cell outputs, not a re-runnable script. Same
 code that produced the midterm's numbers; this is the evidence it ran and what it produced.
 
 | notebook | run | what it establishes |
@@ -14,7 +14,7 @@ code that produced the midterm's numbers; this is the evidence it ran and what i
 **On 05 v21 specifically:** its `winner_beam` arm was scored without feeding the trained beam
 vector back in at inference (`UNet.forward` ignores a missing one silently), which understates
 that arm's moment scores. The fix and the corrected number are on `midterm-prep`, not in this
-notebook — see the note in `../MODELS.md` and `../results/RUNS.md`.
+notebook, see the note in `../MODELS.md` and `../results/RUNS.md`.
 
 Full provenance, per-run READMEs, and every figure these produced are under
 `../results/<notebook-name>/`. This folder is the five notebooks pulled into one place with

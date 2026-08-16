@@ -8,14 +8,14 @@ Entry format: **date | trigger | notebook** then what happened, the evidence, th
 consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), `bug`.
 
 > **On this branch:** this log's entries below (v19 crash, v20, the CSV bug, v22, v24 beam
-> fix) are kept as the historical record, but only v21's run folder is archived here — see
+> fix) are kept as the historical record, but only v21's run folder is archived here, see
 > the note in `RUNS.md`. The beam-scoring fix these entries describe is on `midterm-prep`,
 > not applied to the v21 notebook in this branch's `notebooks/`.
 
 
 ---
 
-## 2026-08-17 | run + added | 05 Kaggle Version 24 — beam arm re-scored, the bug was real
+## 2026-08-17 | run + added | 05 Kaggle Version 24: beam arm re-scored, the bug was real
 
 First run with `denoise_cube()` passing the beam vector. No training.
 
@@ -38,7 +38,7 @@ which stays as written; corrected in RUNS.md and in the v24 README.
 Kaggle auto-pushed again mid-commit. Checked before merging, per rule 2: no fix reverted,
 all five probes intact. Notebook archived with outputs, per rule 10.
 
-## 2026-08-17 | bug | 05 — beam arm scored without its beam vector
+## 2026-08-17 | bug | 05: beam arm scored without its beam vector
 
 `denoise_cube()` never passed a beam vector, and `UNet.forward` ignores `beam=None`
 silently (it asserts only in the opposite direction), so `winner_beam` was scored on moments
@@ -63,7 +63,7 @@ Same review found `winner_patch`'s PSNR measured on 64px crops while every other
 256px full images, putting 33.96 dB in a column of 37 to 39. Also fixed; PSNR now uses a
 common full-image set.
 
-## 2026-08-17 | run + added | 05 Kaggle Version 22 — artifact diagnostics complete
+## 2026-08-17 | run + added | 05 Kaggle Version 22: artifact diagnostics complete
 
 Sections 7 and 8 finished for the first time. No training, no new moment scores; the moment
 table is identical to v20's. 300 validation channels analysed, and the per-channel CSV
@@ -80,7 +80,7 @@ had **not** reverted any code fix, only re-added stored outputs. Rebased, kept t
 notebook. That push is also what revealed the run was Kaggle Version 22, not the v21 it had
 been filed as; folder renamed.
 
-## 2026-08-16 | bug | 05 — section 7 CSV write discarded the whole diagnostic
+## 2026-08-16 | bug | 05: section 7 CSV write discarded the whole diagnostic
 
 `channel_artifacts()` returns `n_background_px`; the hand-kept `fieldnames` list did not
 include it, and `DictWriter` raises only at write time. All 300 channels were analysed and
@@ -89,7 +89,7 @@ printed, then thrown away at the last line.
 **Fixed** by deriving columns from the data. `n_background_px` is the field that should never
 have been dropped: it is the denominator RULES.md #8 exists to make you check.
 
-## 2026-08-14 | run + added | 05 v20 — first U-Net scores on the DDPM's metric
+## 2026-08-14 | run + added | 05 v20: first U-Net scores on the DDPM's metric
 
 Zero arms trained. 12 checkpoints restored from 08, 3 from v19's Output, `winner_patch`
 scored from stored weights, 15 rows over 6 arms. The whole session went to section 6.
@@ -104,7 +104,7 @@ Two negative results, both kept: beam conditioning worst on M0 (later retracted,
 **Notebook not archived.** Lost. Kaggle did not auto-push this version and the local copy was
 stripped before the gap was noticed. Part of why RULES.md #10 exists.
 
-## 2026-08-14 | run | 05 v19 — crashed at 4.0 h, no moment scores
+## 2026-08-14 | run | 05 v19: crashed at 4.0 h, no moment scores
 
 `DeadKernelError` at 14413s, inside Kaggle's 12 h limit, so a crash rather than a timeout.
 `ConnectionResetError: [Errno 104] Connection reset by peer` in

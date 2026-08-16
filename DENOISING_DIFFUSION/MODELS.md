@@ -4,7 +4,7 @@ None of these are in this branch. Every checkpoint used in the midterm is at lea
 (the DDPM's is 332 MB), `.pth`/`.ckpt`/`.pth.tar` are gitignored project-wide, and RULES.md
 #3 exists specifically because a checkpoint uploaded the wrong way to Kaggle becomes
 unusable. The real home for a checkpoint is the Kaggle Notebook Output (or Dataset) that
-produced it, per notebook 05/06's own `_import_*` restore logic — not git.
+produced it, per notebook 05/06's own `_import_*` restore logic, not git.
 
 This file is the substitute: which checkpoint, from which run, with the numbers that
 identify it, so anyone can find the right one on Kaggle without guessing.
@@ -12,7 +12,7 @@ identify it, so anyone can find the right one on Kaggle without guessing.
 ## U-Net (notebook 05 / 08)
 
 12 core checkpoints trained once in notebook 08, reused everywhere since (05, the moment
-tables). The numbers below come from that run's `seed_repeats.csv` — 08's Kaggle version at
+tables). The numbers below come from that run's `seed_repeats.csv`, 08's Kaggle version at
 commit `1ca611f`, whose folder (`v4_2026-08-02T0421_1ca611f/`) is on `midterm-prep`; this
 branch archives 08 v2, which reuses the same twelve checkpoints and reports the same
 per-run PSNRs.
@@ -46,7 +46,7 @@ scored it without feeding the trained beam vector back in at inference, which si
 the model with its conditioning branch dead (`UNet.forward` ignores `beam=None`). The fix
 and the corrected score (M0 −95.7% → +9.6%, a 105-point swing) are on `midterm-prep`
 (commit `a2af521` fixes it, run `v24` re-scores it) but excluded from this snapshot by
-request — this branch is v21 as it stood at submission. See `results/RUNS.md` on
+request, this branch is v21 as it stood at submission. See `results/RUNS.md` on
 `midterm-prep` for the full correction if you need the accurate number.
 
 **Architecture**: `base_channels=48, channel_multipliers=(1,2,4,8)` for winner/winner_aug/
@@ -64,7 +64,7 @@ Definition: `DENOISING_DIFFUSION/src/training/diffusion.py`.
 ## Getting a checkpoint
 
 They live in each notebook's Kaggle Output, or in the Datasets built to move them across
-Kaggle accounts (`exxa-nb08-checkpoints-v4`, `exxa-nb05-checkpoints-v19`) — see
+Kaggle accounts (`exxa-nb08-checkpoints-v4`, `exxa-nb05-checkpoints-v19`), see
 `DENOISING_DIFFUSION/RULES.md` #1 and #3 on `midterm-prep` for why they are never in git,
 and `notebooks/05-unet-line-emission.ipynb` (`_import_nb08`, `_import_prior_nb05`) for the
 actual restore code.

@@ -1,11 +1,11 @@
-# EXXA — Denoising Astronomical Observations of Protoplanetary Disks
+# EXXA: Denoising Astronomical Observations of Protoplanetary Disks
 
 Machine-learning pipeline for denoising synthetic ALMA observations of protoplanetary disks,
 evaluated on the moment maps astronomers actually use rather than pixel metrics alone.
 
-**GSoC 2026 · ML4Sci · EXXA** — Krishan Yadav, mentored by Jason Terry and Gaurav S.
+**GSoC 2026 · ML4Sci · EXXA**, Krishan Yadav, mentored by Jason Terry and Gaurav S.
 
-> **This branch, `midterm_completed`, is a frozen submission snapshot** — the five notebooks
+> **This branch, `midterm_completed`, is a frozen submission snapshot**, the five notebooks
 > that produced the midterm's numbers, real outputs intact, plus the library and results
 > behind them. It is not where development happens (that is `midterm-prep`) and it is not
 > kept up to date after submission. Everything for this deliverable lives under this one
@@ -27,7 +27,7 @@ over finite pixels), averaged over 5 inference-only holdout cubes ± standard de
 
 A 3-seed hyperparameter search since reached **39.30 dB** with D4 augmentation. Its full
 moment-map validation, the classical-baseline comparison, the architecture comparison and the
-conditional-DDPM result are in `notebooks/` and `results/RUNS.md` — see below.
+conditional-DDPM result are in `notebooks/` and `results/RUNS.md`, see below.
 
 ---
 
@@ -35,14 +35,14 @@ conditional-DDPM result are in `notebooks/` and `results/RUNS.md` — see below.
 
 - **The noise is structured.** A "dirty" interferometric image carries correlated PSF/sidelobe
   artifacts from sparse *uv*-coverage, not independent per-pixel noise.
-- **The data is 3D.** Line-emission cubes are `(201, 600, 600)` — 201 velocity channels — and
+- **The data is 3D.** Line-emission cubes are `(201, 600, 600)`, 201 velocity channels, and
   the scientific product is the moment maps computed over the *whole* cube, not any single
   channel.
 - **Pixel metrics can mislead.** Several results in this project improved PSNR while degrading
-  the moment maps — a beam-conditioning A/B, and the conditional DDPM's ~1 dB PSNR gap
+  the moment maps, a beam-conditioning A/B, and the conditional DDPM's ~1 dB PSNR gap
   against an M0 deficit two orders of magnitude larger. Evaluation is moment-map-first.
 - **Normalisation must be invertible at inference.** Normalising the clean target by its own
-  statistics — unavailable at real inference — once produced M0 −6402% while per-channel SSIM
+  statistics, unavailable at real inference, once produced M0 −6402% while per-channel SSIM
   looked healthy.
 
 ---
@@ -93,7 +93,7 @@ DENOISING_DIFFUSION/
                                     # figures and a README explaining the run
 ```
 
-`results/` on this branch holds only the run behind each notebook in `notebooks/` — one
+`results/` on this branch holds only the run behind each notebook in `notebooks/`, one
 folder per notebook. `results/RUNS.md` records the full history in text, back to week 1; the
 intermediate runs' logs, figures and the write-up prose are on `midterm-prep`, not
 duplicated here.
@@ -123,7 +123,7 @@ Tests use synthetic arrays and need no data download.
 ### Reproducing a run
 
 The line-emission FITS cubes (14 cubes, 11 RunIDs, ~7.6 GB) and every trained checkpoint are
-**not in git** — see [MODELS.md](MODELS.md) for what each checkpoint is and where it lives.
+**not in git**, see [MODELS.md](MODELS.md) for what each checkpoint is and where it lives.
 Each notebook bootstraps itself by cloning the repository, so a run is reproducible from a
 blank Kaggle kernel:
 
@@ -137,16 +137,16 @@ Compute used throughout: Kaggle dual Tesla T4 with `DataParallel`.
 
 ## Conventions
 
-Project rules, not preferences — each exists because breaking it cost a result. The full list
+Project rules, not preferences, each exists because breaking it cost a result. The full list
 with the incident behind each is `RULES.md` on `midterm-prep` (not on this snapshot branch).
 The ones that matter for reading this branch:
 
 - **Cube-level splitting is mandatory.** Hold out whole cubes grouped by RunID; RT variants of
   one simulation are near-duplicates and leak if split.
-- **Holdout cubes are inference-only** — never touched by training or validation.
+- **Holdout cubes are inference-only**, never touched by training or validation.
 - **Moment-map results are averaged over all 5 holdout cubes with a standard deviation.**
 - **Normalise using only statistics available at inference time.**
-- **Numbers are traced to the run that produced them** — see `results/RUNS.md`, and the
+- **Numbers are traced to the run that produced them**, see `results/RUNS.md`, and the
   attribution note at the top of every notebook's run folder.
 - `seed=42` throughout; cast `dirty` arrays to `float32` on load.
 

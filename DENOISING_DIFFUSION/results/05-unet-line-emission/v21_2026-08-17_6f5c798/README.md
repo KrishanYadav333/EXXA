@@ -1,4 +1,4 @@
-# 05 v22 (Kaggle Version 22) — code `6f5c798` — sections 7-8 complete for the first time
+# 05 v22 (Kaggle Version 22): code `6f5c798`, sections 7-8 complete for the first time
 
 Re-run purely to finish the artifact diagnostics. Section 7's CSV write had been failing on
 a missing `n_background_px` column *after* the whole 300-channel analysis had run, so the
@@ -8,7 +8,7 @@ result was printed and then thrown away. Fixed in `6f5c798`; this run saved it.
 08, `winner_patch` scored from stored weights, 15 rows over 6 arms. The moment table is
 identical to v20's. Everything new here is in sections 7-8.
 
-## Artifact diagnostics — `sweep_winner_p10` seed 42, 300 validation channels
+## Artifact diagnostics: `sweep_winner_p10` seed 42, 300 validation channels
 
 ```
 PEAK OVERSHOOT   denoised.max / clean.max
