@@ -31,16 +31,21 @@ moment tables). Source: 08 Kaggle Version producing commit `1ca611f`
 | winner_p10 | 44 | 54 | 0.000809 | 39.830 | 0.99427 |
 
 3 more, trained in notebook 05 directly (`sweep_winner` seed 49, `winner_beam`,
-`winner_patch`, all seed 42). Source: `results/05-unet-line-emission/v19_2026-08-14_crashed/`
-(the run that trained them) and `v24_2026-08-17_beamfix/` (the run that scored them
-correctly). `winner_beam` needed its beam vector fed at scoring time — see RUNS.md — the
-checkpoint itself was never wrong, only how it was evaluated.
+`winner_patch`, all seed 42). Source: `results/05-unet-line-emission/v21_2026-08-17_6f5c798/`.
 
 | config | seed | best epoch | PSNR |
 |---|---|---|---|
 | sweep_winner | 49 | 11 | 36.162 |
 | winner_beam | 42 | 24 | 38.710 |
-| winner_patch | 42 | 21 | 34.980 |
+| winner_patch | 42 | 21 | 33.960 |
+
+**`winner_beam`'s checkpoint is fine; its moment-map score on this branch is not.** v21
+scored it without feeding the trained beam vector back in at inference, which silently ran
+the model with its conditioning branch dead (`UNet.forward` ignores `beam=None`). The fix
+and the corrected score (M0 −95.7% → +9.6%, a 105-point swing) are on `midterm-prep`
+(commit `a2af521` fixes it, run `v24` re-scores it) but excluded from this snapshot by
+request — this branch is v21 as it stood at submission. See `results/RUNS.md` on
+`midterm-prep` for the full correction if you need the accurate number.
 
 **Architecture**: `base_channels=48, channel_multipliers=(1,2,4,8)` for winner/winner_aug/
 winner_p10/winner_beam/winner_patch; `base_channels=32, (1,2,4)` for v12. `beam_dim=4` only
