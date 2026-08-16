@@ -129,16 +129,17 @@ two families was ever like for like.
 | winner + patience 10 | 39.27 | +33.5 ± 9.6 | +70.7 ± 6.7 | +31.8 ± 11.1 |
 | sweep winner (4 seeds, incl. 49) | 37.52 | +11.4 ± 27.4 | +55.6 ± 9.0 | +6.0 ± 35.1 |
 | v12_cfg | 37.60 | −4.4 ± 33.9 | +58.0 ± 20.0 | +15.5 ± 31.2 |
-| winner + beam (1 seed) | 38.71 | ~~−95.7~~ **RETRACTED** | ~~+14.1~~ | ~~−27.3~~ |
+| winner + beam (1 seed) | 38.71 | **+9.6** | **+63.2** | **+20.9** |
 
-**The beam arm's moment scores are withdrawn.** `denoise_cube` never passed the beam
-vector, and `UNet.forward` ignores `beam=None` silently (it asserts only in the opposite
-direction), so this row was measured with the model's conditioning branch dead. The PSNR
-in the same row is sound, because section 4 does pass the beam, which is exactly why the
-row looked like a dramatic pixel-vs-science split. On a toy beam model the vector shifts
-the output by 0.025 mean absolute, so the two paths were scoring different functions.
-Fixed in the notebook; the arm needs re-scoring before any of these three numbers is
-quoted again. Nothing else in this table is affected -- the other arms are `beam_dim=0`.
+**The beam arm's moment scores were re-measured in Kaggle Version 24 and the row above is
+the corrected one.** The original −95.7 / +14.1 / −27.3 came from scoring a beam-conditioned
+model without its beam vector: `denoise_cube` never passed one and `UNet.forward` ignores
+`beam=None` silently. Section 4 did pass it, which is why the PSNR was sound and the row
+looked like a dramatic pixel-vs-science split. Corrected, M0 moves **+105 points** and M2
+changes sign. Beam conditioning is therefore **not refuted**, it is positive on all three
+moments and simply below the winner at one seed. Four of five cubes are strongly positive;
+`run_0025_01000_rt_04` at −133.8% carries the whole deficit.
+See [`v24_.../`](05-unet-line-emission/v24_2026-08-17_beamfix/).
 
 | winner, 64px patches (1 seed) | 33.96 | −40.8 | +43.9 | +18.5 |
 

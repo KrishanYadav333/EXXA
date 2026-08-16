@@ -9,6 +9,29 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-08-17 | run + added | 05 Kaggle Version 24 — beam arm re-scored, the bug was real
+
+First run with `denoise_cube()` passing the beam vector. No training.
+
+```
+winner_beam            M0        M1        M2
+before (no vector)   -95.7%    +14.1%    -27.3%
+after  (with it)      +9.6%    +63.2%    +20.9%
+```
+
+**M0 moves 105 points and M2 changes sign.** Four of five cubes are strongly positive on M0;
+`run_0025_01000_rt_04` at −133.8% carries the whole deficit alone.
+
+**Consequence:** beam conditioning is **not refuted**. It is positive on all three moments
+and simply below the winner at one seed. The earlier reading, second-best PSNR paired with
+the worst M0 in the table, was an artifact. That reading is in the submitted midterm blog,
+which stays as written; corrected in RUNS.md and in the v24 README.
+
+`winner_patch` PSNR 33.96 -> 34.98 on the common full-image set. Moments unchanged.
+
+Kaggle auto-pushed again mid-commit. Checked before merging, per rule 2: no fix reverted,
+all five probes intact. Notebook archived with outputs, per rule 10.
+
 ## 2026-08-17 | bug | 05 — beam arm scored without its beam vector
 
 `denoise_cube()` never passed a beam vector, and `UNet.forward` ignores `beam=None`
