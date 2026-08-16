@@ -18,10 +18,11 @@ folder's ordering label, not a verified version.
 
 ## Files
 
+The notebook as executed, with its full stdout in the cell outputs, is in
+`../../../notebooks/08-seeds-and-augmentation.ipynb` rather than duplicated here.
+
 | file | what |
 |---|---|
-| `08-seeds-and-augmentation.ipynb` | the notebook as executed, outputs intact |
-| `run_log.txt` | full stdout, **extracted from the notebook's cell outputs** — this run's log was never downloaded from Kaggle, so the notebook was its only copy |
 | `figure_cell24.png` | the per-seed spread plot |
 
 ## Why this run still matters

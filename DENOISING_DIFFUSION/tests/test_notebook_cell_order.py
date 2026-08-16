@@ -138,10 +138,12 @@ print("=" * 70)
 print("Notebook cell-order check (names must be defined by an earlier cell)")
 print("=" * 70)
 
-notebooks = sorted(glob.glob(os.path.join(REPO_ROOT, "*.ipynb")))
-if not notebooks:
-    print("no notebooks found at repo root")
-    sys.exit(0)
+# Two layouts: notebooks sit at the repo root on the working branches, and under
+# DENOISING_DIFFUSION/notebooks/ on the frozen submission snapshot. Search both, or this
+# check silently passes while inspecting nothing.
+notebooks = sorted(glob.glob(os.path.join(REPO_ROOT, "*.ipynb"))
+                   + glob.glob(os.path.join(REPO_ROOT, "DENOISING_DIFFUSION",
+                                            "notebooks", "*.ipynb")))
 
 total = 0
 for nb_path in notebooks:
@@ -156,8 +158,17 @@ for nb_path in notebooks:
         print(f"          cell {idx}: {', '.join(names)}")
 
 print("-" * 70)
+if not notebooks:
+    print("no notebooks found -- nothing was checked")
 if total:
     print(f"{total} name(s) used before definition -- a fresh Run All would crash")
-    sys.exit(1)
-print("All notebooks PASSED: every cell's names resolve from earlier cells")
+else:
+    print("All notebooks PASSED: every cell's names resolve from earlier cells")
 print("=" * 70)
+
+# pytest imports this module to collect it, and a bare sys.exit() at module scope aborts
+# the whole run with INTERNALERROR. Exit only when run as a script.
+if __name__ == "__main__":
+    sys.exit(1 if total else 0)
+else:
+    assert not total, f"{total} name(s) used before definition"

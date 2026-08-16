@@ -11,10 +11,11 @@ V12's +69.8 / +17.5 / +20.1. See RUNS.md for the per-cube breakdown and the diag
 
 ## Files
 
+The notebook as executed, with its full stdout in the cell outputs, is in
+`../../../notebooks/06-ddpm-line-emission.ipynb` rather than duplicated here.
+
 | file | what |
 |---|---|
-| `06-ddpm-line-emission.ipynb` | the notebook as executed, outputs intact |
-| `run_log.txt` | full stdout |
 | `ddpm_objective_sweep.csv` | the four objective arms |
 | `ddpm_seed_repeats.csv` | the 60-epoch run |
 | `moment_map_holdout_summary_ddpm.csv` | per-cube moments, masked **and** unmasked |

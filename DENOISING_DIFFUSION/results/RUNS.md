@@ -207,7 +207,7 @@ gives **37.97 ± 0.90 dB**, a band that contains 37.109 comfortably — and V12'
 migrates older CSVs on open, backfilling `seed` as `base_seed + run`.
 
 **V12's headline moment figures are not in any committed CSV.** `+69.8% ±15.2 / +17.5% ±7.8
-/ +20.1% ±14.3` is quoted in `readme.md`, `MIDTERM_REPORT.md`, `context.md` and hardcoded as
+/ +20.1% ±14.3` is quoted in the write-up docs (on `midterm-prep`) and hardcoded as
 a `V12 = {...}` dict in notebooks 07/08/09, but the only moment CSV in the entire git history
 is the beam variant (+59.83). What was downloaded for v12 is figures, not the table.
 **Correction:** an earlier note here claimed 08 v4 superseded it with "M0 +71.9% ±10.3".
@@ -410,8 +410,8 @@ all.
 run reuses the same 12 checkpoints, so training numbers never change). The moment and
 artifact CSVs previously filed here did **not** match v4's log and came from an earlier
 session; they are in [`superseded_pre-artifacts-fix/`](08-seeds-and-augmentation/superseded_pre-artifacts-fix/).
-v4's own values are in its `run_log.txt` and in the tables below, pending a download of the
-CSVs themselves.
+v4's own values are in its run log (on `midterm-prep`) and in the tables below, pending a
+download of the CSVs themselves.
 
 | arm | PSNR | M0 | M1 | M2 (pre-fix) |
 |---|---|---|---|---|

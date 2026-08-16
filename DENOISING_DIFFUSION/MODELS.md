@@ -11,9 +11,11 @@ identify it, so anyone can find the right one on Kaggle without guessing.
 
 ## U-Net (notebook 05 / 08)
 
-12 core checkpoints trained once in notebook 08, reused everywhere since (05, the blog's
-moment tables). Source: 08 Kaggle Version producing commit `1ca611f`
-(`results/08-seeds-and-augmentation/v4_2026-08-02T0421_1ca611f/`).
+12 core checkpoints trained once in notebook 08, reused everywhere since (05, the moment
+tables). The numbers below come from that run's `seed_repeats.csv` — 08's Kaggle version at
+commit `1ca611f`, whose folder (`v4_2026-08-02T0421_1ca611f/`) is on `midterm-prep`; this
+branch archives 08 v2, which reuses the same twelve checkpoints and reports the same
+per-run PSNRs.
 
 | config | seed | best epoch | val loss | PSNR | SSIM |
 |---|---|---|---|---|---|
