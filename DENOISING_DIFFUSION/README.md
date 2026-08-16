@@ -60,7 +60,7 @@ DENOISING_DIFFUSION/
 ├── MIDTERM_REPORT.md              # the fuller results write-up
 ├── ARCHITECTURE.md                # architecture documentation
 ├── BEAM_AND_SWEEP.md              # beam conditioning + sweep design notes
-├── context.md, progress.md        # project state and the week-by-week run log
+├── context.md                     # project state as of the midterm
 │
 ├── notebooks/                     # the five notebooks AS THEY RAN, outputs intact
 │   ├── 05-unet-line-emission.ipynb        (v21)
@@ -101,8 +101,9 @@ DENOISING_DIFFUSION/
 ```
 
 `results/` on this branch holds only the run behind each notebook in `notebooks/` — one
-folder per notebook. `RUNS.md` and `progress.md` still record the full history in text, back
-to week 1; the intermediate runs' logs and figures are on `midterm-prep`, not duplicated here.
+folder per notebook. `results/RUNS.md` records the full history in text, back to week 1; the
+intermediate runs' logs and figures, and the week-by-week `progress.md`, are on `midterm-prep`,
+not duplicated here.
 
 ---
 
@@ -160,8 +161,8 @@ The ones that matter for reading this branch:
 
 ## Status and history
 
-`progress.md` (newest-first run log) and `context.md` (project state as of the midterm) track
-the project week by week from community bonding through submission. Condensed:
+`context.md` (project state as of the midterm) and `results/RUNS.md` (every number, mapped to
+its run) track the project from community bonding through submission. Condensed:
 
 | Phase | Outcome |
 |---|---|
