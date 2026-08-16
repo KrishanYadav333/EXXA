@@ -1,4 +1,4 @@
-# 05 v21 — code `6f5c798` — sections 7-8 complete for the first time
+# 05 v22 (Kaggle Version 22) — code `6f5c798` — sections 7-8 complete for the first time
 
 Re-run purely to finish the artifact diagnostics. Section 7's CSV write had been failing on
 a missing `n_background_px` column *after* the whole 300-channel analysis had run, so the

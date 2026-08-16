@@ -7,7 +7,7 @@ creating or changing any notebook in this repo.** Read it first, not after a rev
 the same bug again. Each rule names the run that was lost to it, so a violation costs
 hours of GPU time that have already been paid once.
 
-The nine rules, in short — the file has the incident behind each:
+The ten rules, in short — the file has the incident behind each:
 
 1. **Persist a trained model the instant it finishes training**, never in a cleanup cell.
    `CKPT_DIR` is inside the git clone, which the bootstrap wipes and which is not part of
@@ -37,6 +37,11 @@ The nine rules, in short — the file has the incident behind each:
 9. **Check which branch the kernel pulled — it decides the metric.** 05 bootstraps from
    `line-emission`, which has none of the moment fixes; 08 pulls `midterm-prep`, which has
    all three. Their numbers are not comparable. Work happens on `midterm-prep`.
+10. **Archive the notebook itself with every run, failures included.** The run folder holds
+    the notebook *as it ran, outputs intact*, not the stripped repo copy, plus its log,
+    figures, and a README. `<N>` is the Kaggle version, which only the author or Kaggle's
+    push commit knows. A failed run is archived the same way with the error and what
+    survived. v19 and v20 were filed without their notebooks and those copies are gone.
 
 ## Before every Kaggle run
 

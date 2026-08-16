@@ -211,3 +211,34 @@ Work happens on `midterm-prep`. Every notebook's bootstrap must name that branch
 `HEAD is now at ...` line must be read as a claim about `src/`, checked against the fixes
 the run depends on. Before comparing two notebooks' numbers, confirm they pulled the same
 branch.
+
+## 10. Archive the notebook itself with every run, failures included
+
+Every run gets a folder under `results/<notebook>/v<N>_<date>_<sha>/` containing **the
+notebook as it ran, outputs intact**, alongside its log and figures. Not the stripped copy
+committed at the repo root: the one Kaggle produced, with its cell outputs still in it.
+
+`<N>` is the **Kaggle version number**, not a local counter. The kernel cannot see it, so it
+has to come from the author or from Kaggle's own push commit
+(`Kaggle Notebook | <slug> | Version N`). The diagnostics run was filed as `v21` and was
+actually Version 22; the folder had to be renamed once the push commit revealed it.
+
+**A run that failed is archived the same way, plus what broke.** The README records the
+error verbatim, the cell it came from, how far the run got, and what was salvageable. A
+crashed run is evidence: v19 died after four hours and its log is the only record that the
+patch arm's epochs were drifting upward before the kernel was reaped.
+
+The reason is that a stripped notebook plus a log is not the run. The outputs carry figures
+never written to disk, the exact traceback, the execution counts that show what actually
+ran, and the papermill timings. v19 and v20 were archived without their notebooks and those
+copies are simply gone, because Kaggle only auto-pushes some saves and the local file was
+stripped before anyone noticed.
+
+Checklist per run, before the session's Output expires:
+
+- `05-unet-line-emission.ipynb` — as it ran, outputs intact
+- `run_log.txt` — stdout, extracted from the cell outputs if never downloaded separately
+- every figure the run produced
+- `README.md` — the Kaggle version, what changed since the last run, the headline numbers,
+  and for a failure: the error, where it hit, and what survived
+- a row in `results/RUNS.md` pointing at the folder
