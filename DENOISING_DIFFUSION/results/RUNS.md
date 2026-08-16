@@ -27,20 +27,20 @@ Full lineage, recovered from every branch (`line-emission`, `midterm-prep`, `wee
 
 | Ver | Date (UTC) | code | push | PSNR | Holdout M0 | Artifacts |
 |----:|---|---|---|---|---|---|
-|, | 2026-06-24 19:42 | `a4ac1fe` | `27fa388` | 26.46 |, | [`baseline_.../`](05-unet-line-emission/baseline_2026-06-24T1942_a4ac1fe/), first run, 30 epochs |
-| #5 | 2026-06-26 17:15 | `f548947` | `d307a29` | 28.16 |, | [`v5_.../`](05-unet-line-emission/v5_2026-06-26T1715_f548947/) |
-| 6 | 2026-06-27 16:00 | `5ed8fc6` | `01aaf88` | 31.73 |, | [`v6_.../`](05-unet-line-emission/v6_2026-06-27T1600_5ed8fc6/) |
-| 7 | 2026-07-02 13:59 | `662fef5` | `95d9034` | 31.02 / 33.18 |, | [`v7_.../`](05-unet-line-emission/v7_2026-07-02T1359_662fef5/) · also in [`for_jason/`](for_jason/) |
-| 9 | 2026-07-02 18:39 | `7fa5fce` | `d0adb14` | 32.31 / 33.04 |, | [`v9_.../`](05-unet-line-emission/v9_2026-07-02T1839_7fa5fce/) · also in [`for_jason/`](for_jason/) |
-| **12** | 2026-07-10 19:28 | `c61d112` | `82abd23` | **32.95** | **+69.8% ±15.2** | [`v12_.../`](05-unet-line-emission/v12_2026-07-10T1928_c61d112/) · also in [`for_jason/`](for_jason/) |
-| 15 | 2026-07-26 04:42 | `09bfcb9` | `0307cc9` | 33.70 / 34.94 | +59.8% ±33.0 | [`v15_.../`](05-unet-line-emission/v15_2026-07-26T0442_09bfcb9/), recovered from git |
-| 16 | 2026-07-30 03:34 | `ef0a37b` | `227d2fc` | **30.28** | +64.4% ±14.6 (−5.4 pt) | [`v16_.../`](05-unet-line-emission/v16_2026-07-30T0334_ef0a37b/) |
-| 17 | 2026-08-02 04:13 | `227d2fc` | `7305455` | **29.92** | **+48.2% ±12.6 (−21.6 pt)** | [`v17_.../`](05-unet-line-emission/v17_2026-08-02T0413_227d2fc/), recovered from git |
-|, | 2026-07-30 00:48 | `2edd875` |, |, |, | [`analysis_.../`](05-unet-line-emission/analysis_2026-07-30T0048_2edd875/) |
-| **18** | 2026-08-11 | stale | `b24c84d` | **35.94** | **+81.2% ±12.6** | [`v18_.../`](05-unet-line-emission/v18_2026-08-11_b24c84d/) |
-| 19 | 2026-08-14 | `c899750` |, |, |, | [`v19_.../`](05-unet-line-emission/v19_2026-08-14_crashed/), **CRASHED** at 4.0 h, section 6 never ran, no moment scores |
-| **20** | 2026-08-14 | `c28b860` |, | 39.30 (aug) | **+29.2% ±7.2** (aug) | [`v20_.../`](05-unet-line-emission/v20_2026-08-14_c28b860/), **mask + clip**, 15 checkpoints, **zero training** |
-| 22 | 2026-08-17 | `6f5c798` |, | unchanged | unchanged | [`v21_.../`](05-unet-line-emission/v22_2026-08-17_6f5c798/), sections 7-8 only; artifact CSV finally saved |
+| | 2026-06-24 19:42 | `a4ac1fe` | `27fa388` | 26.46 | | `baseline_.../`, first run, 30 epochs |
+| #5 | 2026-06-26 17:15 | `f548947` | `d307a29` | 28.16 | | `v5_.../` |
+| 6 | 2026-06-27 16:00 | `5ed8fc6` | `01aaf88` | 31.73 | | `v6_.../` |
+| 7 | 2026-07-02 13:59 | `662fef5` | `95d9034` | 31.02 / 33.18 | | `v7_.../` · also in `for_jason/` |
+| 9 | 2026-07-02 18:39 | `7fa5fce` | `d0adb14` | 32.31 / 33.04 | | `v9_.../` · also in `for_jason/` |
+| **12** | 2026-07-10 19:28 | `c61d112` | `82abd23` | **32.95** | **+69.8% ±15.2** | `v12_.../` · also in `for_jason/` |
+| 15 | 2026-07-26 04:42 | `09bfcb9` | `0307cc9` | 33.70 / 34.94 | +59.8% ±33.0 | `v15_.../`, recovered from git |
+| 16 | 2026-07-30 03:34 | `ef0a37b` | `227d2fc` | **30.28** | +64.4% ±14.6 (−5.4 pt) | `v16_.../` |
+| 17 | 2026-08-02 04:13 | `227d2fc` | `7305455` | **29.92** | **+48.2% ±12.6 (−21.6 pt)** | `v17_.../`, recovered from git |
+| | 2026-07-30 00:48 | `2edd875` | | | | `analysis_.../` |
+| **18** | 2026-08-11 | stale | `b24c84d` | **35.94** | **+81.2% ±12.6** | `v18_.../` |
+| 19 | 2026-08-14 | `c899750` | | | | `v19_.../`, **CRASHED** at 4.0 h, section 6 never ran, no moment scores |
+| **20** | 2026-08-14 | `c28b860` | | 39.30 (aug) | **+29.2% ±7.2** (aug) | `v20_.../`, **mask + clip**, 15 checkpoints, **zero training** |
+| 21 | 2026-08-17 | `6f5c798` | | unchanged | unchanged | [`v21_.../`](05-unet-line-emission/v21_2026-08-17_6f5c798/), sections 7-8 only; artifact CSV finally saved |
 
 **v18 is the best 05 run to date, and the first with every moment positive on every cube.**
 M0 +81.2% ±12.6, M1 +31.5% ±9.2, M2 +19.9% ±18.8, 5/5 cubes positive on all three, against
@@ -119,7 +119,7 @@ also confirms that file belongs to v12.
 
 **`unet_line_emission_loss.png`, unattributed.** v7, v9 and v12 all write it, one copy was
 downloaded, and pixel matching cannot separate them (29.1 / 29.2 / 29.6). Parked in
-[`_unattributed/`](05-unet-line-emission/_unattributed/) rather than guessed.
+`_unattributed/` rather than guessed.
 
 ### v20: the first U-Net scores on the DDPM's metric
 
@@ -136,18 +136,19 @@ two families was ever like for like.
 | sweep winner (4 seeds, incl. 49) | 37.52 | +11.4 ± 27.4 | +55.6 ± 9.0 | +6.0 ± 35.1 |
 | v12_cfg | 37.60 | −4.4 ± 33.9 | +58.0 ± 20.0 | +15.5 ± 31.2 |
 | winner + beam (1 seed) | 38.71 | **+9.6** | **+63.2** | **+20.9** |
-
-**The beam arm's moment scores were re-measured in Kaggle Version 24 and the row above is
-the corrected one.** The original −95.7 / +14.1 / −27.3 came from scoring a beam-conditioned
-model without its beam vector: `denoise_cube` never passed one and `UNet.forward` ignores
-`beam=None` silently. Section 4 did pass it, which is why the PSNR was sound and the row
-looked like a dramatic pixel-vs-science split. Corrected, M0 moves **+105 points** and M2
-changes sign. Beam conditioning is therefore **not refuted**, it is positive on all three
-moments and simply below the winner at one seed. Four of five cubes are strongly positive;
-`run_0025_01000_rt_04` at −133.8% carries the whole deficit.
-See [`v24_.../`](05-unet-line-emission/v24_2026-08-17_beamfix/).
-
 | winner, 64px patches (1 seed) | 33.96 | −40.8 | +43.9 | +18.5 |
+
+**The beam row is the corrected one, and it will not match the notebook.** The v21 notebook
+in `notebooks/` prints −95.7 / +14.1 / −27.3 for that arm, because it was scored without its
+beam vector: `denoise_cube` never passed one, and `UNet.forward` ignores `beam=None` in
+silence. Section 4 did pass it, which is why the PSNR stayed sound and the row looked like a
+dramatic pixel-versus-science split rather than a bug. Re-measured properly, M0 moves 105
+points and M2 changes sign, so beam conditioning is not refuted at all. It is positive on all
+three moments and simply below the winner at one seed. Four of five cubes are strongly
+positive, and `run_0025_01000_rt_04` at −133.8% carries the entire deficit by itself.
+
+The re-scoring run lives on `midterm-prep`, which is why the archived notebook here still
+shows the old figure. The table above is the number to quote.
 
 **These are a third metric generation and are not comparable to v2's or v4's numbers.** Use
 them only against each other and against the DDPM, which shares this metric.
@@ -228,8 +229,8 @@ now filed under their own notebook name.
 
 | Ver | Date (UTC) | push | Artifacts |
 |----:|---|---|---|
-| 7 | 2026-07-02 14:18 | `d4ff643` | [`v7_.../`](06-unet-continuum/v7_2026-07-02T1418_d4ff643/) |
-| 9 | 2026-07-02 18:44 | `5933292` | [`v9_.../`](06-unet-continuum/v9_2026-07-02T1844_5933292/), the ablation |
+| 7 | 2026-07-02 14:18 | `d4ff643` | `v7_.../` |
+| 9 | 2026-07-02 18:44 | `5933292` | `v9_.../`, the ablation |
 
 Neither records a `HEAD is now at` line, so the code commit is unknown; the push commit is
 the only anchor.
@@ -238,7 +239,7 @@ the only anchor.
 
 | Ver | Date (UTC) | code | Outcome | Artifacts |
 |----:|---|---|---|---|
-| 11 | 2026-08-11 14:55 | `41df52d` | sweep + 60-epoch train complete; improved holdout crashed at the CSV write | [`v11_.../`](06-ddpm-line-emission/v11_2026-08-11T1455_41df52d/) |
+| 11 | 2026-08-11 14:55 | `41df52d` | sweep + 60-epoch train complete; improved holdout crashed at the CSV write | `v11_.../` |
 | **13** | 2026-08-12 04:50 | `19efd47` | **complete, zero errors**, first DDPM moment maps ever produced | [`v13_.../`](06-ddpm-line-emission/v13_2026-08-12T0450_19efd47/) |
 
 ### v13: the DDPM matches the U-Net on PSNR and fails on the science
@@ -339,8 +340,8 @@ overstatement. Needs a ~10 min CPU re-run at native resolution.
 
 | Ver | Date (UTC) | code | push | Outcome | Artifacts |
 |----:|---|---|---|---|---|
-| 2 | 2026-07-31 | `eb03589` |, | complete, 4 arms × 3 seeds; **raw metric**, broken artifact detector | [`v2_.../`](08-seeds-and-augmentation/v2_2026-07-31_eb03589/) |
-| 4 | 2026-08-02 04:21 | `1ca611f` | `ba328ea` | **complete**, 4 arms × 3 seeds = 12/12; **clip metric**, working detector | [`v4_.../`](08-seeds-and-augmentation/v4_2026-08-02T0421_1ca611f/) |
+| 2 | 2026-07-31 | `eb03589` | | complete, 4 arms × 3 seeds; **raw metric**, broken artifact detector | [`v2_.../`](08-seeds-and-augmentation/v2_2026-07-31_eb03589/) |
+| 4 | 2026-08-02 04:21 | `1ca611f` | `ba328ea` | **complete**, 4 arms × 3 seeds = 12/12; **clip metric**, working detector | `v4_.../` |
 
 ### v2 and v4 are the same 12 checkpoints scored twice: take a different half from each
 
@@ -409,7 +410,7 @@ all.
 `seed_repeats.csv` and `seed_spread.png` are v4's (their PSNRs match its log exactly, every
 run reuses the same 12 checkpoints, so training numbers never change). The moment and
 artifact CSVs previously filed here did **not** match v4's log and came from an earlier
-session; they are in [`superseded_pre-artifacts-fix/`](08-seeds-and-augmentation/superseded_pre-artifacts-fix/).
+session; they are in `superseded_pre-artifacts-fix/`.
 v4's own values are in its run log (on `midterm-prep`) and in the tables below, pending a
 download of the CSVs themselves.
 
@@ -449,10 +450,10 @@ artefact, and those CSVs are now in `superseded_pre-artifacts-fix/`.
 
 | Ver | Date (UTC) | code | push | Outcome | Artifacts |
 |----:|---|---|---|---|---|
-| 4 | 2026-08-02 03:13 | `29bffd4` | `cb51254` | **complete**, 24/24 sweep, 3 retrains, 15 cube evals. **Origin of the numbers.** | [`v4_2026-08-02T0313_29bffd4/`](09-architecture-comparison/v4_2026-08-02T0313_29bffd4/) |
-| 6 | 2026-08-02 04:04 | `bab16d0` | `1ca611f` | resumed; reused v4's rows unchanged | [`v6_.../`](09-architecture-comparison/v6_2026-08-02T0404_bab16d0/) |
+| 4 | 2026-08-02 03:13 | `29bffd4` | `cb51254` | **complete**, 24/24 sweep, 3 retrains, 15 cube evals. **Origin of the numbers.** | `v4_2026-08-02T0313_29bffd4/` |
+| 6 | 2026-08-02 04:04 | `bab16d0` | `1ca611f` | resumed; reused v4's rows unchanged | `v6_.../` |
 | 7 | 2026-08-02 17:21 | `ee491fc` | `ecaa540` | resumed; reused v4's rows unchanged | [`v7_.../`](09-architecture-comparison/v7_2026-08-02T1721_ee491fc/) |
-|, | 2026-08-03 | `d07f8f4` |, | input not attached → swept from scratch; U-Net 8 runs in 299 min, died in autoencoder run 3 | none (partial) |
+| | 2026-08-03 | `d07f8f4` | | input not attached → swept from scratch; U-Net 8 runs in 299 min, died in autoencoder run 3 | none (partial) |
 
 Versions 6 and 7 print identical numbers to v4 because section 6 skipped everything already
 scored. That is the resume working, but it also meant the M2 noise-clip fix pulled in at v6

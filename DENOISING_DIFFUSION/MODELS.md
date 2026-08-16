@@ -41,13 +41,14 @@ per-run PSNRs.
 | winner_beam | 42 | 24 | 38.710 |
 | winner_patch | 42 | 21 | 33.960 |
 
-**`winner_beam`'s checkpoint is fine; its moment-map score on this branch is not.** v21
-scored it without feeding the trained beam vector back in at inference, which silently ran
-the model with its conditioning branch dead (`UNet.forward` ignores `beam=None`). The fix
-and the corrected score (M0 −95.7% → +9.6%, a 105-point swing) are on `midterm-prep`
-(commit `a2af521` fixes it, run `v24` re-scores it) but excluded from this snapshot by
-request, this branch is v21 as it stood at submission. See `results/RUNS.md` on
-`midterm-prep` for the full correction if you need the accurate number.
+**`winner_beam`'s checkpoint is fine. The moment score printed in the v21 notebook is not.**
+That run scored the arm without feeding the trained beam vector back in at inference, which
+silently ran the model with its conditioning branch dead, since `UNet.forward` ignores
+`beam=None`. Re-measured properly, M0 goes from −95.7% to +9.6%.
+
+The corrected figures are in [`results/RUNS.md`](results/RUNS.md) on this branch. The
+notebook keeps the old ones because it is archived exactly as it ran, and the re-scoring run
+itself is on `midterm-prep`.
 
 **Architecture**: `base_channels=48, channel_multipliers=(1,2,4,8)` for winner/winner_aug/
 winner_p10/winner_beam/winner_patch; `base_channels=32, (1,2,4)` for v12. `beam_dim=4` only

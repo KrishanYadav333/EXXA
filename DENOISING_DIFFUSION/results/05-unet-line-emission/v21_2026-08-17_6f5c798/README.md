@@ -1,12 +1,14 @@
-# 05 v22 (Kaggle Version 22): code `6f5c798`, sections 7-8 complete for the first time
+# 05, Kaggle Version 21, code `6f5c798`
 
-Re-run purely to finish the artifact diagnostics. Section 7's CSV write had been failing on
-a missing `n_background_px` column *after* the whole 300-channel analysis had run, so the
-result was printed and then thrown away. Fixed in `6f5c798`; this run saved it.
+The run that finally completed sections 7 and 8. Section 7's CSV write had been failing on a
+missing `n_background_px` column *after* the whole 300-channel analysis had already run, so
+the numbers were printed and then thrown away. That is fixed in `6f5c798`, and this run saved
+them.
 
-**No training, and no new moment scores.** 3 checkpoints restored from v19's Output, 12 from
-08, `winner_patch` scored from stored weights, 15 rows over 6 arms. The moment table is
-identical to v20's. Everything new here is in sections 7-8.
+Nothing was trained and no new moment scores were produced. Three checkpoints came back from
+v19's Output and twelve from notebook 08, `winner_patch` was scored from its stored weights,
+giving 15 rows over 6 arms. The moment table is identical to the run before it. Everything
+new is in sections 7 and 8.
 
 ## Artifact diagnostics: `sweep_winner_p10` seed 42, 300 validation channels
 
@@ -29,31 +31,33 @@ INVENTED STRUCTURE   (background above 20% of clean peak, blobs >= 20 px)
 
 ## Three readings, in order of confidence
 
-**1. Invented structure is a threshold, not a gradient.** The scatter in `figure_cell24.png`
-is bimodal: roughly 25 channels sit at ~100% invented background area and everything else at
-~0%, with almost nothing between. Channels do not degrade smoothly as SNR falls, they flip.
-Every channel in the failing cluster is below SNR ~0.5. The `6.65%` mean is therefore not a
-typical channel, it is ~8% of channels failing almost completely.
+**Invented structure is a threshold, not a gradient.** The scatter in `figure_cell24.png` is
+bimodal. Roughly 25 channels sit near 100% invented background area, everything else sits
+near 0%, and almost nothing falls between. Channels do not degrade smoothly as SNR drops,
+they flip. Every channel in the failing cluster is below SNR 0.5 or so. That makes the 6.65%
+mean misleading as a typical channel; it is really about 8% of channels failing almost
+completely.
 
-**2. The floor leak is systematic, not occasional.** `denoised.min` clusters near -0.10 and
--0.155 and **no channel is near zero**, where the clean floor sits. Every channel is decoded
-with a negative pedestal. This is the same class of failure as the DDPM's positive pedestal
-in the blog's Section 7, on the other side of zero, and it is the mechanism behind the
-overshoot statistic as well.
+**The floor leak is systematic rather than occasional.** `denoised.min` clusters near -0.10
+and -0.155, and no channel comes near zero, which is where the clean floor sits. Every
+channel is decoded with a negative pedestal. It is the same class of failure as the DDPM's
+positive pedestal, just on the other side of zero, and it also drives the overshoot statistic.
 
-**3. The worst channels are where the metric stops meaning anything.** The three shown in
-`figure_cell26.png` report `SNR 0.0`, `invented 99.1-99.96%`, on ~65,500 background pixels.
-"Invented" is defined against 20% of the *clean peak*, and on a signal-free channel the clean
-peak is a noise spike, so the bar is essentially zero and any pedestal clears it. These are
-real failures, but the percentage attached to them is not a meaningful magnitude. This is
-RULES.md #8 inverted: there the suspect number was a zero, here it is a 99.96%, and in both
-cases the thing to check first is the denominator.
+**The worst channels are where the metric stops meaning anything.** The three in
+`figure_cell26.png` report `SNR 0.0` and `invented 99.1-99.96%` across about 65,500
+background pixels. "Invented" is measured against 20% of the clean peak, and on a signal-free
+channel that peak is a noise spike, so the bar is effectively zero and any pedestal clears it.
+These are real failures, but the percentage attached to them is not a meaningful magnitude.
+It is RULES.md #8 inverted: there the suspect number was a zero, here it is 99.96%, and
+either way the denominator is the thing to check first.
 
-## Bearing on the blog
+## Why the SNR split matters
 
-The low/high-SNR contrast is the strongest version of the faint-channel finding the project
-has: **347x in invented area, 5.3x in blob rate, at the same split.** It is independent
-support for the M2 wing-truncation hypothesis, since the model's inventions and the line
-wings occupy the same faint regime. The blog currently quotes v18's `1.580 / 0.213` for this
-split; these numbers are a different run of a different checkpoint and are not a correction
-to it.
+The contrast between the two halves is the strongest version of the faint-channel finding
+this project has: **347x in invented area and 5.3x in blob rate**, at the same split. It
+supports the idea that M2 suffers from wing truncation, because the model's inventions and
+the line wings occupy the same faint regime.
+
+An earlier run (v18) reported 1.580 against 0.213 for the same split. That was a different
+checkpoint on a different run, so it is a separate measurement rather than a correction to
+this one.

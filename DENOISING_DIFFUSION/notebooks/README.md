@@ -1,21 +1,22 @@
 # Notebooks, as they ran
 
-Each file here is the **executed** copy, real cell outputs, not a re-runnable script. Same
-code that produced the midterm's numbers; this is the evidence it ran and what it produced.
+Every file here is the executed copy, with its real cell outputs, rather than a clean script.
+Same code that produced the midterm's numbers. This is the evidence it ran and what came out.
 
 | notebook | run | what it establishes |
 |---|---|---|
 | `05-unet-line-emission.ipynb` | Kaggle Version 21 | U-Net moment scores, seed bands, artifact diagnostics |
-| `06-ddpm-line-emission.ipynb` | Kaggle Version 13 | conditional DDPM's PSNR/moment scores and the pedestal failure |
-| `07-classical-baselines.ipynb` | v2, commit `eb03589` | classical filters against the U-Net, on moment maps |
+| `06-ddpm-line-emission.ipynb` | Kaggle Version 13 | the conditional DDPM's PSNR and moment scores, and its pedestal failure |
+| `07-classical-baselines.ipynb` | v2, commit `eb03589` | classical filters against the U-Net on moment maps |
 | `08-seeds-and-augmentation.ipynb` | v2, commit `eb03589` | the 12-checkpoint seed bands the other notebooks reuse |
-| `09-architecture-comparison.ipynb` | v7, commit `ee491fc` | U-Net vs autoencoder vs VAE, same protocol |
+| `09-architecture-comparison.ipynb` | v7, commit `ee491fc` | U-Net against autoencoder and VAE, same protocol |
 
-**On 05 v21 specifically:** its `winner_beam` arm was scored without feeding the trained beam
-vector back in at inference (`UNet.forward` ignores a missing one silently), which understates
-that arm's moment scores. The fix and the corrected number are on `midterm-prep`, not in this
-notebook, see the note in `../MODELS.md` and `../results/RUNS.md`.
+One caveat on 05 v21. Its `winner_beam` arm was scored without feeding the trained beam
+vector back in at inference, and `UNet.forward` ignores a missing one silently, so the moment
+scores this notebook prints for that arm are wrong: −95.7 / +14.1 / −27.3 where the real
+figures are +9.6 / +63.2 / +20.9. The notebook keeps the old numbers because it is archived
+as it ran. [`../results/RUNS.md`](../results/RUNS.md) carries the corrected row.
 
-Full provenance, per-run READMEs, and every figure these produced are under
-`../results/<notebook-name>/`. This folder is the five notebooks pulled into one place with
-their outputs; that folder is the run-by-run detail behind each.
+The figures each run produced, along with a README explaining it, are under
+[`../results/`](../results/). This folder gathers the five notebooks in one place; that one
+holds the detail behind each.

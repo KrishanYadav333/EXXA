@@ -7,10 +7,10 @@ state the project is in and how it got here.
 Entry format: **date | trigger | notebook** then what happened, the evidence, the
 consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), `bug`.
 
-> **On this branch:** this log's entries below (v19 crash, v20, the CSV bug, v22, v24 beam
-> fix) are kept as the historical record, but only v21's run folder is archived here, see
-> the note in `RUNS.md`. The beam-scoring fix these entries describe is on `midterm-prep`,
-> not applied to the v21 notebook in this branch's `notebooks/`.
+> **On this branch:** the entries below are kept as the historical record, but only the
+> v21 run has its folder archived here. Everything else, including the beam-scoring fix that
+> the newest entry describes, is on `midterm-prep`. The v21 notebook in `notebooks/` predates
+> that fix.
 
 
 ---
@@ -31,7 +31,8 @@ after  (with it)      +9.6%    +63.2%    +20.9%
 **Consequence:** beam conditioning is **not refuted**. It is positive on all three moments
 and simply below the winner at one seed. The earlier reading, second-best PSNR paired with
 the worst M0 in the table, was an artifact. That reading is in the submitted midterm blog,
-which stays as written; corrected in RUNS.md and in the v24 README.
+which stays as written. The correction is recorded in `RUNS.md`, and the re-scoring run
+itself is on `midterm-prep`.
 
 `winner_patch` PSNR 33.96 -> 34.98 on the common full-image set. Moments unchanged.
 
@@ -63,7 +64,7 @@ Same review found `winner_patch`'s PSNR measured on 64px crops while every other
 256px full images, putting 33.96 dB in a column of 37 to 39. Also fixed; PSNR now uses a
 common full-image set.
 
-## 2026-08-17 | run + added | 05 Kaggle Version 22: artifact diagnostics complete
+## 2026-08-17 | run + added | 05 v21: artifact diagnostics complete
 
 Sections 7 and 8 finished for the first time. No training, no new moment scores; the moment
 table is identical to v20's. 300 validation channels analysed, and the per-channel CSV
@@ -77,8 +78,7 @@ channel near zero); and the worst channels are where the **metric stops meaning 
 
 Kaggle auto-pushed during the commit and the push was rejected. Checked before merging: it
 had **not** reverted any code fix, only re-added stored outputs. Rebased, kept the stripped
-notebook. That push is also what revealed the run was Kaggle Version 22, not the v21 it had
-been filed as; folder renamed.
+notebook.
 
 ## 2026-08-16 | bug | 05: section 7 CSV write discarded the whole diagnostic
 
