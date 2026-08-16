@@ -5,6 +5,12 @@ writes it into the push commit message (`Kaggle Notebook | <name> | Version N`).
 below is reconstructed from those commits and from the outputs stored inside each one, so
 every row is evidence from the notebook itself rather than recollection.
 
+> **On this branch (`midterm_completed`):** only the run behind each of the five
+> `notebooks/` files has its folder here — 05 v21, 06 v13, 07 v2, 08 v2, 09 v7. Every other
+> run this file documents (the full sweep, seeds, diagnostics history) exists in text below
+> for the record, but its log/figures/notebook are on `midterm-prep`, not duplicated here.
+
+
 **`code` is the repo commit the run actually executed** (from the section-0b
 `HEAD is now at ...` line) — that is what reproduces the numbers. **`push`** is the commit
 Kaggle created afterwards to store the notebook.

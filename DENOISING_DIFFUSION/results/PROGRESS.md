@@ -7,6 +7,12 @@ state the project is in and how it got here.
 Entry format: **date | trigger | notebook** then what happened, the evidence, the
 consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), `bug`.
 
+> **On this branch:** this log's entries below (v19 crash, v20, the CSV bug, v22, v24 beam
+> fix) are kept as the historical record, but only v21's run folder is archived here — see
+> the note in `RUNS.md`. The beam-scoring fix these entries describe is on `midterm-prep`,
+> not applied to the v21 notebook in this branch's `notebooks/`.
+
+
 ---
 
 ## 2026-08-17 | run + added | 05 Kaggle Version 24 — beam arm re-scored, the bug was real
