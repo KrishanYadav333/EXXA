@@ -1,13 +1,26 @@
-# EXXA
+# EXXA — GSoC 2026 midterm snapshot
 
-ML4Sci EXXA — machine learning for exoplanet and protoplanetary-disk science.
+*Denoising Astronomical Observations of Protoplanetary Disks* — Krishan Yadav, mentored by
+Jason Terry and Gaurav S., ML4Sci EXXA.
 
-**GSoC 2026 work in this fork:** *Denoising Astronomical Observations of Protoplanetary Disks*
-— Krishan Yadav, mentored by Sergei Gleyzer and Jason Terry.
+**This branch, `midterm_completed`, is a frozen submission snapshot.** It is not where
+development happens — that is `midterm-prep` — and it is not kept up to date after
+submission. It exists to be exactly what the midterm delivered:
 
-Active development is on the
-[`line-emission`](https://github.com/KrishanYadav333/EXXA/tree/line-emission) branch, in
-[`DENOISING_DIFFUSION/`](DENOISING_DIFFUSION/).
+- the five notebooks at the repo root, and their **executed copies with real outputs** in
+  [`notebooks/`](notebooks/) — 05 (U-Net), 06 (DDPM), 07 (classical baselines), 08 (seed
+  sweep), 09 (architecture comparison)
+- [`MODELS.md`](MODELS.md) — every checkpoint referenced, with its numbers and where to get
+  it (checkpoints themselves are never in git, see below)
+- [`DENOISING_DIFFUSION/src/`](DENOISING_DIFFUSION/src/) — the library the notebooks import
+- [`DENOISING_DIFFUSION/results/`](DENOISING_DIFFUSION/results/) — every run's log, figures
+  and README, `RUNS.md` mapping numbers to runs, `PROGRESS.md` the chronological record
+- the midterm write-up: [`DENOISING_DIFFUSION/BLOG_MIDTERM.md`](DENOISING_DIFFUSION/BLOG_MIDTERM.md)
+  and its rendered HTML
+
+Other ML4Sci EXXA project tracks that share this repository upstream (anomaly detection,
+atmosphere characterisation, kinematics, and others) are **not included on this branch** —
+they were never part of this deliverable. They are on `main` and `line-emission`.
 
 | | |
 |---|---|
