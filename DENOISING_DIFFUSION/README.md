@@ -56,7 +56,7 @@ and [`blog_midterm_blogger.html`](blog_midterm_blogger.html)), with the fuller
 DENOISING_DIFFUSION/
 ├── README.md                      # this file
 ├── MODELS.md                      # every checkpoint referenced, and where it lives
-├── BLOG_MIDTERM.md                # the midterm write-up (+ rendered HTML, blog_images/)
+├── BLOG_MIDTERM.md                # the midterm write-up (+ rendered, self-contained HTML)
 ├── MIDTERM_REPORT.md              # the fuller results write-up
 ├── ARCHITECTURE.md                # architecture documentation
 ├── BEAM_AND_SWEEP.md              # beam conditioning + sweep design notes
@@ -93,8 +93,6 @@ DENOISING_DIFFUSION/
 │   └── baselines.py               # classical filters (Gaussian, median, Wiener)
 │
 ├── tests/                         # test modules, run standalone or via pytest
-├── tools/                         # build_blog.py and the blog build pipeline
-├── experiments/                   # figures referenced directly by the write-ups
 └── results/
     ├── RUNS.md                    # every number, mapped to the run that produced it
     ├── PROGRESS.md                # chronological log: runs, arrivals, bugs
