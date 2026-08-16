@@ -24,6 +24,7 @@ The notebook as executed, with its full stdout in the cell outputs, is in
 | file | what |
 |---|---|
 | `figure_cell24.png` | the per-seed spread plot |
+| `seed_repeats.csv` | the twelve checkpoints' per-run PSNR/SSIM/MSE — the record `../../../MODELS.md` tabulates. v2 and v4 share these rows byte-identically (see below), so this is v2's own data as much as v4's |
 
 ## Why this run still matters
 
