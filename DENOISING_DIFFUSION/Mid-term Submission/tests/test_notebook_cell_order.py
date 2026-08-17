@@ -32,7 +32,8 @@ import json
 import os
 import sys
 
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO_ROOT = os.path.dirname(os.path.dirname(PROJECT_ROOT))
 BUILTINS = set(dir(builtins)) | {"__name__", "__file__", "_", "__builtins__"}
 
 
@@ -138,12 +139,13 @@ print("=" * 70)
 print("Notebook cell-order check (names must be defined by an earlier cell)")
 print("=" * 70)
 
-# Two layouts: notebooks sit at the repo root on the working branches, and under
-# DENOISING_DIFFUSION/notebooks/ on the frozen submission snapshot. Search both, or this
-# check silently passes while inspecting nothing.
-notebooks = sorted(glob.glob(os.path.join(REPO_ROOT, "*.ipynb"))
-                   + glob.glob(os.path.join(REPO_ROOT, "DENOISING_DIFFUSION",
-                                            "notebooks", "*.ipynb")))
+# The notebooks move between layouts: repo root on the working branches, a notebooks/
+# directory beside this project on the submission snapshot. Look relative to this file
+# rather than at a fixed path, so the check cannot silently pass while inspecting nothing.
+notebooks = sorted(set(
+    glob.glob(os.path.join(PROJECT_ROOT, "notebooks", "*.ipynb"))
+    + glob.glob(os.path.join(PROJECT_ROOT, "*.ipynb"))
+    + glob.glob(os.path.join(REPO_ROOT, "*.ipynb"))))
 
 total = 0
 for nb_path in notebooks:

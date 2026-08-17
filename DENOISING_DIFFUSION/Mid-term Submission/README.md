@@ -55,7 +55,7 @@ per-channel SSIM still looked healthy.
 ## Layout
 
 ```
-DENOISING_DIFFUSION/
+Mid-term Submission/
 ├── README.md                      # this file
 ├── MODELS.md                      # every checkpoint referenced, and where it lives
 ├── requirements.txt
@@ -108,7 +108,7 @@ than being duplicated into a submission snapshot.
 
 ```bash
 git clone -b midterm_completed https://github.com/KrishanYadav333/EXXA.git
-cd EXXA/DENOISING_DIFFUSION
+cd "EXXA/DENOISING_DIFFUSION/Mid-term Submission"
 pip install -r requirements.txt
 ```
 

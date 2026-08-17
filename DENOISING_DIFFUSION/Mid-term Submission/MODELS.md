@@ -52,7 +52,7 @@ itself is on `midterm-prep`.
 
 **Architecture**: `base_channels=48, channel_multipliers=(1,2,4,8)` for winner/winner_aug/
 winner_p10/winner_beam/winner_patch; `base_channels=32, (1,2,4)` for v12. `beam_dim=4` only
-for winner_beam, `0` otherwise. Definition: `DENOISING_DIFFUSION/src/models/unet.py`.
+for winner_beam, `0` otherwise. Definition: `src/models/unet.py`.
 
 ## Conditional DDPM (notebook 06)
 
@@ -60,12 +60,12 @@ One production checkpoint, `ddpm_seed42.pth` (332 MB), from 06 Kaggle Version 13
 (`results/06-ddpm-line-emission/v13_2026-08-12T0450_19efd47/`): 60 epochs, v-prediction,
 cosine schedule, min-SNR weighting, PSNR 38.180 / SSIM 0.9933.
 
-Definition: `DENOISING_DIFFUSION/src/training/diffusion.py`.
+Definition: `src/training/diffusion.py`.
 
 ## Getting a checkpoint
 
 They live in each notebook's Kaggle Output, or in the Datasets built to move them across
 Kaggle accounts (`exxa-nb08-checkpoints-v4`, `exxa-nb05-checkpoints-v19`), see
-`DENOISING_DIFFUSION/RULES.md` #1 and #3 on `midterm-prep` for why they are never in git,
+`RULES.md` #1 and #3 on `midterm-prep` for why they are never in git,
 and `notebooks/05-unet-line-emission.ipynb` (`_import_nb08`, `_import_prior_nb05`) for the
 actual restore code.
