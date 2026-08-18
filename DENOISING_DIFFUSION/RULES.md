@@ -267,3 +267,24 @@ The cost of skipping this is not tidiness. Twice now a run has been repeated bec
 previous attempt's outcome was in a chat log rather than in the repo, and v19's and v20's
 notebooks were lost because nothing prompted anyone to file them while the Output still
 existed.
+
+## 12. Keep every checkpoint until GSoC finishes
+
+Nothing gets deleted for being refuted, superseded, or uninteresting. Not the arm that
+lost, not the seed that scored worst, not the config the sweep passed over.
+
+`models/` is where they live, split by the notebook that trained them, indexed in
+[`models/README.md`](models/README.md) with the numbers that identify each one. Files there
+are hardlinks, so a checkpoint is only really gone when the last path to it is removed, and
+removing any one path is safe.
+
+The reason is `winner_beam`. Its moment scores went into RUNS.md and the blog as a finding,
+and stayed there, before anyone noticed the arm had been scored with its conditioning branch
+dead. Correcting it meant re-running inference on that exact checkpoint. M0 moved 105 points
+and M2 changed sign. Had the checkpoint been cleaned up as a losing arm, the published number
+would have been wrong permanently, with no way back to it short of retraining and no
+guarantee of reproducing the same weights.
+
+A result is only as durable as the weights that produced it. Rule 6 says never quote a number
+whose metric you cannot name; this is the same rule pointed at the other end, since a metric
+you cannot recompute is a number you cannot defend.

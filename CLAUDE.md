@@ -7,7 +7,7 @@ creating or changing any notebook in this repo.** Read it first, not after a rev
 the same bug again. Each rule names the run that was lost to it, so a violation costs
 hours of GPU time that have already been paid once.
 
-The eleven rules, in short — the file has the incident behind each:
+The twelve rules, in short — the file has the incident behind each:
 
 1. **Persist a trained model the instant it finishes training**, never in a cleanup cell.
    `CKPT_DIR` is inside the git clone, which the bootstrap wipes and which is not part of
@@ -47,6 +47,10 @@ The eleven rules, in short — the file has the incident behind each:
     maps the project to its history. A bug entry names what was wrong, how it was caught,
     and **which published numbers it touches**. `winner_beam`'s M0 sat in RUNS.md and the
     blog as a finding before anyone noticed it was measured with a dead branch.
+12. **Keep every checkpoint until GSoC finishes.** Refuted arms, worst seeds, passed-over
+    configs, all of them. `models/` is the store, indexed in `models/README.md`. Correcting
+    `winner_beam` meant re-running inference on that exact checkpoint; had it been cleaned
+    up as a losing arm the published number would have been wrong permanently.
 
 ## Before every Kaggle run
 
