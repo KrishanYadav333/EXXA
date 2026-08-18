@@ -98,6 +98,31 @@ Two negative results, both kept: beam conditioning worst on M0 (later retracted,
 **Notebook not archived.** Lost. Kaggle did not auto-push this version and the local copy was
 stripped before the gap was noticed. Part of why RULES.md #10 exists.
 
+## 2026-08-19 | code | Phase 0's forward-operator check exists, verdict still unknown
+
+`src/evaluation/forward_operator.py` + `tests/test_forward_operator.py`. Settles the gate in
+PHYSICS_INFORMED_PLAN.md that decides whether DDRM gets built: is `dirty = clean (*) beam +
+noise`, or just `dirty = clean + noise`? In the second case `A = I` and DDRM collapses into
+the conditional DDPM that already exists.
+
+Discriminator is the radially averaged power-spectrum ratio, which dips below 1 only if
+something suppressed spatial frequencies. Three verdicts, because a convolution by a real
+dirty beam is not the same finding as a convolution by a Gaussian: the first needs the PSF
+image from Jason before `A` can be written down.
+
+Also lands `pixel_scale_arcsec` and `beam_kernel_of`, reading `CDELT`, which no code in
+`src/` read before. `beam_features_of` takes BPA/BMAJ/BMIN only, which describes a beam in
+angular units but cannot build a kernel in pixels.
+
+Verified against three synthetic cases with known operators, 14 checks. Two wrong versions
+were caught by them and both are now regression cases: a signal band set as a fraction of
+peak power, which cuts off at k = 0.04 on a red spectrum and makes every beam look Gaussian;
+and reading the verdict off the noise-subtracted ratio, whose floor estimate manufactures a
+dip where nothing was suppressed.
+
+**Nothing measured yet.** The check needs FITS data, which lives on Kaggle. Until it runs,
+DDRM stays unbuilt, per the plan's own gate.
+
 ## 2026-08-14 | run | 05 v19 — crashed at 4.0 h, no moment scores
 
 `DeadKernelError` at 14413s, inside Kaggle's 12 h limit, so a crash rather than a timeout.

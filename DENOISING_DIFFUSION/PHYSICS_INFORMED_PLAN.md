@@ -46,15 +46,45 @@ The presence of `BMAJ`/`BMIN`/`BPA` in the headers and the MCFOST provenance bot
 
 **How to settle it** (needs the FITS data, so run on Kaggle or after downloading a cube):
 
+**The check is written**: `src/evaluation/forward_operator.py`, with
+`tests/test_forward_operator.py` covering it against three synthetic cases where the true
+operator is known by construction. On a cube pair:
+
 ```python
-# Compare the azimuthally-averaged power spectra of a clean and dirty channel.
-# A convolution suppresses high spatial frequencies in a specific, beam-shaped way;
-# additive noise raises the high-frequency floor instead. The two are easy to tell apart.
-# Also: fit a Gaussian to a point-like feature in dirty vs clean and compare widths
-# against BMAJ/BMIN.
+from src.evaluation.forward_operator import phase0_from_fits, format_report
+print(format_report(phase0_from_fits(clean_path, dirty_path)))
 ```
 
-Record the answer here before writing any DDRM code.
+or `python -m src.evaluation.forward_operator clean.fits dirty.fits`.
+
+It returns one of three verdicts:
+
+| verdict | meaning | what to do |
+|---|---|---|
+| `no_convolution` | `A = I` | stop, DDRM has nothing to constrain |
+| `gaussian_convolution` | the header's beam is the operator | build DDRM as in Phase 1 |
+| `non_gaussian_convolution` | a real dirty beam, sidelobes and all | DDRM still applies, but ask Jason for the PSF image first, because a Gaussian `A` would enforce the wrong constraint |
+
+The discriminator is the azimuthally averaged power spectrum. Writing `P_d`, `P_c` for the
+dirty and clean spectra, a convolution gives `P_d = |B|^2 P_c + N` and additive noise gives
+`P_d = P_c + N`. The raw ratio `P_d / P_c` therefore dips below 1 in the first case and
+never can in the second, whatever the noise level, since noise only ever adds power. The
+verdict is read off that raw ratio. A noise-subtracted version is used only to fit the
+beam's shape, and deliberately not for the verdict: the noise estimate is biased high
+wherever the clean field still has power at high k, and subtracting too much manufactures a
+dip on its own. Both mistakes are in the test as regression cases, because both were made
+while writing it.
+
+Two more things the report gives, and both matter for Phase 1:
+
+- the beam sigma **measured from the data**, cross-checked against the one the header
+  claims. They should agree. If they do not, `beam_kernel_of` is building the wrong `A`.
+- `pixel_scale_arcsec`, reading `CDELT`, which nothing in `src/` did before. `beam_features_of`
+  takes only BPA/BMAJ/BMIN, enough to describe a beam in angular units but not to build a
+  kernel in pixels.
+
+**Verdict on the project's own cubes: not yet run.** It needs the FITS data, which is on
+Kaggle. Record the answer here before writing any DDRM code.
 
 ---
 
