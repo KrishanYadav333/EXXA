@@ -104,3 +104,9 @@ venv/
 # would otherwise commit 1.6 GB. Data lives on disk and on Kaggle, never in the repo.
 **/self-gravitating cube and dirty cube/
 **/kinematic_data*.zip
+
+# Kaggle upload staging, hardlinked to models/ -- the CSVs there are duplicates
+DENOISING_DIFFUSION/models/_kaggle-*/
+
+# matplotlib figure cache for the blog builder
+DENOISING_DIFFUSION/tools/figcache/
