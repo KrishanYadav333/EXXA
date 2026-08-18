@@ -6,6 +6,11 @@ alone.
 
 **GSoC 2026 · ML4Sci · EXXA.** Krishan Yadav, mentored by Jason Terry and Gaurav S.
 
+**Midterm blog post:**
+[Denoising Astronomical Observations of Protoplanetary Disks](https://medium.com/@kryshan753/denoising-astronomical-observations-of-protoplanetary-disks-600403e036c8)
+The write-up this snapshot backs: background, classical baselines, the architecture
+comparison, and the U-Net results.
+
 > **This branch is a frozen submission snapshot.** It holds the five notebooks that produced
 > the midterm's numbers with their outputs intact, plus the library and results behind them.
 > Development happens on `midterm-prep`; nothing here is updated after submission. Everything
