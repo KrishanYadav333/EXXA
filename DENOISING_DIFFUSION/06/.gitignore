@@ -1,0 +1,17 @@
+# Kaggle v13 Output lands here. Nothing in this folder is tracked except the two files that
+# explain it.
+#
+# The checkpoints are 332 MB each, 1.6 GB total, and must never reach git. The root
+# .gitignore covers *.pth, *.pth.tar and *.ckpt, but not the two shapes they arrive in:
+# Kaggle serves an Output download as a .zip, and a torch checkpoint IS a zip container, so
+# double-clicking one gets it unpacked by macOS Archive Utility into a directory of raw
+# tensor shards (data/0, data/1, ...) and one checkpoint becomes ~240 files.
+#
+# The small artifacts are not tracked either. This folder is staging for a Kaggle upload,
+# not a record. They are byte-identical to the copies already archived under
+# results/06-ddpm-line-emission/v13_2026-08-12T0450_19efd47/, which is the record
+# (RULES.md #5), and a second tracked copy is how a folder starts disagreeing with its
+# archive.
+*
+!README.md
+!.gitignore
