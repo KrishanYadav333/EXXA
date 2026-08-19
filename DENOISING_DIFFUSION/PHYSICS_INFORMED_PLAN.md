@@ -262,7 +262,33 @@ negligible extra parameters; roughly unchanged training time. Standard in video 
 denoising. This gives the model spectral context rather than merely penalising its absence,
 and is the stronger of the two.
 
-**Effort:** (i) ~half a day plus a dataset change to emit neighbours; (ii) ~1 day.
+**(ii) is built** (2026-08-19). `FITSChannelDataset(n_neighbors=k)` emits a
+`(2k+1, H, W)` dirty tensor with the clean target still the centre channel, and
+`_build_unet(n_neighbors=k)` sets `in_channels` to match. `UNet` was already parameterised on
+`in_channels`, so no model change was needed at all. `n_neighbors=0` is the default and
+reproduces the old items bit-for-bit, which the tests assert directly, so no existing
+checkpoint or published number changes meaning.
+
+Two decisions inside it are load-bearing, and both are asserted in
+`tests/test_spectral_context.py`:
+
+- **Neighbours share the centre channel's scale.** Normalising each neighbour by its own
+  (min, max) would map a bright channel and a faint one onto the same [0, 1] and erase the
+  relative amplitude along velocity, which is exactly the spectral shape M1 and M2 measure.
+  It would delete the signal being added.
+- **The cube's ends clamp rather than wrap.** The first and last channels are the line-free
+  high-velocity ends of the spectrum and are physically unrelated, so wrapping would staple
+  together two parts of a line profile that never touch.
+
+Neighbours are read in one `fits.open` per item rather than one per neighbour, since
+per-neighbour opens are the same redundancy that made `FlatPatchDataset` decode each image
+once per patch and is the leading suspect for the v19 out-of-memory crash.
+
+**Still to do:** the notebook side. Cells build their own datasets, and cells do not sync
+from git (RULES.md #2), so an arm needs `n_neighbors` threaded through the dataset
+construction in 05 by hand. Suggest sweeping k = 1 and k = 2 against k = 0 on the same seed.
+
+**Effort:** (i) ~half a day plus a dataset change to emit neighbours.
 **Risk:** low. Both are additive and can be swept as arms in notebook 09.
 **Expected effect:** should move M1 and M2 specifically. If it does not, the
 per-channel-independence explanation for their weakness is wrong and worth revisiting.

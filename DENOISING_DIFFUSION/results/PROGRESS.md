@@ -98,6 +98,32 @@ Two negative results, both kept: beam conditioning worst on M0 (later retracted,
 **Notebook not archived.** Lost. Kaggle did not auto-push this version and the local copy was
 stripped before the gap was noticed. Part of why RULES.md #10 exists.
 
+## 2026-08-19 | code | 2.5D spectral context, the one Phase 3 item nothing gates
+
+`FITSChannelDataset(n_neighbors=k)` now emits a `(2k+1, H, W)` dirty tensor, the sampled
+channel plus k neighbours each side along velocity, with the clean target still the centre
+channel alone. `_build_unet(n_neighbors=k)` sets `in_channels` to match; `UNet` already took
+`in_channels`, so there was no model change to make.
+
+**Why this one and not VIREO-lite.** VIREO-lite turns out to be gated by Phase 0 as well, not
+just DDRM: if `A = I` the data-consistency term collapses to `||pred - dirty||`, which would
+push the model toward the noisy input. Spectral continuity is gated by nothing, and the plan
+already called it the highest-value item in the document. M0 is a spectral sum and scores
+~+70%; M1 and M2 are spectral shape statistics and lag, because every channel is denoised
+independently and nothing uses the axis those two are computed over.
+
+22 checks in `tests/test_spectral_context.py`, and the existing 24-test data pipeline still
+passes. `n_neighbors=0` reproduces the old items bit-for-bit, asserted with `torch.equal`
+rather than a tolerance, so no existing result changes meaning.
+
+Two decisions in it would have silently destroyed the point if made the other way: neighbours
+share the CENTRE channel's scale (per-neighbour normalisation would erase relative amplitude
+along velocity, which IS the added signal), and the cube's ends clamp rather than wrap (the
+first and last channels are the line-free high-velocity ends and are unrelated).
+
+**Not yet run.** The notebook builds its own datasets and cells do not sync from git
+(RULES.md #2), so an arm needs `n_neighbors` threaded through 05 by hand.
+
 ## 2026-08-19 | code | Phase 0's forward-operator check exists, verdict still unknown
 
 `src/evaluation/forward_operator.py` + `tests/test_forward_operator.py`. Settles the gate in

@@ -87,6 +87,11 @@ class FITSChannelDataset(Dataset):
         target_size: output H=W after bilinear downsample (default 256).
         seed: base seed; each cube gets a deterministic per-cube seed so the channel set is
             fixed across epochs (reproducible) but differs between cubes.
+        n_neighbors: k, for 2.5D spectral context. The dirty tensor becomes
+            (2k+1, H, W) -- the sampled channel plus k neighbours each side along velocity --
+            while the clean target stays the centre channel. 0 (default) keeps the original
+            (1, H, W) item shape and every existing result reproducible. Set the model's
+            `in_channels` to 2k+1 to match.
         augment: apply random dihedral (D4) augmentation to each (dirty, clean) pair.
             TRAIN SPLITS ONLY -- enabling it on val/holdout makes evaluation
             non-deterministic. Off by default; see `_augment_pair`.
@@ -104,6 +109,7 @@ class FITSChannelDataset(Dataset):
         continuum_n: int = 5,
         return_beam: bool = False,
         augment: bool = False,
+        n_neighbors: int = 0,
         verbose: bool = True,
     ):
         self.target_size = target_size
@@ -123,6 +129,19 @@ class FITSChannelDataset(Dataset):
         # original notebook behavior is unchanged; the continuum notebook flips it on.
         self.subtract_continuum = subtract_continuum
         self.continuum_n = continuum_n
+        # 2.5D spectral context (PHYSICS_INFORMED_PLAN.md Phase 3a). k>0 makes an item's
+        # dirty tensor (2k+1, H, W): the sampled channel plus k neighbours each side along
+        # velocity. The clean target stays (1, H, W) -- the centre channel only.
+        #
+        # M0 is a spectral sum and scores ~+70%; M1 and M2 are spectral SHAPE statistics and
+        # lag badly. The models denoise each channel independently, so nothing constrains
+        # consistency along the velocity axis, which is the axis M1 and M2 are computed over.
+        # No amount of per-channel improvement addresses that, because the information is not
+        # being used. This hands the model that information.
+        #
+        # UNet already takes in_channels, so 2k+1 needs no model change. 0 (default) leaves
+        # every existing checkpoint and result untouched.
+        self.n_neighbors = int(n_neighbors)
 
         # normalise `cubes` into a list of (clean_path, dirty_path, tag)
         self.cube_paths = []
@@ -142,8 +161,10 @@ class FITSChannelDataset(Dataset):
         # build the flat (cube_idx, channel_idx) index list
         self.index = []          # list of (cube_idx, channel_idx)
         self.per_cube_channels = []
+        self.per_cube_n_channels = []
         for ci, (clean, dirty, tag) in enumerate(self.cube_paths):
             n_channels = self._cube_n_channels(dirty)
+            self.per_cube_n_channels.append(n_channels)
             # deterministic per-cube seed so channel sets are stable across epochs but vary by cube
             chans = self.channel_sampler_fn(n_channels=n_channels, seed=seed + ci)
             self.per_cube_channels.append(chans)
@@ -198,6 +219,31 @@ class FITSChannelDataset(Dataset):
         return plane
 
     @staticmethod
+    def _load_channels(path: str, chans) -> np.ndarray:
+        """
+        Read several planes in ONE open. Calling `_load_channel` per neighbour would reopen
+        the file 2k+1 times an item, which is the same redundancy that made
+        `FlatPatchDataset` decode each image once per patch and is the leading suspect for
+        the v19 out-of-memory crash.
+        """
+        with fits.open(path, memmap=True) as hdul:
+            data = hdul[0].data
+            return np.stack([_to_native_float32(data[c]) for c in chans])
+
+    def _neighbor_indices(self, ch: int, n_channels: int):
+        """
+        `ch` plus k neighbours each side, clamped at the cube's ends.
+
+        Clamped, not wrapped: the first and last channels are the line-free high-velocity
+        ends of the spectrum and are physically unrelated to each other, so wrapping would
+        staple together two parts of the line profile that never touch. Clamping repeats the
+        edge channel, which is the usual replicate padding and says only "no further context
+        here".
+        """
+        k = self.n_neighbors
+        return [min(max(c, 0), n_channels - 1) for c in range(ch - k, ch + k + 1)]
+
+    @staticmethod
     def _compute_continuum(path: str, n: int) -> np.ndarray:
         """
         2D continuum estimate = mean of the first `n` and last `n` (line-free, high-velocity)
@@ -208,9 +254,15 @@ class FITSChannelDataset(Dataset):
             return continuum_of(hdul[0].data, n)
 
     @staticmethod
-    def _minmax_norm_shared(dirty: np.ndarray, clean: np.ndarray):
+    def _minmax_norm_shared(dirty: np.ndarray, clean: np.ndarray, ref: np.ndarray = None):
         """
         Per-channel min-max using the DIRTY channel's (min,max) for BOTH dirty and clean.
+
+        With 2.5D context `ref` is the CENTRE dirty channel and the scale it defines is
+        applied to every neighbour as well. Letting each neighbour normalise by its own
+        (min,max) would map a bright channel and a faint one onto the same [0, 1], erasing
+        the relative amplitude along velocity -- which is precisely the spectral shape M1 and
+        M2 measure, and the reason for feeding neighbours at all.
 
         Critical for invertibility at inference: at test time only the dirty (min,max) is
         known (the clean cube is the unknown we predict). Normalizing the clean target by its
@@ -222,7 +274,9 @@ class FITSChannelDataset(Dataset):
         Clean is NOT clipped: its peak can exceed the dirty max, so normalized clean may slightly
         exceed 1 (the model uses a linear output head, not sigmoid, to represent that).
         """
-        lo, hi = float(dirty.min()), float(dirty.max())
+        if ref is None:
+            ref = dirty
+        lo, hi = float(ref.min()), float(ref.max())
         if hi > lo:
             d = (dirty - lo) / (hi - lo)
             c = (clean - lo) / (hi - lo)
@@ -230,31 +284,39 @@ class FITSChannelDataset(Dataset):
         return np.zeros_like(dirty), np.zeros_like(clean)
 
     def _resize(self, x: np.ndarray) -> torch.Tensor:
-        """(H,W) np -> (1, target, target) bilinear-resized tensor."""
-        t = torch.from_numpy(x)[None, None]           # (1,1,H,W)
+        """(H,W) or (C,H,W) np -> (C, target, target) bilinear-resized tensor."""
+        if x.ndim == 2:
+            x = x[None]
+        t = torch.from_numpy(x)[None]                  # (1,C,H,W)
         if t.shape[-1] != self.target_size or t.shape[-2] != self.target_size:
             t = F.interpolate(t, size=(self.target_size, self.target_size),
                               mode="bilinear", align_corners=False)
-        return t[0]                                    # (1, target, target)
+        return t[0]                                    # (C, target, target)
 
     def __getitem__(self, i: int):
         cube_idx, ch = self.index[i]
         clean_path, dirty_path, _ = self.cube_paths[cube_idx]
 
-        dirty = self._load_channel(dirty_path, ch)
-        clean = self._load_channel(clean_path, ch)
+        if self.n_neighbors > 0:
+            chans = self._neighbor_indices(ch, self.per_cube_n_channels[cube_idx])
+            dirty = self._load_channels(dirty_path, chans)      # (2k+1, H, W)
+        else:
+            dirty = self._load_channel(dirty_path, ch)[None]    # (1, H, W)
+        clean = self._load_channel(clean_path, ch)[None]        # (1, H, W), centre only
 
-        # continuum subtraction (before norm) — each cube subtracts its own line-free baseline
+        # continuum subtraction (before norm) — each cube subtracts its own line-free
+        # baseline; the 2D continuum broadcasts across the neighbour stack
         if self.subtract_continuum:
             dirty = dirty - self.dirty_continuum[cube_idx]
             clean = clean - self.clean_continuum[cube_idx]
 
-        # per-channel min-max using the DIRTY (min,max) for BOTH -> invertible at inference,
-        # consistent background floor (see _minmax_norm_shared). NOT independent per array.
-        dirty, clean = self._minmax_norm_shared(dirty, clean)
+        # per-channel min-max using the CENTRE DIRTY channel's (min,max) for BOTH -> invertible
+        # at inference, consistent background floor (see _minmax_norm_shared). NOT independent
+        # per array, and not per neighbour either.
+        dirty, clean = self._minmax_norm_shared(dirty, clean, ref=dirty[self.n_neighbors])
 
-        dirty_t = self._resize(dirty).float()          # (1, target, target)
-        clean_t = self._resize(clean).float()
+        dirty_t = self._resize(dirty).float()          # (2k+1, target, target)
+        clean_t = self._resize(clean).float()          # (1, target, target)
 
         # dihedral augmentation, TRAIN ONLY (see _augment_pair)
         if self.augment:
