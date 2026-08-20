@@ -98,6 +98,42 @@ Two negative results, both kept: beam conditioning worst on M0 (later retracted,
 **Notebook not archived.** Lost. Kaggle did not auto-push this version and the local copy was
 stripped before the gap was noticed. Part of why RULES.md #10 exists.
 
+## 2026-08-21 | run + bug | 05 v25, and the error bars in this project are too small
+
+Second run of `winner_k1` and `winner_k2` at seed 42, same code, and it does not reproduce
+the first. Archived at `results/05-unet-line-emission/v25_2026-08-21_889cd44/`.
+
+| arm, seed 42 | first run | v25 | difference |
+|---|---|---|---|
+| k1 PSNR | 41.948 | 40.219 | 1.73 dB |
+| k1 best epoch | 25 | 18 | |
+| k1 M2 | +46.2% | +14.8% | 31.4 pp |
+| k2 PSNR | 41.199 | 42.269 | 1.07 dB |
+
+A third partial run of k1 hit 41.058 at epoch 22, so three fixed-seed runs span 40.219 to
+41.948, standard deviation **0.865 dB**. `winner_aug`'s spread across three different SEEDS
+is **0.455 dB**. Re-running one seed varies more than changing the seed.
+
+Cause is GPU nondeterminism, not a notebook bug: `torch.manual_seed` does not fix cuDNN's
+algorithm selection, and the T4 x2 setup splits batches across devices.
+
+**Which published numbers this touches.** Every per-arm figure in this project is a single
+run, so every band quoted as a seed spread is really a run spread and understates the total.
+The 3-seed bands are the least affected because three runs at three seeds do sample it. The
+1-seed rows, `winner_beam` (+9.6 / +63.2 / +20.9), `winner_patch`, and now both spectral arms,
+have no error bar at all and should not be compared against anything at this resolution.
+
+**Withdrawn:** the reading from the first spectral run that k1 lifts M1 and M2 beyond the
+seed spread. v25's k1 gives M1 58.5 against the baseline's 55.6 and M2 14.8 against 6.0, both
+well inside the spread. **What survives** is the PSNR gain over the un-augmented baseline,
+40.2 to 41.9 against 37.5, consistent across all three runs.
+
+**Also: Kaggle reverted committed work again (RULES.md #2, third time).** Commit `df38336`
+pushed the kernel's notebook over `84b6cb6`, deleting 2248 lines: the CONFIGS-derived moment
+table, the out-of-band check, and the section 7 centre-channel fix. Restored in `201b4ef`.
+v25 itself ran at `889cd44`, before all three, so it has no out-of-band measurement and its
+summary table again omits the spectral arms. The VIREO question is still open.
+
 ## 2026-08-20 | code | the spectral-context arms are wired into 05 and ready to run
 
 Two new arms in notebook 05, `winner_k1` and `winner_k2`, identical to `sweep_winner` except

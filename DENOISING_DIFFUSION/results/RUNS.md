@@ -115,6 +115,30 @@ also confirms that file belongs to v12.
 downloaded, and pixel matching cannot separate them (29.1 / 29.2 / 29.6). Parked in
 [`_unattributed/`](05-unet-line-emission/_unattributed/) rather than guessed.
 
+### v25 — spectral context, and a reproducibility problem
+
+Two new arms, `winner_k1` and `winner_k2`: the sampled channel plus k neighbours along
+velocity, aimed at M1 and M2, which lag because every channel was denoised in isolation.
+Archived at [`v25_.../`](05-unet-line-emission/v25_2026-08-21_889cd44/).
+
+| arm | PSNR | M0 | M1 | M2 |
+|---|---|---|---|---|
+| winner_k1 (1 seed) | 40.219 | 13.9 ± 21.1 | 58.5 ± 23.1 | 14.8 ± 27.9 |
+| winner_k2 (1 seed) | 42.269 | 18.5 ± 62.2 | 69.6 ± 20.5 | 28.6 ± 34.5 |
+
+Spreads are **across the 5 holdout cubes at one seed**, not across seeds, so they are not
+comparable to the multi-seed rows in the v20 table above.
+
+**These arms were run twice and did not reproduce.** k1 gave 41.948 dB and M2 +46.2% the
+first time, 40.219 dB and M2 +14.8% here, at the same seed with the same code. Three
+fixed-seed runs span 1.73 dB, standard deviation 0.865, against `winner_aug`'s across-SEED
+spread of 0.455. GPU nondeterminism, not a bug. See `PROGRESS.md` for which numbers this
+touches; the short version is that every single-seed row in this file, including
+`winner_beam` and `winner_patch`, has no error bar and should not be read at this resolution.
+
+**What holds:** the PSNR gain over the un-augmented baseline, 40.2 to 41.9 against 37.5,
+across all three runs. **What does not:** any moment claim from a single spectral run.
+
 ### v20 — the first U-Net scores on the DDPM's metric
 
 v20 trained nothing. It restored 12 checkpoints from 08 and 3 from v19's Output, scored
