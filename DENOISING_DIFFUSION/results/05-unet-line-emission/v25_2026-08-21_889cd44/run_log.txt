@@ -1,0 +1,599 @@
+Cloning into '/kaggle/working/EXXA'...
+Updating files: 100% (5349/5349), done.
+
+cwd: /kaggle/working/EXXA/DENOISING_DIFFUSION/notebooks | DATA_DIR: /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+
+From https://github.com/KrishanYadav333/EXXA
+ * branch            midterm-prep -> FETCH_HEAD
+
+HEAD is now at 889cd44 feat(nb05): spectral-context arms, wired end to end
+889cd44 feat(nb05): spectral-context arms, wired end to end
+src.* cleared from module cache -- now re-run the imports cell below.
+
+device: cuda | GPUs: 2 -> ['Tesla T4', 'Tesla T4']
+
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+
+--- run_0006_00170_rt_00 ---
+verdict: INDETERMINATE
+  neither model fits: the best beam is 0.00 px (i.e. none) yet the no-beam model still misses by 0.4326. P_d is not A*G(k)*P_c + N for any Gaussian G, so something other than a beam differs between these two cubes. Run phase0_diagnostics to see the spectra.
+  best-fit beam sigma  = 0.00 px
+  fit residual         = 0.4326  (no-beam model: 0.4326, 1.00x worse)
+  fitted amplitude A   = 1.977
+  band reaches k = 0.387 cyc/px over 47 bins; header's beam would act from k = 0.024  <- wide enough
+  header beam sigma    = 7.83 px
+clean  shape=(8, 600, 600) range=[-1.493e-09, 0.01275] BUNIT=JY/BEAM
+dirty  shape=(8, 600, 600) range=[-0.004497, 0.01529] BUNIT=JY/BEAM
+  BMAJ      clean=4.53474299957787e-05   dirty=4.53474299957787e-05
+  BMIN      clean=3.97862924821069e-05   dirty=3.97862924821069e-05
+  BPA       clean=169.54578310222487     dirty=169.54578310222487
+  CDELT1    clean=-2.305057e-06          dirty=-2.305057e-06
+  CDELT2    clean=2.305057e-06           dirty=2.305057e-06
+  BTYPE     clean=Intensity              dirty=Intensity
+  pixel scale = 0.0082982052 arcsec/px | header beam sigma = 7.825348390659697 px
+
+        k      P_clean      P_dirty     ratio    sqrt
+   0.0042         1650         1666     1.009   1.005
+   0.0292        4.637        11.23     2.422   1.556
+   0.0542     0.006887      0.06053     8.789   2.965
+   0.0792    9.974e-07    4.154e-05    41.652   6.454
+   0.1042    3.973e-11    2.329e-09    58.608   7.656
+   0.1292    8.283e-12    1.887e-11     2.278   1.509
+   0.1542    3.222e-12     7.24e-12     2.247   1.499
+   0.1792    1.453e-12    3.232e-12     2.225   1.492
+   0.2042     7.16e-13    1.586e-12     2.215   1.488
+   0.2292    3.795e-13    8.337e-13     2.197   1.482
+   0.2542     2.12e-13    4.644e-13     2.190   1.480
+   0.2792    1.224e-13    2.675e-13     2.185   1.478
+   0.3042    7.416e-14    1.598e-13     2.155   1.468
+   0.3292    4.693e-14    9.751e-14     2.078   1.441
+   0.3542    2.885e-14    5.911e-14     2.049   1.432
+   0.3792    2.016e-14    3.803e-14     1.887   1.374
+   0.4042    1.173e-14    2.194e-14     1.871   1.368
+   0.4292    7.645e-15    1.316e-14     1.721   1.312
+   0.4542    5.775e-15    8.666e-15     1.501   1.225
+   0.4792    4.035e-15    5.728e-15     1.420   1.191
+  noise floor estimate (median P_dirty above k=0.45) = 7.049e-15
+
+  per-channel clean std (which channels were selected):
+    0.00215  0.0022  0.00221  0.00215  0.00215  0.0022  0.00221  0.00216
+
+--- run_0010_00125_rt_01 ---
+verdict: INDETERMINATE
+  neither model fits: the best beam is 0.00 px (i.e. none) yet the no-beam model still misses by 0.6424. P_d is not A*G(k)*P_c + N for any Gaussian G, so something other than a beam differs between these two cubes. Run phase0_diagnostics to see the spectra.
+  best-fit beam sigma  = 0.00 px
+  fit residual         = 0.6424  (no-beam model: 0.6424, 1.00x worse)
+  fitted amplitude A   = 2.799
+  band reaches k = 0.354 cyc/px over 43 bins; header's beam would act from k = 0.018  <- wide enough
+  header beam sigma    = 10.25 px
+clean  shape=(8, 600, 600) range=[1.123e-06, 0.02078] BUNIT=JY/BEAM
+dirty  shape=(8, 600, 600) range=[-0.009451, 0.02308] BUNIT=JY/BEAM
+  BMAJ      clean=4.94435547022346e-05   dirty=4.94435547022346e-05
+  BMIN      clean=3.10046343682326e-05   dirty=3.10046343682326e-05
+  BPA       clean=121.09154653806556     dirty=121.09154653806556
+  CDELT1    clean=-1.622666e-06          dirty=-1.622666e-06
+  CDELT2    clean=1.622666e-06           dirty=1.622666e-06
+  BTYPE     clean=Intensity              dirty=Intensity
+  pixel scale = 0.0058415976 arcsec/px | header beam sigma = 10.246635556495255 px
+
+        k      P_clean      P_dirty     ratio    sqrt
+   0.0042         5661         6345     1.121   1.059
+   0.0292       0.5103        12.17    23.858   4.884
+   0.0542    0.0001123      0.03455   307.630  17.539
+   0.0792    7.602e-09    5.025e-06   661.103  25.712
+   0.1042    2.204e-11    1.825e-10     8.278   2.877
+   0.1292    7.277e-12     4.55e-11     6.253   2.501
+   0.1542    2.891e-12    1.776e-11     6.143   2.479
+   0.1792    1.323e-12    7.995e-12     6.044   2.459
+   0.2042    6.639e-13    3.943e-12     5.939   2.437
+   0.2292    3.536e-13    2.081e-12     5.883   2.426
+   0.2542    2.004e-13    1.157e-12     5.775   2.403
+   0.2792    1.194e-13    6.749e-13     5.654   2.378
+   0.3042    7.415e-14     4.02e-13     5.421   2.328
+   0.3292    4.811e-14    2.424e-13     5.038   2.244
+   0.3542    3.127e-14    1.468e-13     4.694   2.167
+   0.3792    2.725e-14     9.65e-14     3.541   1.882
+   0.4042    1.571e-14    5.413e-14     3.446   1.856
+   0.4292    1.212e-14     3.25e-14     2.682   1.638
+   0.4542    1.063e-14    2.073e-14     1.950   1.396
+   0.4792    8.453e-15     1.39e-14     1.644   1.282
+  noise floor estimate (median P_dirty above k=0.45) = 1.668e-14
+
+  per-channel clean std (which channels were selected):
+    0.00266  0.00267  0.00268  0.00268  0.00267  0.00268  0.00267  0.00265
+
+--- run_0010_00125_rt_02 ---
+verdict: INDETERMINATE
+  neither model fits: the best beam is 0.00 px (i.e. none) yet the no-beam model still misses by 0.6431. P_d is not A*G(k)*P_c + N for any Gaussian G, so something other than a beam differs between these two cubes. Run phase0_diagnostics to see the spectra.
+  best-fit beam sigma  = 0.00 px
+  fit residual         = 0.6431  (no-beam model: 0.6431, 1.00x worse)
+  fitted amplitude A   = 2.641
+  band reaches k = 0.379 cyc/px over 46 bins; header's beam would act from k = 0.030  <- wide enough
+  header beam sigma    = 6.24 px
+clean  shape=(8, 600, 600) range=[2.192e-06, 0.01612] BUNIT=JY/BEAM
+dirty  shape=(8, 600, 600) range=[-0.01162, 0.02132] BUNIT=JY/BEAM
+  BMAJ      clean=2.90244157709002e-05   dirty=2.90244157709002e-05
+  BMIN      clean=2.75404196167677e-05   dirty=2.75404196167677e-05
+  BPA       clean=43.693629768794565     dirty=43.693629768794565
+  CDELT1    clean=-1.923043e-06          dirty=-1.923043e-06
+  CDELT2    clean=1.923043e-06           dirty=1.923043e-06
+  BTYPE     clean=Intensity              dirty=Intensity
+  pixel scale = 0.0069229548000000005 arcsec/px | header beam sigma = 6.243387642890241 px
+
+        k      P_clean      P_dirty     ratio    sqrt
+   0.0042         4162         4401     1.057   1.028
+   0.0292        6.188        57.78     9.338   3.056
+   0.0542      0.03792        2.485    65.541   8.096
+   0.0792    8.814e-05      0.01591   180.513  13.436
+   0.1042    4.535e-08    1.866e-05   411.481  20.285
+   0.1292    2.605e-11    3.577e-09   137.300  11.718
+   0.1542    8.023e-12    3.918e-11     4.884   2.210
+   0.1792    3.575e-12    1.703e-11     4.763   2.182
+   0.2042    1.756e-12    8.239e-12     4.693   2.166
+   0.2292    9.264e-13     4.29e-12     4.631   2.152
+   0.2542    5.212e-13    2.374e-12     4.554   2.134
+   0.2792    3.014e-13    1.361e-12     4.517   2.125
+   0.3042    1.835e-13    8.089e-13     4.408   2.099
+   0.3292     1.14e-13    4.837e-13     4.244   2.060
+   0.3542    7.055e-14    2.908e-13     4.122   2.030
+   0.3792    5.868e-14    1.889e-13     3.218   1.794
+   0.4042     2.95e-14    1.031e-13     3.495   1.869
+   0.4292    2.058e-14    5.967e-14     2.900   1.703
+   0.4542    1.528e-14    3.448e-14     2.257   1.502
+   0.4792    1.104e-14    2.153e-14     1.949   1.396
+  noise floor estimate (median P_dirty above k=0.45) = 2.578e-14
+
+  per-channel clean std (which channels were selected):
+    0.00329  0.0034  0.00331  0.00311  0.00309  0.00329  0.00348  0.0034
+
+--- run_0020_01000_rt_02 ---
+verdict: INDETERMINATE
+  neither model fits: the best beam is 0.31 px (i.e. none) yet the no-beam model still misses by 0.8804. P_d is not A*G(k)*P_c + N for any Gaussian G, so something other than a beam differs between these two cubes. Run phase0_diagnostics to see the spectra.
+  best-fit beam sigma  = 0.31 px
+  fit residual         = 0.8804  (no-beam model: 0.8804, 1.00x worse)
+  fitted amplitude A   = 0.000   <- clean and dirty are NOT on one intensity scale (Jy/beam vs Jy/pixel?)
+  band reaches k = 0.404 cyc/px over 49 bins; header's beam would act from k = 0.025  <- wide enough
+  header beam sigma    = 7.58 px
+clean  shape=(8, 600, 600) range=[9.412e-09, 0.007121] BUNIT=JY/BEAM
+dirty  shape=(8, 600, 600) range=[-0.009754, 0.01358] BUNIT=JY/BEAM
+  BMAJ      clean=3.90657595577786e-05   dirty=3.90657595577786e-05
+  BMIN      clean=2.97708795710771e-05   dirty=2.97708795710771e-05
+  BPA       clean=103.45280747889457     dirty=103.45280747889457
+  CDELT1    clean=-1.911096e-06          dirty=-1.911096e-06
+  CDELT2    clean=1.911096e-06           dirty=1.911096e-06
+  BTYPE     clean=Intensity              dirty=Intensity
+  pixel scale = 0.0068799456 arcsec/px | header beam sigma = 7.577985009200474 px
+
+        k      P_clean      P_dirty     ratio    sqrt
+   0.0042        60.35        222.1     3.681   1.919
+   0.0292      0.06504        28.76   442.220  21.029
+   0.0542    0.0001123       0.4633  4126.923  64.241
+   0.0792     6.98e-08     0.001084 15525.642 124.602
+   0.1042    1.311e-11    3.323e-07 25341.267 159.189
+   0.1292    1.314e-12     5.84e-11    44.457   6.668
+   0.1542    5.109e-13    1.741e-11    34.069   5.837
+   0.1792    2.291e-13     7.65e-12    33.397   5.779
+   0.2042    1.134e-13     3.73e-12    32.882   5.734
+   0.2292    5.973e-14    1.946e-12    32.576   5.708
+   0.2542    3.348e-14    1.075e-12    32.096   5.665
+   0.2792    1.928e-14    6.173e-13    32.018   5.658
+   0.3042    1.142e-14    3.643e-13    31.899   5.648
+   0.3292    6.937e-15     2.15e-13    30.997   5.567
+   0.3542    4.122e-15    1.274e-13    30.913   5.560
+   0.3792     2.78e-15    7.568e-14    27.221   5.217
+   0.4042    1.459e-15    4.194e-14    28.745   5.361
+   0.4292    8.577e-16    2.232e-14    26.021   5.101
+   0.4542    5.787e-16    1.109e-14    19.162   4.377
+   0.4792    3.057e-16    5.549e-15    18.148   4.260
+  noise floor estimate (median P_dirty above k=0.45) = 6.124e-15
+
+  per-channel clean std (which channels were selected):
+    0.000828  0.000901  0.000931  0.000926  0.000905  0.000881  0.000856  0.000826
+
+======================================================================
+PHASE 0 VERDICT: INDETERMINATE  (4/4 cubes agree)
+Neither model fits. Do NOT build on this -- read the spectra dumped above.
+  Check first whether the clean cube is already beam-convolved (BUNIT=JY/BEAM
+  rather than JY/PIXEL), in which case there is no beam BETWEEN the two cubes.
+======================================================================
+
+Record the answer in PHYSICS_INFORMED_PLAN.md before writing any DDRM code.
+
+[FITSChannelDataset] 7 cubes x ~150 channels = 1050 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+[FITSChannelDataset] 2 cubes x ~150 channels = 300 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+[FITSChannelDataset] 7 cubes x ~150 channels = 1050 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels) | D4 augmentation ON
+train items: 1050 | val items: 300
+augmented item takes 8 orientations | val deterministic: True
+[FITSChannelDataset] 7 cubes x ~150 channels = 1050 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+[FITSChannelDataset] 2 cubes x ~150 channels = 300 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+[FITSChannelDataset] 7 cubes x ~150 channels = 1050 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+[FITSChannelDataset] 2 cubes x ~150 channels = 300 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+[FITSChannelDataset] 7 cubes x ~150 channels = 1050 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+[FITSChannelDataset] 2 cubes x ~150 channels = 300 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+spectral context: k=1 -> 3 input channels, k=2 -> 5
+[FITSChannelDataset] 7 cubes x ~150 channels = 1050 items | target 600x600 | continuum-subtracted (mean of first/last 5 channels)
+[FITSChannelDataset] 2 cubes x ~150 channels = 300 items | target 600x600 | continuum-subtracted (mean of first/last 5 channels)
+
+training views:
+  full-image 256 :  1,050 samples
+  augmented 256  :  1,050 samples (same items, 8 orientations each)
+  beam 256       :  1,050 samples + 4-vector
+  patches 64px   :  8,400 samples (8 per channel)
+  native 600     :  1,050 samples
+  spectral k=1   :  1,050 samples x 3 channels
+  spectral k=2   :  1,050 samples x 5 channels
+
+original V12 checkpoint available: False -- upload it (any of .pth/.ckpt/.bin) and it will be found by architecture
+[nb05 prior] restored 3 checkpoint(s) and 2 recorded run(s)
+[nb08] imported 12 checkpoint(s) and 12 recorded run(s)
+[resume] 14 run(s) already scored: [('sweep_winner', 42), ('sweep_winner', 43), ('sweep_winner', 44), ('sweep_winner', 49), ('sweep_winner_aug', 42), ('sweep_winner_aug', 43), ('sweep_winner_aug', 44), ('sweep_winner_p10', 42), ('sweep_winner_p10', 43), ('sweep_winner_p10', 44), ('v12_cfg', 42), ('v12_cfg', 43), ('v12_cfg', 44), ('winner_beam', 42)]
+
+==========================================================================
+=== sweep_winner [full view, seeds [42, 43, 44, 49]]: {'base_channels': 48, 'channel_multipliers': (1, 2, 4, 8), 'lr': 0.0008196504330730313, 'alpha': 0.8877681051398497, 'sched_patience': 8, 'use_beam': False, 'batch_size': 16}
+==========================================================================
+--- sweep_winner seed 42: SKIPPED, already done (PSNR 37.2303) ---
+--- sweep_winner seed 43: SKIPPED, already done (PSNR 37.7237) ---
+--- sweep_winner seed 44: SKIPPED, already done (PSNR 38.9694) ---
+--- sweep_winner seed 49: SKIPPED, already done (PSNR 36.1624) ---
+
+==========================================================================
+=== sweep_winner_aug [aug view, seeds [42, 43, 44]]: {'base_channels': 48, 'channel_multipliers': (1, 2, 4, 8), 'lr': 0.0008196504330730313, 'alpha': 0.8877681051398497, 'sched_patience': 8, 'use_beam': False, 'batch_size': 16}
+==========================================================================
+--- sweep_winner_aug seed 42: SKIPPED, already done (PSNR 38.9389) ---
+--- sweep_winner_aug seed 43: SKIPPED, already done (PSNR 39.8084) ---
+--- sweep_winner_aug seed 44: SKIPPED, already done (PSNR 39.1412) ---
+
+==========================================================================
+=== sweep_winner_p10 [full view, seeds [42, 43, 44]]: {'base_channels': 48, 'channel_multipliers': (1, 2, 4, 8), 'lr': 0.0008196504330730313, 'alpha': 0.8877681051398497, 'sched_patience': 8, 'use_beam': False, 'batch_size': 16, 'patience': 10}
+==========================================================================
+--- sweep_winner_p10 seed 42: SKIPPED, already done (PSNR 38.9538) ---
+--- sweep_winner_p10 seed 43: SKIPPED, already done (PSNR 39.0344) ---
+--- sweep_winner_p10 seed 44: SKIPPED, already done (PSNR 39.8298) ---
+
+==========================================================================
+=== v12_cfg [full view, seeds [42, 43, 44]]: {'base_channels': 32, 'channel_multipliers': (1, 2, 4), 'lr': 0.001, 'alpha': 0.8, 'sched_patience': 5, 'use_beam': False, 'batch_size': 16}
+==========================================================================
+--- v12_cfg seed 42: SKIPPED, already done (PSNR 38.6593) ---
+--- v12_cfg seed 43: SKIPPED, already done (PSNR 36.6707) ---
+--- v12_cfg seed 44: SKIPPED, already done (PSNR 37.4657) ---
+
+==========================================================================
+=== winner_beam [beam view, seeds [42]]: {'base_channels': 48, 'channel_multipliers': (1, 2, 4, 8), 'lr': 0.0008196504330730313, 'alpha': 0.8877681051398497, 'sched_patience': 8, 'use_beam': True, 'batch_size': 16}
+==========================================================================
+--- winner_beam seed 42: SKIPPED, already done (PSNR 38.7102) ---
+
+==========================================================================
+=== winner_patch [patch view, seeds [42]]: {'base_channels': 48, 'channel_multipliers': (1, 2, 4, 8), 'lr': 0.0008196504330730313, 'alpha': 0.8877681051398497, 'sched_patience': 8, 'use_beam': False, 'batch_size': 16}
+==========================================================================
+
+--- winner_patch: seed 42 -- checkpoint found, scoring without retraining ---
+  seed 42: PSNR 34.9811 | SSIM 0.9883 (from stored checkpoint)
+
+==========================================================================
+=== winner_k1 [spec_k1 view, seeds [42]]: {'base_channels': 48, 'channel_multipliers': (1, 2, 4, 8), 'lr': 0.0008196504330730313, 'alpha': 0.8877681051398497, 'sched_patience': 8, 'use_beam': False, 'batch_size': 16, 'n_neighbors': 1}
+==========================================================================
+
+--- winner_k1: seed 42 ---
+  ep   1 | train 0.0600 | val 0.0077 | lr 8.2e-04 (82s) *best
+  ep   2 | train 0.0037 | val 0.0036 | lr 8.2e-04 (87s) *best
+  ep   3 | train 0.0023 | val 0.0026 | lr 8.2e-04 (87s) *best
+  ep   4 | train 0.0020 | val 0.0020 | lr 8.2e-04 (87s) *best
+  ep   5 | train 0.0014 | val 0.0016 | lr 8.2e-04 (87s) *best
+  ep   6 | train 0.0013 | val 0.0013 | lr 8.2e-04 (87s) *best
+  ep   7 | train 0.0013 | val 0.0018 | lr 8.2e-04 (87s)
+  ep   8 | train 0.0010 | val 0.0014 | lr 8.2e-04 (87s)
+  ep   9 | train 0.0010 | val 0.0012 | lr 8.2e-04 (87s) *best
+  ep  10 | train 0.0008 | val 0.0009 | lr 8.2e-04 (87s) *best
+  ep  11 | train 0.0009 | val 0.0009 | lr 8.2e-04 (87s) *best
+  ep  12 | train 0.0008 | val 0.0011 | lr 8.2e-04 (87s)
+  ep  13 | train 0.0009 | val 0.0011 | lr 8.2e-04 (87s)
+  ep  14 | train 0.0007 | val 0.0008 | lr 8.2e-04 (87s) *best
+  ep  15 | train 0.0007 | val 0.0008 | lr 8.2e-04 (87s)
+  ep  16 | train 0.0007 | val 0.0009 | lr 8.2e-04 (87s)
+  ep  17 | train 0.0007 | val 0.0014 | lr 8.2e-04 (87s)
+  ep  18 | train 0.0009 | val 0.0008 | lr 8.2e-04 (87s) *best
+  ep  19 | train 0.0013 | val 0.0072 | lr 8.2e-04 (87s)
+  ep  20 | train 0.1003 | val 0.0406 | lr 8.2e-04 (87s)
+  ep  21 | train 0.0278 | val 0.0162 | lr 8.2e-04 (87s)
+  ep  22 | train 0.0075 | val 0.0094 | lr 8.2e-04 (87s)
+  ep  23 | train 0.0051 | val 0.0056 | lr 8.2e-04 (87s)
+  early stop at epoch 23 (no improvement for 5 epochs)
+  seed 42: PSNR 40.2190 | SSIM 0.9945 | best ep 18 (23 run)
+
+==========================================================================
+=== winner_k2 [spec_k2 view, seeds [42]]: {'base_channels': 48, 'channel_multipliers': (1, 2, 4, 8), 'lr': 0.0008196504330730313, 'alpha': 0.8877681051398497, 'sched_patience': 8, 'use_beam': False, 'batch_size': 16, 'n_neighbors': 2}
+==========================================================================
+
+--- winner_k2: seed 42 ---
+  ep   1 | train 0.0395 | val 0.0050 | lr 8.2e-04 (88s) *best
+  ep   2 | train 0.0034 | val 0.0026 | lr 8.2e-04 (88s) *best
+  ep   3 | train 0.0020 | val 0.0022 | lr 8.2e-04 (88s) *best
+  ep   4 | train 0.0018 | val 0.0018 | lr 8.2e-04 (88s) *best
+  ep   5 | train 0.0018 | val 0.0016 | lr 8.2e-04 (88s) *best
+  ep   6 | train 0.0013 | val 0.0013 | lr 8.2e-04 (88s) *best
+  ep   7 | train 0.0011 | val 0.0013 | lr 8.2e-04 (88s)
+  ep   8 | train 0.0009 | val 0.0016 | lr 8.2e-04 (88s)
+  ep   9 | train 0.0011 | val 0.0014 | lr 8.2e-04 (88s)
+  ep  10 | train 0.0008 | val 0.0009 | lr 8.2e-04 (88s) *best
+  ep  11 | train 0.0007 | val 0.0008 | lr 8.2e-04 (89s) *best
+  ep  12 | train 0.0007 | val 0.0009 | lr 8.2e-04 (88s)
+  ep  13 | train 0.0006 | val 0.0008 | lr 8.2e-04 (88s)
+  ep  14 | train 0.0007 | val 0.0008 | lr 8.2e-04 (89s)
+  ep  15 | train 0.0008 | val 0.0008 | lr 8.2e-04 (88s)
+  ep  16 | train 0.0008 | val 0.0010 | lr 8.2e-04 (89s)
+  ep  17 | train 0.0006 | val 0.0006 | lr 8.2e-04 (88s) *best
+  ep  18 | train 0.0006 | val 0.0011 | lr 8.2e-04 (88s)
+  ep  19 | train 0.0006 | val 0.0007 | lr 8.2e-04 (88s)
+  ep  20 | train 0.0005 | val 0.0007 | lr 8.2e-04 (89s)
+  ep  21 | train 0.0006 | val 0.0007 | lr 8.2e-04 (89s)
+  ep  22 | train 0.0007 | val 0.0008 | lr 8.2e-04 (88s)
+  early stop at epoch 22 (no improvement for 5 epochs)
+  seed 42: PSNR 42.2686 | SSIM 0.9952 | best ep 17 (22 run)
+
+seed_repeats.csv: 17 row(s) covering 8 arm(s)
+
+==========================================================================
+PSNR per arm, spread ACROSS SEEDS (n varies by arm)
+==========================================================================
+  sweep_winner   37.521 +/- 1.165   (37.230, 37.724, 38.969, 36.162)
+  sweep_winner_aug 39.296 +/- 0.455   (38.939, 39.808, 39.141)
+  sweep_winner_p10 39.273 +/- 0.484   (38.954, 39.034, 39.830)
+  v12_cfg        37.599 +/- 1.001   (38.659, 36.671, 37.466)
+  winner_beam    38.710 +/- 0.000   (38.710)
+  winner_patch   34.981 +/- 0.000   (34.981)
+  winner_k1      40.219 +/- 0.000   (40.219)
+  winner_k2      42.269 +/- 0.000   (42.269)
+  sweep row      37.109   <- sweep run 7, seed 49, single run
+  V12 (orig)     32.950   <- published V12, single run, ORIGINAL UNMASKED metric
+
+sweep_winner - v12_cfg: -0.077 dB (pooled spread 1.536)
+  -> within seed noise: INDISTINGUISHABLE
+
+best sweep_winner seed: 44 (PSNR 38.9694) -> ../results/checkpoints/nb05_sweep_winner_seed44.pth
+
+cached clean/dirty moment maps for 5 cubes
+
+=== sweep_winner seed 42 ===
+  run_0002_00560_rt_00     M0    29.2%  M1    32.7%  M2  -124.0%
+  run_0002_00560_rt_01     M0    55.4%  M1    83.1%  M2    -6.5%
+  run_0002_00560_rt_04     M0    61.6%  M1    60.4%  M2   -51.5%
+  run_0025_01000_rt_04     M0     1.9%  M1    26.2%  M2    33.2%
+  run_0026_00005_rt_04     M0    70.8%  M1    68.8%  M2   -39.6%
+
+=== sweep_winner seed 43 ===
+  run_0002_00560_rt_00     M0   -23.0%  M1    62.0%  M2    23.3%
+  run_0002_00560_rt_01     M0    26.8%  M1    82.0%  M2    47.3%
+  run_0002_00560_rt_04     M0    33.9%  M1    76.5%  M2    17.5%
+  run_0025_01000_rt_04     M0  -182.4%  M1   -14.7%  M2    17.4%
+  run_0026_00005_rt_04     M0    52.0%  M1    75.8%  M2    58.0%
+
+=== sweep_winner seed 44 ===
+  run_0002_00560_rt_00     M0    36.3%  M1    60.5%  M2    32.2%
+  run_0002_00560_rt_01     M0    20.9%  M1    82.0%  M2    12.8%
+  run_0002_00560_rt_04     M0    44.1%  M1    94.0%  M2    94.0%
+  run_0025_01000_rt_04     M0   -24.4%  M1    29.0%  M2    43.8%
+  run_0026_00005_rt_04     M0    34.3%  M1    68.8%  M2    -1.9%
+
+=== sweep_winner seed 49 ===
+  run_0002_00560_rt_00     M0   -33.5%  M1    -5.0%  M2   -51.5%
+  run_0002_00560_rt_01     M0    10.2%  M1    71.2%  M2    19.0%
+  run_0002_00560_rt_04     M0    30.1%  M1    73.5%  M2   -46.2%
+  run_0025_01000_rt_04     M0   -70.3%  M1    13.7%  M2    25.5%
+  run_0026_00005_rt_04     M0    53.2%  M1    71.4%  M2    17.8%
+
+=== sweep_winner_aug seed 42 ===
+  run_0002_00560_rt_00     M0    -3.0%  M1    65.8%  M2    50.1%
+  run_0002_00560_rt_01     M0    38.3%  M1    80.3%  M2    34.8%
+  run_0002_00560_rt_04     M0    53.6%  M1    95.7%  M2    91.8%
+  run_0025_01000_rt_04     M0   -38.2%  M1    44.2%  M2    46.3%
+  run_0026_00005_rt_04     M0    54.9%  M1    76.8%  M2    25.0%
+
+=== sweep_winner_aug seed 43 ===
+  run_0002_00560_rt_00     M0    31.3%  M1    77.2%  M2    84.6%
+  run_0002_00560_rt_01     M0    48.2%  M1    88.1%  M2    68.7%
+  run_0002_00560_rt_04     M0    60.0%  M1    96.6%  M2    93.5%
+  run_0025_01000_rt_04     M0   -25.7%  M1    39.9%  M2    48.3%
+  run_0026_00005_rt_04     M0    60.8%  M1    80.1%  M2    58.6%
+
+=== sweep_winner_aug seed 44 ===
+  run_0002_00560_rt_00     M0    24.5%  M1    77.9%  M2    42.6%
+  run_0002_00560_rt_01     M0    42.9%  M1    90.6%  M2    28.6%
+  run_0002_00560_rt_04     M0    58.0%  M1    96.5%  M2    94.2%
+  run_0025_01000_rt_04     M0   -25.5%  M1    24.4%  M2    38.1%
+  run_0026_00005_rt_04     M0    57.8%  M1    76.5%  M2    19.7%
+
+=== sweep_winner_p10 seed 42 ===
+  run_0002_00560_rt_00     M0    29.2%  M1    64.0%  M2     8.0%
+  run_0002_00560_rt_01     M0    48.5%  M1    88.2%  M2    51.5%
+  run_0002_00560_rt_04     M0    60.1%  M1    92.3%  M2    36.4%
+  run_0025_01000_rt_04     M0    27.6%  M1    59.7%  M2    54.8%
+  run_0026_00005_rt_04     M0    57.1%  M1    78.0%  M2     6.6%
+
+=== sweep_winner_p10 seed 43 ===
+  run_0002_00560_rt_00     M0     0.0%  M1    71.9%  M2    55.0%
+  run_0002_00560_rt_01     M0    45.0%  M1    80.0%  M2     8.5%
+  run_0002_00560_rt_04     M0    51.7%  M1    91.8%  M2    78.8%
+  run_0025_01000_rt_04     M0    -7.0%  M1    39.7%  M2    37.5%
+  run_0026_00005_rt_04     M0    58.5%  M1    78.0%  M2    35.3%
+
+=== sweep_winner_p10 seed 44 ===
+  run_0002_00560_rt_00     M0     4.1%  M1    38.8%  M2    -5.7%
+  run_0002_00560_rt_01     M0    51.2%  M1    85.0%  M2     4.1%
+  run_0002_00560_rt_04     M0    61.2%  M1    94.9%  M2    92.9%
+  run_0025_01000_rt_04     M0   -40.3%  M1    22.3%  M2    27.5%
+  run_0026_00005_rt_04     M0    55.9%  M1    75.8%  M2   -14.4%
+
+=== v12_cfg seed 42 ===
+  run_0002_00560_rt_00     M0    -1.4%  M1    73.9%  M2    56.3%
+  run_0002_00560_rt_01     M0    23.6%  M1    83.7%  M2    32.6%
+  run_0002_00560_rt_04     M0    46.7%  M1    90.9%  M2    74.2%
+  run_0025_01000_rt_04     M0    25.6%  M1    55.9%  M2    55.2%
+  run_0026_00005_rt_04     M0    45.6%  M1    75.7%  M2    22.7%
+
+=== v12_cfg seed 43 ===
+  run_0002_00560_rt_00     M0   -28.9%  M1    64.4%  M2    -5.0%
+  run_0002_00560_rt_01     M0    35.5%  M1    83.3%  M2   -28.2%
+  run_0002_00560_rt_04     M0    54.6%  M1    88.8%  M2    71.5%
+  run_0025_01000_rt_04     M0  -125.8%  M1    -5.6%  M2    -6.2%
+  run_0026_00005_rt_04     M0    56.9%  M1    76.9%  M2    28.7%
+
+=== v12_cfg seed 44 ===
+  run_0002_00560_rt_00     M0  -136.8%  M1   -44.8%  M2  -169.0%
+  run_0002_00560_rt_01     M0    32.9%  M1    76.9%  M2     5.4%
+  run_0002_00560_rt_04     M0    34.2%  M1    85.6%  M2    47.9%
+  run_0025_01000_rt_04     M0  -194.7%  M1    -3.2%  M2    23.2%
+  run_0026_00005_rt_04     M0    65.9%  M1    67.6%  M2    22.9%
+
+=== winner_beam seed 42 ===
+  run_0002_00560_rt_00     M0    14.3%  M1    54.4%  M2    -7.5%
+  run_0002_00560_rt_01     M0    45.5%  M1    83.4%  M2    54.1%
+  run_0002_00560_rt_04     M0    56.7%  M1    92.2%  M2    31.4%
+  run_0025_01000_rt_04     M0  -133.8%  M1    12.0%  M2    34.0%
+  run_0026_00005_rt_04     M0    65.2%  M1    74.3%  M2    -7.5%
+
+=== winner_patch seed 42 ===
+  run_0002_00560_rt_00     M0     5.5%  M1     7.4%  M2   -43.3%
+  run_0002_00560_rt_01     M0    33.6%  M1    76.0%  M2    53.1%
+  run_0002_00560_rt_04     M0    47.5%  M1    70.2%  M2    27.0%
+  run_0025_01000_rt_04     M0  -333.9%  M1    -1.4%  M2    10.1%
+  run_0026_00005_rt_04     M0    43.3%  M1    67.4%  M2    45.8%
+
+=== winner_k1 seed 42 ===
+  run_0002_00560_rt_00     M0     9.6%  M1    23.6%  M2   -33.4%
+  run_0002_00560_rt_01     M0    -2.0%  M1    71.3%  M2     8.6%
+  run_0002_00560_rt_04     M0    29.9%  M1    80.6%  M2    14.1%
+  run_0025_01000_rt_04     M0   -12.9%  M1    38.6%  M2    43.0%
+  run_0026_00005_rt_04     M0    45.1%  M1    78.4%  M2    41.7%
+
+=== winner_k2 seed 42 ===
+  run_0002_00560_rt_00     M0    36.1%  M1    68.0%  M2    19.1%
+  run_0002_00560_rt_01     M0    47.1%  M1    85.1%  M2    12.3%
+  run_0002_00560_rt_04     M0    61.1%  M1    80.4%  M2   -17.9%
+  run_0025_01000_rt_04     M0  -104.7%  M1    30.5%  M2    44.4%
+  run_0026_00005_rt_04     M0    53.1%  M1    83.9%  M2    85.1%
+
+================================================================================================
+MOMENT-MAP COMPARISON -- all rows below the line share ONE metric (clipped + signal-masked)
+================================================================================================
+                                        PSNR            M0 (%)            M1 (%)            M2 (%)
+------------------------------------------------------------------------------------------------
+sweep winner (4 seeds)              37.52          11.4+/-27.4        55.6+/-9.0          6.0+/-35.1 
+sweep winner + D4 aug (3 seeds)     39.30          29.2+/-7.2         74.0+/-2.0         55.0+/-13.9 
+sweep winner + patience 10 (3 seeds)  39.27          33.5+/-9.6         70.7+/-6.7         31.8+/-11.1 
+V12 config (3 seeds)                37.60          -4.4+/-33.9        58.0+/-20.0        15.5+/-31.2 
+winner + beam conditioning (1 seed)  38.71           9.6+/-0.0         63.2+/-0.0         20.9+/-0.0  
+winner on 64px patches (1 seed)     34.98         -40.8+/-0.0         43.9+/-0.0         18.5+/-0.0  
+------------------------------------------------------------------------------------------------
+V12 published (ORIGINAL run,        32.95          69.8+/-15.2        17.5+/-7.8         20.1+/-14.3 
+  UNMASKED metric -- NOT comparable)
+================================================================================================
+Rows above the second line share one metric and may be compared. The final row is the
+published V12 figure on the ORIGINAL unmasked metric, kept for provenance only: the
+clip alone moves M1 by roughly 4x, so a delta against it measures the metric change,
+not the models. Note its spread is cube-to-cube where the 3-seed rows are across seeds.
+
+Sweep winner vs V12 config, same metric, same seeds:
+  M0:  +15.7 pp  (seed spread 43.6) -> within seed spread -> INDISTINGUISHABLE
+  M1:   -2.4 pp  (seed spread 22.0) -> within seed spread -> INDISTINGUISHABLE
+  M2:   -9.5 pp  (seed spread 47.0) -> within seed spread -> INDISTINGUISHABLE
+
+n=3 seeds; the std is itself a noisy estimate. This is a guard against
+over-claiming, not a significance test.
+
+Effect of D4 augmentation (same config, same seeds):
+  PSNR: +1.77 dB  (pooled seed spread 1.25) -> exceeds the seed spread
+  M0:  +17.8 pp  (seed spread 28.3) -> within seed spread
+  M1:  +18.4 pp  (seed spread 9.2) -> exceeds the seed spread -> real at n=3
+  M2:  +49.0 pp  (seed spread 37.8) -> suggestive, not established at n=3
+  Notebook 08 measured +1.3 dB and the lowest invented-structure rate for this
+  arm on a different split; agreement across both is worth more than either.
+
+selected by M0, not PSNR: sweep_winner_p10 seed 42 -> M0 +44.5%, PSNR 38.9538
+  (ranking by PSNR instead would have picked winner_k2 seed 42 at 42.2686 dB)
+
+sections 7-8 diagnose sweep_winner_p10 seed 42 (PSNR 38.9538, epoch 30)
+
+  run_0002_00560_rt_00         M0  +29.2  M1  +64.0  M2   +8.0  -> moments_run_0002_00560_rt_00.png
+
+  run_0002_00560_rt_01         M0  +48.5  M1  +88.2  M2  +51.5  -> moments_run_0002_00560_rt_01.png
+
+  run_0002_00560_rt_04         M0  +60.1  M1  +92.3  M2  +36.4  -> moments_run_0002_00560_rt_04.png
+
+  run_0025_01000_rt_04         M0  +27.6  M1  +59.7  M2  +54.8  -> moments_run_0025_01000_rt_04.png
+
+  run_0026_00005_rt_04         M0  +57.1  M1  +78.0  M2   +6.6  -> moments_run_0026_00005_rt_04.png
+
+saved 5 moment-map figures -> ../results/figures
+
+[FITSChannelDataset] 2 cubes x ~150 channels = 300 items | target 256x256 | continuum-subtracted (mean of first/last 5 channels)
+channels shared with the DDPM figure:
+   run_0016_00550_rt_01 ch 82
+   run_0016_00550_rt_01 ch 32
+   run_0016_00550_rt_01 ch 177
+   run_0016_00550_rt_01 ch 153
+   run_0016_00550_rt_01 ch 141
+
+saved -> experiments/line_emission_unet_comparison.png
+
+saved -> results/moment_all_arms_vs_v12.png
+
+validation channels analysed: 300
+
+PEAK OVERSHOOT  denoised.max / clean.max   (1.0 = perfect; prior ch-100 figure 1.151)
+  mean 1.418 | median 0.848 | p90 1.054 | max 91.580
+  channels overshooting by >10%: 8%
+
+NEGATIVE FLOOR LEAK  denoised.min  (clean floor ~0; prior figure -0.0017)
+  mean -0.13108 | most negative -0.21807
+
+INVENTED STRUCTURE  (background pixels pushed above 20% of clean peak, blobs >= 20 px)
+  channels with >=1 fake blob: 33% | blobs/channel 0.97
+  mean invented area fraction of background: 6.6486% | worst channel: 99.9587%
+
+  SNR split at median 3.9  ->  is invented structure low-SNR specific?
+    low-SNR  half: blobs/channel 1.63 | invented area 13.2590% | overshoot 1.992
+    high-SNR half: blobs/channel 0.31 | invented area 0.0382% | overshoot 0.844
+
+per-channel diagnostics saved -> ../results/artifact_diagnostics_sweepwinner.csv
+
+saved -> experiments/hallucination_worst_channels.png
+
+persisted 17 checkpoint(s) and 16 result file(s) to /kaggle/working
+
+To resume: Add Input -> Notebooks -> THIS notebook. Do NOT re-upload a .pth as
+a Dataset -- Kaggle unpacks it and torch.load then fails with "Is a directory".
+
+collected 14 file(s), 9.4 MiB -> /kaggle/working/outputs/05-unet-line-emission/2026-08-20T214039_889cd44
+       0.03 MiB  artifact_diagnostics_sweepwinner.csv
+       0.08 MiB  artifact_diagnostics_sweepwinner.png
+       0.24 MiB  hallucination_worst_channels.png
+       0.87 MiB  line_emission_unet_comparison.png
+       0.11 MiB  moment_all_arms_vs_v12.png
+       0.00 MiB  moment_map_holdout_summary_sweepwinner.csv
+       0.79 MiB  moments_run_0002_00560_rt_00.png
+       1.40 MiB  moments_run_0002_00560_rt_01.png
+       1.47 MiB  moments_run_0002_00560_rt_04.png
+       2.64 MiB  moments_run_0025_01000_rt_04.png
+       1.69 MiB  moments_run_0026_00005_rt_04.png
+       0.01 MiB  nb05_moment_by_seed.csv
+       0.00 MiB  nb05_seed_repeats.csv
+       0.06 MiB  sweepwinner_loss.png
+
+Anything listed as NOT FOUND above did not get written this run.
