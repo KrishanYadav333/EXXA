@@ -98,6 +98,40 @@ Two negative results, both kept: beam conditioning worst on M0 (later retracted,
 **Notebook not archived.** Lost. Kaggle did not auto-push this version and the local copy was
 stripped before the gap was noticed. Part of why RULES.md #10 exists.
 
+## 2026-08-20 | code | the spectral-context arms are wired into 05 and ready to run
+
+Two new arms in notebook 05, `winner_k1` and `winner_k2`, identical to `sweep_winner` except
+that the input is the channel plus k neighbours along velocity. This is the Phase 3a item and,
+after Phase 0, the only physics-informed lead still standing.
+
+Wired end to end rather than only in `src/`:
+
+- `train_unet(n_neighbors=k)` forwards to `build_model`, and the checkpoint now records
+  `in_channels`, so a resumed run rebuilds the right shape instead of assuming 1.
+- Cell 12 builds the k=1 and k=2 views and asserts their centre channel is byte-identical to
+  the k=0 item, so the arms stay a clean one-change ablation.
+- Cell 14's score-without-retraining path reads `in_channels` from the checkpoint and scores a
+  k>0 arm on its own val view, because a 2k+1-channel model cannot be fed the 1-channel
+  loader at all.
+- `denoise_cube` builds the neighbour stack for section 6, with neighbours normalised by the
+  CENTRE channel's (min,max) and the cube's ends clamped, matching the dataset exactly.
+
+That last one is where a silent bug would have lived. `denoise_cube` keeps a per-channel
+`norm` array, and slicing it for neighbours would have given each its own scale, erasing the
+relative amplitude along velocity, which is the whole signal these arms add. It would have
+trained on one representation and scored on another with nothing raising, exactly the shape of
+the `winner_beam` failure. `tests/test_denoise_cube_spectral.py` executes the notebook's real
+`denoise_cube` source against a spy model and compares its input tensors to the dataset's:
+8/8 channels identical, and the deliberately-wrong version is flagged 8/8, so the check can
+fail (RULES.md #8).
+
+Verified by training a k=1 arm for one epoch on synthetic cubes: trains, writes
+`in_channels=3`, and the resume path rebuilds it and reproduces the same PSNR.
+
+**Not yet run on real data.** Suggest k=1 and k=2 at one seed against `sweep_winner` at the
+same seed. Expected effect is on M1 and M2 specifically; if they do not move, the
+per-channel-independence explanation for their weakness is wrong and worth revisiting.
+
 ## 2026-08-20 | finding | the clean cubes are already beam-convolved
 
 Run 4 came back `indeterminate` on all four cubes, and the diagnostic dump answered the

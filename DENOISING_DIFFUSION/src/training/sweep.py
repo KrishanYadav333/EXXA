@@ -80,6 +80,7 @@ def train_unet(
     alpha: float = 0.8,           # HybridLoss: alpha*MSE + (1-alpha)*(1-SSIM)
     batch_size: int = 32,
     use_beam: bool = False,
+    n_neighbors: int = 0,
     min_epochs: int = 20,
     max_epochs: int = 100,
     patience: int = 5,            # early stop: epochs without val-loss improvement
@@ -107,6 +108,10 @@ def train_unet(
             Only the U-Net has ever been swept on this data, so the previously
             published AE/VAE numbers (Week-2, 64x64 continuum patches) are not a
             fair basis for an architecture claim.
+        n_neighbors: k, for 2.5D spectral context. The dataset must be built with the
+            SAME k: it yields a (2k+1, H, W) dirty tensor, and this sets the model's
+            in_channels to match. Mismatched values fail on the first batch. 0 (default)
+            leaves every existing config unchanged.
         latent_dim: VAE only -- channels in the latent map.
         kl_weight: VAE only -- weight on the KL term. Ignored by architectures
             with no extra loss, so a single sweep driver can pass it blindly.
@@ -123,7 +128,8 @@ def train_unet(
     n_gpu = torch.cuda.device_count() if str(device).startswith("cuda") else 0
     net = build_model(arch, base_channels=base_channels,
                       channel_multipliers=channel_multipliers,
-                      use_beam=use_beam, latent_dim=latent_dim).to(device)
+                      use_beam=use_beam, n_neighbors=n_neighbors,
+                      latent_dim=latent_dim).to(device)
     fwd = forward_fn(arch)
     extra = extra_loss_fn(arch)
     model = torch.nn.DataParallel(net) if n_gpu > 1 else net
@@ -206,6 +212,11 @@ def train_unet(
                         "base_channels": base_channels,
                         "channel_multipliers": list(channel_multipliers),
                         "alpha": alpha, "use_beam": use_beam,
+                        # in_channels is written so a checkpoint can be rebuilt without
+                        # the caller remembering its k; the resume path in notebook 05
+                        # reads it back rather than assuming 1.
+                        "n_neighbors": n_neighbors,
+                        "in_channels": 2 * int(n_neighbors) + 1,
                         "beam_dim": 4 if use_beam else 0,
                         "latent_dim": latent_dim, "kl_weight": kl_weight},
                        ckpt_path)
