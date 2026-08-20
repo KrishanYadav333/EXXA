@@ -112,6 +112,31 @@ print(format_report(r))
 check("sidelobed beam reads as non_gaussian_convolution",
       r["verdict"] == "non_gaussian_convolution")
 
+# --- case 4: scale invariance. THE bug that made the first real run wrong. ------------
+# A dirty/restored map is conventionally Jy/BEAM and a model image Jy/PIXEL; they differ by
+# the beam area in pixels, of order 200 here. The first version of this check tested whether
+# the raw ratio dipped below 1, which any such factor defeats: the project's own four cubes
+# came back "no_convolution" with minima of 1.01, 1.02, 1.14 and 3.96, a spread no single
+# operator can produce. Verdict must depend on the SHAPE of |B(k)|, never its level.
+print("\ncase 4  the same blur, seen on four different intensity scales")
+for s_amp in (1.0, 5.0, 25.0, 200.0):
+    d = s_amp * blurred + rng.normal(0, 0.02 * s_amp, clean.shape)
+    r = phase0_report(clean, d)
+    check(f"convolution still detected at x{s_amp:g} intensity scale",
+          r["verdict"] == "gaussian_convolution",
+          f"{r['verdict']}, min {r['min_transfer']:.3f}, scale {r['scale_factor']:.1f}")
+    check(f"beam sigma unaffected by the x{s_amp:g} scale",
+          abs(r["gaussian_sigma_px"] - SIGMA) / SIGMA < 0.10,
+          f"{r['gaussian_sigma_px']:.2f} px")
+
+print("\ncase 4b  additive noise on a rescaled map is still no_convolution")
+for s_amp in (1.0, 25.0):
+    d = s_amp * (clean + rng.normal(0, 0.15, clean.shape))
+    r = phase0_report(clean, d)
+    check(f"no false convolution at x{s_amp:g} intensity scale",
+          r["verdict"] == "no_convolution",
+          f"{r['verdict']}, min {r['min_transfer']:.3f}, scale {r['scale_factor']:.1f}")
+
 # --- beam kernel from a header --------------------------------------------------------
 print("\nbeam kernel from the recorded header")
 k = beam_kernel_of(HEADER)

@@ -98,6 +98,43 @@ Two negative results, both kept: beam conditioning worst on M0 (later retracted,
 **Notebook not archived.** Lost. Kaggle did not auto-push this version and the local copy was
 stripped before the gap was noticed. Part of why RULES.md #10 exists.
 
+## 2026-08-20 | bug | Phase 0's first real run was wrong: the check was not scale-invariant
+
+First run on the project's cubes returned `no_convolution` on 4/4, which would have killed
+DDRM and VIREO-lite outright. The numbers gave it away: minima of **1.010, 1.024, 1.138 and
+3.962**. If `A = I` truly held, `dirty = clean + noise` puts every cube at ~1.00. A 3.96 means
+that cube's dirty map carries 15.7x the clean power at the largest scales, which additive
+noise cannot do, and a 1.01-to-3.96 spread is not one operator measured four times.
+
+**Cause.** The verdict tested whether the raw ratio `P_d/P_c` dips below 1, which assumes
+clean and dirty share an intensity scale. A dirty or restored map is conventionally Jy/BEAM
+and a model image Jy/PIXEL, differing by the beam area in pixels, order 200 for these
+headers. Any such factor multiplies the whole ratio and lifts a real convolution above 1.
+
+**Reproduced before fixing.** Same synthetic Gaussian blur, four intensity scales, old code:
+
+| scale | verdict | min |
+|---|---|---|
+| x1 | gaussian_convolution | 0.060 |
+| x5 | non_gaussian_convolution | 0.291 |
+| x25 | **no_convolution** | 1.456 |
+| x200 | **no_convolution** | 11.824 |
+
+The observed 1.01-3.96 sits inside that failure range.
+
+**Fix.** Normalise the ratio by its own low-k level before the dip test. A convolution kernel
+has unit sum so |B(k)| -> 1 as k -> 0, meaning the low-k level estimates the scale factor by
+itself; dividing it out leaves the shape, and the shape is what separates the two cases. The
+factor is now reported as `dirty/clean low-k amplitude`, flagged when it is far from 1, so a
+units mismatch is visible rather than silently steering the verdict.
+
+Six regression cases added, x1 through x200 convolved plus rescaled additive. Recovered beam
+sigma is now 2.97 px across a 200x range of scales.
+
+**Published numbers touched: none.** The bad verdict was never recorded anywhere; it was
+caught in the same session it was produced. **Phase 0 is unanswered again** and needs a
+re-run.
+
 ## 2026-08-19 | code | 2.5D spectral context, the one Phase 3 item nothing gates
 
 `FITSChannelDataset(n_neighbors=k)` now emits a `(2k+1, H, W)` dirty tensor, the sampled

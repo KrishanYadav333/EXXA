@@ -204,22 +204,45 @@ def phase0_report(clean, dirty, header=None, n_bins: int = 60) -> dict:
 
     kb, bb = k[band], b[band]
     raw_b = b_raw[band]
-    min_transfer = float(np.nanmin(raw_b))
+
+    # Normalise by the low-k level before testing for a dip.
+    #
+    # The raw ratio only means "1 where nothing was suppressed" if clean and dirty share an
+    # intensity scale. They frequently do not: a dirty or restored map is conventionally in
+    # Jy/BEAM while a model image is in Jy/PIXEL, and the two differ by the beam area in
+    # pixels, of order 200 for this project's headers. Any such factor s multiplies the whole
+    # ratio, so a real convolution that should fall to 0.06 sits above 1 instead and reads as
+    # no_convolution. That is a measured failure of the first version of this function against
+    # the project's own cubes, not a hypothetical.
+    #
+    # A convolution kernel has unit sum, so |B(k)| -> 1 as k -> 0 and the ratio's low-k level
+    # estimates s by itself. Dividing it out leaves the SHAPE, which is what separates the two
+    # cases: a convolution falls away from its own low-k level, additive noise only rises
+    # above it.
+    n_lo = max(3, int(0.1 * raw_b.size))
+    scale = float(np.nanmedian(raw_b[:n_lo]))
+    if not np.isfinite(scale) or scale <= 0:
+        scale = 1.0
+    shape_b = raw_b / scale
+    min_transfer = float(np.nanmin(shape_b))
 
     out = {
         "k": k, "transfer": b, "transfer_raw": b_raw, "noise_power": noise,
         "clean_power": pc, "dirty_power": pd,
         "min_transfer": min_transfer,
-        "k_at_min": float(kb[int(np.nanargmin(raw_b))]),
+        "scale_factor": scale,
+        "k_at_min": float(kb[int(np.nanargmin(shape_b))]),
     }
 
-    # A convolution suppresses. Additive noise cannot: it only adds power, so the raw ratio
-    # sits at or above 1 everywhere. Read the verdict off the raw ratio, never the
-    # noise-subtracted one, whose floor estimate can manufacture a dip on its own.
+    # A convolution suppresses relative to its own low-k level. Additive noise cannot: it only
+    # adds power, so the normalised shape sits at or above 1 everywhere. Read the verdict off
+    # this shape, never off the noise-subtracted transfer, whose floor estimate can
+    # manufacture a dip on its own.
     if min_transfer > 0.9:
         out["verdict"] = "no_convolution"
-        out["reason"] = (f"|B(k)| never falls below {min_transfer:.3f}; the dirty cube adds "
-                         f"power without suppressing any, so A = I")
+        out["reason"] = (f"the shape of |B(k)| never falls below {min_transfer:.3f} of its "
+                         f"low-k level; the dirty cube adds power without suppressing any, "
+                         f"so A = I")
         return out
 
     # A Gaussian transfer function is itself Gaussian and therefore monotonically decreasing
@@ -232,16 +255,19 @@ def phase0_report(clean, dirty, header=None, n_bins: int = 60) -> dict:
     reversals = int(np.sum(sign[1:] != sign[:-1])) if sign.size > 1 else 0
     out["slope_reversals"] = reversals
 
-    fitted = fit_gaussian_transfer(kb, bb)
+    # Fit the shape too: an unremoved scale factor would bias the fitted sigma and the
+    # header cross-check along with it.
+    fitted = fit_gaussian_transfer(kb, bb / max(float(np.nanmedian(bb[:n_lo])), 1e-12))
     out.update(fitted)
 
     if reversals <= 1 and fitted["gaussian_rms_error"] < 0.05:
         out["verdict"] = "gaussian_convolution"
-        out["reason"] = (f"|B(k)| falls to {min_transfer:.3f} and is Gaussian to "
+        out["reason"] = (f"|B(k)| falls to {min_transfer:.3f} of its low-k level, Gaussian to "
                          f"{fitted['gaussian_rms_error']:.4f} RMS")
     else:
         out["verdict"] = "non_gaussian_convolution"
-        out["reason"] = (f"|B(k)| falls to {min_transfer:.3f} but departs from a Gaussian "
+        out["reason"] = (f"|B(k)| falls to {min_transfer:.3f} of its low-k level but departs "
+                         f"from a Gaussian "
                          f"({reversals} slope reversals, {fitted['gaussian_rms_error']:.4f} "
                          f"RMS); a real dirty beam, so the PSF image is needed")
 
@@ -288,7 +314,12 @@ def format_report(r: dict) -> str:
 
     lines = [f"verdict: {r['verdict'].upper()}", f"  {r.get('reason', '')}"]
     if "min_transfer" in r:
-        lines.append(f"  min |B(k)| = {r['min_transfer']:.4f} at k = {r['k_at_min']:.3f} cyc/px")
+        lines.append(f"  min |B(k)|/|B(0)| = {r['min_transfer']:.4f} at k = {r['k_at_min']:.3f} cyc/px")
+    if r.get("scale_factor") is not None:
+        sc = r["scale_factor"]
+        note = ("   <- clean and dirty are NOT on one intensity scale (Jy/beam vs Jy/pixel?)"
+                if (sc > 3.0 or sc < 0.33) else "")
+        lines.append(f"  dirty/clean low-k amplitude = {sc:.3f}{note}")
     if have_sig:
         lines.append(f"  measured beam sigma  = {sig:.2f} px "
                      f"(Gaussian fit RMS {r['gaussian_rms_error']:.4f})")
