@@ -98,6 +98,43 @@ Two negative results, both kept: beam conditioning worst on M0 (later retracted,
 **Notebook not archived.** Lost. Kaggle did not auto-push this version and the local copy was
 stripped before the gap was noticed. Part of why RULES.md #10 exists.
 
+## 2026-08-20 | bug | Phase 0 got two more wrong verdicts before the method was right
+
+Three versions of the discriminator, three confident wrong answers on the real cubes. Nothing
+was recorded from any of them, and no published number is affected, but the pattern is worth
+keeping: each failure came from choosing a normalisation and then testing a threshold against
+it, rather than fitting the thing being measured.
+
+1. **Raw ratio dips below 1?** Breaks when the two maps are on different intensity scales.
+   Real cubes returned `no_convolution` 4/4 with minima 1.010 / 1.024 / 1.138 / 3.962.
+2. **Normalise the ratio by its own low-k level, take the minimum over the band?** For a
+   monotonically rising ratio the lowest bin is by construction below the median of the
+   lowest bins, so a dip appears where nothing was suppressed. Real cubes flipped to
+   `non_gaussian_convolution` 4/4, with `k_at_min` pinned at the lowest bin, 0.004, on every
+   one, and Gaussian fit RMS of 1.59 to 3.47. It was reporting non-Gaussian because the fit
+   had failed, not because it found sidelobes.
+3. **Does a Gaussian beam beat the no-beam model?** A sidelobed beam is not Gaussian, so
+   neither model fits, the comparison ties, and a real convolution reads `no_convolution`.
+
+**What replaced them.** Fit the forward model directly,
+`P_d(k) = A exp(-4 pi^2 sigma^2 k^2) P_c(k) + N`, and ask whether its no-beam version is
+adequate ON ITS OWN. `A` is a free parameter, so intensity scale cannot mislead it; sigma is
+recovered rather than inferred from a threshold. Given sigma the model is linear in (A, N),
+so a scan over sigma with a linear solve at each step is exact and needs no optimiser.
+
+Separation on synthetic cases is two orders of magnitude, so the threshold is not delicate:
+
+| case | no-beam residual |
+|---|---|
+| additive noise, x1 to x25 | 0.0008 to 0.0107 |
+| sidelobed beam | 0.8938 |
+| Gaussian beam, sigma 1 to 3 | 2.86 to 3.21 |
+
+Recovered sigma is exact to 0.3% and unchanged across a 200x range of intensity scale. All
+three failures are regression cases in `tests/test_forward_operator.py`.
+
+**Phase 0 is still unanswered.** Needs a third run.
+
 ## 2026-08-20 | bug | Phase 0's first real run was wrong: the check was not scale-invariant
 
 First run on the project's cubes returned `no_convolution` on 4/4, which would have killed

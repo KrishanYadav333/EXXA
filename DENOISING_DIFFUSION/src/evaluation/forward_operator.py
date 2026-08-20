@@ -36,6 +36,11 @@ import numpy as np
 
 FWHM_TO_SIGMA = 1.0 / (2.0 * np.sqrt(2.0 * np.log(2.0)))  # 0.42466
 
+# Relative-residual thresholds for the forward-model fit. See phase0_report for the measured
+# separation these sit between; both have well over an order of magnitude of margin.
+NO_BEAM_TOL = 0.05   # below this, P_d = A*P_c + N explains the data and there is no beam
+GAUSS_TOL = 0.05     # below this, a Gaussian beam explains it; above, a real dirty beam
+
 
 def pixel_scale_arcsec(header) -> float | None:
     """
@@ -172,129 +177,162 @@ def transfer_function(clean, dirty, n_bins: int = 60):
     return k, np.sqrt(raw), np.sqrt(ratio), noise, pc, pd
 
 
+def fit_forward_model(k, pc, pd, band, max_sigma_px: float = 25.0, n_sigma: int = 400):
+    """
+    Fit the forward model directly instead of thresholding a ratio:
+
+        P_dirty(k) = A * exp(-4 pi^2 sigma^2 k^2) * P_clean(k) + N
+
+    Three unknowns. `A` absorbs any intensity-scale factor between the two maps (Jy/beam
+    against Jy/pixel is a factor of the beam area, order 200 here), `N` is the noise floor,
+    and `sigma` is the beam. Fitting them together is what makes the answer scale-invariant
+    by construction rather than by a normalisation that has to be chosen correctly.
+
+    Two earlier versions of this check failed on exactly that choice. Testing whether the raw
+    ratio dips below 1 fails when A != 1. Normalising the ratio by its own low-k level then
+    taking the minimum over the whole band fails the other way, because for a monotonically
+    RISING ratio the lowest bin is by construction below the median of the lowest bins, so a
+    dip appears where nothing was suppressed. Both produced confident, wrong verdicts on the
+    project's real cubes.
+
+    Given sigma the model is linear in (A, N), so a 1D scan over sigma with a linear solve at
+    each step is exact and needs no optimiser. Residuals are relative, because P_clean spans
+    several orders of magnitude and an unweighted fit would see only the lowest frequencies.
+
+    Returns sigma_px, A, N, the relative RMS residual, and the residual of the sigma = 0 model
+    (pure addition, no convolution) so the two can be compared as hypotheses.
+    """
+    kb, pcb, pdb = k[band], pc[band], pd[band]
+    ok = (pdb > 0) & (pcb > 0)
+    kb, pcb, pdb = kb[ok], pcb[ok], pdb[ok]
+    if kb.size < 6:
+        return None
+
+    def solve(sigma):
+        g = np.exp(-4.0 * np.pi ** 2 * sigma ** 2 * kb ** 2)
+        # rows weighted by 1/pd -> least squares on the RELATIVE error
+        M = np.stack([g * pcb, np.ones_like(pcb)], axis=1) / pdb[:, None]
+        coef, *_ = np.linalg.lstsq(M, np.ones_like(pdb), rcond=None)
+        coef = np.maximum(coef, 0.0)                     # A, N are powers: non-negative
+        model = coef[0] * g * pcb + coef[1]
+        resid = float(np.sqrt(np.mean(((model - pdb) / pdb) ** 2)))
+        return coef, resid
+
+    sigmas = np.linspace(0.0, max_sigma_px, n_sigma)
+    best = min((solve(sg) + (sg,) for sg in sigmas), key=lambda t: t[1])
+    coef, resid, sigma = best
+    coef0, resid0 = solve(0.0)
+
+    return {"sigma_px": float(sigma), "A": float(coef[0]), "N": float(coef[1]),
+            "residual": resid, "residual_no_convolution": resid0,
+            "k_band": kb, "pc_band": pcb, "pd_band": pdb}
+
+
 def phase0_report(clean, dirty, header=None, n_bins: int = 60) -> dict:
     """
     Settle Phase 0. Returns a dict with a `verdict` of:
 
       "no_convolution"           -> A = I. DDRM degenerates to the existing conditional
-                                    DDPM. Stop, per the plan.
+                                    DDPM, and VIREO's consistency term must not ship.
       "gaussian_convolution"     -> DDRM applies and the header's beam is the operator.
       "non_gaussian_convolution" -> a real dirty beam with sidelobes. DDRM still applies but
-                                    a Gaussian A enforces the wrong constraint; the PSF
-                                    image is needed from whoever generated the cubes.
+                                    a Gaussian A enforces the wrong constraint; the PSF image
+                                    is needed from whoever generated the cubes.
+      "indeterminate"            -> the data cannot decide. Do not build on it.
 
-    `min_transfer` is the decisive number: the minimum of |B(k)| over the band where the
-    clean signal actually has power. A convolution drives it well below 1; additive noise
-    leaves it at 1.
+    The verdict comes from fitting the forward model (see `fit_forward_model`) and comparing
+    it against the same model with sigma forced to zero. That is a comparison of two
+    hypotheses on equal footing, rather than a threshold on a ratio whose normalisation has
+    to be guessed -- two earlier versions of this function each got a confident wrong answer
+    out of exactly that guess.
     """
     k, b_raw, b, noise, pc, pd = transfer_function(clean, dirty, n_bins)
 
-    # |B(k)| is only measurable where the dirty spectrum still stands above its own noise
-    # floor. Beyond that the ratio divides noise by noise and says nothing.
+    # The measurement is only meaningful where the dirty spectrum still stands above its own
+    # noise floor. Beyond that it is noise divided by noise.
     #
-    # The band must not be set as a fraction of the peak power instead. A disk's spectrum is
-    # steeply red, so "1% of the maximum" lands around k = 0.04 and everything above it is
-    # discarded -- which is precisely the range where a Gaussian beam and a sidelobed one
-    # stop looking alike. Cutting there makes every beam look Gaussian.
+    # The band must not be set as a fraction of the PEAK power instead: a disk's spectrum is
+    # steeply red, so "1% of the maximum" lands near k = 0.04 and discards exactly the range
+    # where a Gaussian beam and a sidelobed one stop looking alike.
     band = np.isfinite(b_raw) & (pc > 0) & (pd > 3.0 * noise) & (k < 0.45)
-    if band.sum() < 5:
+    if band.sum() < 6:
         return {"verdict": "indeterminate",
                 "reason": "too few bins where the dirty spectrum rises above its noise floor",
                 "k": k, "transfer": b, "noise_power": noise}
 
-    kb, bb = k[band], b[band]
-    raw_b = b_raw[band]
+    fit = fit_forward_model(k, pc, pd, band)
+    if fit is None:
+        return {"verdict": "indeterminate", "reason": "forward-model fit did not converge",
+                "k": k, "transfer": b, "noise_power": noise}
 
-    # Normalise by the low-k level before testing for a dip.
-    #
-    # The raw ratio only means "1 where nothing was suppressed" if clean and dirty share an
-    # intensity scale. They frequently do not: a dirty or restored map is conventionally in
-    # Jy/BEAM while a model image is in Jy/PIXEL, and the two differ by the beam area in
-    # pixels, of order 200 for this project's headers. Any such factor s multiplies the whole
-    # ratio, so a real convolution that should fall to 0.06 sits above 1 instead and reads as
-    # no_convolution. That is a measured failure of the first version of this function against
-    # the project's own cubes, not a hypothetical.
-    #
-    # A convolution kernel has unit sum, so |B(k)| -> 1 as k -> 0 and the ratio's low-k level
-    # estimates s by itself. Dividing it out leaves the SHAPE, which is what separates the two
-    # cases: a convolution falls away from its own low-k level, additive noise only rises
-    # above it.
-    n_lo = max(3, int(0.1 * raw_b.size))
-    scale = float(np.nanmedian(raw_b[:n_lo]))
-    if not np.isfinite(scale) or scale <= 0:
-        scale = 1.0
-    shape_b = raw_b / scale
-    min_transfer = float(np.nanmin(shape_b))
-
+    kb = k[band]
     out = {
         "k": k, "transfer": b, "transfer_raw": b_raw, "noise_power": noise,
         "clean_power": pc, "dirty_power": pd,
-        "min_transfer": min_transfer,
-        "scale_factor": scale,
-        "k_at_min": float(kb[int(np.nanargmin(shape_b))]),
+        "fit_sigma_px": fit["sigma_px"], "scale_factor": fit["A"],
+        "fit_noise": fit["N"], "fit_residual": fit["residual"],
+        "residual_no_convolution": fit["residual_no_convolution"],
         "band_k_max": float(kb.max()), "band_bins": int(band.sum()),
     }
+    # How much better the convolution hypothesis explains the data than "no convolution".
+    out["convolution_gain"] = (fit["residual_no_convolution"] / fit["residual"]
+                               if fit["residual"] > 0 else float("inf"))
 
-    # Before believing "no convolution", check the measurement could have SEEN one.
-    #
-    # The band ends where the dirty spectrum sinks into its own noise floor. A beam only
-    # suppresses above roughly k_half = sqrt(ln 2 / (2 pi^2 sigma^2)); for this project's
-    # headers sigma is about 6.5 px, so nothing happens below k ~ 0.03. If the band stops
-    # short of that, a beam of the header's own size would be invisible and a null result
-    # says nothing at all. That is RULES.md #8: check the denominator before believing a
-    # clean result.
     sigma_hdr = _header_sigma_px(header) if header is not None else None
     if sigma_hdr:
-        k_half = float(np.sqrt(np.log(2.0) / (2.0 * np.pi ** 2 * sigma_hdr ** 2)))
-        out["k_half_from_header"] = k_half
-        if min_transfer > 0.9 and out["band_k_max"] < k_half:
+        out["header_sigma_px"] = sigma_hdr
+        out["k_half_from_header"] = float(
+            np.sqrt(np.log(2.0) / (2.0 * np.pi ** 2 * sigma_hdr ** 2)))
+
+    # --- no convolution -----------------------------------------------------------------
+    # The test is whether the NO-BEAM model, P_d = A*P_c + N, is adequate on its own. It is
+    # deliberately not "does a Gaussian beat it": a sidelobed beam is not Gaussian, so
+    # neither model fits it and the comparison declares a tie, calling a real convolution
+    # no_convolution. Measured on synthetic cases (6 channels, ~40 bins):
+    #
+    #     additive noise, x1 to x25 scale ... 0.0008 to 0.0107
+    #     sidelobed beam ..................... 0.8897
+    #     Gaussian beam, sigma 1 to 3 ........ 2.86 to 3.21
+    #
+    # NO_BEAM_TOL sits at 0.05, about 5x the observed scatter floor of the radially averaged
+    # spectrum and two orders below anything with a beam in it.
+    if fit["residual_no_convolution"] < NO_BEAM_TOL:
+        # ...unless the band never reached where the header's own beam would act, in which
+        # case the null is uninformative rather than negative (RULES.md #8).
+        if sigma_hdr and out["band_k_max"] < out["k_half_from_header"]:
             out["verdict"] = "indeterminate"
             out["reason"] = (
-                f"no suppression seen, but the band only reaches k = {out['band_k_max']:.3f} "
-                f"and the header's own beam (sigma {sigma_hdr:.1f} px) would not act until "
-                f"k = {k_half:.3f}. The measurement could not have detected this beam, so "
-                f"the null result is uninformative rather than negative.")
+                f"no beam found, but the band only reaches k = {out['band_k_max']:.3f} and "
+                f"the header's beam (sigma {sigma_hdr:.1f} px) would not act until "
+                f"k = {out['k_half_from_header']:.3f}, so it could not have been seen")
             return out
-
-    # A convolution suppresses relative to its own low-k level. Additive noise cannot: it only
-    # adds power, so the normalised shape sits at or above 1 everywhere. Read the verdict off
-    # this shape, never off the noise-subtracted transfer, whose floor estimate can
-    # manufacture a dip on its own.
-    if min_transfer > 0.9:
         out["verdict"] = "no_convolution"
-        out["reason"] = (f"the shape of |B(k)| never falls below {min_transfer:.3f} of its "
-                         f"low-k level; the dirty cube adds power without suppressing any, "
-                         f"so A = I")
+        out["reason"] = (
+            f"P_d = A*P_c + N already fits to {fit['residual_no_convolution']:.4f} with no "
+            f"beam at all; dirty = clean + noise, so A = I")
         return out
 
-    # A Gaussian transfer function is itself Gaussian and therefore monotonically decreasing
-    # in k. A true dirty beam's is not: uv gaps put ripples in it. Count sign changes of the
-    # slope over the signal band, ignoring ones smaller than the local scatter.
-    d = np.diff(bb)
-    tol = 0.02 * max(np.nanmax(bb), 1e-12)
-    sign = np.sign(np.where(np.abs(d) < tol, 0.0, d))
-    sign = sign[sign != 0]
-    reversals = int(np.sum(sign[1:] != sign[:-1])) if sign.size > 1 else 0
-    out["slope_reversals"] = reversals
+    # --- a convolution is present; Gaussian or not? --------------------------------------
+    # Compare the measured transfer against the fitted Gaussian. A is already divided out, so
+    # what is left is |B(k)|^2 in its own right.
+    g_meas = np.maximum(fit["pd_band"] - fit["N"], 0.0) / (fit["A"] * fit["pc_band"])
+    g_fit = np.exp(-4.0 * np.pi ** 2 * fit["sigma_px"] ** 2 * fit["k_band"] ** 2)
+    live = g_fit > 0.02          # where the beam has not already killed the signal
+    rms = float(np.sqrt(np.mean((g_meas[live] - g_fit[live]) ** 2))) if live.any() else np.inf
+    out["gaussian_rms_error"] = rms
+    out["gaussian_sigma_px"] = fit["sigma_px"]
 
-    # Fit the shape too: an unremoved scale factor would bias the fitted sigma and the
-    # header cross-check along with it.
-    fitted = fit_gaussian_transfer(kb, bb / max(float(np.nanmedian(bb[:n_lo])), 1e-12))
-    out.update(fitted)
-
-    if reversals <= 1 and fitted["gaussian_rms_error"] < 0.05:
+    if fit["residual"] < GAUSS_TOL and rms < 0.05:
         out["verdict"] = "gaussian_convolution"
-        out["reason"] = (f"|B(k)| falls to {min_transfer:.3f} of its low-k level, Gaussian to "
-                         f"{fitted['gaussian_rms_error']:.4f} RMS")
+        out["reason"] = (f"a {fit['sigma_px']:.2f} px Gaussian beam explains the data "
+                         f"({out['convolution_gain']:.1f}x better than no beam), matching to "
+                         f"{rms:.4f} RMS")
     else:
         out["verdict"] = "non_gaussian_convolution"
-        out["reason"] = (f"|B(k)| falls to {min_transfer:.3f} of its low-k level but departs "
-                         f"from a Gaussian "
-                         f"({reversals} slope reversals, {fitted['gaussian_rms_error']:.4f} "
-                         f"RMS); a real dirty beam, so the PSF image is needed")
-
-    if header is not None:
-        out["header_sigma_px"] = _header_sigma_px(header)
+        out["reason"] = (f"a beam is present ({out['convolution_gain']:.1f}x better than no "
+                         f"beam, best fit {fit['sigma_px']:.2f} px) but the transfer departs "
+                         f"from a Gaussian by {rms:.4f} RMS; a real dirty beam, so the PSF "
+                         f"image is needed")
     return out
 
 
@@ -335,16 +373,18 @@ def format_report(r: dict) -> str:
     have_sig = sig is not None and np.isfinite(sig)
 
     lines = [f"verdict: {r['verdict'].upper()}", f"  {r.get('reason', '')}"]
-    if "min_transfer" in r:
-        lines.append(f"  min |B(k)|/|B(0)| = {r['min_transfer']:.4f} at k = {r['k_at_min']:.3f} cyc/px")
+    if r.get("fit_sigma_px") is not None:
+        lines.append(f"  best-fit beam sigma  = {r['fit_sigma_px']:.2f} px")
+        lines.append(f"  fit residual         = {r['fit_residual']:.4f}  "
+                     f"(no-beam model: {r['residual_no_convolution']:.4f}, "
+                     f"{r['convolution_gain']:.2f}x worse)")
     if r.get("scale_factor") is not None:
         sc = r["scale_factor"]
         note = ("   <- clean and dirty are NOT on one intensity scale (Jy/beam vs Jy/pixel?)"
                 if (sc > 3.0 or sc < 0.33) else "")
-        lines.append(f"  dirty/clean low-k amplitude = {sc:.3f}{note}")
+        lines.append(f"  fitted amplitude A   = {sc:.3f}{note}")
     if have_sig:
-        lines.append(f"  measured beam sigma  = {sig:.2f} px "
-                     f"(Gaussian fit RMS {r['gaussian_rms_error']:.4f})")
+        lines.append(f"  Gaussian match       = {r['gaussian_rms_error']:.4f} RMS")
     if "band_k_max" in r:
         line = (f"  band reaches k = {r['band_k_max']:.3f} cyc/px over {r['band_bins']} bins")
         if r.get("k_half_from_header"):
