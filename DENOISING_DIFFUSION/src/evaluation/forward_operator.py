@@ -312,6 +312,19 @@ def phase0_report(clean, dirty, header=None, n_bins: int = 60) -> dict:
             f"beam at all; dirty = clean + noise, so A = I")
         return out
 
+    # A fit that lands on sigma = 0 found NO beam. If the no-beam model was also inadequate,
+    # then neither hypothesis describes the data and the honest answer is that the method does
+    # not apply here -- not "a beam with strange shape". Without this guard the Gaussian
+    # comparison runs against a flat transfer and reports RMS values of 1e32.
+    if out["fit_sigma_px"] < 0.5:
+        out["verdict"] = "indeterminate"
+        out["reason"] = (
+            f"neither model fits: the best beam is {out['fit_sigma_px']:.2f} px (i.e. none) "
+            f"yet the no-beam model still misses by {fit['residual_no_convolution']:.4f}. "
+            f"P_d is not A*G(k)*P_c + N for any Gaussian G, so something other than a beam "
+            f"differs between these two cubes. Run phase0_diagnostics to see the spectra.")
+        return out
+
     # --- a convolution is present; Gaussian or not? --------------------------------------
     # Compare the measured transfer against the fitted Gaussian. A is already divided out, so
     # what is left is |B(k)|^2 in its own right.
@@ -401,23 +414,42 @@ def format_report(r: dict) -> str:
     return "\n".join(lines)
 
 
-def phase0_from_fits(clean_path: str, dirty_path: str, max_channels: int = 8) -> dict:
+def load_pair(clean_path: str, dirty_path: str, max_channels: int = 8):
     """
-    Run Phase 0 on a clean/dirty FITS pair. Channels are subsampled evenly to `max_channels`
-    because the spectra are averaged and a handful is already enough to beat the periodogram
-    variance down.
+    Load a clean/dirty FITS pair and keep the `max_channels` channels with the most SIGNAL.
+
+    Not evenly spaced channels. `np.linspace(0, n-1, k)` includes channel 0 and channel n-1,
+    the extreme high-velocity ends, which the mentor's own sampling note (2026-06-18) calls
+    "mostly continuum with little signal". In those the clean power is near zero, so
+    P_d / P_c explodes for reasons that have nothing to do with a beam, and averaging them in
+    with real channels destroys the fit. That is what made the third Phase 0 run return
+    sigma = 0 with a no-beam residual of 0.55 to 0.90: neither model could fit, because the
+    input was half empty channels.
+
+    Ranking by the clean channel's standard deviation picks the line-bright channels without
+    assuming anything about where in the cube they sit.
     """
     from astropy.io import fits
 
     with fits.open(clean_path, memmap=False) as hdul:
         clean = np.squeeze(hdul[0].data).astype(np.float64)
+        clean_header = hdul[0].header
     with fits.open(dirty_path, memmap=False) as hdul:
         dirty = np.squeeze(hdul[0].data).astype(np.float64)
         header = hdul[0].header
 
     if clean.ndim == 3 and clean.shape[0] > max_channels:
-        idx = np.linspace(0, clean.shape[0] - 1, max_channels).astype(int)
+        strength = clean.reshape(clean.shape[0], -1).std(axis=1)
+        idx = np.sort(np.argsort(strength)[-max_channels:])
         clean, dirty = clean[idx], dirty[idx]
+    return clean, dirty, header, clean_header
+
+
+def phase0_from_fits(clean_path: str, dirty_path: str, max_channels: int = 8) -> dict:
+    """
+    Run Phase 0 on a clean/dirty FITS pair, on its line-bright channels (see `load_pair`).
+    """
+    clean, dirty, header, _ = load_pair(clean_path, dirty_path, max_channels)
     return phase0_report(clean, dirty, header)
 
 
@@ -428,3 +460,45 @@ if __name__ == "__main__":
         print("usage: python -m src.evaluation.forward_operator <clean.fits> <dirty.fits>")
         raise SystemExit(2)
     print(format_report(phase0_from_fits(sys.argv[1], sys.argv[2])))
+
+
+def phase0_diagnostics(clean_path: str, dirty_path: str, max_channels: int = 8) -> str:
+    """
+    Dump the raw material behind a Phase 0 verdict, so a surprising answer can be diagnosed
+    from data instead of guessed at.
+
+    Three versions of the verdict logic were wrong before this existed, each time because a
+    summary statistic hid what the spectra were actually doing. Print this alongside any
+    result that looks strange.
+    """
+    clean, dirty, header, clean_header = load_pair(clean_path, dirty_path, max_channels)
+    L = []
+    L.append(f"clean  shape={clean.shape} range=[{clean.min():.4g}, {clean.max():.4g}] "
+             f"BUNIT={clean_header.get('BUNIT', '?')}")
+    L.append(f"dirty  shape={dirty.shape} range=[{dirty.min():.4g}, {dirty.max():.4g}] "
+             f"BUNIT={header.get('BUNIT', '?')}")
+    if clean.shape != dirty.shape:
+        L.append("  ** shapes differ -- the k axes are not comparable and nothing below is "
+                 "meaningful **")
+    for key in ("BMAJ", "BMIN", "BPA", "CDELT1", "CDELT2", "BTYPE", "TELESCOP"):
+        cv, dv = clean_header.get(key), header.get(key)
+        if cv is not None or dv is not None:
+            flag = "  <- differs" if (cv is not None and dv is not None and cv != dv) else ""
+            L.append(f"  {key:9s} clean={cv!s:22s} dirty={dv!s}{flag}")
+
+    ps = pixel_scale_arcsec(header)
+    L.append(f"  pixel scale = {ps if ps else '?'} arcsec/px | "
+             f"header beam sigma = {_header_sigma_px(header)} px")
+
+    k, b_raw, b, noise, pc, pd = transfer_function(clean, dirty)
+    L.append("")
+    L.append(f"  {'k':>7s} {'P_clean':>12s} {'P_dirty':>12s} {'ratio':>9s} {'sqrt':>7s}")
+    for i in range(0, len(k), max(1, len(k) // 18)):
+        r = pd[i] / pc[i] if pc[i] > 0 else float("nan")
+        L.append(f"  {k[i]:7.4f} {pc[i]:12.4g} {pd[i]:12.4g} {r:9.3f} {np.sqrt(abs(r)):7.3f}")
+    L.append(f"  noise floor estimate (median P_dirty above k=0.45) = {noise:.4g}")
+
+    L.append("")
+    L.append("  per-channel clean std (which channels were selected):")
+    L.append("    " + "  ".join(f"{v:.3g}" for v in clean.reshape(len(clean), -1).std(axis=1)))
+    return "\n".join(L)

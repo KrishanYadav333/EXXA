@@ -98,6 +98,32 @@ Two negative results, both kept: beam conditioning worst on M0 (later retracted,
 **Notebook not archived.** Lost. Kaggle did not auto-push this version and the local copy was
 stripped before the gap was noticed. Part of why RULES.md #10 exists.
 
+## 2026-08-20 | bug | Phase 0 run 3: the input was half empty channels
+
+`non_gaussian_convolution` 4/4 again, and this time visibly broken: best-fit beam **0.00 px**
+with gain 1.00x, meaning the fit found no beam at all, yet it still landed in the convolution
+branch and printed Gaussian RMS values up to 7e32.
+
+**Two faults.**
+
+1. **Input.** `phase0_from_fits` took evenly spaced channels via `np.linspace(0, n-1, 8)`,
+   which includes channel 0 and channel n-1. Those are the extreme high-velocity ends, which
+   the mentor's own sampling note (2026-06-18) calls "mostly continuum with little signal".
+   Clean power there is near zero, so P_d/P_c explodes for reasons unrelated to any beam, and
+   averaging them in with real channels left a model that fits neither way: no-beam residual
+   0.5556 / 0.8029 / 0.8657 / 0.8992. Channels are now ranked by clean standard deviation and
+   the line-bright ones used.
+2. **Logic hole.** A fit landing on sigma = 0 found no beam, so it can never be a convolution.
+   It now returns `indeterminate` with the reason, instead of falling through to a
+   Gaussian-vs-sidelobe comparison against a flat transfer.
+
+`phase0_diagnostics()` added and wired into the notebook cell: on an indeterminate verdict it
+now dumps shapes, BUNIT, header keys compared between clean and dirty, the radial spectra as
+a table, and the per-channel clean std. Three wrong verdicts came from a summary statistic
+hiding what the spectra were doing, so a surprising answer should no longer be guessed at.
+
+**Phase 0 still unanswered**, fourth run pending. Published numbers touched: none.
+
 ## 2026-08-20 | bug | Phase 0 got two more wrong verdicts before the method was right
 
 Three versions of the discriminator, three confident wrong answers on the real cubes. Nothing

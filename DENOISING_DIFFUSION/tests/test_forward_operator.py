@@ -150,6 +150,43 @@ r_narrow = phase0_report(clean, clean + rng.normal(0, 8.0, clean.shape), HEADER)
 check("a null from a band too narrow to see the beam is NOT no_convolution",
       r_narrow["verdict"] == "indeterminate", r_narrow["verdict"])
 
+# --- case 6: neither model fits -> indeterminate, never a bogus "beam" ------------------
+# What the third real run produced: best-fit sigma 0.00 px (no beam found) yet a no-beam
+# residual of 0.55 to 0.90 (no-beam model inadequate either). Without a guard this fell into
+# the Gaussian-vs-sidelobe branch and reported RMS values up to 7e32 as
+# "non_gaussian_convolution". If neither hypothesis describes the data, say so.
+print("\ncase 6  clean and dirty unrelated -> neither model fits")
+unrelated = np.stack([power_law_field(N, rng) for _ in range(C)])
+r = phase0_report(clean, unrelated + rng.normal(0, 0.05, clean.shape), HEADER)
+check("unrelated cubes give indeterminate, not a fabricated beam",
+      r["verdict"] == "indeterminate", r["verdict"])
+check("no absurd Gaussian RMS is reported",
+      r.get("gaussian_rms_error") is None or r["gaussian_rms_error"] < 1e6,
+      str(r.get("gaussian_rms_error")))
+
+# --- case 7: channel selection must pick line-bright channels --------------------------
+# phase0_from_fits used evenly spaced channels, which includes the extreme high-velocity
+# ends. Those are "mostly continuum with little signal" (mentor, 2026-06-18): P_clean is
+# near zero there, so the ratio explodes for reasons unrelated to any beam.
+print("\ncase 7  channel selection")
+import tempfile
+from astropy.io import fits as _fits
+from src.evaluation.forward_operator import load_pair
+
+with tempfile.TemporaryDirectory() as td:
+    # 12 channels: 4 bright in the middle, 8 near-empty at the ends
+    cube = np.zeros((12, 64, 64))
+    bright = [4, 5, 6, 7]
+    for i in bright:
+        cube[i] = power_law_field(64, rng)
+    cp, dp = f"{td}/c.fits", f"{td}/d.fits"
+    _fits.PrimaryHDU(cube.astype(np.float32)).writeto(cp)
+    _fits.PrimaryHDU((cube + rng.normal(0, 0.01, cube.shape)).astype(np.float32)).writeto(dp)
+    c_sel, d_sel, _, _ = load_pair(cp, dp, max_channels=4)
+    stds = c_sel.reshape(4, -1).std(axis=1)
+    check("only the line-bright channels are selected", bool((stds > 1e-6).all()),
+          f"selected stds {np.round(stds, 3).tolist()}")
+
 # --- beam kernel from a header ---------------------------------------------------------
 print("\nbeam kernel from the recorded header")
 k = beam_kernel_of(HEADER)
