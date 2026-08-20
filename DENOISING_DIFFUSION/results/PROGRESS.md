@@ -131,9 +131,22 @@ units mismatch is visible rather than silently steering the verdict.
 Six regression cases added, x1 through x200 convolved plus rescaled additive. Recovered beam
 sigma is now 2.97 px across a 200x range of scales.
 
+**Second look, same day: the scale factor was probably not the story.** Jy/beam against
+Jy/pixel predicts a factor near 200; the cubes showed 1.01 to 3.96. And on all four the
+minimum sat in the LOWEST k bin, so the ratio never fell anywhere, and dividing out a factor
+that small cannot change that. The re-run will most likely return `no_convolution` again.
+
+What was actually missing is a check that the measurement could have SEEN a beam. The band
+ends where the dirty spectrum sinks into its own noise floor; the header's beam (sigma ~6.5
+px) does not suppress anything below k ~ 0.033. A null from a band that stops short of that
+is uninformative, not negative. `phase0_report` now reports the band's reach against the
+header's own rolloff and returns `indeterminate` rather than `no_convolution` when the band
+was too narrow to decide. RULES.md #8, applied to this diagnostic itself.
+
 **Published numbers touched: none.** The bad verdict was never recorded anywhere; it was
-caught in the same session it was produced. **Phase 0 is unanswered again** and needs a
-re-run.
+caught in the same session it was produced. **Phase 0 is unanswered** and needs a re-run,
+which will now say either `no_convolution` with the band coverage to back it, or
+`indeterminate`.
 
 ## 2026-08-19 | code | 2.5D spectral context, the one Phase 3 item nothing gates
 

@@ -137,6 +137,22 @@ for s_amp in (1.0, 25.0):
           r["verdict"] == "no_convolution",
           f"{r['verdict']}, min {r['min_transfer']:.3f}, scale {r['scale_factor']:.1f}")
 
+# --- case 5: a null result is only meaningful if a beam could have been seen -----------
+# The band ends where the dirty spectrum sinks into its own noise. A beam of the header's
+# size does nothing below k ~ 0.03, so if the band stops short of that, "no suppression
+# found" is uninformative rather than negative. RULES.md #8.
+print("\ncase 5  null results, wide band vs band too narrow to see the header's beam")
+r_wide = phase0_report(clean, clean + rng.normal(0, 0.05, clean.shape), HEADER)
+check("clean null with a wide band is reported as no_convolution",
+      r_wide["verdict"] == "no_convolution",
+      f"band to k={r_wide['band_k_max']:.3f}, beam acts from k={r_wide['k_half_from_header']:.3f}")
+check("the band's reach is reported so the null can be judged",
+      r_wide["band_k_max"] > r_wide["k_half_from_header"])
+
+r_narrow = phase0_report(clean, clean + rng.normal(0, 8.0, clean.shape), HEADER)
+check("a null from a band too narrow to see the beam is NOT called no_convolution",
+      r_narrow["verdict"] == "indeterminate", r_narrow["verdict"])
+
 # --- beam kernel from a header --------------------------------------------------------
 print("\nbeam kernel from the recorded header")
 k = beam_kernel_of(HEADER)

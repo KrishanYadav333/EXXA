@@ -232,7 +232,29 @@ def phase0_report(clean, dirty, header=None, n_bins: int = 60) -> dict:
         "min_transfer": min_transfer,
         "scale_factor": scale,
         "k_at_min": float(kb[int(np.nanargmin(shape_b))]),
+        "band_k_max": float(kb.max()), "band_bins": int(band.sum()),
     }
+
+    # Before believing "no convolution", check the measurement could have SEEN one.
+    #
+    # The band ends where the dirty spectrum sinks into its own noise floor. A beam only
+    # suppresses above roughly k_half = sqrt(ln 2 / (2 pi^2 sigma^2)); for this project's
+    # headers sigma is about 6.5 px, so nothing happens below k ~ 0.03. If the band stops
+    # short of that, a beam of the header's own size would be invisible and a null result
+    # says nothing at all. That is RULES.md #8: check the denominator before believing a
+    # clean result.
+    sigma_hdr = _header_sigma_px(header) if header is not None else None
+    if sigma_hdr:
+        k_half = float(np.sqrt(np.log(2.0) / (2.0 * np.pi ** 2 * sigma_hdr ** 2)))
+        out["k_half_from_header"] = k_half
+        if min_transfer > 0.9 and out["band_k_max"] < k_half:
+            out["verdict"] = "indeterminate"
+            out["reason"] = (
+                f"no suppression seen, but the band only reaches k = {out['band_k_max']:.3f} "
+                f"and the header's own beam (sigma {sigma_hdr:.1f} px) would not act until "
+                f"k = {k_half:.3f}. The measurement could not have detected this beam, so "
+                f"the null result is uninformative rather than negative.")
+            return out
 
     # A convolution suppresses relative to its own low-k level. Additive noise cannot: it only
     # adds power, so the normalised shape sits at or above 1 everywhere. Read the verdict off
@@ -323,6 +345,13 @@ def format_report(r: dict) -> str:
     if have_sig:
         lines.append(f"  measured beam sigma  = {sig:.2f} px "
                      f"(Gaussian fit RMS {r['gaussian_rms_error']:.4f})")
+    if "band_k_max" in r:
+        line = (f"  band reaches k = {r['band_k_max']:.3f} cyc/px over {r['band_bins']} bins")
+        if r.get("k_half_from_header"):
+            kh = r["k_half_from_header"]
+            line += (f"; header's beam would act from k = {kh:.3f}"
+                     f"{'  <- band too narrow to see it' if r['band_k_max'] < kh else '  <- wide enough'}")
+        lines.append(line)
     if r.get("header_sigma_px"):
         lines.append(f"  header beam sigma    = {r['header_sigma_px']:.2f} px")
         if have_sig:
