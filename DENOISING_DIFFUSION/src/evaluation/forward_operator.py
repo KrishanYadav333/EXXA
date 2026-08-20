@@ -544,3 +544,67 @@ def phase0_diagnostics(clean_path: str, dirty_path: str, max_channels: int = 8) 
     L.append("  per-channel clean std (which channels were selected):")
     L.append("    " + "  ".join(f"{v:.3g}" for v in clean.reshape(len(clean), -1).std(axis=1)))
     return "\n".join(L)
+
+
+def beam_cutoff_k(header, level: float = 0.1) -> float | None:
+    """
+    Spatial frequency where the header's beam has suppressed power to `level`.
+
+    |B(k)|^2 = exp(-4 pi^2 sigma^2 k^2), so |B|^2 = level at
+    k = sqrt(ln(1/level) / (4 pi^2 sigma^2)). For this project's beams (sigma 6.2 to
+    10.3 px) that is k ~ 0.023 to 0.039 cycles/pixel, i.e. structures below roughly
+    25 to 43 pixels across.
+    """
+    sigma = _header_sigma_px(header)
+    if not sigma:
+        return None
+    return float(np.sqrt(np.log(1.0 / level) / (4.0 * np.pi ** 2 * sigma ** 2)))
+
+
+def out_of_band_power(clean, denoised, header, level: float = 0.1) -> dict:
+    """
+    What fraction of a model's ERROR sits above the beam's cutoff.
+
+    Phase 0 established these cubes are already beam-convolved, so the clean map is
+    band-limited by construction. A prediction carrying power above the cutoff is asserting
+    structure the instrument could not have measured, and a loss can penalise that with one
+    FFT per step. This measures whether such a loss would be aimed at the actual failure.
+
+    The measurement is on the RESIDUAL, `denoised - clean`, not on the prediction. A global
+    power fraction of the prediction cannot see a local artifact: the clean field's own
+    out-of-band share is ~3e-4 of a total dominated by the lowest frequencies, so one
+    invented blob is some three orders of magnitude too small to move it. The residual is
+    near zero everywhere the model is right, so the error is what its spectrum describes.
+
+      out_of_band_frac >> clean's   the error is sharper than the beam -- a band-limit
+                                    penalty targets it directly
+      out_of_band_frac ~ clean's    the error is beam-scale -- band-limiting cannot see it,
+                                    and a VIREO-style band constraint would be aimed at the
+                                    wrong thing
+
+    Inputs are 2D or (C, H, W); spectra are averaged over channels.
+    """
+    k_cut = beam_cutoff_k(header, level)
+    if k_cut is None:
+        return {"error": "header has no beam or pixel scale"}
+
+    clean = np.asarray(clean, dtype=np.float64)
+    denoised = np.asarray(denoised, dtype=np.float64)
+    if clean.ndim == 2:
+        clean, denoised = clean[None], denoised[None]
+
+    k, pc, pr = None, None, None
+    for c, d in zip(clean, denoised):
+        k, p = radial_power_spectrum(c)
+        pc = np.nan_to_num(p) if pc is None else pc + np.nan_to_num(p)
+        _, p = radial_power_spectrum(d - c)
+        pr = np.nan_to_num(p) if pr is None else pr + np.nan_to_num(p)
+
+    above = k > k_cut
+    fc = float(pc[above].sum() / max(pc.sum(), 1e-300))
+    fr = float(pr[above].sum() / max(pr.sum(), 1e-300))
+    return {"k_cut": k_cut, "beam_sigma_px": _header_sigma_px(header),
+            "min_resolvable_px": float(1.0 / k_cut),
+            "clean_out_of_band_frac": fc,
+            "residual_out_of_band_frac": fr,
+            "excess": float(fr / fc) if fc > 0 else float("inf")}

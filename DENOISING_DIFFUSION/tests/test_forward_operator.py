@@ -229,6 +229,47 @@ check("an EXTRA beam between the cubes is still detected",
 check("and its sigma is recovered", abs(r2["fit_sigma_px"] - 4.0) / 4.0 < 0.10,
       f"{r2['fit_sigma_px']:.2f} px, true 4.0")
 
+# --- case 9: is the invented structure above the beam cutoff? --------------------------
+# Decides whether a VIREO-style band-limit loss is aimed at the real failure. The clean cubes
+# are beam-convolved, so they are band-limited by construction; a prediction with power above
+# the cutoff asserts structure the instrument could not have measured.
+#
+# The measurement is on the RESIDUAL, not the prediction. A global power fraction of the
+# prediction cannot see a local artifact: the clean field's own out-of-band share is ~2e-4 of
+# a total dominated by the lowest frequencies, so one invented blob is three orders of
+# magnitude too small to move it. Measuring the prediction gave 1.02x for a sharp blob and
+# 0.99x for a broad one -- no discrimination at all.
+print("\ncase 9  out-of-band power of a model's error")
+from src.evaluation.forward_operator import out_of_band_power, beam_cutoff_k
+
+BS_, PX_ = 7.83, 0.0082982052
+OOB_HDR = {"BMAJ": BS_ * 2.3548 * PX_ / 3600.0, "BMIN": BS_ * 2.3548 * PX_ / 3600.0,
+           "BPA": 0.0, "CDELT2": PX_ / 3600.0}
+
+
+def _blob(n, cx, cy, r, amp):
+    y, x = np.mgrid[0:n, 0:n]
+    return amp * np.exp(-((x - cx) ** 2 + (y - cy) ** 2) / (2 * r ** 2))
+
+
+oob_clean = np.stack([beam_convolve(power_law_field(256, rng, slope=-3.0), BS_)
+                      for _ in range(4)])
+oob_clean /= oob_clean.std()
+amp = 0.3 * oob_clean.max()
+kc = beam_cutoff_k(OOB_HDR)
+check("cutoff is below Nyquist and above zero", 0 < kc < 0.5, f"k_cut {kc:.4f}")
+
+sharp = out_of_band_power(
+    oob_clean, oob_clean + np.stack([_blob(256, 80, 80, 2.0, amp) for _ in range(4)]), OOB_HDR)
+broad = out_of_band_power(
+    oob_clean, oob_clean + np.stack([_blob(256, 80, 80, 15.0, amp) for _ in range(4)]), OOB_HDR)
+check("a sharp invented blob is flagged as out of band", sharp["excess"] > 100,
+      f"{sharp['excess']:.0f}x, {sharp['residual_out_of_band_frac']:.3f} of residual power")
+check("a blob broader than the beam is NOT flagged", broad["excess"] < 3,
+      f"{broad['excess']:.2f}x")
+check("the two are separated by orders of magnitude",
+      sharp["excess"] / max(broad["excess"], 1e-9) > 100)
+
 # --- beam kernel from a header ---------------------------------------------------------
 print("\nbeam kernel from the recorded header")
 k = beam_kernel_of(HEADER)
