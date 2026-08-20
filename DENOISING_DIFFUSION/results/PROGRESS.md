@@ -98,6 +98,47 @@ Two negative results, both kept: beam conditioning worst on M0 (later retracted,
 **Notebook not archived.** Lost. Kaggle did not auto-push this version and the local copy was
 stripped before the gap was noticed. Part of why RULES.md #10 exists.
 
+## 2026-08-20 | finding | the clean cubes are already beam-convolved
+
+Run 4 came back `indeterminate` on all four cubes, and the diagnostic dump answered the
+question outright.
+
+**Both cubes are `BUNIT=JY/BEAM`.** A model or sky image would be Jy/PIXEL. Jy/beam means the
+beam has already been applied, to the CLEAN cube as well as the dirty one. The spectra agree:
+`P_clean` for run_0006 falls 1650 -> 4.6 -> 0.0069 -> 1e-6 -> 4e-11, thirteen orders by
+k = 0.104, exactly where the header's 7.83 px beam cuts off, and then flattens onto the
+float32 floor near 1e-12. An unconvolved model image would keep following a power law.
+
+**So the answer to Phase 0 is that there is no operator BETWEEN the two cubes.** The pair is
+`dirty = clean + noise`, with the same beam already inside both sides. The ratio behaves
+accordingly: it climbs 1.009 -> 2.42 -> 8.79 -> 41.7 -> 58.6 and never dips, which is
+`1 + N/P_sky` with `P_sky` falling.
+
+Two code faults this exposed, both now fixed and both regression-tested:
+
+- **The band included the float32 floor.** Past k ~ 0.10 neither spectrum is physical, yet
+  their ratio settles near a plausible 2.2. Mixing that with the real region, where the ratio
+  climbs to 58, left no (A, N) able to fit either, which is what produced sigma = 0 with
+  residuals of 0.42 to 0.89. `_measurement_band` now cuts on the CLEAN floor as well as the
+  dirty one.
+- **The noise was modelled as white.** In a Jy/beam map the noise has been through the beam
+  too, so its spectrum is beam-shaped; a flat term implied N running from 16 down to 2e-9
+  across the band. Both a white and a beam-shaped term are now fitted together, so neither
+  the caller nor the code has to guess which kind a cube has.
+
+Also fixed a `KeyError: 'indeterminate'` in the notebook cell's verdict-explanation dict.
+
+**What this means for the plan.** DDRM has nothing to invert: the instrument response is not
+between the network's input and its target. VIREO-lite's image-plane data-consistency term is
+dead for the same reason, since `A = I` makes it `||pred - dirty||`, which would train the
+model toward the noise. Both are struck, and not for lack of time.
+
+This is a result worth stating in the final blog rather than a dead end: **the problem here is
+denoising, not deconvolution.** The network is learning to remove beam-correlated noise from
+an already-convolved map. It also reframes the Friday questions: the useful ask is no longer
+the PSF image but whether an unconvolved (Jy/pixel) sky cube exists, because that is what
+would turn this into a deconvolution problem and put DDRM and VIREO back on the table.
+
 ## 2026-08-20 | bug | Phase 0 run 3: the input was half empty channels
 
 `non_gaussian_convolution` 4/4 again, and this time visibly broken: best-fit beam **0.00 px**

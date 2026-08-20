@@ -187,6 +187,48 @@ with tempfile.TemporaryDirectory() as td:
     check("only the line-bright channels are selected", bool((stds > 1e-6).all()),
           f"selected stds {np.round(stds, 3).tolist()}")
 
+# --- case 8: what this project's cubes actually are ------------------------------------
+# Both cubes are BUNIT=JY/BEAM, so the CLEAN map is already beam-convolved: its power falls
+# thirteen orders of magnitude by k ~ 0.10 and then flattens onto the float32 floor. Past
+# that point neither spectrum is physical, but their ratio settles near a plausible-looking
+# 2.2, and including that region alongside the real one (where the ratio climbs 1.0 to 58)
+# left no (A, N) able to fit either -- Phase 0 run 4, sigma = 0 with residual 0.42 to 0.89.
+print("\ncase 8  clean already beam-convolved, dirty = clean + beam-shaped noise")
+BIG, BSIG = 600, 7.83
+CUBE_HDR = {"BMAJ": BSIG * 2.3548 * 0.0082982052 / 3600.0,
+            "BMIN": BSIG * 2.3548 * 0.0082982052 / 3600.0,
+            "BPA": 0.0, "CDELT2": 0.0082982052 / 3600.0}
+
+
+def beam_convolve(img, sig):
+    n = img.shape[-1]
+    ky, kx = np.fft.fftfreq(n)[:, None], np.fft.fftfreq(n)[None, :]
+    return np.real(np.fft.ifft2(np.fft.fft2(img)
+                                * np.exp(-2 * np.pi ** 2 * sig ** 2 * (ky ** 2 + kx ** 2))))
+
+
+sky = np.stack([power_law_field(BIG, rng, slope=-3.0) for _ in range(4)])
+cl = np.stack([beam_convolve(x, BSIG) for x in sky]).astype(np.float32)   # float32 on purpose
+nz = np.stack([beam_convolve(x, BSIG) for x in rng.normal(0, 1, sky.shape)])
+nz = nz / nz.std() * cl.std()
+di = (cl + 3e-4 * nz).astype(np.float32)
+
+r = phase0_report(cl.astype(float), di.astype(float), CUBE_HDR)
+check("an already-convolved clean cube reads as no_convolution",
+      r["verdict"] == "no_convolution", f"{r['verdict']}, resid {r['fit_residual']:.4f}")
+check("the float32 floor is excluded rather than fitted",
+      r["fit_residual"] < 0.05, f"resid {r['fit_residual']:.4f}")
+
+# control: the check must still see a beam applied BETWEEN the two cubes
+extra = np.stack([beam_convolve(c, 4.0) for c in cl])
+di2 = (extra + 3e-4 * nz / nz.std() * extra.std()).astype(np.float32)
+r2 = phase0_report(cl.astype(float), di2.astype(float), CUBE_HDR)
+check("an EXTRA beam between the cubes is still detected",
+      r2["verdict"].endswith("convolution") and r2["verdict"] != "no_convolution",
+      r2["verdict"])
+check("and its sigma is recovered", abs(r2["fit_sigma_px"] - 4.0) / 4.0 < 0.10,
+      f"{r2['fit_sigma_px']:.2f} px, true 4.0")
+
 # --- beam kernel from a header ---------------------------------------------------------
 print("\nbeam kernel from the recorded header")
 k = beam_kernel_of(HEADER)

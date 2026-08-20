@@ -177,11 +177,41 @@ def transfer_function(clean, dirty, n_bins: int = 60):
     return k, np.sqrt(raw), np.sqrt(ratio), noise, pc, pd
 
 
-def fit_forward_model(k, pc, pd, band, max_sigma_px: float = 25.0, n_sigma: int = 400):
+def _measurement_band(k, pc, pd, noise, k_max: float = 0.45):
+    """
+    Bins where BOTH spectra carry real information.
+
+    The dirty-side cut is the obvious one: beyond its noise floor the ratio is noise over
+    noise. The clean-side cut is the one that was missing, and it cost a run.
+
+    These cubes are Jy/beam, so the clean map is already beam-convolved and its power falls
+    thirteen orders of magnitude by k ~ 0.10, then FLATTENS onto the float32 floor near
+    1e-12. Past that point neither spectrum is physical, yet their ratio settles to a
+    plausible-looking constant near 2.2. Including that region alongside the real one, where
+    the ratio climbs from 1.0 to 58, leaves no (A, N) able to fit either, which is exactly
+    how Phase 0's fourth run produced sigma = 0 with a residual of 0.42 to 0.89.
+
+    The clean floor is estimated the same way as the dirty one: the median of the top decile
+    of k, where nothing physical survives.
+    """
+    tail = k >= k_max
+    pc_floor = float(np.median(pc[tail])) if tail.any() else 0.0
+    return (np.isfinite(pc) & np.isfinite(pd)
+            & (pc > 3.0 * pc_floor) & (pd > 3.0 * noise) & (k < k_max))
+
+
+def fit_forward_model(k, pc, pd, band, noise_basis=None, max_sigma_px: float = 25.0,
+                      n_sigma: int = 400):
     """
     Fit the forward model directly instead of thresholding a ratio:
 
-        P_dirty(k) = A * exp(-4 pi^2 sigma^2 k^2) * P_clean(k) + N
+        P_dirty(k) = A * exp(-4 pi^2 sigma^2 k^2) * P_clean(k) + N * noise_basis(k)
+
+    `noise_basis` defaults to 1 (white noise). For a Jy/beam map it should be |B_header(k)|^2:
+    the noise in such a map has been through the same beam as the signal, so its power
+    spectrum is beam-shaped rather than flat. On this project's cubes a flat basis cannot fit
+    -- the implied N runs from 16 down to 2e-9 across the band -- while a beam-shaped one
+    holds it within about 1.5 orders.
 
     Three unknowns. `A` absorbs any intensity-scale factor between the two maps (Jy/beam
     against Jy/pixel is a factor of the beam area, order 200 here), `N` is the noise floor,
@@ -203,18 +233,25 @@ def fit_forward_model(k, pc, pd, band, max_sigma_px: float = 25.0, n_sigma: int 
     (pure addition, no convolution) so the two can be compared as hypotheses.
     """
     kb, pcb, pdb = k[band], pc[band], pd[band]
+    nb = (np.ones_like(pcb) if noise_basis is None else np.asarray(noise_basis)[band])
     ok = (pdb > 0) & (pcb > 0)
-    kb, pcb, pdb = kb[ok], pcb[ok], pdb[ok]
+    kb, pcb, pdb, nb = kb[ok], pcb[ok], pdb[ok], nb[ok]
     if kb.size < 6:
         return None
+
+    # Noise gets BOTH a white term and a beam-shaped one, rather than a guess between them.
+    # A Jy/beam map's noise has been through the beam, so its spectrum is beam-shaped; a
+    # synthetic cube with noise added after blurring has a flat one. Fitting both and letting
+    # the data weight them covers either without the caller having to know which it has.
+    cols = [np.ones_like(pcb)] if noise_basis is None else [np.ones_like(pcb), nb]
 
     def solve(sigma):
         g = np.exp(-4.0 * np.pi ** 2 * sigma ** 2 * kb ** 2)
         # rows weighted by 1/pd -> least squares on the RELATIVE error
-        M = np.stack([g * pcb, np.ones_like(pcb)], axis=1) / pdb[:, None]
+        M = np.stack([g * pcb] + cols, axis=1) / pdb[:, None]
         coef, *_ = np.linalg.lstsq(M, np.ones_like(pdb), rcond=None)
         coef = np.maximum(coef, 0.0)                     # A, N are powers: non-negative
-        model = coef[0] * g * pcb + coef[1]
+        model = coef[0] * g * pcb + sum(c * col for c, col in zip(coef[1:], cols))
         resid = float(np.sqrt(np.mean(((model - pdb) / pdb) ** 2)))
         return coef, resid
 
@@ -224,6 +261,7 @@ def fit_forward_model(k, pc, pd, band, max_sigma_px: float = 25.0, n_sigma: int 
     coef0, resid0 = solve(0.0)
 
     return {"sigma_px": float(sigma), "A": float(coef[0]), "N": float(coef[1]),
+            "N_beam": float(coef[2]) if len(coef) > 2 else 0.0,
             "residual": resid, "residual_no_convolution": resid0,
             "k_band": kb, "pc_band": pcb, "pd_band": pdb}
 
@@ -254,13 +292,17 @@ def phase0_report(clean, dirty, header=None, n_bins: int = 60) -> dict:
     # The band must not be set as a fraction of the PEAK power instead: a disk's spectrum is
     # steeply red, so "1% of the maximum" lands near k = 0.04 and discards exactly the range
     # where a Gaussian beam and a sidelobed one stop looking alike.
-    band = np.isfinite(b_raw) & (pc > 0) & (pd > 3.0 * noise) & (k < 0.45)
+    band = _measurement_band(k, pc, pd, noise)
     if band.sum() < 6:
         return {"verdict": "indeterminate",
-                "reason": "too few bins where the dirty spectrum rises above its noise floor",
+                "reason": "too few bins where both spectra rise above their own floors",
                 "k": k, "transfer": b, "noise_power": noise}
 
-    fit = fit_forward_model(k, pc, pd, band)
+    # A Jy/beam map's noise has been through the beam too, so its spectrum is beam-shaped.
+    sigma_hdr_early = _header_sigma_px(header) if header is not None else None
+    nb = (np.exp(-4.0 * np.pi ** 2 * sigma_hdr_early ** 2 * k ** 2)
+          if sigma_hdr_early else None)
+    fit = fit_forward_model(k, pc, pd, band, noise_basis=nb)
     if fit is None:
         return {"verdict": "indeterminate", "reason": "forward-model fit did not converge",
                 "k": k, "transfer": b, "noise_power": noise}
