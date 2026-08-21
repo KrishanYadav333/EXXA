@@ -115,6 +115,27 @@ also confirms that file belongs to v12.
 downloaded, and pixel matching cannot separate them (29.1 / 29.2 / 29.6). Parked in
 [`_unattributed/`](05-unet-line-emission/_unattributed/) rather than guessed.
 
+### v26 — the band-limit idea is refuted; spectral context is a pixel win only
+
+First run with the CONFIGS-derived moment table and the out-of-band check, so the first that
+shows the spectral arms and the first that can answer whether a band-limit loss is worth
+building. See [`v26_.../`](05-unet-line-emission/v26_2026-08-21_df38336/).
+
+| arm | PSNR | M0 | M1 | M2 |
+|---|---|---|---|---|
+| winner + 1 spectral neighbour | 41.61 | +17.7 | +63.4 | +38.0 |
+| winner + 2 spectral neighbours | 41.96 | +17.0 | +72.4 | +33.0 |
+
+Pooling all three runs of each arm at seed 42 (this, v25, and the first): k1 at
+41.26 ± 0.92 dB / 21.0 ± 9.3 / 63.4 ± 4.9 / 33.0 ± 16.3, k2 at 41.81 ± 0.55 / 16.6 ± 2.1 /
+67.6 ± 6.1 / 23.8 ± 12.3. Against `winner_aug`'s 39.30 / 29.2 / 74.0 / 55.0, that is **+2.4 dB
+of PSNR bought at the cost of M0 and M2**. Three runs each, so not seed noise.
+
+**Out-of-band error: median excess 0.5x**, 1.1% of residual power above the beam cutoff. The
+model's error is if anything smoother than the truth, so the invented structure is beam-scale
+rather than sharp and no band constraint can see it. With Phase 0's `A = I`, DDRM, VIREO-lite's
+consistency term and the band-limit variant are all refuted by measurement.
+
 ### v25 — spectral context, and a reproducibility problem
 
 Two new arms, `winner_k1` and `winner_k2`: the sampled channel plus k neighbours along

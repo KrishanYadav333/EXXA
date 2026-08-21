@@ -98,6 +98,40 @@ Two negative results, both kept: beam conditioning worst on M0 (later retracted,
 **Notebook not archived.** Lost. Kaggle did not auto-push this version and the local copy was
 stripped before the gap was noticed. Part of why RULES.md #10 exists.
 
+## 2026-08-21 | run | 05 v26 — the band-limit idea is refuted, and spectral context is a pixel win only
+
+First run with all three post-v25 fixes, so the first to show the spectral arms in the summary
+table and the first to measure out-of-band error. Archived at
+`results/05-unet-line-emission/v26_2026-08-21_df38336/`.
+
+**The physics-informed line is now closed, on measurements rather than for lack of time.**
+
+Median out-of-band excess **0.5x**, 1.1% of residual power above the beam cutoff. Excess below
+1 means the model's error is if anything smoother than the truth, so a band-limit penalty
+would be aimed at nothing. The invented structure is **beam-scale, not sharp** — the worse of
+the two possibilities, because a beam-scale blob is exactly what a real detection looks like
+and no band constraint can separate them.
+
+With Phase 0's `A = I`, all three are struck: DDRM, VIREO-lite's data-consistency term, and
+the band-limit variant. Each was killed by a number, not by the calendar.
+
+**Spectral context, three runs per arm at seed 42:**
+
+| arm | PSNR | M0 | M1 | M2 |
+|---|---|---|---|---|
+| winner_k1 | 41.26 ± 0.92 | 21.0 ± 9.3 | 63.4 ± 4.9 | 33.0 ± 16.3 |
+| winner_k2 | 41.81 ± 0.55 | 16.6 ± 2.1 | 67.6 ± 6.1 | 23.8 ± 12.3 |
+| winner_aug (3 seeds) | 39.30 ± 0.46 | 29.2 ± 7.2 | 74.0 ± 2.0 | 55.0 ± 13.9 |
+
+About +2.4 dB of PSNR, and it **loses M0 and M2 to augmentation**. Three runs each, so this is
+not the seed noise that made v25's reading unreliable. `winner_aug` is still the best arm on
+the metric that matters.
+
+That divergence is itself a result worth reporting: the two spectral arms are the clearest
+case yet in this project of PSNR and moment reliability moving in opposite directions.
+
+Unlike v25's, this version's push **preserved** the committed cells rather than reverting them.
+
 ## 2026-08-21 | run + bug | 05 v25, and the error bars in this project are too small
 
 Second run of `winner_k1` and `winner_k2` at seed 42, same code, and it does not reproduce
