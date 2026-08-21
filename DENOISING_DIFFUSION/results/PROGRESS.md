@@ -98,6 +98,45 @@ Two negative results, both kept: beam conditioning worst on M0 (later retracted,
 **Notebook not archived.** Lost. Kaggle did not auto-push this version and the local copy was
 stripped before the gap was noticed. Part of why RULES.md #10 exists.
 
+## 2026-08-21 | finding | Jason's self-gravitating pair IS a deconvolution problem, unlike the training data
+
+The cubes Jason shared on 2026-08-07 were downloaded on 08-08 and never opened. They are in
+`DENOISING_DIFFUSION/self-gravitating cube and dirty cube/` (gitignored, 1.5 GB zip, two
+601x600x600 cubes). Opening them changes the DDRM/VIREO conclusion for this data.
+
+| | training cubes | Jason's new pair |
+|---|---|---|
+| clean | `BUNIT=JY/BEAM` | **`BUNIT=JY/PIXEL`** |
+| dirty | `BUNIT=JY/BEAM` | `BUNIT=Jy/beam` |
+| operator between them | none, `A = I` | **a real convolution** |
+
+`lines.fits` is an unconvolved sky model: 0.00% negative pixels, minimum +41.55.
+`dirty_cube.fits` is a genuine dirty image: **51.55% of its pixels are negative**, its minimum
+is -0.34 of its maximum, and its total flux is ~0. That is the signature of a non-deconvolved
+interferometric map, sidelobes pushing flux below zero with no zero-spacing baseline to carry
+the total. A restored map convolved with a Gaussian would show neither.
+
+Phase 0 on the pair returns `non_gaussian_convolution` with a fitted amplitude
+**A = 293.5**, which is the beam area in pixels, exactly the Jy/beam-against-Jy/pixel factor
+the report warns about. The Gaussian fit itself is poor (residual 0.66, RMS 10.7), which is
+what a real sidelobed beam should do to a Gaussian model, so the label is right but the fitted
+sigma of 2.07 px is not to be trusted.
+
+**What this changes.** DDRM and VIREO's data-consistency term are refuted **for the
+line-emission training data**, where both sides are already beam-convolved. They are not
+refuted in general, and this pair is precisely the setup they were designed for. The v26
+entry's "the physics-informed line is closed" applies to the data trained on so far, not to
+this.
+
+**What it would take.** This is a pivot, not a bolt-on. Training on this regime needs (1) more
+than one such pair, and Jason said "I'll give you more later", and (2) the **dirty beam / PSF
+image**, because with 51% negative pixels a Gaussian `A` would enforce badly wrong constraints.
+Both are concrete asks rather than open questions.
+
+Also worth noting: no header beam. `dirty_cube.fits` carries no BMAJ/BMIN/BPA at all, so
+`beam_features_of` returns a zero vector and `beam_kernel_of` returns None on this cube. Any
+beam-conditioned arm would silently run unconditioned on it.
+
 ## 2026-08-21 | run | 05 v26 — the band-limit idea is refuted, and spectral context is a pixel win only
 
 First run with all three post-v25 fixes, so the first to show the spectral arms in the summary
