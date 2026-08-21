@@ -254,6 +254,10 @@ anecdotes and does not survive a distribution.
 7. Bayesian sweep seeded from the 12 random runs now that alpha stands out (r=+0.62).
 8. Midterm evaluation Aug 10–14 (week 7-8/22 now).
 
+**This list predates the midterm and is kept for provenance. For the current state see the
+2026-08-21 entry at the end of this file:** items 1, 2 and 3 are closed, DDRM and both VIREO
+variants are refuted, and the remaining work is ALMA validation.
+
 ## 2026-08-07 — Jason clarifies midterm deliverable: a blog post, not a report
 
 Emailed Jason 2026-08-03 asking what to prepare for Aug 10–14: format, whether current
@@ -329,3 +333,75 @@ in this project).
 true against a supervised U-Net on a denoising task, and contradicted directly by this
 project's own numbers (DDPM 18.3 dB vs U-Net 37-39 dB on identical data). Not repeated in
 the write-up.
+
+
+## 2026-08-21 — Post-midterm: the physics-informed line is closed, on measurements
+
+Supersedes the 2026-08-11 entry below, which called DDRM "the single strongest untried idea".
+It was tried. It does not apply here, and neither do the two VIREO variants. Three ideas,
+three refutations, each from a number rather than from running out of time.
+
+**Phase 0 — what actually produced the dirty cubes.** DDRM constrains the reverse chain with a
+known operator `A` where `dirty = A(clean) + noise`, so it is only worth building if `A` is
+non-trivial. The diagnostic (`src/evaluation/forward_operator.py`) fits the forward model
+directly and compares it against the same model with no beam. The answer is in the headers:
+**both cubes are `BUNIT=JY/BEAM`**, so the clean map is already beam-convolved, and its power
+falls thirteen orders of magnitude by k = 0.104, exactly where the header's 7.83 px beam cuts
+off. There is no operator *between* the two cubes. `A = I`.
+
+That kills DDRM outright, and VIREO-lite's data-consistency term with it: at `A = I` the term
+reduces to `||pred - dirty||`, which trains the model toward the noise it is supposed to
+remove.
+
+**The one survivor was also refuted.** If the clean map is band-limited by the beam, a
+prediction carrying power above the cutoff asserts structure the instrument could not have
+measured, and a loss can penalise that with one FFT per step. v26 measured it: **median
+out-of-band excess 0.5x**, 1.1% of the residual's power above the cutoff. Excess below 1 means
+the model's error is if anything *smoother* than the truth. The invented structure is
+**beam-scale, not sharp**, which is the worse case scientifically, since a beam-scale blob is
+exactly what a real detection looks like and no band constraint can tell them apart.
+
+**Getting there cost four wrong verdicts**, all from the same mistake: choosing a
+normalisation and thresholding against it, instead of fitting the thing being measured. Raw
+ratio below 1 (breaks on an intensity-scale mismatch), ratio normalised by its own low-k level
+(breaks on a rising ratio), Gaussian-beats-no-beam (ties on a sidelobed beam), and a band that
+included channels the mentor's own sampler exists to avoid. All four are regression cases in
+`tests/test_forward_operator.py`.
+
+**Spectral context (Phase 3a) is a pixel win only.** 2.5D input, the channel plus k neighbours
+along velocity, aimed at M1 and M2 because those lag and every channel was being denoised in
+isolation. Three runs of each arm at seed 42:
+
+| arm | PSNR | M0 | M1 | M2 |
+|---|---|---|---|---|
+| winner_k1 | 41.26 ± 0.92 | 21.0 ± 9.3 | 63.4 ± 4.9 | 33.0 ± 16.3 |
+| winner_k2 | 41.81 ± 0.55 | 16.6 ± 2.1 | 67.6 ± 6.1 | 23.8 ± 12.3 |
+| winner_aug (3 seeds) | 39.30 ± 0.46 | 29.2 ± 7.2 | 74.0 ± 2.0 | 55.0 ± 13.9 |
+
+About +2.4 dB of PSNR, paid for with M0 and M2. `winner_aug` remains the best arm on the
+metric that matters, as it has been since notebook 08. The divergence is the clearest case in
+this project of PSNR and moment reliability moving in opposite directions.
+
+**A reproducibility problem, found by accident.** Running the same arm at the same seed with
+the same code three times gave 41.948, 41.058 and 40.219 dB, standard deviation 0.865, and M2
+from +46.2% to +14.8%. `winner_aug`'s spread across three different SEEDS is 0.455. Re-running
+one seed varies more than changing the seed. GPU nondeterminism, not a bug: `torch.manual_seed`
+does not fix cuDNN's algorithm choice and T4 x2 splits batches across devices. **Every
+single-seed row in `RUNS.md` therefore has no error bar** and should not be read at this
+resolution, `winner_beam` and `winner_patch` included.
+
+**Kaggle reverted committed work a third time** (RULES.md #2). Version 25's push deleted 2248
+lines: the CONFIGS-derived moment table, the out-of-band check, and a section 7 fix. Restored
+in `201b4ef`. Version 26's push preserved them.
+
+**Where this leaves the plan.** Nothing physics-informed is left to build, so the remaining
+work is the one org task with nothing done: **real ALMA validation** (task 6), deferred to the
+final blog by Jason on 2026-08-07 and still untouched. It carries a real methodology problem,
+not just an execution one: real data has no ground truth, so the moment-improvement metric
+this project is built on does not transfer.
+
+Also still open: the self-gravitating cubes Jason shared on 2026-08-07 remain unexamined, and
+a determinism flag for `train_unet` is proposed but not built.
+
+Full per-run detail is in `results/PROGRESS.md` and `results/RUNS.md`; this entry is the
+summary.
