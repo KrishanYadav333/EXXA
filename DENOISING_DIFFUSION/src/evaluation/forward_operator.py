@@ -608,3 +608,59 @@ def out_of_band_power(clean, denoised, header, level: float = 0.1) -> dict:
             "clean_out_of_band_frac": fc,
             "residual_out_of_band_frac": fr,
             "excess": float(fr / fc) if fc > 0 else float("inf")}
+
+
+def estimate_beam_from_pair(clean, dirty, crop: int = 129):
+    """
+    Recover the forward operator from a clean/dirty pair, when one exists.
+
+    Uses the cross-spectrum estimator `B = <D conj(C)> / <|C|^2>` rather than dividing
+    channel by channel. The noise in D is uncorrelated with C, so it averages towards zero
+    across channels instead of blowing up wherever `C` happens to be small.
+
+    Only meaningful when there IS an operator between the two cubes, which
+    `phase0_report` decides. For the line-emission training set (`A = I`) this returns a
+    delta function and says nothing.
+
+    Measured on the mentor's self-gravitating pair (2026-08-21): peak 0.911 at the exact
+    centre, sum ~0, FWHM 5 px, negative ring reaching -2.8% of peak from r ~ 26 px. Peak near
+    1 with zero total flux is the signature of an interferometric DIRTY beam, and the negative
+    ring is why a Gaussian `A` would be the wrong operator. Convolving the clean cube with it
+    reproduced held-out channels at correlation 0.994, residual 16.6% of the dirty cube's own
+    rms, which is the noise term.
+
+    Returns the beam centred in a `crop` x `crop` window, or the full field when `crop` is
+    None. Odd `crop` keeps the peak on a pixel.
+    """
+    clean = np.asarray(clean, dtype=np.float64)
+    dirty = np.asarray(dirty, dtype=np.float64)
+    if clean.ndim == 2:
+        clean, dirty = clean[None], dirty[None]
+
+    fc = np.fft.fft2(clean, axes=(-2, -1))
+    fd = np.fft.fft2(dirty, axes=(-2, -1))
+    den = (np.abs(fc) ** 2).mean(axis=0)
+    num = (fd * np.conj(fc)).mean(axis=0)
+    # Drop frequencies the clean cube never illuminated; there the ratio is 0/0.
+    b = np.where(den > 1e-12 * den.max(), num / np.maximum(den, 1e-300), 0.0)
+
+    beam = np.fft.fftshift(np.real(np.fft.ifft2(b)))
+    if crop:
+        c = beam.shape[0] // 2
+        h = crop // 2
+        beam = beam[c - h:c + h + 1, c - h:c + h + 1]
+    return beam
+
+
+def apply_beam(cube, beam):
+    """Convolve with a beam returned by `estimate_beam_from_pair` (centred, not fftshifted)."""
+    cube = np.asarray(cube, dtype=np.float64)
+    if cube.ndim == 2:
+        cube = cube[None]
+    n = cube.shape[-1]
+    pad = np.zeros((n, n))
+    h = beam.shape[0] // 2
+    c = n // 2
+    pad[c - h:c + h + 1, c - h:c + h + 1] = beam
+    k = np.fft.fft2(np.fft.ifftshift(pad))
+    return np.real(np.fft.ifft2(np.fft.fft2(cube, axes=(-2, -1)) * k[None], axes=(-2, -1)))

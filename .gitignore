@@ -110,3 +110,8 @@ DENOISING_DIFFUSION/models/_kaggle-*/
 
 # matplotlib figure cache for the blog builder
 DENOISING_DIFFUSION/tools/figcache/
+
+# The *.fits rule above exists to keep multi-GB cubes out of git. A recovered beam is 72 KB
+# and is a RESULT, not data: it is the measured forward operator for the self-gravitating
+# pair, and re-deriving it needs the 1.7 GB cubes.
+!DENOISING_DIFFUSION/results/self-gravitating/*.fits

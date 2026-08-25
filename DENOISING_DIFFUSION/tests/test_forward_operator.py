@@ -270,6 +270,42 @@ check("a blob broader than the beam is NOT flagged", broad["excess"] < 3,
 check("the two are separated by orders of magnitude",
       sharp["excess"] / max(broad["excess"], 1e-9) > 100)
 
+# --- case 10: recover the operator from a clean/dirty pair -----------------------------
+# When an operator DOES sit between two cubes, it can be measured rather than requested. On
+# the mentor's self-gravitating pair this recovered a dirty beam with peak 0.911, sum ~0 and
+# a -2.8% sidelobe ring, and convolving the clean cube with it reproduced HELD-OUT channels
+# at correlation 0.994. That removes "ask for the PSF image" from the DDRM critical path.
+print("\ncase 10  recovering the forward operator from a pair")
+from src.evaluation.forward_operator import estimate_beam_from_pair, apply_beam
+
+_y, _x = np.mgrid[-20:21, -20:21].astype(float)
+_r = np.sqrt(_x ** 2 + _y ** 2)
+true_beam = np.exp(-_r ** 2 / (2 * 2.5 ** 2)) * np.cos(_r / 3.0)   # sidelobed, like a real one
+true_beam /= true_beam.max()
+
+sky = np.abs(np.stack([rng.random((256, 256)) for _ in range(8)]))
+made = apply_beam(sky, true_beam) + rng.normal(0, 1e-3, (8, 256, 256))
+rec = estimate_beam_from_pair(sky, made, crop=41)
+
+check("a known sidelobed beam is recovered to 1e-3",
+      np.abs(rec - true_beam).max() < 1e-3, f"max err {np.abs(rec - true_beam).max():.2e}")
+check("its peak is preserved", abs(rec.max() - 1.0) < 1e-3, f"{rec.max():.4f}")
+# Compare against the TRUTH's own minimum, not an invented threshold: this synthetic
+# beam only dips to -0.024 inside the crop, so asserting "< -0.05" asserted something false.
+check("negative sidelobes survive the recovery",
+      rec.min() < 0 and abs(rec.min() - true_beam.min()) < 1e-3,
+      f"recovered {rec.min():.4f} vs true {true_beam.min():.4f}")
+check("re-convolving reproduces the dirty cube",
+      float(np.corrcoef(apply_beam(sky, rec).ravel(), made.ravel())[0, 1]) > 0.999)
+
+# A = I must give back a delta, not a spurious beam
+flat = estimate_beam_from_pair(sky, sky + rng.normal(0, 1e-3, sky.shape), crop=41)
+c = flat.shape[0] // 2
+off = flat.copy(); off[c, c] = 0
+check("an identity operator recovers a delta, not a beam",
+      abs(flat[c, c] - 1.0) < 0.05 and np.abs(off).max() < 0.05,
+      f"centre {flat[c, c]:.4f}, largest off-centre {np.abs(off).max():.4f}")
+
 # --- beam kernel from a header ---------------------------------------------------------
 print("\nbeam kernel from the recorded header")
 k = beam_kernel_of(HEADER)
