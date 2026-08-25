@@ -98,6 +98,44 @@ Two negative results, both kept: beam conditioning worst on M0 (later retracted,
 **Notebook not archived.** Lost. Kaggle did not auto-push this version and the local copy was
 stripped before the gap was noticed. Part of why RULES.md #10 exists.
 
+## 2026-08-25 | finding | the dirty beam is measured, so DDRM no longer waits on the mentor
+
+Both datasets are now on the local machine: the line-emission set at
+`DENOISING_DIFFUSION/Line Emission Data/` (14 cube pairs, 7.5 GB, splitting 7/2/5 exactly as
+the notebook does) and the self-gravitating pair extracted alongside it.
+
+I had recorded that a DDRM arm needs the PSF image from Jason. **That was wrong.** With both a
+clean and a dirty cube in hand the operator can be measured from the data:
+`B = <D conj(C)> / <|C|^2>`, now `estimate_beam_from_pair` in
+`src/evaluation/forward_operator.py`.
+
+| recovered beam | |
+|---|---|
+| peak | 0.9109, at the exact centre pixel |
+| FWHM | 5 px |
+| deepest sidelobe | -2.77% of peak, ring from r ~ 26 px |
+| total flux, full field | ~0 |
+
+Peak near 1 with zero net flux is the definition of an interferometric dirty beam, and the
+negative ring is exactly what Phase 0's `non_gaussian_convolution` verdict was detecting. Two
+independent cross-checks agree: Phase 0's Gaussian fit gave sigma 2.07 px (FWHM 4.9 px)
+against the 5 px measured directly, and convolving `lines.fits` with the recovered beam
+reproduces `dirty_cube.fits` at **correlation 0.9939 on channels 150-450, none of which were
+used to fit it**, leaving a 16.6% residual that is the noise term.
+
+Saved as `results/self-gravitating/dirty_beam_recovered.fits` (72 KB, committed with a
+gitignore exception since it is a result and re-deriving it needs the 1.7 GB cubes). Note the
+129 px crop sums to 26.5 rather than 0 because it truncates the outer negative bowl; anything
+needing flux conservation should re-derive at full size.
+
+**What this changes.** "Ask Jason for the PSF" is off the DDRM critical path. What still
+blocks a DDRM arm is data volume: one pair cannot train a model, so Jason's "I'll give you
+more later" is the ask that matters, not the PSF.
+
+**What it does not change.** DDRM and VIREO's consistency term remain refuted for the
+line-emission training data, where `A = I`. Nothing here contradicts that; the two datasets
+are simply different problems.
+
 ## 2026-08-21 | finding | Jason's self-gravitating pair IS a deconvolution problem, unlike the training data
 
 The cubes Jason shared on 2026-08-07 were downloaded on 08-08 and never opened. They are in
