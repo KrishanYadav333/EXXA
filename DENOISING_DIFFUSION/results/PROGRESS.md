@@ -98,6 +98,32 @@ Two negative results, both kept: beam conditioning worst on M0 (later retracted,
 **Notebook not archived.** Lost. Kaggle did not auto-push this version and the local copy was
 stripped before the gap was noticed. Part of why RULES.md #10 exists.
 
+## 2026-08-27 | run | first OOD test: the trained U-Net fails on a real dirty beam
+
+`experiments/eval_self_gravitating.py`, `winner_aug` seed 43, no retraining. The out-of-
+distribution test proposed 2026-08-21 and only now run: the model had never actually been
+scored against the self-gravitating pair before this.
+
+Result over the non-padded range (541 channels, see below): **M0 -86.5%, M1 -10.8%,
+M2 -168.3%**, signal-masked. Every moment is negative -- the denoised cube is FURTHER from
+truth than the raw dirty cube, not just less improved. Figure at
+`results/self-gravitating/ood_moment_comparison.png`, write-up at
+`results/self-gravitating/ood_eval.md`.
+
+**Why this is expected and still worth having measured.** Every training cube has `A = I`
+(Phase 0), so the model was trained to remove additive noise with no mechanism for inverting
+a beam. Applying it to a cube with a REAL dirty beam (recovered 2026-08-25, peak 0.911,
+-2.8% sidelobes) does not degrade gracefully, it actively damages the signal. That is now
+measured rather than assumed, and it is the first concrete evidence of the domain gap between
+this project's training regime and what real ALMA data will look like.
+
+**Also found in building the eval:** channels 0-29 and 571-600 of `lines.fits` are
+byte-identical repeats within each block, confirmed with `np.array_equal`, not a real
+line-free baseline. That breaks both the training pipeline's continuum-subtraction assumption
+and `bettermoments.estimate_RMS`, which reads `data[:N]`/`data[-N:]` literally. The eval trims
+to the non-padded [30, 571) range and skips continuum subtraction rather than apply it to
+padding.
+
 ## 2026-08-25 | finding | the dirty beam is measured, so DDRM no longer waits on the mentor
 
 Both datasets are now on the local machine: the line-emission set at
