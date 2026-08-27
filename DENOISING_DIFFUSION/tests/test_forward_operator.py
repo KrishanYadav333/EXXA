@@ -306,6 +306,26 @@ check("an identity operator recovers a delta, not a beam",
       abs(flat[c, c] - 1.0) < 0.05 and np.abs(off).max() < 0.05,
       f"centre {flat[c, c]:.4f}, largest off-centre {np.abs(off).max():.4f}")
 
+# --- case 11: a large intensity-scale factor must not break the least-squares solve ------
+# 2026-08-27, the self-gravitating v2 cube: P_dirty/P_clean ran from ~1e5 at the lowest k to
+# ~1e-4 by mid-band. The unscaled lstsq returned A=2.4e-5 against a naive low-k estimate of
+# A~1e5 -- nine orders of magnitude off, and it fed a wrong Phase 0 verdict (A=0.000 printed,
+# Gaussian RMS in the billions) that looked like a data anomaly and was actually a numerical
+# one. Fixed by column-scaling the lstsq problem before solving. This is the regression case.
+print("\ncase 11  a large real amplitude factor (A ~ 1e5) does not break the fit")
+amp = 1.0e5              # amplitude-space scale factor applied to the dirty MAP
+big_amp = amp ** 2        # `A` in fit_forward_model is a POWER-spectrum coefficient, so a
+                          # map-amplitude scale of `amp` shows up as amp**2 in P_dirty/P_clean
+d_big = amp * blurred + rng.normal(0, 0.02 * amp, clean.shape)
+r_big = phase0_report(clean, d_big)
+check("verdict is still a convolution, not broken by the huge amplitude",
+      r_big["verdict"] == "gaussian_convolution", r_big["verdict"])
+check("amplitude recovered within an order of magnitude of the truth (power-spectrum A = amp^2)",
+      0.1 * big_amp < r_big["scale_factor"] < 10 * big_amp,
+      f"fitted A={r_big['scale_factor']:.3g}, true A={big_amp:.3g}")
+check("sigma still recovered correctly at this amplitude",
+      abs(r_big["fit_sigma_px"] - SIGMA) / SIGMA < 0.10, f"{r_big['fit_sigma_px']:.2f} px")
+
 # --- beam kernel from a header ---------------------------------------------------------
 print("\nbeam kernel from the recorded header")
 k = beam_kernel_of(HEADER)

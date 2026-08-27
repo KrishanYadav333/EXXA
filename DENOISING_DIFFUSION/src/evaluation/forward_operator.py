@@ -249,8 +249,16 @@ def fit_forward_model(k, pc, pd, band, noise_basis=None, max_sigma_px: float = 2
         g = np.exp(-4.0 * np.pi ** 2 * sigma ** 2 * kb ** 2)
         # rows weighted by 1/pd -> least squares on the RELATIVE error
         M = np.stack([g * pcb] + cols, axis=1) / pdb[:, None]
-        coef, *_ = np.linalg.lstsq(M, np.ones_like(pdb), rcond=None)
-        coef = np.maximum(coef, 0.0)                     # A, N are powers: non-negative
+        # Column scaling before the solve, unscaled after. Without it this breaks whenever
+        # P_dirty/P_clean swings over several orders of magnitude across the band -- which
+        # is not a hypothetical: on the 2026-08-27 self-gravitating v2 cube the ratio runs
+        # from ~1e5 at the lowest k to ~1e-4 by mid-band, and the unscaled solve returned
+        # A=2.4e-5 against a naive low-k estimate of A~1e5, nine orders of magnitude off.
+        # This is standard Jacobi/Ruiz preconditioning: an ill-conditioned lstsq is a
+        # numerical failure, not evidence about the physics, and it must not be read as one.
+        scale = np.maximum(np.abs(M).max(axis=0), 1e-300)
+        coef_scaled, *_ = np.linalg.lstsq(M / scale, np.ones_like(pdb), rcond=None)
+        coef = np.maximum(coef_scaled / scale, 0.0)       # A, N are powers: non-negative
         model = coef[0] * g * pcb + sum(c * col for c, col in zip(coef[1:], cols))
         resid = float(np.sqrt(np.mean(((model - pdb) / pdb) ** 2)))
         return coef, resid
