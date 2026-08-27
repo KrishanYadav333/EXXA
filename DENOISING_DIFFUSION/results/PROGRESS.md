@@ -98,6 +98,47 @@ Two negative results, both kept: beam conditioning worst on M0 (later retracted,
 **Notebook not archived.** Lost. Kaggle did not auto-push this version and the local copy was
 stripped before the gap was noticed. Part of why RULES.md #10 exists.
 
+## 2026-08-27 | finding | denoising makes the disk's kinematics WORSE than doing nothing
+
+Extended the GI wiggle check to `dirty_cube.fits` and the `winner_aug` seed-43 denoised
+output already computed in the OOD eval, reusing its saved moment maps.
+
+**Clean, unconfounded result, no Keplerian fit needed: correlation of raw moment-1 with the
+true clean M1 is 0.72 for the untouched dirty cube and 0.53 for the denoised one.** The
+model degrades recoverable kinematics below doing nothing. Matches the OOD moment-improvement
+result from earlier the same day (M0 -86.5%, M2 -168.3%) with an independent metric.
+
+**Two `fit_keplerian` bugs found and fixed along the way**, both from using the same crude,
+data-independent initial guess for every cube:
+
+- Dirty's M1 has NaN pixels (moment-1's own 0/0, since `mask` is defined from clean's M0, not
+  the dirty cube's own signal quality). `fit_keplerian` used to propagate that straight into
+  the fit bounds and crash with "x0 is infeasible". Now drops non-finite samples before
+  fitting and reports how many. 3 new regression cases (15 total in
+  `tests/test_gi_wiggle.py`).
+- Even with NaNs handled, dirty's fit still ran mass to its 50 Msun bound with a
+  near-degenerate inclination, from the same fixed init used for every cube regardless of
+  data quality. Re-fit using CLEAN's own converged geometry as the init for dirty/denoised
+  (physically correct: same disk, so the true geometry is shared) -- and dirty STILL does not
+  converge. That is now a real finding rather than an optimiser artifact: a naive per-pixel
+  Keplerian fit to the raw dirty cube's moment-1 does not work. Consistent with why the
+  literature (Hall+2021 in particular) works from individual channel maps rather than the
+  collapsed M1, which is more noise-sensitive.
+
+**A caveat worth keeping:** denoised's fit converges, to a disk at about a fifth of the true
+mass with almost no real rotation (0.034 km/s median deviation vs 0.635 km/s truth). Its
+residual correlates with clean's residual at 0.82, which looks like "the wiggle survived" --
+it should not be read that way, since a near-flat fitted model leaves the residual close to
+the raw M1 map itself. The raw-M1 correlation (0.53) is the number not confounded this way,
+and it already answers the question in the opposite direction.
+
+**Settled:** `winner_aug` should not be used to prepare a cube for GI wiggle analysis; it
+removes kinematic information. **Not settled:** whether a better (channel-map-based) fit
+could recover something from the raw dirty cube where the moment-1 fit failed.
+
+Write-up: `results/self-gravitating/gi_wiggle_dirty_vs_denoised.md`, figure
+`gi_wiggle_clean_vs_dirty_vs_denoised.png`.
+
 ## 2026-08-27 | finding | GI wiggle diagnostic built and run: a real, large, coherent residual, provenance corroborated
 
 Jason redirected the priority: work properly on the self-gravitating data, and pointed at

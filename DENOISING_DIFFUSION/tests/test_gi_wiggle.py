@@ -84,6 +84,22 @@ check("centre from M0 moments is close to true centre",
       abs(g0["cx"] - TRUE["cx"]) < 5 and abs(g0["cy"] - TRUE["cy"]) < 5,
       f"got ({g0['cx']:.1f}, {g0['cy']:.1f}), true ({TRUE['cx']}, {TRUE['cy']})")
 
+# --- case 5: NaN pixels inside the mask must be dropped, not crash the fit ---------------
+print("\ncase 5  NaN pixels inside the mask (moment-1's own 0/0 on noisy data) are dropped")
+m1_nan = m1_pure.copy()
+nan_idx = np.where(mask)
+rng = np.random.default_rng(0)
+drop = rng.choice(len(nan_idx[0]), size=200, replace=False)
+m1_nan[nan_idx[0][drop], nan_idx[1][drop]] = np.nan
+geom5 = fit_keplerian(m1_nan, mask, AU_PER_PX,
+                      init=dict(cx=95, cy=90, pa_deg=30, incl_deg=45))
+check("fit succeeds despite NaN pixels in the mask", geom5["success"])
+check("dropped count matches the injected NaNs", geom5["n_dropped_nonfinite"] == 200,
+      f"got {geom5['n_dropped_nonfinite']}")
+check("geometry still recovered correctly with NaNs dropped",
+      abs(geom5["mstar_msun"] - TRUE["mstar_msun"]) < 1e-3,
+      f"mstar {geom5['mstar_msun']:.4f}, true {TRUE['mstar_msun']}")
+
 print("\n" + "-" * 70)
 if failures:
     print(f"{len(failures)} FAILED: {', '.join(failures)}")

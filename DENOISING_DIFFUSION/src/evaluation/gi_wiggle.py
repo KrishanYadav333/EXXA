@@ -97,6 +97,17 @@ def fit_keplerian(m1: np.ndarray, mask: np.ndarray, au_per_px: float,
     ys, xs = y[mask], x[mask]
     vs = m1[mask].astype(np.float64)
 
+    # A moment-1 map divides by the per-pixel flux sum, and `mask` comes from the CLEAN
+    # cube's M0, not the fitted cube's own signal quality -- so a noisy or dirty-beam cube
+    # can have a genuinely undefined M1 (0/0) at pixels the mask still calls "signal". Drop
+    # them rather than let a NaN in the initial guess make the whole fit infeasible.
+    finite = np.isfinite(vs)
+    n_dropped = int((~finite).sum())
+    if n_dropped:
+        ys, xs, vs = ys[finite], xs[finite], vs[finite]
+    if vs.size < 10:
+        raise ValueError(f"only {vs.size} finite M1 pixels in the mask, too few to fit")
+
     p0 = init or disk_geometry_from_m0(np.ones_like(m1), mask)
     guess = [p0.get("cx", W / 2), p0.get("cy", H / 2), p0.get("pa_deg", 0.0),
              p0.get("incl_deg", 45.0), float(np.median(vs)), 1.0]
@@ -113,7 +124,8 @@ def fit_keplerian(m1: np.ndarray, mask: np.ndarray, au_per_px: float,
     cx, cy, pa, inc, vsys, mstar = fit.x
     return {"cx": float(cx), "cy": float(cy), "pa_deg": float(pa) % 180.0,
             "incl_deg": float(inc), "vsys": float(vsys), "mstar_msun": float(mstar),
-            "au_per_px": au_per_px, "cost": float(fit.cost), "success": bool(fit.success)}
+            "au_per_px": au_per_px, "cost": float(fit.cost), "success": bool(fit.success),
+            "n_dropped_nonfinite": n_dropped, "n_fit": int(vs.size)}
 
 
 def wiggle_residual(m1: np.ndarray, geom: Dict[str, float]) -> np.ndarray:
