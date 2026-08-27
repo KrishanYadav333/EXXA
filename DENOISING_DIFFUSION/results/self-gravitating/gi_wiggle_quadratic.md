@@ -51,3 +51,41 @@ have already been unrecoverable to begin with".
 estimator applied throughout, to check whether the earlier "denoising makes it worse"
 conclusion (built on the less robust first-moment estimator for all three) survives the
 better method too. See `gi_wiggle_quadratic_full.py` / `results/PROGRESS.md` for the outcome.
+
+## The full three-way comparison, quadratic estimator throughout
+
+Completed by rerunning inference (858s) so the denoised cube's raw channels were available
+for the same robust estimator, rather than relying on the first-moment maps already saved
+from the 2026-08-27 OOD eval.
+
+| | mstar (Msun) | incl (deg) | PA (deg) | vsys (km/s) |
+|---|---|---|---|---|
+| clean | 0.522 | 33.4 | 178.8 | 0.100 |
+| dirty | 0.580 | 27.5 | 175.2 | 0.083 |
+| denoised | 0.578 | **69.8** | **67.3** | **1.918** |
+
+| | raw M1 correlation with clean | residual correlation with clean |
+|---|---|---|
+| dirty | **0.773** | **0.921** |
+| denoised | **0.250** | **0.281** |
+
+**This supersedes the 2026-08-27 first-moment comparison (0.72 / 0.53) with a sharper, more
+decisive version of the same conclusion.** Under the validated, negative-sidelobe-robust
+estimator, the gap between doing nothing and running the current model is larger, not
+smaller: dirty stays at r=0.77-0.92, denoised drops to r=0.25-0.28.
+
+**Do not read the denoised fit's mstar (0.578) as agreement with clean's (0.522).** Every
+other parameter is essentially unrelated to the true geometry: inclination 69.8 deg against
+33.4/27.5 for clean/dirty, position angle 67.3 deg against 178.8/175.2 (not an aliasing
+artifact -- PA is reported mod 180, so this is a genuinely different orientation), and a
+systemic velocity of 1.918 km/s against ~0.09-0.10 for the other two, which is unphysical for
+the same disk. The optimiser found A local optimum for the denoised M1 field; it does not
+resemble the disk's actual geometry in any of the four other parameters. The mass number is a
+coincidence of that unrelated fit, not corroboration.
+
+**Conclusion, now on the correct method for all three cubes:** the wiggle is real, large, and
+recoverable from the raw undenoised dirty cube (r=0.92 residual correlation with truth). The
+currently trained `winner_aug` checkpoint does not preserve it -- it produces a moment-1 field
+whose best-fit disk geometry bears no resemblance to the true one. This is now the
+authoritative comparison; the 2026-08-27 first-moment numbers should not be quoted going
+forward.

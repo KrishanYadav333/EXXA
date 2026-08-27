@@ -98,6 +98,46 @@ Two negative results, both kept: beam conditioning worst on M0 (later retracted,
 **Notebook not archived.** Lost. Kaggle did not auto-push this version and the local copy was
 stripped before the gap was noticed. Part of why RULES.md #10 exists.
 
+## 2026-08-27 | finding | robust estimator: wiggle recoverable raw, model destroys it more decisively than first thought
+
+Two follow-ons to the same day's GI wiggle work, both from asking whether `collapse_first`
+(intensity-weighted mean) was the wrong tool for a cube that is 51.55% negative pixels.
+
+**Part 1: does the wiggle survive in the raw dirty cube, or did `collapse_first` just fail to
+find it?** Swapped to `collapse_quadratic` (Teague & Foreman-Mackey 2018) --
+`quadratic_moment1` in `src/evaluation/gi_wiggle.py` -- which fits a parabola to the peak
+channel rather than averaging the whole spectrum, so a negative sidelobe elsewhere cannot pull
+it off the true line centre. Validated on synthetic data with an injected negative sidelobe
+before trusting it on anything real: naive weighted mean pulled 1341 m/s off the true centre,
+quadratic estimator off by 21.5 m/s. 17 checks in `tests/test_gi_wiggle.py`.
+
+On the real dirty cube the fit now converges (mstar 0.580 Msun against clean's 0.522,
+inclination 27.5 against 33.4 degrees) where it previously ran to its 50 Msun bound. **The
+wiggle is genuinely recoverable from the raw, undenoised dirty cube.** Residual correlation
+with clean: 0.92.
+
+**Part 2: does "denoising makes it worse" survive the same correct method?** Reran inference
+(858s) to get the denoised cube's raw channels, since only its first-moment maps had been
+saved. Full three-way comparison, quadratic throughout:
+
+| | mstar (Msun) | incl (deg) | PA (deg) | vsys (km/s) | raw M1 r | residual r |
+|---|---|---|---|---|---|---|
+| clean | 0.522 | 33.4 | 178.8 | 0.100 | -- | -- |
+| dirty | 0.580 | 27.5 | 175.2 | 0.083 | 0.773 | 0.921 |
+| denoised | 0.578 | 69.8 | 67.3 | 1.918 | 0.250 | 0.281 |
+
+**This supersedes the earlier first-moment comparison (0.72/0.53) with a sharper version of
+the same conclusion, not a different one.** The gap between doing nothing and running the
+model is larger under the correct method: dirty holds at r=0.77-0.92, denoised falls to
+r=0.25-0.28. Denoised's mstar (0.578) looks close to clean's by coincidence; every other fit
+parameter is essentially unrelated to the true geometry (inclination off by ~40 degrees,
+position angle a genuinely different orientation not an aliasing artifact, systemic velocity
+off by nearly 2 km/s). The optimiser found a local optimum with no physical resemblance to the
+real disk.
+
+**The 2026-08-27 first-moment numbers (0.72/0.53) should not be quoted going forward; this
+comparison is now the authoritative one.**
+
 ## 2026-08-27 | finding | denoising makes the disk's kinematics WORSE than doing nothing
 
 Extended the GI wiggle check to `dirty_cube.fits` and the `winner_aug` seed-43 denoised
