@@ -247,6 +247,35 @@ and `bettermoments.estimate_RMS`, which reads `data[:N]`/`data[-N:]` literally. 
 to the non-padded [30, 571) range and skips continuum subtraction rather than apply it to
 padding.
 
+## 2026-08-27 | run | corrected cube tested: a different failure mode, not a repeat
+
+`winner_aug` seed 43 on `clean_sg.fits`/`dirty_sg.fits`, trimmed [60,541) (this cube's
+padding is wider: 0-59 and 541-600, checked directly). One denoising pass fed both the
+standard moment-improvement metric and the GI wiggle Keplerian fit.
+
+**Moment improvement: M0 +7.5%, M1 -62.3%, M2 -79.5%** (signal-masked). Different from the
+original cube's uniformly catastrophic M0 -86.5% / M1 -10.8% / M2 -168.3% -- here M0 is
+genuinely positive, M1/M2 are not. Mixed, not uniformly bad.
+
+**GI wiggle, quadratic estimator: all three fitted geometries agree closely** (mstar 0.572 /
+0.579 / 0.500 Msun, inclination 32.0 / 30.7 / 32.3 deg, PA and vsys likewise close). No
+unphysical local optimum on this cube's denoised fit, unlike the original's.
+
+**Raw M1 correlates very well with truth for both dirty (0.986) and denoised (0.979). Residual
+correlation is low for both (0.111 / 0.108), and nearly identical between them.** This is not
+"denoising destroys the wiggle" -- it is "the wiggle is not clearly recoverable from the dirty
+cube here, and denoising does not meaningfully change that either way." Clean's residual is
+large and structured (RMS 1.39); dirty and denoised's are both nearly flat (RMS 0.18/0.17,
+~8x smaller) -- their own Keplerian fits absorb almost all their variance.
+
+**A hypothesis, not yet tested:** the beam convolution itself, not noise or denoising, may be
+smoothing out the fine structure the wiggle consists of on this cube -- an information-loss
+problem rather than a noise problem, which a plain denoiser cannot fix and which is exactly
+the case DDRM/VIREO's measurement-consistency prior is designed for.
+
+Figure + data: `results/self-gravitating/v2_cube_test.png` / `experiments/v2_cube_test_result.npz`.
+Full write-up: `results/self-gravitating/v2_cube_test.md`.
+
 ## 2026-08-27 | run + bug | corrected self-gravitating pair downloaded, and a real Phase 0 numerical bug found
 
 Jason's replacement cube (`clean_sg.fits`/`dirty_sg.fits`, same Drive folder) downloaded and
