@@ -89,3 +89,19 @@ currently trained `winner_aug` checkpoint does not preserve it -- it produces a 
 whose best-fit disk geometry bears no resemblance to the true one. This is now the
 authoritative comparison; the 2026-08-27 first-moment numbers should not be quoted going
 forward.
+
+Figure: `gi_wiggle_quadratic_clean_vs_dirty_vs_denoised.png` -- moment-1 and residual for all three, one colour scale per row.
+
+## What the figure shows that the numbers don't
+
+Clean and dirty's residual panels are visually near-identical: the same smooth two-lobe
+pattern, same orientation, matching the 0.92 correlation. Denoised's residual is a
+structurally different shape entirely, not just a noisier version of the same one.
+
+Denoised's raw M1 panel (top right) is dominated by a large block of saturated colour where
+the quadratic estimator has locked onto an extreme value across a big contiguous region --
+visibly different from clean and dirty's smooth rotation gradient. That is consistent with
+the model producing near-flat or garbage spectra there (the -86.5% M0 result from the same
+day's OOD eval): a peak-finding estimator run on a spectrum with no real peak will lock onto
+whichever channel has the most noise, and if that is systematically an edge channel across a
+region, the result is exactly this kind of saturated block rather than scattered noise.

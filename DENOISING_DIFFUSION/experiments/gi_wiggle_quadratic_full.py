@@ -23,6 +23,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np
 if not hasattr(np, "trapezoid"):
     np.trapezoid = np.trapz
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 from astropy.io import fits
 
 from src.evaluation.moment_maps import generate_moment_maps, signal_mask
@@ -86,12 +89,50 @@ def main():
 
     print("\ncorrelation with clean (quadratic method throughout):")
     print(f"  {'':10s} {'raw M1':>10s} {'residual':>10s}")
+    corrs = {}
     for tag in ("dirty", "denoised"):
         okA = np.isfinite(m1["clean"][mask]) & np.isfinite(m1[tag][mask])
         rA = float(np.corrcoef(m1["clean"][mask][okA], m1[tag][mask][okA])[0, 1])
         okB = np.isfinite(resids["clean"][mask]) & np.isfinite(resids[tag][mask])
         rB = float(np.corrcoef(resids["clean"][mask][okB], resids[tag][mask][okB])[0, 1])
+        corrs[tag] = (rA, rB)
         print(f"  {tag:10s} {rA:>10.4f} {rB:>10.4f}")
+
+    # Save the arrays: an 858s inference run should never have to be repeated just to make a
+    # figure or re-check a number later.
+    np.savez("experiments/gi_wiggle_quadratic_full_result.npz",
+             mask=mask,
+             clean_m1=m1["clean"], dirty_m1=m1["dirty"], denoised_m1=m1["denoised"],
+             clean_resid=resids["clean"], dirty_resid=resids["dirty"], denoised_resid=resids["denoised"],
+             **{f"{t}_{k}": v for t, g in geoms.items() for k, v in g.items()
+                if isinstance(v, (int, float, bool))},
+             dirty_corr_raw=corrs["dirty"][0], dirty_corr_resid=corrs["dirty"][1],
+             denoised_corr_raw=corrs["denoised"][0], denoised_corr_resid=corrs["denoised"][1])
+    print("saved -> experiments/gi_wiggle_quadratic_full_result.npz")
+
+    fig, ax = plt.subplots(2, 3, figsize=(16, 10))
+    vmax_m1 = max(np.nanpercentile(np.abs(m1[t][mask]), 98) for t in ("clean", "dirty", "denoised"))
+    vmax_r = max(np.nanpercentile(np.abs(resids[t][mask]), 98) for t in ("clean", "dirty", "denoised"))
+    for i, tag in enumerate(("clean", "dirty", "denoised")):
+        m1_masked = np.where(mask, m1[tag], np.nan)
+        im = ax[0, i].imshow(m1_masked, cmap="RdBu_r", vmin=-vmax_m1, vmax=vmax_m1, origin="lower")
+        ax[0, i].set_title(f"{tag}: quadratic M1")
+        plt.colorbar(im, ax=ax[0, i], label="km/s", fraction=0.046)
+
+        r_masked = np.where(mask, resids[tag], np.nan)
+        im2 = ax[1, i].imshow(r_masked, cmap="RdBu_r", vmin=-vmax_r, vmax=vmax_r, origin="lower")
+        g = geoms[tag]
+        corr_txt = "" if tag == "clean" else f"\nresid r={corrs[tag][1]:.2f}, raw r={corrs[tag][0]:.2f}"
+        ax[1, i].set_title(f"{tag}: Keplerian residual (mstar={g['mstar_msun']:.2f} Msun, "
+                           f"incl={g['incl_deg']:.0f} deg){corr_txt}")
+        plt.colorbar(im2, ax=ax[1, i], label="km/s", fraction=0.046)
+    plt.suptitle("GI wiggle, quadratic (peak-fit) estimator throughout -- winner_aug seed 43\n"
+                 "top: moment-1  |  bottom: Keplerian-subtracted residual, per-cube best fit",
+                 fontsize=13)
+    plt.tight_layout()
+    out = "results/self-gravitating/gi_wiggle_quadratic_clean_vs_dirty_vs_denoised.png"
+    plt.savefig(out, dpi=130)
+    print(f"saved -> {out}")
 
 
 if __name__ == "__main__":

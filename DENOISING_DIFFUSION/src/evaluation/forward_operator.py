@@ -664,3 +664,50 @@ def apply_beam(cube, beam):
     pad[c - h:c + h + 1, c - h:c + h + 1] = beam
     k = np.fft.fft2(np.fft.ifftshift(pad))
     return np.real(np.fft.ifft2(np.fft.fft2(cube, axes=(-2, -1)) * k[None], axes=(-2, -1)))
+
+
+def plot_phase0_report(r: dict, save_path: str, title: str = "") -> None:
+    """
+    Power-spectrum figure behind a Phase 0 verdict: P_clean, P_dirty, and the fitted forward
+    model, on the same axes, band-of-fit shaded. The verdict is a single line ("A = I" /
+    "gaussian_convolution" / ...); this is the evidence it came from.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    k, pc, pd = r["k"], r["clean_power"], r["dirty_power"]
+    fig, ax = plt.subplots(1, 2, figsize=(12, 5))
+
+    ax[0].loglog(k, pc, label="P_clean", color="tab:blue")
+    ax[0].loglog(k, pd, label="P_dirty", color="tab:orange")
+    if r.get("fit_sigma_px") is not None:
+        model = (r["scale_factor"] * np.exp(-4 * np.pi ** 2 * r["fit_sigma_px"] ** 2 * k ** 2) * pc
+                 + r.get("fit_noise", 0.0))
+        ax[0].loglog(k, model, "--", color="k", lw=1.3, label="fitted model")
+    if r.get("band_k_max"):
+        ax[0].axvspan(0, r["band_k_max"], color="0.9", zorder=0, label="fit band")
+    ax[0].set_xlabel("k (cycles/px)")
+    ax[0].set_ylabel("power")
+    ax[0].legend(fontsize=9)
+    ax[0].set_title("Radially averaged power spectrum")
+
+    ax[1].semilogx(k, r["transfer_raw"], color="tab:gray", lw=1, alpha=0.7,
+                   label="raw sqrt(P_dirty/P_clean)")
+    if r.get("fit_sigma_px") is not None:
+        model_b = np.sqrt(np.maximum(
+            r["scale_factor"] * np.exp(-4 * np.pi ** 2 * r["fit_sigma_px"] ** 2 * k ** 2), 0))
+        model_b = model_b / max(model_b[k < 0.01].mean(), 1e-12)
+        ax[1].semilogx(k, model_b, "--", color="k", lw=1.3, label="fitted |B(k)| (normalised)")
+    if r.get("k_half_from_header"):
+        ax[1].axvline(r["k_half_from_header"], color="crimson", ls=":", lw=1,
+                      label="header beam rolloff")
+    ax[1].set_xlabel("k (cycles/px)")
+    ax[1].set_ylabel("transfer")
+    ax[1].legend(fontsize=9)
+    ax[1].set_title("Transfer function")
+
+    plt.suptitle(f"{title}\nverdict: {r['verdict'].upper()}  --  {r.get('reason', '')}",
+                fontsize=11, wrap=True)
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=130)

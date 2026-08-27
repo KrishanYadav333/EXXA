@@ -19,6 +19,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np
 if not hasattr(np, "trapezoid"):
     np.trapezoid = np.trapz
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 from astropy.io import fits
 
 from src.evaluation.moment_maps import generate_moment_maps, signal_mask
@@ -85,6 +88,21 @@ def main():
     corr_raw = float(np.corrcoef(clean_kms[mask][ok2], dirty_kms[mask][ok2])[0, 1])
     print(f"  raw M1 correlation, clean vs dirty (quadratic method): r={corr_raw:+.4f}")
     print(f"  (compare: first-moment raw M1 correlation, clean vs dirty, was 0.72)")
+
+    fig, ax = plt.subplots(1, 2, figsize=(11, 5))
+    vmax = max(np.nanpercentile(np.abs(resid_c[mask]), 98), np.nanpercentile(np.abs(resid_d[mask]), 98))
+    for i, (tag, r, g) in enumerate((("clean", resid_c, geom_c), ("dirty", resid_d, geom_d))):
+        rm = np.where(mask, r, np.nan)
+        im = ax[i].imshow(rm, cmap="RdBu_r", vmin=-vmax, vmax=vmax, origin="lower")
+        ax[i].set_title(f"{tag}: quadratic-estimator Keplerian residual\n"
+                        f"mstar={g['mstar_msun']:.2f} Msun, incl={g['incl_deg']:.0f} deg")
+        plt.colorbar(im, ax=ax[i], label="km/s", fraction=0.046)
+    plt.suptitle(f"GI wiggle survives in the raw dirty cube (quadratic estimator): "
+                f"residual r={corr:.2f}", fontsize=13)
+    plt.tight_layout()
+    out = "results/self-gravitating/gi_wiggle_quadratic_clean_vs_dirty.png"
+    plt.savefig(out, dpi=130)
+    print(f"\nsaved -> {out}")
 
 
 if __name__ == "__main__":
