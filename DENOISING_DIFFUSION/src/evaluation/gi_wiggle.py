@@ -10,7 +10,7 @@ None of the geometry needed to do this (inclination, position angle, systemic ve
 stellar mass) is in either cube's header, so it has to come from a fit.
 """
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 import numpy as np
 from scipy.optimize import least_squares
@@ -154,3 +154,29 @@ def wiggle_amplitude(residual: np.ndarray, mask: np.ndarray) -> Dict[str, float]
         return {"rms_kms": float("nan"), "max_abs_kms": float("nan"), "n_px": 0}
     return {"rms_kms": float(np.sqrt(np.mean(r ** 2))), "max_abs_kms": float(np.max(np.abs(r))),
             "n_px": int(r.size)}
+
+
+def quadratic_moment1(data: np.ndarray, velax: np.ndarray, rms: Optional[float] = None
+                      ) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Line-of-sight velocity via a parabola fit around each spectrum's peak channel
+    (Teague & Foreman-Mackey 2018, `bettermoments.collapse_quadratic`), not the
+    intensity-weighted mean `collapse_first` uses.
+
+    Why this matters here specifically: `collapse_first`'s weighted average is unstable on
+    the dirty cube, which is 51.55% negative pixels (RULES.md's Phase 0 finding -- a real
+    interferometric dirty beam, not restored). A negative "weight" in an intensity-weighted
+    sum is not a small perturbation, it can flip the sign of the average or divide by a total
+    near zero, and that is what pinned `fit_keplerian`'s mass at its bound on the dirty cube
+    even after both known init bugs were fixed. The quadratic estimator only looks at the
+    single brightest channel and its two neighbours, so a negative sidelobe elsewhere in the
+    spectrum cannot pull it away from the true line centre.
+
+    Returns (v0, peak) in the units of `velax`, one value per spatial pixel.
+    """
+    import bettermoments as bm
+
+    if rms is None:
+        rms = bm.estimate_RMS(data=data, N=5)
+    v0, _, peak, _ = bm.collapse_quadratic(velax=velax, data=data, rms=rms)
+    return v0, peak

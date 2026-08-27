@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np
 from src.evaluation.gi_wiggle import (
     keplerian_los, fit_keplerian, wiggle_residual, wiggle_amplitude, disk_geometry_from_m0,
+    quadratic_moment1,
 )
 
 N, AU_PER_PX = 200, 1.5
@@ -99,6 +100,36 @@ check("dropped count matches the injected NaNs", geom5["n_dropped_nonfinite"] ==
 check("geometry still recovered correctly with NaNs dropped",
       abs(geom5["mstar_msun"] - TRUE["mstar_msun"]) < 1e-3,
       f"mstar {geom5['mstar_msun']:.4f}, true {TRUE['mstar_msun']}")
+
+# --- case 6: the quadratic estimator survives negative sidelobe noise where the naive
+# intensity-weighted mean does not. This is the exact failure mode found on the real dirty
+# cube (51.55% negative pixels, Phase 0): collapse_first's weighted average is unstable
+# when the "weights" go negative, collapse_quadratic is not, since it only looks at the
+# peak channel and its two neighbours.
+print("\ncase 6  quadratic estimator vs a naive intensity-weighted mean, negative-noise cube")
+C, S, PX = 40, 24, 24
+velax = np.linspace(-2000, 2000, C)   # m/s, matching bettermoments' convention
+true_v0 = np.full((PX, PX), 500.0)    # every spaxel has the same true line centre, m/s
+sigma_ch = 300.0                       # km/s-scale line width in m/s
+
+rng2 = np.random.default_rng(1)
+line = np.exp(-0.5 * ((velax[:, None, None] - true_v0[None]) / sigma_ch) ** 2)
+# A dirty-beam-like corruption: strong negative sidelobes AWAY from the true line centre,
+# which is exactly what pulls an intensity-weighted mean off the true value.
+sidelobe = -0.8 * np.exp(-0.5 * ((velax[:, None, None] - (-1500.0)) / 150.0) ** 2)
+cube = (line + sidelobe + rng2.normal(0, 0.03, (C, PX, PX))).astype(np.float64)
+
+v0_quad, _ = quadratic_moment1(cube, velax)
+check("quadratic estimator recovers the true line centre despite the sidelobe",
+      float(np.abs(v0_quad - true_v0).mean()) < 100.0,
+      f"mean |error| {float(np.abs(v0_quad - true_v0).mean()):.1f} m/s")
+
+# The naive intensity-weighted mean, computed directly (not via bettermoments, so this check
+# does not depend on that package's internals): sum(v * I) / sum(I) over the whole spectrum.
+weighted_mean = (velax[:, None, None] * cube).sum(axis=0) / cube.sum(axis=0)
+check("the naive intensity-weighted mean is pulled off by the sidelobe (the failure this exists to fix)",
+      float(np.abs(weighted_mean - true_v0).mean()) > 300.0,
+      f"mean |error| {float(np.abs(weighted_mean - true_v0).mean()):.1f} m/s")
 
 print("\n" + "-" * 70)
 if failures:
