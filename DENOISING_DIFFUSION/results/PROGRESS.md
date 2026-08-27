@@ -247,6 +247,45 @@ and `bettermoments.estimate_RMS`, which reads `data[:N]`/`data[-N:]` literally. 
 to the non-padded [30, 571) range and skips continuum subtraction rather than apply it to
 padding.
 
+## 2026-08-27 | finding | ablation: the BEAM alone erases the wiggle, not noise, not the denoiser
+
+Tested the hypothesis left open by the v2-cube run. Convolved the CLEAN cube with the
+recovered beam, added no noise, ran no model, then ran the identical Keplerian-fit pipeline.
+
+| | residual RMS (km/s) | residual r vs clean |
+|---|---|---|
+| clean (reference) | 1.394 | -- |
+| **beam-only, no noise, no model** | **0.174** | **0.116** |
+| real dirty | 0.176 | 0.111 |
+| real denoised | 0.170 | 0.108 |
+
+**The beam alone reproduces the entire effect** -- 0.116 against the real dirty cube's 0.111
+and denoised's 0.108, statistically indistinguishable. Raw M1 correlation stays at 0.988,
+matching the real cubes' 0.98-0.99, so bulk rotation survives smoothing just as it does in
+the real data.
+
+**This settles the v2 cube's open question.** The wiggle is destroyed by the instrument
+response before noise or denoising exist. The earlier result was never a model failure on
+this cube -- there was nothing left to preserve. A denoiser cannot fix this in principle:
+removing noise cannot restore what a convolution erased.
+
+**It also sharpens the DDRM/VIREO case from "worth trying" to "the indicated approach".** A
+measurement-consistency prior reconstructs structure the instrument did not measure, which is
+categorically different from denoising, and the forward operator it needs is already
+recovered and saved (`dirty_beam_recovered_v2.fits`).
+
+Note this does NOT retract the original (wrong-script) cube's finding, where denoised raw-M1
+correlation fell to 0.25 against dirty's 0.77 -- that was a genuine degradation on different
+data. Here both sit at 0.98.
+
+Caveat: uses the recovered beam, whose held-out validation on this cube was 0.80 rather than
+the original pair's 0.994. The agreement with the real dirty cube is close enough that it is
+clearly capturing the dominant effect, but a more accurate beam could smooth slightly
+differently.
+
+Figure: `results/self-gravitating/gi_wiggle_beam_only_ablation.png`. Write-up:
+`results/self-gravitating/beam_only_ablation.md`.
+
 ## 2026-08-27 | run | corrected cube tested: a different failure mode, not a repeat
 
 `winner_aug` seed 43 on `clean_sg.fits`/`dirty_sg.fits`, trimmed [60,541) (this cube's
