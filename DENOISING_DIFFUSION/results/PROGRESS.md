@@ -247,6 +247,44 @@ and `bettermoments.estimate_RMS`, which reads `data[:N]`/`data[-N:]` literally. 
 to the non-padded [30, 571) range and skips continuum subtraction rather than apply it to
 padding.
 
+## 2026-08-27 | run + bug | corrected self-gravitating pair downloaded, and a real Phase 0 numerical bug found
+
+Jason's replacement cube (`clean_sg.fits`/`dirty_sg.fits`, same Drive folder) downloaded and
+checked. Different SHA-256 from the originals, same 601x600x600 shape -- confirmed genuinely
+different data, not a resend.
+
+**Different setup from the first pair.** Both cubes are now `BUNIT=JY/BEAM` with identical
+BMAJ/BMIN/BPA in both headers (the original had no beam info on its dirty cube at all).
+Negative pixels in dirty: 19.25%, against the original's 51.55%. Simulation-recipe header
+keys (DISTPC/HACNTR/TRKLEN/NTIME/DECDEG) are gone, replaced by RMS/PBCOR/SEED.
+
+**Found and fixed a real numerical bug in Phase 0's fitter.** First run: `A=0.000`, Gaussian
+match RMS in the billions, fitted sigma 0.81 px against the header's 5.63 px -- looked like a
+data anomaly. Checked the raw spectra before believing it (RULES.md #8): `P_dirty` runs
+~120,000x `P_clean` at the lowest k, confirmed visually
+(`kinematic_data_v2_amplitude_check.png` -- same physical structure in both, dirty ~110x
+brighter at peak). The least-squares solve in `fit_forward_model` was never tested at this
+dynamic range and returned garbage. Fixed with column scaling before the solve (Jacobi/Ruiz
+preconditioning); regression case 11 verifies a real ~1e10 power-scale factor no longer
+breaks it, recovering both A and sigma within a few percent of the truth.
+
+**Phase 0, after the fix: `NON_GAUSSIAN_CONVOLUTION`.** Fitted beam sigma 6.27 px against the
+header's 5.63 px -- 11% agreement, "consistent". A real convolution, genuinely a
+deconvolution problem, same category as the original self-gravitating pair (before it turned
+out to be the wrong script). Figure: `phase0_v2_cube.png`.
+
+**Beam recovery works, less cleanly than the original pair.** Peak 0.991, shallow -1.6%
+sidelobe, but held-out validation gives correlation 0.80 (against the original's 0.994) with
+60% residual. Reported honestly rather than smoothed over: likely the ~100x amplitude scale
+factor between clean and dirty is not perfectly constant channel to channel, which a single
+beam averaged across 12 fit channels cannot correct for. Not yet confirmed. Figure + data:
+`dirty_beam_recovered_v2.png` / `.fits`.
+
+**Not yet done:** the GI wiggle Keplerian fit and OOD-style denoising test, run on the
+original pair, have not been repeated on this corrected one. Natural next step.
+
+Write-up: `results/self-gravitating/kinematic_data_v2.md`.
+
 ## 2026-08-27 | correction | Jason: the self-gravitating cube was made with the wrong script
 
 Reply to the 2026-08-27 email (thread "Doubt", jason.terry47@gmail.com, 13:34): "it turns out
