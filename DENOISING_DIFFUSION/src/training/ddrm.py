@@ -58,8 +58,20 @@ def beam_transfer_function(beam: np.ndarray, shape: Tuple[int, int],
     positive for a symmetric kernel rather than carrying a linear phase ramp.
     """
     H, W = shape
-    pad = np.zeros((H, W), dtype=np.float64)
     bh, bw = beam.shape
+
+    # A beam larger than the target grid must be CROPPED about its centre, not slotted in.
+    # Slicing without this raises a broadcast error when the beam is bigger (caught by the
+    # 64px dry run against a 129px beam) and, worse, would silently mis-place the beam in
+    # the cases where it happens to fit. Crop symmetrically so the peak stays centred.
+    if bh > H or bw > W:
+        cy_b, cx_b = bh // 2, bw // 2
+        half_h, half_w = min(H, bh) // 2, min(W, bw) // 2
+        beam = beam[cy_b - half_h:cy_b - half_h + min(H, bh),
+                    cx_b - half_w:cx_b - half_w + min(W, bw)]
+        bh, bw = beam.shape
+
+    pad = np.zeros((H, W), dtype=np.float64)
     h, w = bh // 2, bw // 2
     cy, cx = H // 2, W // 2
     pad[cy - h:cy - h + bh, cx - w:cx - w + bw] = beam

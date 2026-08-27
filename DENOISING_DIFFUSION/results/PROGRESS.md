@@ -247,6 +247,30 @@ and `bettermoments.estimate_RMS`, which reads `data[:N]`/`data[-N:]` literally. 
 to the non-padded [30, 571) range and skips continuum subtraction rather than apply it to
 padding.
 
+## 2026-08-27 | code | DDRM dry run: caught an oversized-beam bug before it reached Kaggle
+
+`experiments/ddrm_dryrun.py` runs notebook 07's whole pipeline at 64px on real cubes (2 cubes,
+3 epochs) purely to catch plumbing failures. It immediately earned its keep: stage 3 crashed
+with a broadcast error because `beam_transfer_function` assumed the beam is smaller than the
+target grid, and the recovered beam is 129px against a 64px grid.
+
+Worth noting the notebook would NOT have crashed at its 256px setting -- the 129px beam fits
+there -- but the same code path would have mis-placed the beam silently, which is the worse
+outcome. Fixed by cropping an oversized beam symmetrically about its centre. Verified the peak
+gain is identical (~355) at 64/128/256/600px, and regression case 4b checks a centred delta
+gives flat unit transfer at every grid size.
+
+After the fix all four stages run on real data: data loading, unconditional training (loss
+972.6 -> 920.9 in 10s), checkpointing (70 MB), DDRM sampling (finite output), and GI wiggle
+scoring. The restoration numbers at this scale are meaningless by construction and are not
+recorded as results.
+
+One number IS worth carrying forward: the transfer function on the real beam passes **1.3% of
+modes above 1% gain**, matching the independent measurement in `ddrm_feasibility.md`. That is
+the same hard constraint from two different code paths.
+
+**Notebook 07 is now safe to run on Kaggle.**
+
 ## 2026-08-27 | code | DDRM notebook (07), plus a checkpointing bug that broke every config
 
 Notebook `07-ddrm-restoration.ipynb`: trains an unconditional diffusion prior over ~2800 clean

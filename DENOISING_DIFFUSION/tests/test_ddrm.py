@@ -114,6 +114,21 @@ check("image-space correlation is limited by the beam's nulls, not by the invers
       f"r={corr:.3f} -- the information in the nulled 61% of modes is gone, and this is "
       f"precisely the gap a diffusion prior has to fill")
 
+# --- 4b. a beam larger than the grid must be cropped, not crash -------------------------
+# Caught by the 64px dry run: a 129px recovered beam against a 64px grid raised a broadcast
+# error. At 256px it would not have crashed but would have mis-placed the beam silently,
+# which is worse than a crash.
+print("\ncase 4b  an oversized beam is cropped about its centre")
+big_beam = np.zeros((129, 129)); big_beam[64, 64] = 1.0     # delta at the exact centre
+for size in (32, 64, 128, 256):
+    t = beam_transfer_function(big_beam, (size, size))
+    check(f"{size}px grid handles a 129px beam",
+          tuple(t.shape) == (size, size) and bool(torch.isfinite(t).all()))
+    # a centred delta convolves to identity: flat unit gain at every frequency
+    check(f"{size}px: centred delta gives flat unit transfer",
+          abs(float(t.max()) - 1.0) < 1e-5 and abs(float(t.min()) - 1.0) < 1e-5,
+          f"min {float(t.min()):.4f} max {float(t.max()):.4f}")
+
 # --- 5. the config must survive torch.save, and the unconditional path must train --------
 # DotDict.__getattr__ returned None for ANY missing key, including dunders. pickle probes for
 # __reduce_ex__/__getstate__, got None, and tried to call it -- surfacing as
