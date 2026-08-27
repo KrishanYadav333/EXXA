@@ -166,9 +166,13 @@ def noise_estimation_loss(model, x0, t, e, b, *, prediction_type="eps",
         Scalar loss (per-pixel squared error summed over CHW, averaged over batch).
     """
     a = (1 - b).cumprod(dim=0).index_select(0, t).view(-1, 1, 1, 1)
-    clean = x0[:, 1:, :, :]
+    # Unconditional when x0 carries a single channel: DDRM needs a prior p(clean), not the
+    # conditional p(clean|dirty) this file was written for.
+    conditional = x0.shape[1] > 1
+    clean = x0[:, 1:, :, :] if conditional else x0
     x = clean * a.sqrt() + e * (1.0 - a).sqrt()                    # noise the clean channel
-    output = model(torch.cat([x0[:, :1, :, :], x], dim=1), t.float())
+    inp = torch.cat([x0[:, :1, :, :], x], dim=1) if conditional else x
+    output = model(inp, t.float())
 
     if prediction_type == "v":
         target = a.sqrt() * e - (1.0 - a).sqrt() * clean
@@ -324,11 +328,15 @@ class DenoisingDiffusion:
         self.model.train(train)
         total, count = 0.0, 0
         torch.set_grad_enabled(train)
-        for x, _ in loader:
+        for batch in loader:
+            # Conditional loaders yield (stacked_pair, _); an unconditional prior's loader
+            # yields the clean image alone.
+            x = batch[0] if isinstance(batch, (list, tuple)) else batch
             x = _flatten_patches(x).to(self.device)
             n = x.size(0)
             x = data_transform(x)
-            e = torch.randn_like(x[:, 1:, :, :])
+            # x[:, 1:] is the clean channel when conditional, and EMPTY when not.
+            e = torch.randn_like(x[:, 1:, :, :] if x.shape[1] > 1 else x)
 
             # antithetic timestep sampling
             t = torch.randint(low=0, high=self.num_timesteps, size=(n // 2 + 1,), device=self.device)

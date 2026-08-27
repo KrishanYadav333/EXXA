@@ -48,6 +48,13 @@ class DotDict(dict):
                 self[k] = DotDict(v)
 
     def __getattr__(self, attr):
+        # Dunder lookups must raise AttributeError, not return None. pickle probes for
+        # __reduce_ex__/__getstate__/__deepcopy__ and friends; handing back None makes it
+        # try to CALL None, which surfaces as "TypeError: 'NoneType' object is not callable"
+        # from inside torch.save with nothing pointing at this class. That silently broke
+        # checkpointing for every config, conditional and unconditional alike.
+        if attr.startswith("__") and attr.endswith("__"):
+            raise AttributeError(attr)
         try:
             return self[attr]
         except KeyError:

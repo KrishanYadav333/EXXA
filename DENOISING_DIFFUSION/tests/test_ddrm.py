@@ -114,6 +114,48 @@ check("image-space correlation is limited by the beam's nulls, not by the invers
       f"r={corr:.3f} -- the information in the nulled 61% of modes is gone, and this is "
       f"precisely the gap a diffusion prior has to fill")
 
+# --- 5. the config must survive torch.save, and the unconditional path must train --------
+# DotDict.__getattr__ returned None for ANY missing key, including dunders. pickle probes for
+# __reduce_ex__/__getstate__, got None, and tried to call it -- surfacing as
+# "TypeError: 'NoneType' object is not callable" from inside torch.save with nothing pointing
+# at DotDict. That broke checkpointing for every config, conditional included, so this guards
+# the whole project's DDPM checkpointing, not just DDRM's.
+print("\ncase 5  config pickles, and the unconditional training path runs")
+import pickle, tempfile
+from src.models.diffusion_unet import default_diffusion_config
+from src.training.diffusion import DenoisingDiffusion
+from torch.utils.data import DataLoader, Dataset
+
+cfg = default_diffusion_config(image_size=32)
+cfg.data.conditional = False
+try:
+    pickle.dumps(cfg)
+    ok_pickle = True
+except TypeError:
+    ok_pickle = False
+check("the config survives pickling (torch.save depends on it)", ok_pickle)
+check("a missing key still returns None, as the codebase relies on", cfg.model.no_such_key is None)
+
+
+class _Clean(Dataset):
+    def __len__(self): return 4
+    def __getitem__(self, i):
+        torch.manual_seed(i)
+        return torch.rand(1, 32, 32)          # bare tensor, not a (dirty, clean) pair
+
+
+cfg.diffusion.prediction_type = "v"
+cfg.diffusion.min_snr_gamma = 5.0
+with tempfile.TemporaryDirectory() as td:
+    r = DenoisingDiffusion(config=cfg, device="cpu", lr=2e-5,
+                           checkpoint_path=os.path.join(td, "p.pth"))
+    loader = DataLoader(_Clean(), batch_size=2)
+    h = r.train(loader, loader, n_epochs=1, verbose=False)
+    check("unconditional training runs on single-channel batches",
+          len(h["train_losses"]) == 1 and np.isfinite(h["train_losses"][0]),
+          f"loss {h['train_losses'][0]:.1f}")
+    check("the checkpoint is actually written", os.path.exists(os.path.join(td, "p.pth")))
+
 print("\n" + "-" * 70)
 if failures:
     print(f"{len(failures)} FAILED: {', '.join(failures)}")

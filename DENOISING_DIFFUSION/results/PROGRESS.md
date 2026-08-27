@@ -247,6 +247,34 @@ and `bettermoments.estimate_RMS`, which reads `data[:N]`/`data[-N:]` literally. 
 to the non-padded [30, 571) range and skips continuum subtraction rather than apply it to
 padding.
 
+## 2026-08-27 | code | DDRM notebook (07), plus a checkpointing bug that broke every config
+
+Notebook `07-ddrm-restoration.ipynb`: trains an unconditional diffusion prior over ~2800 clean
+Jy/beam channel maps, then restores `dirty_sg.fits` with DDRM using the recovered beam, scored
+on the GI wiggle residual against the beam-only floor of 0.116.
+
+**Found a real bug in `DotDict.__getattr__` that broke checkpointing for the WHOLE project,
+not just DDRM.** It returned `None` for any missing key, dunders included. `pickle` probes for
+`__reduce_ex__`/`__getstate__`, got `None`, and tried to call it -- surfacing as
+`TypeError: 'NoneType' object is not callable` from inside `torch.save`, with nothing in the
+traceback pointing at `DotDict`. Any `save_checkpoint` call would hit this. Fixed by raising
+`AttributeError` for dunder lookups while keeping the `None`-for-missing-key behaviour the
+codebase relies on.
+
+Three smaller fixes to make the unconditional path work at all, all in code the conditional
+DDPM shares:
+- `noise_estimation_loss` hardcoded the conditional concat; now branches on channel count.
+- `_epoch_loss` unpacked `for x, _ in loader` and took `x[:, 1:]` for the clean channel, which
+  is EMPTY for single-channel input. Both handled.
+- Notebook API corrected against the real signatures: `n_epochs` not `epochs`,
+  `train_losses`/`val_losses` not `train_loss`/`val_loss`.
+
+Verified end to end on CPU: unconditional training runs, loss decreases (214.7 -> 191.6),
+checkpoint writes, and `ddrm_steps` produces finite output. All five existing DDPM/architecture
+tests still pass. `tests/test_ddrm.py` now has 5 cases including the pickling regression.
+
+**Not yet run on Kaggle.** The prior needs GPU training.
+
 ## 2026-08-27 | finding | ablation: the BEAM alone erases the wiggle, not noise, not the denoiser
 
 Tested the hypothesis left open by the v2-cube run. Convolved the CLEAN cube with the
