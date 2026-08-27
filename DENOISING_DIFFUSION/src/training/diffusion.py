@@ -373,8 +373,9 @@ class DenoisingDiffusion:
         # default: warm up over one epoch's worth of steps
         self.warmup_steps = warmup_steps if warmup_steps is not None else len(train_loader)
         if verbose:
+            kind = "Conditional" if self.config.data.conditional else "Unconditional"
             print("=" * 60)
-            print("Conditional DDPM training")
+            print(f"{kind} DDPM training")
             print(f"  params : {sum(p.numel() for p in self._core.parameters()):,}")
             gpu_note = f"DataParallel x{self.num_gpus}" if self.data_parallel else "single device"
             print(f"  device : {self.device} ({gpu_note}), timesteps: {self.num_timesteps}")
