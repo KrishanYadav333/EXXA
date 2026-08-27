@@ -247,6 +247,35 @@ and `bettermoments.estimate_RMS`, which reads `data[:N]`/`data[-N:]` literally. 
 to the non-padded [30, 571) range and skips continuum subtraction rather than apply it to
 padding.
 
+## 2026-08-27 | correction | Jason: the self-gravitating cube was made with the wrong script
+
+Reply to the 2026-08-27 email (thread "Doubt", jason.terry47@gmail.com, 13:34): "it turns out
+there's a reason it's different: I made it with a completely different script. That's my
+bad." He has sent an updated version via the same Drive folder link
+(folders/1V33FGbjb8JsaQYSbnYkSEcrSSx-b2kfv), which per his note has "a lot more channels than
+the other ones" but should otherwise match in structure.
+
+**Not yet downloaded.** The Drive API cannot list this folder's contents for this account
+(same limitation hit on 2026-08-07); it needs a human to open the link first. Whoever picks
+this up next: download the new pair, confirm channel count and BUNIT on both files the same
+way the first version was checked, before assuming anything else carries over.
+
+**What this means for everything dated 2026-08-21 through 2026-08-27 under
+`results/self-gravitating/`:** all of it -- the recovered dirty beam (peak 0.911, FWHM 5px),
+the OOD moment result (M0 -86.5%, M2 -168.3%), the GI wiggle Keplerian fits (mstar 0.522 to
+0.639 Msun, matching Hall+2020's 0.6 Msun), the quadratic-estimator three-way comparison
+(0.92/0.28 residual correlation) -- was measured on the cube Jason now says used the wrong
+script. None of it is retracted; it may still describe that specific (if unintended) cube
+correctly. But none of it should be presented as the definitive characterisation of "the
+self-gravitating disk" going forward, since a corrected version exists and has not yet been
+examined.
+
+**What is NOT affected:** every piece of general-purpose code built along the way --
+`src/evaluation/gi_wiggle.py` (Keplerian fit, quadratic estimator, both validated on
+synthetic data independent of this cube), `estimate_beam_from_pair` in
+`forward_operator.py`, `plot_phase0_report` -- is reusable on the corrected cube unchanged.
+The methods are not in question, only which cube they were pointed at today.
+
 ## 2026-08-25 | finding | the dirty beam is measured, so DDRM no longer waits on the mentor
 
 Both datasets are now on the local machine: the line-emission set at
