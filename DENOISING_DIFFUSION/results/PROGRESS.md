@@ -247,6 +247,35 @@ and `bettermoments.estimate_RMS`, which reads `data[:N]`/`data[-N:]` literally. 
 to the non-padded [30, 571) range and skips continuum subtraction rather than apply it to
 padding.
 
+## 2026-08-28 | bug | notebook 07's bootstrap pointed DATA_DIR at the wrong Dataset
+
+First Kaggle run of notebook 07 failed immediately:
+`FileNotFoundError: No valid cube pairs found under .../self-gravitating-v2`.
+
+My bug. The bootstrap globbed `/kaggle/input/**/*dirty*.fits`, which matches
+**`dirty_sg.fits`** from the self-gravitating Dataset, so `DATA_DIR` resolved to that Dataset
+instead of the line-emission cubes. Notebook 06 used the stricter `*_dirty.fits` pattern,
+which would not have matched; I dropped it when writing 07.
+
+Fixed by locating the data through the `run_<id>_<step>_rt_<pp>` folder structure
+`split_cubes` actually requires, and picking the directory containing the most such folders.
+Verified locally: selects `Line Emission Data` with its 14 run folders, excludes the
+self-gravitating Dataset.
+
+**Then executed the notebook's real cell sources end to end** at reduced scale (64px, 1
+epoch, 3 channels) against local cubes, rather than the separate dry-run script used before.
+All stages run: data (56 train / 16 val), unconditional training (checkpoint written), DDRM
+restoration (finite, correct shape), and scoring. The notebook's own relative paths
+(`../results/...`, `../results/checkpoints/...`) resolve correctly from `notebooks/`, which is
+where the Kaggle bootstrap `chdir`s.
+
+Also hoisted the transfer-function build out of the per-channel loop (identical every
+iteration) and dropped an unused `dirty_rs` list.
+
+**Do not read anything into the dry run's "RECOVERY" line.** With a 1-epoch prior on 56
+images at 64px, both fits are degenerate (mstar 0.001, inclination ~88 degrees) and the
+numbers are noise. The plumbing is what was being checked.
+
 ## 2026-08-27 | code | DDRM dry run: caught an oversized-beam bug before it reached Kaggle
 
 `experiments/ddrm_dryrun.py` runs notebook 07's whole pipeline at 64px on real cubes (2 cubes,
