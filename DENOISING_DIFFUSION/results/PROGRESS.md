@@ -98,6 +98,48 @@ Two negative results, both kept: beam conditioning worst on M0 (later retracted,
 **Notebook not archived.** Lost. Kaggle did not auto-push this version and the local copy was
 stripped before the gap was noticed. Part of why RULES.md #10 exists.
 
+## 2026-08-27 | finding | GI wiggle diagnostic built and run: a real, large, coherent residual, provenance corroborated
+
+Jason redirected the priority: work properly on the self-gravitating data, and pointed at
+five papers (Speedie+2024 Nature, Terry+2024 A&A, Hall+2021 MNRAS, Hall+2022 ApJL,
+Hall+2020 ApJ). All five are built around one diagnostic, the "GI wiggle": fit the disk's own
+Keplerian rotation, subtract it from the moment-1 map, and look at the residual.
+`DISTPC=140 pc` in `dirty_cube.fits` matches Hall+2020's founding simulation exactly.
+
+New module `src/evaluation/gi_wiggle.py`: geometry init from M0's image moments, a
+least-squares Keplerian fit (centre, PA, inclination, vsys, stellar mass) against the moment-1
+field, and the residual. Validated on synthetic data before running on real cubes: a pure
+Keplerian case recovers every parameter exactly with zero residual; a known injected m=2
+perturbation is recovered at r=0.85 correlation, with the caveat that amplitude is inflated
+because the geometric fit itself absorbs some of the injected signal.
+
+**Fitted on the clean cube (`lines.fits`, non-padded range [30,571)):** stellar mass
+**0.639 Msun**, with no mass information anywhere in either header -- recovered purely from
+the velocity field. That is close enough to Hall+2020's 0.6 Msun founding simulation that it
+is independent corroboration of the DISTPC match: this cube is very likely built on that exact
+pipeline.
+
+**The residual: RMS 1.34 km/s against 0.64 km/s of typical local rotation** -- larger than the
+rotation itself -- and it does not decay with radius (checked to r=100 px against a median
+disk radius of 130 px, ruling out a 1/sqrt(r) fit artifact near the centre). One annulus
+(r 120-140 px) shows a clean single-period (m=1) sinusoid in azimuth with essentially no
+scatter. Large, coherent, global: consistent with what the papers describe.
+
+**Not yet claiming a confirmed GI wiggle detection.** A pure radius-independent m=1 residual
+is also what a slightly imperfect flat thin-disk geometric model produces on its own, and the
+field is actively debating exactly this degeneracy (arXiv:2510.05601 argues infall can mimic
+a wiggle in AB Aurigae, the same object Speedie+2024 reads as gravitational instability). What
+is established: a validated pipeline, a large real residual, and a stellar-mass recovery that
+independently corroborates the cube's provenance.
+
+Not yet done: run the fit on `dirty_cube.fits` and on a denoised cube (does the wiggle survive
+noise and the currently-failing U-Net); check the residual's radial structure against the
+literature's "interlocking fingers" description, not just its azimuthal one; a proper
+Fourier-decomposed amplitude if a q estimate is wanted, rather than the RMS/max proxy built
+here.
+
+Write-up: `results/self-gravitating/gi_wiggle_check.md`, figure `gi_wiggle_clean.png`.
+
 ## 2026-08-27 | run | first OOD test: the trained U-Net fails on a real dirty beam
 
 `experiments/eval_self_gravitating.py`, `winner_aug` seed 43, no retraining. The out-of-
