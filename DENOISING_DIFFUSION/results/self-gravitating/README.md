@@ -57,3 +57,38 @@ zero-pad this.
 DDRM's operator for this data is now known, so "ask Jason for the PSF image" is off the
 critical path. What still blocks a DDRM arm is data volume: one pair cannot train a model, and
 Jason's "I'll give you more later" is the ask that matters.
+
+## The dirty cube's header is a simulation recipe, not CASA metadata
+
+`dirty_cube.fits` carries keywords no CASA task writes: `DISTPC`, `PXAS`, `HACNTR`, `TRKLEN`,
+`NTIME`, `DECDEG`, `RMSJYB`, `PBAPP`. This was made by a custom uv-sampling simulator, and its
+header happens to record the physical parameters that simulator used.
+
+```
+DISTPC  140.0        distance, pc
+PXAS    0.009524     pixel scale, arcsec  (matches lines.fits CDELT1 exactly, 0.009524)
+HACNTR  0.31327       hour angle at centre, rad (~17.9 deg)
+TRKLEN  2.04958       tracking length, hours
+NTIME   92            number of time samples
+DECDEG  -56.72212     source declination
+RMSJYB  0.00818       noise RMS, Jy/beam
+PBAPP   False         primary-beam correction NOT applied
+```
+
+`RESTFREQ` (220398700000.0 Hz, 13CO(2-1)) is present on both cubes and matches, contrary to an
+earlier check of mine that looked for `RESTFRQ` and reported it missing -- the header spells
+it `RESTFREQ`.
+
+**What this fixes and what it does not.** Declination, hour-angle centre and track length
+determine the uv-coverage GEOMETRY for a `simobserve`-style reproduction. They do not
+determine the ARRAY: the same geometry observed with a compact configuration and an extended
+one gives very different beams, and the recovered beam's 0.048" FWHM at 220 GHz is consistent
+with an extended configuration but does not pin one down. Reproducing this properly needs the
+antenna configuration file (or the actual antenna positions) Jason used, not a guess from the
+beam size.
+
+**The ask, updated again:** not the PSF (recovered), not more pairs (declined) -- the ALMA
+configuration / array file used to make `dirty_cube.fits`. With DISTPC/HACNTR/TRKLEN/NTIME/
+DECDEG already known, that one file is what closes the gap to a `simobserve` reproduction and,
+from there, a synthesised multi-configuration dataset for testing whether DDRM generalises
+across beams where a supervised U-Net does not.
