@@ -9,6 +9,38 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-08-28 | code + added | KinematicLoss and notebook 08, aimed at the corrected failure
+
+Direct response to the corrected result two entries below: U-Net degrades the wiggle residual
+(0.804 vs dirty's 0.891), DDRM degrades it worse (0.583). Built rather than deferred, at the
+user's push -- the "needs 2 days" estimate did not hold up; the objective and its test took
+about 90 minutes.
+
+`src/utils/losses.py`: `spectral_moment1()`, a differentiable moment-1 (biased intensity-
+weighted mean, same estimator as `collapse_first`; the bias is shared between prediction and
+target so it cancels in the loss, unlike in the standalone diagnostic where `collapse_first`
+was replaced for exactly this reason). `KinematicLoss(alpha, beta, gamma)` combines it with
+MSE and SSIM. 15 checks in `tests/test_kinematic_loss.py`.
+
+`08-kinematic-loss.ipynb` (new, 15 cells): trains `winner_aug`-configuration U-Net with
+`out_channels=31` (k=15 stack, matching the line's measured ~37-channel FWHM) and
+`kinematic_gamma` swept over [0.0, 0.1, 1.0, 10.0]. gamma=0 is a fresh control at the same
+31-channel architecture, not notebook 05's single-channel `winner_aug` -- comparing against
+05 directly would confound the loss change with the output-channel change.
+
+**Not extending notebook 05**: its `denoise_cube`/`val_metrics`/moment-table path assumes
+single-channel output throughout, and the wiggle score needs the self-gravitating cube, which
+05 never loads. Scoring stays local (`experiments/wiggle_all_methods.py`).
+
+Verified by extracting and executing the notebook's real cell sources against local data at
+reduced scale (k=3, 64px, 1 epoch) — data shapes match, velocity axis builds correctly from
+`CDELT3`, both gamma=0 and gamma=1 train and checkpoint. Not real numbers, plumbing only.
+
+**Not yet run on Kaggle GPU.** Success criterion: wiggle residual correlation above the
+U-Net's 0.804 without losing the M0/PSNR gains `winner_aug` already has.
+
+---
+
 ## 2026-08-17 | run + added | 05 Kaggle Version 24 — beam arm re-scored, the bug was real
 
 First run with `denoise_cube()` passing the beam vector. No training.
