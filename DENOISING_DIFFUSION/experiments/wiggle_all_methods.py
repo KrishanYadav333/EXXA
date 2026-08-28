@@ -31,7 +31,7 @@ from src.training.diffusion import DenoisingDiffusion, data_transform, inverse_d
 from src.training.ddrm import beam_transfer_function, ddrm_steps
 from src.evaluation.forward_operator import apply_beam
 from src.evaluation.moment_maps import generate_moment_maps, signal_mask
-from src.evaluation.gi_wiggle import quadratic_moment1, fit_keplerian, wiggle_residual, wiggle_amplitude
+from src.evaluation.gi_wiggle import quadratic_moment1, compare_wiggles
 
 SG = "self-gravitating cube and dirty cube/kinematic_data_v2"
 UNET_CKPT = "models/08-seeds/winner_aug_seed43.pth"
@@ -125,41 +125,40 @@ for step in (1, 4):
     rows = {}
     for tag, cube in cubes.items():
         v0, _ = quadratic_moment1(cube.astype(np.float64), velax)
-        m1 = v0 / 1000.0
-        init = None if tag == "clean" else {k: rows["clean"]["g"][k]
-                                            for k in ("cx", "cy", "pa_deg", "incl_deg")}
-        g = fit_keplerian(m1, mask, AU, init=init)
-        rows[tag] = dict(m1=m1, g=g, r=wiggle_residual(m1, g),
-                         a=wiggle_amplitude(wiggle_residual(m1, g), mask))
+        rows[tag] = dict(m1=v0 / 1000.0)
 
-    print(f"\n  {'method':12s} {'mstar':>7s} {'incl':>6s} {'residRMS':>9s} {'raw r':>8s} {'resid r':>9s} {'':>4s}")
+    # ONE Keplerian model, fit on clean only, reused for every method's residual.
+    # Never fit per method: see compare_wiggles' own docstring for what that cost us.
+    cmp = compare_wiggles({t: rows[t]["m1"] for t in rows}, mask, AU, reference="clean")
+    g = cmp["clean"]["geom"]
+    flag = " DEGEN" if g["mstar_msun"] > 0.9 * MSTAR_BOUND else ""
+    print(f"\n  shared model (fit on clean): mstar={g['mstar_msun']:.3f} incl={g['incl_deg']:.1f}"
+          f" pa={g['pa_deg']:.1f} vsys={g['vsys']:.3f}{flag}")
+
+    print(f"\n  {'method':12s} {'residRMS':>9s} {'raw r':>8s} {'resid r':>9s}")
     for tag in cubes:
-        g, a = rows[tag]["g"], rows[tag]["a"]
-        flag = " DEGEN" if g["mstar_msun"] > 0.9 * MSTAR_BOUND else ""
+        rms = cmp[tag]["rms_kms"]
         if tag == "clean":
-            print(f"  {tag:12s} {g['mstar_msun']:7.3f} {g['incl_deg']:6.1f} {a['rms_kms']:9.3f}"
-                  f" {'--':>8s} {'--':>9s}{flag}")
+            print(f"  {tag:12s} {rms:9.3f} {'--':>8s} {'--':>9s}")
             continue
         ok = np.isfinite(rows["clean"]["m1"][mask]) & np.isfinite(rows[tag]["m1"][mask])
         raw = float(np.corrcoef(rows["clean"]["m1"][mask][ok], rows[tag]["m1"][mask][ok])[0, 1])
-        ok2 = np.isfinite(rows["clean"]["r"][mask]) & np.isfinite(rows[tag]["r"][mask])
-        res = float(np.corrcoef(rows["clean"]["r"][mask][ok2], rows[tag]["r"][mask][ok2])[0, 1])
-        print(f"  {tag:12s} {g['mstar_msun']:7.3f} {g['incl_deg']:6.1f} {a['rms_kms']:9.3f}"
-              f" {raw:8.4f} {res:9.4f}{flag}")
+        print(f"  {tag:12s} {rms:9.3f} {raw:8.4f} {cmp[tag]['corr']:9.4f}")
 
     if step == 1:
         np.savez("experiments/wiggle_all_methods_step1.npz", mask=mask,
-                 **{f"{t}_{k}": rows[t][k] for t in rows for k in ("m1", "r")})
+                 **{f"{t}_m1": rows[t]["m1"] for t in rows},
+                 **{f"{t}_r": cmp[t]["residual"] for t in cmp})
         fig, ax = plt.subplots(2, 5, figsize=(23, 9))
         vm = np.nanpercentile(np.abs(rows["clean"]["m1"][mask]), 98)
-        vr = np.nanpercentile(np.abs(rows["clean"]["r"][mask]), 98)
+        vr = np.nanpercentile(np.abs(cmp["clean"]["residual"][mask]), 98)
         for i, tag in enumerate(cubes):
             im = ax[0, i].imshow(np.where(mask, rows[tag]["m1"], np.nan), cmap="RdBu_r",
                                  vmin=-vm, vmax=vm, origin="lower")
             ax[0, i].set_title(f"{tag}: M1"); plt.colorbar(im, ax=ax[0, i], fraction=0.046)
-            im2 = ax[1, i].imshow(np.where(mask, rows[tag]["r"], np.nan), cmap="RdBu_r",
+            im2 = ax[1, i].imshow(np.where(mask, cmp[tag]["residual"], np.nan), cmap="RdBu_r",
                                   vmin=-vr, vmax=vr, origin="lower")
-            ax[1, i].set_title(f"{tag}: residual (RMS {rows[tag]['a']['rms_kms']:.2f})")
+            ax[1, i].set_title(f"{tag}: residual (RMS {cmp[tag]['rms_kms']:.2f})")
             plt.colorbar(im2, ax=ax[1, i], fraction=0.046)
         plt.suptitle("GI wiggle, all methods at identical config (240-360, step 1)", fontsize=13)
         plt.tight_layout()
