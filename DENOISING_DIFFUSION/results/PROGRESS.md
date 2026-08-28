@@ -247,6 +247,41 @@ and `bettermoments.estimate_RMS`, which reads `data[:N]`/`data[-N:]` literally. 
 to the non-padded [30, 571) range and skips continuum subtraction rather than apply it to
 padding.
 
+## 2026-08-28 | finding | DDRM does not recover the wiggle: 0.128 against a 0.116 floor
+
+Prior trained on Kaggle (60 epochs, unconditional, v-prediction, loss 8106.7 -> 16.5).
+Restoration and scoring rerun locally on 31 channels (240-360), the range that actually covers
+the line-centre variation.
+
+| | mstar (Msun) | incl (deg) | raw M1 r | residual r |
+|---|---|---|---|---|
+| clean | 0.564 | 31.6 | -- | -- |
+| dirty | 0.618 | 29.4 | 0.9939 | **0.9970** |
+| DDRM | 8.205 | 8.0 | 0.9572 | **0.1277** |
+
+**Beam-only floor 0.116, DDRM 0.1277. No recovery.** This is outcome 2 of the two written into
+`ddrm_feasibility.md` BEFORE the prior was trained: the prior hallucinates plausible structure
+that is not the truth.
+
+Three things make this a real negative rather than a failed run: the prior trained properly
+and was still improving at epoch 60; the signal WAS recoverable, since with a proper channel
+window the dirty cube's own residual correlates at 0.997 with truth; and the failure is
+physically diagnostic, with DDRM's fitted geometry badly wrong (8.2 Msun against 0.56,
+inclination 8 deg against 32) while its raw M1 correlation stays high at 0.957. It produced a
+disk-shaped velocity field whose implied physics is incoherent.
+
+**Also corrects an earlier number.** The 2026-08-27 entries recorded the dirty cube's residual
+correlation as 0.111 and read it as "the wiggle is not clearly recoverable from the dirty cube
+in the first place". That was the 10-channel window collapsing the Keplerian fit. With the
+correct window it is **0.997**: the wiggle IS strongly recoverable from the dirty cube. The
+beam-only ablation (0.116) still stands, since it used the full 481-channel range.
+
+Likely explanation, known in advance: the beam passes only 1.3% of Fourier modes above 1% of
+peak gain, so DDRM had to invent ~99% of the spectrum. Measurement consistency is a weak
+constraint when the instrument measured almost nothing.
+
+Write-up `results/self-gravitating/ddrm_result.md`, figure `ddrm_restoration.png`.
+
 ## 2026-08-28 | run + bug | DDRM prior trained; the scoring cell reported a degenerate fit as "RECOVERY"
 
 **Prior trained successfully.** 60 epochs, 115 min on T4 x2, 16.9M params unconditional, loss
