@@ -2,7 +2,8 @@
 ## Project Context File for Agentic IDE
 
 Local-only tracking doc, tracked in git as of `b6cdd79` (syncing across machines). Last
-updated: 2026-07-26 (week 7-8 of 22; midterm evaluation Aug 10–14).
+updated: 2026-08-28 (week 13-14 of 22; midterm evaluation Aug 10-14 is done, WordPress post
+submitted; final submission window ahead).
 
 ---
 
@@ -21,15 +22,28 @@ updated: 2026-07-26 (week 7-8 of 22; midterm evaluation Aug 10–14).
 
 ## 2. CURRENT COMPUTE ENVIRONMENT
 
-- **Primary:** Kaggle Notebooks, T4 ×2 GPUs
-- Repository: KrishanYadav333/EXXA, branch `line-emission`
-- Notebooks are the source of truth for Kaggle-run work — two root-level notebooks, each
-  self-contained (own git-clone bootstrap, doesn't depend on Kaggle's native GitHub-linked-
-  notebook sync):
-  - `05-unet-line-emission.ipynb` — all U-Net work (V12, beam conditioning, sweep)
-  - `06-ddpm-line-emission.ipynb` — DDPM only, standalone, never modifies U-Net/V12 files
-- Local machine has **no FITS data and no checkpoints** — all training happens on Kaggle;
-  results pulled back as CSVs/pngs into `results/`.
+- **Primary:** Kaggle Notebooks, T4 ×2 GPUs. Two accounts in use, never crossed: `05` and its
+  successors on `krishanyadav333`, `06` on `deepsceneloc`.
+- Repository: KrishanYadav333/EXXA, branch **`midterm-prep`** (moved off `line-emission` after
+  the pivot below; `line-emission` is left untouched, see RULES.md #9).
+- Notebooks are the source of truth for Kaggle-run work, each root-level and self-contained
+  (own git-clone bootstrap, doesn't depend on Kaggle's native GitHub-linked-notebook sync):
+  - `05-unet-line-emission.ipynb`: all U-Net work (V12, beam conditioning, sweep, spectral
+    context)
+  - `06-ddpm-line-emission.ipynb`: DDPM only, standalone, never modifies U-Net/V12 files
+  - `07-ddrm-restoration.ipynb`: unconditional diffusion prior + DDRM sampler for the
+    self-gravitating pair
+  - `08-kinematic-loss.ipynb`: velocity-aware training objective, `kinematic_gamma` sweep
+  - `09-wiggle-scoring.ipynb`: GPU version of `experiments/wiggle_all_methods.py`, not yet
+    run (dataset staged locally, not uploaded)
+- **RULES.md now exists** (`DENOISING_DIFFUSION/RULES.md`), 12 numbered rules with the
+  incident behind each, mandatory reading before touching a notebook. Supersedes the
+  hand-written conventions in §6 below where they overlap.
+- Local machine now **does** have FITS data and checkpoints: `models/` is a hardlinked local
+  checkpoint store (20 archives, retained until GSoC finishes per RULES.md #12,
+  `models/README.md`), the self-gravitating pair lives under
+  `self-gravitating cube and dirty cube/` (gitignored, ~1.6 GB), and a `~/.venvs/exxa-test`
+  virtualenv runs local scoring scripts (`experiments/`) against both.
 - For current repo structure, run `find`/`git ls-files` directly rather than trusting a
   hand-maintained tree here — this doc has gone stale on file paths more than once.
 
@@ -225,6 +239,111 @@ averaging, DDIM 25-step sampling. **This retrain (which progress.md previously f
   exists yet.
 - V12/U-Net files untouched by this notebook, as required.
 
+### Phase F: Post-Midterm, Phase 0, the forward-operator gate (Week 10-11)
+
+Midterm's WordPress post shipped Aug 10-14 (see §7). Work resumed on the physics-informed
+plan's own gate: does the line-emission training data have a real point-spread function to
+invert (`dirty = A(clean) + noise`, `A != I`), which DDRM and VIREO's consistency term both
+need. Four wrong verdicts before the method held up (each a real bug: an intensity-scale
+assumption, a normalisation that flagged fit-failure as a sidelobe, a tie between two wrong
+models, then finally fitting `P_d = A·exp(-4π²σ²k²)·P_c + N` directly with a column-scaled
+least-squares solve). **Answer: both cubes are `BUNIT=Jy/beam`, the beam is already inside the
+"clean" cube too, `A = I`.** DDRM and VIREO's consistency term are struck for this dataset
+specifically. Module: `src/evaluation/forward_operator.py`, `tests/test_forward_operator.py`.
+
+Same investigation closed two more of the five physics-informed leads on 05 v25/v26: spectral
+context (`n_neighbors=k`, feeding k channels either side) buys +2.4 dB PSNR and **loses** M0/M2
+to augmentation, `winner_aug` stays the best arm on moments; band-limit loss is refuted (0.5x
+out-of-band excess, the model's errors are already smoother than truth in the blocked
+frequencies). Also surfaced real GPU nondeterminism: rerunning one seed identically swung
+1.73 dB, more than the spread across three different seeds (0.865 dB vs 0.455 dB). Any
+single-run figure in this project needs a seed-spread caveat.
+
+### Phase G: The Self-Gravitating Pivot (Week 11-12)
+
+Jason's `lines.fits`/`dirty_cube.fits` pair (shared 2026-08-07, opened 2026-08-21) turned out
+to be a genuinely different regime from the training data: clean is `Jy/pixel` (unconvolved
+sky model), dirty is 51.55% negative pixels (a real un-deconvolved interferometric map).
+Phase 0 agrees independently (`non_gaussian_convolution`, fitted amplitude = the beam area in
+pixels). **DDRM and VIREO are back on the table, for this pair specifically.**
+
+The dirty beam was then measured directly from the pair's own cross-spectrum
+(`estimate_beam_from_pair`) rather than requested from Jason: peak 0.9109, FWHM 5 px,
+-2.77% deepest sidelobe, and, the number that actually matters, convolving clean with this
+beam reproduces the real dirty cube at **0.9939 correlation** on 300 held-out channels.
+
+An out-of-distribution test (the already-trained `winner_aug` seed 43, zero retraining) on
+this pair: every moment negative, M0 -86.5% / M1 -10.8% / M2 -168.3%, the denoised cube lands
+further from truth than doing nothing. Expected given `A=I` training, now measured rather than
+assumed.
+
+Jason then redirected priority explicitly to this data, pointing at five papers built around
+one diagnostic: fit the disk's own Keplerian rotation, subtract it from the moment-1 map, read
+the residual (the "GI wiggle", the kinematic signature of gravitational instability). New
+module `src/evaluation/gi_wiggle.py`, validated on synthetic data first. On the real clean
+cube it recovers stellar mass **0.639 M<sub>sun</sub>**, purely from the velocity field, no
+mass hint in either header, close enough to Hall et al. 2020's 0.6 M<sub>sun</sub> founding
+simulation, and the header's `DISTPC=140 pc` matches that simulation exactly, that together
+they corroborate this cube's provenance independently.
+
+`07-ddrm-restoration.ipynb` was built to try inverting the beam: DDRM (Kawar et al. 2022), a
+measurement-consistency diffusion sampler, cheap for a convolution operator since its SVD is
+just `|FFT(beam)|`. Building it found and fixed a `DotDict.__getattr__` bug that had silently
+broken `torch.save` checkpointing for the **whole project**, not just DDRM (it returned `None`
+for dunder lookups, which `pickle` tried to call). Prior trained on Kaggle: 60 epochs, 115 min,
+val loss 22.95, still improving.
+
+### Phase H: RETRACTION and the corrected result (Week 12, methodologically the most
+important entry in this doc)
+
+Every wiggle comparison up to and including the first DDRM scoring fit **each cube its own
+separate Keplerian model** before comparing residuals, which measures how much two
+independent fits disagree, not how much kinematic signal survived. The same beam-convolved
+clean data scored 0.117 to 0.998 correlation against truth across five channel ranges under
+this method: noise in the metric itself, visible the whole time, never checked against its own
+free parameters. **Withdrawn as a result:** "the beam alone erases the GI wiggle"
+(2026-08-27), which had motivated building DDRM in the first place. **Withdrawn:** all three
+DDRM verdicts issued the same day.
+
+Fixed: `compare_wiggles()` fits one model on the reference (clean) cube and reuses it for every
+method. **Corrected, now independently reproduced twice** (240-360, step 1, 121 channels):
+
+| method | resid r | resid RMS |
+|---|---|---|
+| clean (ref) | -- | 0.182 |
+| dirty | 0.892 | 0.171 |
+| beam-only | 0.920 | 0.169 |
+| U-Net (`winner_aug`) | 0.805 | 0.169 |
+| DDRM | 0.587 | 0.303 |
+
+The beam preserves the wiggle, it was never the culprit. The U-Net degrades it. DDRM degrades
+it most, inflating residual amplitude ~1.7x, not a partial recovery, the most damaging
+method measured. **Headline: for this cube, doing nothing beats both models.** A second,
+different self-gravitating pair (Jason: the original was built with the wrong script;
+19.25% negative pixels vs the original's 51.55%) tells a more ambiguous story, wiggle not
+clearly recoverable from the dirty cube at all there, and that specific comparison predates
+the `compare_wiggles()` fix and still needs rerunning under it.
+
+### Phase I: KinematicLoss, built in response (Week 12-13, in progress)
+
+Response to Phase H's result, built same-day rather than deferred (an initial two-day estimate
+did not survive a direct push-back; the actual build took ~90 minutes). `spectral_moment1()` +
+`KinematicLoss` in `src/utils/losses.py`: a differentiable moment-1 term added to training,
+using the same biased `collapse_first`-style estimator deliberately (the bias cancels between
+prediction and target in a loss, unlike in a standalone diagnostic). `08-kinematic-loss.ipynb`
+trains `winner_aug` at `out_channels=31` (k=15 neighbours, sized to the line's ~37-channel
+FWHM) sweeping `kinematic_gamma` over 0/0.1/1/10, gamma=0 a fresh control at the same
+architecture so a result can't confound the loss change with the channel-count change.
+**Verified locally at reduced scale only; not yet run on Kaggle GPU, no real numbers exist.**
+Success criterion: wiggle residual correlation above the U-Net's 0.805 without losing the
+M0/PSNR gains `winner_aug` already has.
+
+`09-wiggle-scoring.ipynb` exists to score whatever comes out of that sweep: same comparison as
+`experiments/wiggle_all_methods.py`, on GPU instead of CPU (a local CPU rerun took 173 minutes
+for two configs; DDRM's diffusion sampling is the bottleneck). Needs a new Kaggle Dataset
+(`clean_sg.fits`, `dirty_sg.fits`, `dirty_beam_recovered_v2.fits`, two checkpoints renamed
+`.ckpt` per RULES.md #3), staged locally at upload time, not yet uploaded.
+
 ---
 
 ## 4. KEY REFERENCE PAPERS
@@ -237,6 +356,13 @@ averaging, DDIM 25-step sampling. **This retrain (which progress.md previously f
   `DENOISING_DIFFUSION/GSOC_2025_EXXA_Main.ipynb` is the actual predecessor notebook
   (Colab, patch-based, ermongroup/ddim + bahjat-kawar/ddrm lineage) — superseded, not a
   source of new material for current work.
+- Kawar, Vahdat, Kreis, Karras, Song, Song (2022): DDRM, the measurement-consistency
+  restoration sampler behind `07-ddrm-restoration.ipynb` / `src/training/ddrm.py`.
+- Five papers Jason pointed at for the GI wiggle diagnostic, all built around the same method
+  (fit Keplerian rotation, subtract, read the moment-1 residual): Speedie et al. 2024
+  (Nature), Terry et al. 2024 (A&A), Hall et al. 2020 (ApJ, the 0.6 M<sub>sun</sub> founding
+  simulation the self-gravitating cube's stellar-mass fit corroborates), Hall et al. 2021
+  (MNRAS), Hall et al. 2022 (ApJL).
 
 ---
 
@@ -256,20 +382,44 @@ good... for a first week on the data."
 as "the real focus" (see Phase E). Self-gravitating dataset coming as a moment-map TEST only,
 not training — still not received.
 
-**Most recent status — UNRESOLVED, needs a real date:** a follow-up meeting is logged as
-"held Monday, after a prior missed call." The only confirmed Monday meeting on record is
-2026-07-20 (above). If this is a distinct, later meeting, it needs its own date before this
-line is trustworthy — don't cite it as a separate event until that's pinned down.
+**2026-08-07 (email):** Confirmed the midterm deliverable is a WordPress blog post, not a
+formal report — "Don't worry about passing your evaluation though. You're fine there." ALMA
+real-data validation explicitly deferred to the final blog. Two new cubes (self-gravitating +
+matching dirty) shared via Google Drive, sat unopened for two weeks.
+
+**2026-08-27 (redirect, relayed):** work properly on the self-gravitating data, with five
+papers pointed at (Speedie 2024, Terry 2024, Hall 2020/21/22), see Phase G/H/I above. This
+is the priority that produced everything from Phase F onward.
+
+**2026-08-27 (correction, relayed):** the original self-gravitating pair was built with the
+wrong script. A replacement (`clean_sg.fits`/`dirty_sg.fits`, different checksum, 19.25%
+negative pixels vs the original's 51.55%) was downloaded and is now the cube in active use,
+see Phase H's note on the ambiguous retest.
 
 ---
 
 ## 6. CONVENTIONS AND RULES
 
-No separate `AGENT_RULES.md` file exists in this repo (checked repeatedly — gitignored by
-`**/AGENT_RULES.md` but never created). Rules live here:
+**`RULES.md` now exists** (`DENOISING_DIFFUSION/RULES.md`, added in Phase F/G), 12 numbered
+rules each with the run or bug that cost hours of GPU time behind it, mandatory reading
+before touching any notebook, and the authoritative source where it overlaps with anything
+below. In short: persist a checkpoint the instant training finishes (#1); cell 0b syncs
+`src/` only, never the cells, and Kaggle's own push is the actual danger (#2); never upload a
+`.pth` as a Kaggle Dataset, rename to `.ckpt` first (#3); compare losses only within one
+objective and one training view (#4); attribute every result through `collect_outputs()` and
+`RUNS.md` (#5); never quote a number whose metric you can't name (#6); one notebook, one file,
+the Kaggle-linked slug name, at repo root (#7); a zero from a diagnostic is a suspect, not a
+pass (#8); check which branch the kernel pulled, `midterm-prep` not `line-emission` (#9);
+archive the notebook itself with every run, failures included (#10); log progress the moment a
+run ends (#11, `results/PROGRESS.md`); keep every checkpoint until GSoC finishes (#12,
+`models/`).
+
+Still-relevant conventions not restated in RULES.md:
 
 - Cast `dirty` arrays to float32 immediately after loading
-- seed=42 everywhere (data splits, torch/numpy RNG)
+- seed=42 everywhere (data splits, torch/numpy RNG), though see Phase F: identical-seed
+  reruns on Kaggle's T4x2 can still swing >1 dB from cuDNN nondeterminism, so a fixed seed is
+  not the same guarantee it used to be treated as
 - Notebooks are the source of truth for Kaggle-run work — avoid fragmenting logic into
   standalone .py files for anything iteration-heavy; keep `src/` for genuinely reusable,
   stable code (models, losses, established data utilities)
@@ -280,7 +430,7 @@ No separate `AGENT_RULES.md` file exists in this repo (checked repeatedly — gi
   cubes are inference-only, never touched by train/val
 - Moment-map evaluation must average across ALL available holdout cubes (currently 5), never
   rely on a single cube's numbers as representative (lesson from V7/V9)
-- No co-author trailers in git commits (explicit user rule)
+- No co-author trailers in git commits, no em dashes in written material (explicit user rules)
 
 ---
 
