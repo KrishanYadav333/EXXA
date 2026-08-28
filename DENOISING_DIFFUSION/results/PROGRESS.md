@@ -247,6 +247,48 @@ and `bettermoments.estimate_RMS`, which reads `data[:N]`/`data[-N:]` literally. 
 to the non-padded [30, 571) range and skips continuum subtraction rather than apply it to
 padding.
 
+## 2026-08-28 | run + bug | DDRM prior trained; the scoring cell reported a degenerate fit as "RECOVERY"
+
+**Prior trained successfully.** 60 epochs, 115 min on T4 x2, 16.9M params unconditional, loss
+8106 -> 17.7 train / 20.5 val, still improving at the end. Checkpoint persisted (271 MB).
+That part of notebook 07 works.
+
+**The scoring is wrong and its output must not be quoted.** It printed:
+
+```
+          mstar    incl    raw r   resid r
+dirty    49.999    1.3     0.9766   0.7871
+DDRM     50.000    1.5     0.8632   0.4578
+  DDRM: 0.4578 -> RECOVERY
+```
+
+`mstar = 50.000` is `fit_keplerian`'s upper BOUND and `incl ~ 1.3 deg` is face-on degenerate:
+both fits failed, so the correlations between them mean nothing. The giveaway is `dirty`
+scoring 0.787 here against 0.111 in the validated 2026-08-27 run on the same cube.
+
+**Cause: too few channels.** The notebook restored 10 channels (280-316). Measured, the line
+CENTRE varies from channel 260 to 348 across the disk -- that variation IS the rotation.
+`quadratic_moment1` finds each spectrum's peak channel, so with a narrower window most
+spaxels' peaks land on the window edge, the velocity field flattens, and the fit runs to its
+bound. Confirmed directly:
+
+| channels | mstar | incl |
+|---|---|---|
+| 10 (280-316), as run | **50.000 (bound)** | 1.1 |
+| 61 (240-360, step 2) | 0.529 | 33.1 |
+| 481 (60-541), validated | 0.572 | 32.0 |
+
+Fixed: `CHANNELS` now spans 240-360, and the scoring cell **raises** if any fit hits 90% of
+the mstar bound rather than printing a verdict from it. A degenerate fit is a failure, not a
+measurement, and it should never again be reportable as a result.
+
+Also fixed `collect_outputs()` missing its required `patterns` argument, which errored in the
+final cell.
+
+**The DDRM question remains unanswered.** The restoration itself ran (10 channels, finite
+output); only the scoring was invalid. Rerunning sections 5-7 with the corrected channel range
+will answer it -- the prior does not need retraining.
+
 ## 2026-08-28 | bug | notebook 07's bootstrap pointed DATA_DIR at the wrong Dataset
 
 First Kaggle run of notebook 07 failed immediately:
