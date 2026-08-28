@@ -247,6 +247,60 @@ and `bettermoments.estimate_RMS`, which reads `data[:N]`/`data[-N:]` literally. 
 to the non-padded [30, 571) range and skips continuum subtraction rather than apply it to
 padding.
 
+## 2026-08-28 | RETRACTION | the wiggle comparisons were methodologically broken; the beam never erased the wiggle
+
+Running the U-Net alongside DDRM at matched configuration exposed the flaw behind a chain of
+wrong conclusions: **each cube was fitted its OWN Keplerian model before its residual was
+compared to the truth's.** The residual then means something different per cube, so the
+comparison measures fit disagreement, not the wiggle.
+
+Beam-convolved clean data vs truth, across five channel ranges at step 1:
+
+| range | own-fit r | shared-model r |
+|---|---|---|
+| 240-360 | 0.117 | 0.920 |
+| 230-370 | 0.998 | 0.999 |
+| 250-350 | 0.153 | 0.998 |
+| 200-400 | 0.949 | 0.998 |
+| 60-540 | 0.116 | 0.997 |
+
+The own-fit column is noise. That instability was visible all along and went unchecked.
+
+**WITHDRAWN: "the beam alone erases the GI wiggle" (2026-08-27).** Under a shared model the
+beam-convolved cube correlates at **0.92-0.999** with truth and its residual RMS (0.168)
+matches the truth's (0.182). The beam preserves the wiggle. **This finding motivated the whole
+DDRM effort.**
+
+**WITHDRAWN: all three DDRM verdicts issued on 2026-08-28** ("no recovery", "destroys signal",
+and an unpublished "recovers"). All used per-method fits; two also compared across different
+channel samplings.
+
+**Corrected result** (240-360 step 1, one shared model from clean):
+
+| method | resid r | resid RMS |
+|---|---|---|
+| clean (ref) | -- | 0.182 |
+| beam-only | 0.920 | 0.168 |
+| dirty | 0.891 | 0.170 |
+| U-Net | 0.804 | 0.169 |
+| DDRM | 0.583 | 0.303 |
+
+The beam preserves the wiggle; noise costs a little; the U-Net degrades it; DDRM degrades it
+most and inflates the residual amplitude 1.7x. The ordering "do nothing > U-Net > DDRM" holds,
+so the qualitative claim that models hurt the kinematics survives. What does not survive is
+the beam being the culprit, or DDRM ever having recovered anything.
+
+**Fixed in code:** `compare_wiggles()` fits the reference once and subtracts that model from
+everyone; regression case 7 covers it. Also fixed `fit_keplerian` raising "x0 is infeasible"
+when its default initial guess fell outside its own bounds -- unreachable when an explicit
+`init` is passed, which is why every prior test missed it.
+
+**Lesson:** three conclusions were published in one day from a statistic whose instability was
+measurable from the start. Validate a comparison metric against its own free parameters before
+reading any result from it.
+
+Write-up: `results/self-gravitating/RETRACTION_wiggle_methodology.md`.
+
 ## 2026-08-28 | correction | the DDRM comparison was invalid; DDRM DESTROYS signal, not merely fails to recover it
 
 Published a DDRM result an hour ago comparing 0.1277 against a 0.116 floor and calling it "no

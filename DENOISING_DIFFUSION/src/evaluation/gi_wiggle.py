@@ -119,6 +119,11 @@ def fit_keplerian(m1: np.ndarray, mask: np.ndarray, au_per_px: float,
 
     lo = [0, 0, -360, 1, vs.min() - 5, 1e-3]
     hi = [W, H, 360, 89, vs.max() + 5, 50.0]
+    # Clamp the initial guess into the bounds. disk_geometry_from_m0 on a uniform mask returns
+    # inclination ~0, below the lower bound of 1, and least_squares then raises "x0 is
+    # infeasible" rather than starting from the nearest legal point. Only reachable when no
+    # explicit init is passed, which is why it went unnoticed until compare_wiggles.
+    guess = [min(max(g, l), h) for g, l, h in zip(guess, lo, hi)]
     fit = least_squares(resid, guess, bounds=(lo, hi), max_nfev=4000)
 
     cx, cy, pa, inc, vsys, mstar = fit.x
@@ -180,3 +185,46 @@ def quadratic_moment1(data: np.ndarray, velax: np.ndarray, rms: Optional[float] 
         rms = bm.estimate_RMS(data=data, N=5)
     v0, _, peak, _ = bm.collapse_quadratic(velax=velax, data=data, rms=rms)
     return v0, peak
+
+
+def compare_wiggles(m1_maps: Dict[str, np.ndarray], mask: np.ndarray, au_per_px: float,
+                    reference: str = "clean") -> Dict[str, dict]:
+    """
+    Compare GI wiggle residuals across methods against ONE shared Keplerian model.
+
+    Fit the reference cube's rotation curve once, subtract THAT SAME model from every map,
+    and compare what is left. Never fit a separate model per method.
+
+    Why this matters, measured: fitting each cube its own Keplerian model makes the residual
+    definition differ between cubes, so the comparison is dominated by how the fits disagree
+    rather than by the wiggle. Beam-convolved clean data scored 0.117, 0.998, 0.153, 0.949 and
+    0.116 against the same truth across five channel ranges under per-method fitting -- noise,
+    not measurement. Under a shared model it scores 0.920 to 0.999 across all of them.
+
+    That instability produced a chain of wrong conclusions on 2026-08-27/28, including "the
+    beam alone erases the wiggle", which is false: the beam preserves it (r >= 0.92, and the
+    residual RMS is within 10% of the truth's).
+
+    Args:
+        m1_maps: {name: moment-1 map in km/s}. Must contain `reference`.
+        mask: pixels to score over, from `signal_mask` on the reference's M0.
+        au_per_px: physical scale.
+        reference: which entry defines the shared rotation model.
+
+    Returns {name: {corr, rms_kms, geom}} with `geom` the shared fit, repeated for clarity.
+    """
+    if reference not in m1_maps:
+        raise KeyError(f"reference {reference!r} not among {sorted(m1_maps)}")
+
+    geom = fit_keplerian(m1_maps[reference], mask, au_per_px)
+    ref_resid = wiggle_residual(m1_maps[reference], geom)
+
+    out = {}
+    for name, m1 in m1_maps.items():
+        resid = wiggle_residual(m1, geom)          # the SAME model for every method
+        ok = np.isfinite(ref_resid[mask]) & np.isfinite(resid[mask])
+        corr = (float(np.corrcoef(ref_resid[mask][ok], resid[mask][ok])[0, 1])
+                if ok.sum() > 10 else float("nan"))
+        out[name] = {"corr": corr, "rms_kms": wiggle_amplitude(resid, mask)["rms_kms"],
+                     "geom": geom, "residual": resid}
+    return out

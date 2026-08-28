@@ -22,6 +22,14 @@ TRUE = dict(cx=100.0, cy=95.0, pa_deg=35.0, incl_deg=40.0, vsys=1.2, mstar_msun=
 failures = []
 
 
+def _raises(fn):
+    try:
+        fn()
+    except Exception:
+        return True
+    return False
+
+
 def check(name, cond, detail=""):
     print(f"  {'OK  ' if cond else 'FAIL'}  {name}{('  -- ' + detail) if detail else ''}")
     if not cond:
@@ -130,6 +138,29 @@ weighted_mean = (velax[:, None, None] * cube).sum(axis=0) / cube.sum(axis=0)
 check("the naive intensity-weighted mean is pulled off by the sidelobe (the failure this exists to fix)",
       float(np.abs(weighted_mean - true_v0).mean()) > 300.0,
       f"mean |error| {float(np.abs(weighted_mean - true_v0).mean()):.1f} m/s")
+
+# --- case 7: comparisons must use ONE shared rotation model ----------------------------
+# Fitting each method its own Keplerian model makes the residual definition differ per
+# method, so the comparison measures fit disagreement rather than the wiggle. On real data
+# that produced 0.117 / 0.998 / 0.153 / 0.949 / 0.116 for the SAME beam-convolved cube across
+# five channel ranges, and a chain of wrong conclusions on 2026-08-27/28.
+print("\ncase 7  compare_wiggles uses one shared model for every method")
+from src.evaluation.gi_wiggle import compare_wiggles
+
+# Two "methods": one identical to the reference, one with a known extra perturbation.
+m1_ref = m1_pure + injected
+m1_same = m1_ref.copy()
+m1_diff = m1_ref + 0.3 * np.cos(3 * az) * np.exp(-((r - 40) ** 2) / (2 * 20 ** 2))
+res = compare_wiggles({"clean": m1_ref, "identical": m1_same, "perturbed": m1_diff},
+                      mask, AU_PER_PX, reference="clean")
+check("an identical map correlates at 1.0", abs(res["identical"]["corr"] - 1.0) < 1e-6,
+      f"{res['identical']['corr']:.6f}")
+check("a perturbed map correlates lower", res["perturbed"]["corr"] < 0.999,
+      f"{res['perturbed']['corr']:.4f}")
+check("every method shares the reference's geometry",
+      res["identical"]["geom"] is res["perturbed"]["geom"])
+check("a missing reference raises rather than guessing",
+      _raises(lambda: compare_wiggles({"a": m1_ref}, mask, AU_PER_PX, reference="clean")))
 
 print("\n" + "-" * 70)
 if failures:
