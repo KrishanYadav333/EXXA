@@ -247,6 +247,44 @@ and `bettermoments.estimate_RMS`, which reads `data[:N]`/`data[-N:]` literally. 
 to the non-padded [30, 571) range and skips continuum subtraction rather than apply it to
 padding.
 
+## 2026-08-28 | correction | the DDRM comparison was invalid; DDRM DESTROYS signal, not merely fails to recover it
+
+Published a DDRM result an hour ago comparing 0.1277 against a 0.116 floor and calling it "no
+recovery". **The comparison was invalid and the conclusion understated.**
+
+DDRM was scored on 31 channels at step 4; the 0.116 floor came from 481 channels at step 1.
+Different configurations. Measured at DDRM's OWN configuration the beam-only floor is
+**0.938**, so DDRM at 0.128 is far BELOW it: it destroys structure that survives the beam
+untouched.
+
+**Root cause: the wiggle residual is acutely sensitive to velocity sampling.**
+
+| step | dv (km/s) | clean resid RMS | dirty resid RMS | resid r |
+|---|---|---|---|---|
+| 1 | 0.033 | 0.182 | 1.341 | 0.115 |
+| 2 | 0.067 | 0.185 | 1.355 | 0.117 |
+| 4 | 0.133 | **1.436** | 1.418 | **0.997** |
+| 8 | 0.267 | 1.741 | 1.689 | 0.997 |
+
+At step 4 the CLEAN cube's residual jumps 8x. That is parabola-fit error in
+`quadratic_moment1` (it fits the peak channel and two neighbours), not signal, and being a
+deterministic sampling artifact it is SHARED between clean and dirty -- hence the spurious
+0.997.
+
+**This also retracts a correction I made earlier today.** I attributed the 2026-08-27 value of
+0.111 to "a 10-channel window collapsing the fit". Wrong: that value came from 481 channels at
+step 1 and is sound for its configuration. The discrepancy was the sampling step, not the
+window length.
+
+**What stands:** the prior trained properly; DDRM's fitted geometry is physically incoherent
+(8.2 Msun against 0.56, inclination 8 against 32 degrees); the beam passes 1.3% of modes above
+1% gain; DDRM is not usable for this problem on this data. The qualitative conclusion is
+unchanged and in fact stronger.
+
+**Methodological rule going forward:** a GI wiggle correlation is only comparable to another at
+the SAME channel range AND step. Three separate errors today came from comparing across
+configurations. Record the configuration with every value.
+
 ## 2026-08-28 | finding | DDRM does not recover the wiggle: 0.128 against a 0.116 floor
 
 Prior trained on Kaggle (60 epochs, unconditional, v-prediction, loss 8106.7 -> 16.5).
