@@ -87,6 +87,9 @@ class FITSChannelDataset(Dataset):
         target_size: output H=W after bilinear downsample (default 256).
         seed: base seed; each cube gets a deterministic per-cube seed so the channel set is
             fixed across epochs (reproducible) but differs between cubes.
+        stack_target: return all 2k+1 CLEAN channels as the target rather than the centre
+            alone. Needed for a velocity-aware loss, which must compute a moment-1 over a
+            line profile. Ignored when n_neighbors is 0.
         n_neighbors: k, for 2.5D spectral context. The dirty tensor becomes
             (2k+1, H, W) -- the sampled channel plus k neighbours each side along velocity --
             while the clean target stays the centre channel. 0 (default) keeps the original
@@ -110,6 +113,7 @@ class FITSChannelDataset(Dataset):
         return_beam: bool = False,
         augment: bool = False,
         n_neighbors: int = 0,
+        stack_target: bool = False,
         verbose: bool = True,
     ):
         self.target_size = target_size
@@ -142,6 +146,11 @@ class FITSChannelDataset(Dataset):
         # UNet already takes in_channels, so 2k+1 needs no model change. 0 (default) leaves
         # every existing checkpoint and result untouched.
         self.n_neighbors = int(n_neighbors)
+        # With n_neighbors>0 the clean target is normally the CENTRE channel alone, since the
+        # model predicts one channel. stack_target returns all 2k+1 clean channels instead,
+        # which a velocity-aware loss needs: a moment-1 penalty has to see a line profile, not
+        # a single slice. Requires the model's out_channels to match its in_channels.
+        self.stack_target = bool(stack_target)
 
         # normalise `cubes` into a list of (clean_path, dirty_path, tag)
         self.cube_paths = []
@@ -302,7 +311,10 @@ class FITSChannelDataset(Dataset):
             dirty = self._load_channels(dirty_path, chans)      # (2k+1, H, W)
         else:
             dirty = self._load_channel(dirty_path, ch)[None]    # (1, H, W)
-        clean = self._load_channel(clean_path, ch)[None]        # (1, H, W), centre only
+        if self.stack_target and self.n_neighbors > 0:
+            clean = self._load_channels(clean_path, chans)      # (2k+1, H, W)
+        else:
+            clean = self._load_channel(clean_path, ch)[None]    # (1, H, W), centre only
 
         # continuum subtraction (before norm) — each cube subtracts its own line-free
         # baseline; the 2D continuum broadcasts across the neighbour stack

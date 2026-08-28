@@ -247,6 +247,45 @@ and `bettermoments.estimate_RMS`, which reads `data[:N]`/`data[-N:]` literally. 
 to the non-padded [30, 571) range and skips continuum subtraction rather than apply it to
 padding.
 
+## 2026-08-28 | code | velocity-aware objective, built to target the measured failure
+
+The corrected comparison shows every model degrades the GI wiggle (beam-only 0.920, dirty
+0.891, U-Net 0.804, DDRM 0.583). The U-Net's damage has an identifiable cause: it optimises
+MSE + SSIM, pixel accuracy, while the wiggle is a sub-channel velocity perturbation that
+per-channel smoothing shifts. Nothing in the objective ever asked it to preserve velocity
+structure. This adds that.
+
+`KinematicLoss` in `src/utils/losses.py`:
+
+    L = alpha*MSE + beta*(1-SSIM) + gamma*|M1(pred) - M1(target)|
+
+with `spectral_moment1` a differentiable intensity-weighted mean velocity over the channel
+axis. It is not an unbiased M1 and does not need to be: it is computed identically on
+prediction and target, so a finite-window bias cancels in the difference. What it must be is
+sensitive to a line-centre shift, which it is.
+
+Measured properties (`tests/test_kinematic_loss.py`, 15 checks): M1 tracks a shifted line,
+is invariant to amplitude scaling (it measures velocity, not flux), is finite on empty
+spectra, and the loss separates a velocity shift (0.0855) from a pure amplitude change
+(1.1e-08) by seven orders of magnitude. `gamma=0` contributes nothing to the total while
+still reporting the velocity term for monitoring.
+
+Three pieces of plumbing this needed, all in code the existing arms share:
+- `FITSChannelDataset(stack_target=True)` returns all 2k+1 CLEAN channels rather than the
+  centre alone; a moment-1 penalty needs a line profile, not one slice. Default unchanged.
+- `_build_unet(out_channels=N)` and `train_unet(out_channels=N)`: the model has to predict a
+  stack for its M1 to be computable.
+- `train_unet(kinematic_gamma=..., velax_kms=...)`, recorded in the checkpoint.
+
+**Window size matters and is measured, not guessed:** the line FWHM is ~37 channels at a
+typical bright spaxel, so a useful stack is ~31 channels (`n_neighbors=15`), not the 3 the
+spectral-context arms used.
+
+**Not yet trained.** Needs a Kaggle run: `n_neighbors=15, stack_target=True, out_channels=31,
+kinematic_gamma` swept. The honest test is whether it improves the wiggle correlation above
+the U-Net's 0.804 WITHOUT giving up the M0 and PSNR gains, since a model that only preserves
+velocity by refusing to denoise would be useless.
+
 ## 2026-08-28 | RETRACTION | the wiggle comparisons were methodologically broken; the beam never erased the wiggle
 
 Running the U-Net alongside DDRM at matched configuration exposed the flaw behind a chain of

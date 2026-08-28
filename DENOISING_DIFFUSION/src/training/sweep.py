@@ -28,7 +28,7 @@ import torch
 from torch.utils.data import DataLoader
 
 from src.models.unet import UNet
-from src.utils.losses import HybridLoss
+from src.utils.losses import HybridLoss, KinematicLoss
 
 
 def _unwrap(m):
@@ -81,6 +81,9 @@ def train_unet(
     batch_size: int = 32,
     use_beam: bool = False,
     n_neighbors: int = 0,
+    out_channels: int = 1,
+    kinematic_gamma: float = 0.0,
+    velax_kms=None,
     min_epochs: int = 20,
     max_epochs: int = 100,
     patience: int = 5,            # early stop: epochs without val-loss improvement
@@ -129,12 +132,25 @@ def train_unet(
     net = build_model(arch, base_channels=base_channels,
                       channel_multipliers=channel_multipliers,
                       use_beam=use_beam, n_neighbors=n_neighbors,
-                      latent_dim=latent_dim).to(device)
+                      out_channels=out_channels, latent_dim=latent_dim).to(device)
     fwd = forward_fn(arch)
     extra = extra_loss_fn(arch)
     model = torch.nn.DataParallel(net) if n_gpu > 1 else net
 
-    criterion = HybridLoss(alpha=alpha, beta=1.0 - alpha)
+    # A velocity-aware objective when asked for. The U-Net was measured on 2026-08-28 to
+    # improve pixel metrics while DEGRADING the GI wiggle (residual correlation 0.804 against
+    # 0.891 for doing nothing): it optimises pixel accuracy, and per-channel smoothing shifts
+    # the sub-channel line centre that the wiggle is made of. This adds that quantity to the
+    # objective. Requires channel stacks on both sides (n_neighbors>0, stack_target=True) and
+    # a model whose out_channels matches in_channels.
+    if kinematic_gamma > 0:
+        if velax_kms is None:
+            raise ValueError("kinematic_gamma > 0 requires velax_kms (channel velocities, km/s)")
+        v = torch.as_tensor(velax_kms, dtype=torch.float32)
+        criterion = KinematicLoss(alpha=alpha, beta=1.0 - alpha, gamma=kinematic_gamma,
+                                  velax=v).to(device)
+    else:
+        criterion = HybridLoss(alpha=alpha, beta=1.0 - alpha)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode="min", factor=0.5, patience=sched_patience)
@@ -152,7 +168,7 @@ def train_unet(
         for batch in loader:
             d, c, beam = _split_batch(batch, device, use_beam)
             pred, aux = fwd(model, d, beam)
-            total, _, _ = criterion(pred, c)
+            total = criterion(pred, c)[0]     # (total, mse, ssim[, kin])
             # architecture-specific term (the VAE's KL); weight 0 leaves the
             # objective identical to the other architectures'
             if extra is not None and kl_weight:
@@ -217,6 +233,8 @@ def train_unet(
                         # reads it back rather than assuming 1.
                         "n_neighbors": n_neighbors,
                         "in_channels": 2 * int(n_neighbors) + 1,
+                        "out_channels": out_channels,
+                        "kinematic_gamma": kinematic_gamma,
                         "beam_dim": 4 if use_beam else 0,
                         "latent_dim": latent_dim, "kl_weight": kl_weight},
                        ckpt_path)

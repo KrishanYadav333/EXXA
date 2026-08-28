@@ -42,11 +42,13 @@ from src.models.vae import DenoisingVAE
 
 
 def _build_unet(base_channels=32, channel_multipliers=(1, 2, 4), use_beam=False,
-                n_neighbors=0, **_):
+                n_neighbors=0, out_channels=1, **_):
     # n_neighbors > 0 is 2.5D spectral context: the input is the channel plus k neighbours
     # each side along velocity, so in_channels is 2k+1. Must match the dataset's own
     # n_neighbors or the first batch will fail on the channel dimension.
-    return UNet(in_channels=2 * int(n_neighbors) + 1, out_channels=1,
+    # out_channels > 1 is for a velocity-aware objective: a moment-1 penalty needs the model
+    # to predict a line profile, not one slice. Must equal in_channels in that case.
+    return UNet(in_channels=2 * int(n_neighbors) + 1, out_channels=int(out_channels),
                 base_channels=base_channels,
                 channel_multipliers=list(channel_multipliers), time_emb_dim=128,
                 num_res_blocks=2, groups=math.gcd(8, base_channels),
