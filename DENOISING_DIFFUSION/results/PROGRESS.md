@@ -9,6 +9,41 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-08-28 | run | wiggle_all_methods.py confirms the retraction's corrected table
+
+`compare_wiggles()` port of `experiments/wiggle_all_methods.py` (bug fix two entries below)
+finished its first real run, both channel-sampling configs, 173 min total on CPU (the run it
+replaces crashed at 111 min on a wrong key name, `vsys_kms` instead of `vsys`, fixed same
+session).
+
+**240-360 step 1 (121 channels), independent re-fit of the shared geometry (mstar 0.535 vs the
+retraction entry's 0.538, same ballpark, not the same optimiser run):**
+
+| method | resid RMS | raw r | resid r |
+|---|---|---|---|
+| clean | 0.182 | -- | -- |
+| dirty | 0.171 | 0.9928 | 0.8916 |
+| beam-only | 0.169 | 0.9947 | 0.9204 |
+| U-Net | 0.169 | 0.9874 | 0.8051 |
+| DDRM | 0.303 | 0.9527 | 0.5869 |
+
+Matches the RETRACTION entry's corrected table (0.920 / 0.891 / 0.804 / 0.583) to within
+fit noise. **This is now a reproduced result, not a one-off.** Ordering holds: beam-only and
+dirty close together, U-Net worse, DDRM worst by a wide margin.
+
+**240-360 step 4 (31 channels)**: all five methods bunch at 0.987-0.999, which is the
+sampling artifact the script's own docstring warns about, not a real finding -- coarse
+sampling degrades `quadratic_moment1`'s parabola fit for every cube alike, and that shared
+artifact correlates spuriously regardless of what happened upstream. Do not read "the
+methods are indistinguishable" out of this config; step 1 is the one that resolves them.
+
+Figure regenerated at `results/self-gravitating/wiggle_all_methods.png`, overwriting the
+stale pre-fix version. `wiggle_all_methods_step1.npz` regenerated alongside it.
+
+Kaggle GPU version (`09-wiggle-scoring.ipynb`) still worth finishing and running once the
+kinematic-loss checkpoints exist, since a 173-minute CPU turnaround does not scale to
+re-scoring four more gamma arms.
+
 ## 2026-08-28 | code + added | KinematicLoss and notebook 08, aimed at the corrected failure
 
 Direct response to the corrected result two entries below: U-Net degrades the wiggle residual
