@@ -9,6 +9,28 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-08-29 | run + added | notebook 09 on Kaggle GPU: third independent confirmation
+
+`09-wiggle-scoring.ipynb` run on GPU, downloaded with outputs. Pulled commit `9f59221`
+(confirmed from the cell 0/0b log output), the same commit the local CPU rerun below used.
+Dataset resolved correctly at
+`/kaggle/input/datasets/krishanyadav333/kaggle-wiggle-scoring-dataset/`.
+
+**240-360 step 1 (121 channels), 7.4 min on GPU** (vs 140.9 min on CPU for the same config,
+~19x): mstar=0.537, resid r: dirty 0.8907, beam-only 0.9198, U-Net 0.8040, DDRM 0.5835. Step 4
+(31 channels), 1.9 min: same bunching-near-1.0 sampling artifact as every prior run of this
+config, not a real finding.
+
+**Third independent reproduction of the retraction's corrected table**, now across two
+machines and both CPU and GPU: 0.891/0.920/0.804/0.583 (original), 0.892/0.920/0.805/0.587
+(local CPU rerun), 0.891/0.920/0.804/0.584 (this run, rounded). No longer provisional in any
+sense.
+
+**Not yet archived per RULES.md #10** (needs the Kaggle version number, which only the author
+or Kaggle's push commit knows, and this notebook was downloaded manually rather than
+auto-pushed) or added to `RUNS.md`. Root `09-wiggle-scoring.ipynb` committed with its outputs
+intact, matching how 07/08 already carry their own Kaggle-pushed outputs at root.
+
 ## 2026-08-28 | run | wiggle_all_methods.py confirms the retraction's corrected table
 
 `compare_wiggles()` port of `experiments/wiggle_all_methods.py` (bug fix two entries below)
