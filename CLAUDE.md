@@ -65,6 +65,16 @@ The twelve rules, in short — the file has the incident behind each:
   `results/RUNS.md`, including the Kaggle version number — the kernel cannot see it, so it
   has to come from the author.
 
+## Before every git push
+
+- Update `results/PROGRESS.md` with whatever this push contains (RULES.md #11 already
+  requires this the moment a run ends, a notebook lands, or a bug appears).
+- Update `context.md` if the push changes anything it currently claims: the active branch,
+  which notebooks exist, a phase's status, an open item that's now closed. A stale
+  `context.md` reads as current to the next session that loads it.
+- Both are part of the push, not a follow-up. Include them in the same commit or the one
+  right before it, not "later."
+
 ## Repo orientation
 
 - `DENOISING_DIFFUSION/src/` — the library the notebooks import. This *does* hot-reload on
