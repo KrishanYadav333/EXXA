@@ -1,0 +1,56 @@
+=== cell 2 (In [6]) ===
+From https://github.com/KrishanYadav333/EXXA
+ * branch            midterm-prep -> FETCH_HEAD
+   4ee37e9..9f59221  midterm-prep -> origin/midterm-prep
+
+HEAD is now at 9f59221 results: wiggle_all_methods confirms the retracted correction, reproduced
+DATA_DIR: /kaggle/input/datasets/krishanyadav333/kaggle-wiggle-scoring-dataset/kaggle-wiggle-scoring-dataset
+
+
+=== cell 4 (In [7]) ===
+HEAD is now at 9f59221 results: wiggle_all_methods confirms the retracted correction, reproduced
+9f59221 results: wiggle_all_methods confirms the retracted correction, reproduced
+
+
+From https://github.com/KrishanYadav333/EXXA
+ * branch            midterm-prep -> FETCH_HEAD
+
+
+=== cell 6 (In [8]) ===
+device: cuda
+
+
+=== cell 8 (In [9]) ===
+
+=== cell 10 (In [10]) ===
+
+==============================================================================
+CONFIG: channels 240-360 step 1  (121 channels, dv = 0.033 km/s)
+==============================================================================
+  (methods computed in 7.4 min)
+
+  shared model (fit on clean): mstar=0.537 incl=32.8 pa=0.0 vsys=0.083
+
+  method        residRMS    raw r   resid r
+  clean            0.182       --        --
+  dirty            0.170   0.9928    0.8907
+  beam-only        0.168   0.9947    0.9198
+  U-Net            0.169   0.9874    0.8040
+  DDRM             0.302   0.9532    0.5835
+
+  saved -> results/self-gravitating/wiggle_all_methods.png
+
+==============================================================================
+CONFIG: channels 240-360 step 4  (31 channels, dv = 0.133 km/s)
+==============================================================================
+  (methods computed in 1.9 min)
+
+  shared model (fit on clean): mstar=0.550 incl=32.0 pa=178.6 vsys=0.079
+
+  method        residRMS    raw r   resid r
+  clean            1.435       --        --
+  dirty            1.425   0.9939    0.9984
+  beam-only        1.426   0.9945    0.9986
+  U-Net            1.396   0.9880    0.9969
+  DDRM             1.503   0.9567    0.9872
+

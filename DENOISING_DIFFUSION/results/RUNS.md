@@ -499,6 +499,27 @@ and v7 never actually ran — which is why `MOMENT_VER` was added in `ee491fc`.
 
 ---
 
+## 09-wiggle-scoring: GI wiggle, GPU (a DIFFERENT notebook from `09 — Architecture
+comparison` above; root-level, Kaggle-linked, unrelated lineage)
+
+No training. GPU port of `experiments/wiggle_all_methods.py`: dirty / U-Net / DDRM /
+beam-only against clean, scored with the corrected `compare_wiggles()`. Downloaded manually
+rather than auto-pushed through Kaggle's GitHub link, so there is no `push` commit; `code` is
+the commit confirmed pulled from the run's own cell 0/0b log.
+
+| Ver | Date (UTC) | code | push | Outcome | Artifacts |
+|----:|---|---|---|---|---|
+| 1 | 2026-08-29 | `9f59221` | — | complete, both configs, 9.3 min total (19x the 173 min local CPU run): **third independent confirmation of the retraction's corrected table** | [`v1_2026-08-29_7d73e2e/`](09-wiggle-scoring/v1_2026-08-29_7d73e2e/) |
+
+240-360 step 1 (121 channels): resid r dirty 0.891 / beam-only 0.920 / U-Net 0.804 /
+DDRM 0.584, matching the original correction and the local CPU rerun to within fit noise.
+Step 4 (31 channels) bunches all methods near 1.0, a known `quadratic_moment1` coarse-sampling
+artifact, not a real finding. `wiggle_all_methods.png` was regenerated on Kaggle per the run
+log but not downloaded from the Output tab; the version committed at
+`results/self-gravitating/wiggle_all_methods.png` is from the local CPU rerun, not this run.
+
+---
+
 ## The metric changed — which runs are comparable
 
 `bab16d0` added a 3-sigma noise clip before the collapse. It was introduced to fix M2, but

@@ -34,8 +34,8 @@ submitted; final submission window ahead).
   - `07-ddrm-restoration.ipynb`: unconditional diffusion prior + DDRM sampler for the
     self-gravitating pair
   - `08-kinematic-loss.ipynb`: velocity-aware training objective, `kinematic_gamma` sweep
-  - `09-wiggle-scoring.ipynb`: GPU version of `experiments/wiggle_all_methods.py`, not yet
-    run (dataset staged locally, not uploaded)
+  - `09-wiggle-scoring.ipynb`: GPU version of `experiments/wiggle_all_methods.py`, run once
+    (Kaggle Version 1, 2026-08-29, third confirmation of Phase H's corrected table)
 - **RULES.md now exists** (`DENOISING_DIFFUSION/RULES.md`), 12 numbered rules with the
   incident behind each, mandatory reading before touching a notebook. Supersedes the
   hand-written conventions in §6 below where they overlap.
@@ -339,10 +339,14 @@ Success criterion: wiggle residual correlation above the U-Net's 0.805 without l
 M0/PSNR gains `winner_aug` already has.
 
 `09-wiggle-scoring.ipynb` exists to score whatever comes out of that sweep: same comparison as
-`experiments/wiggle_all_methods.py`, on GPU instead of CPU (a local CPU rerun took 173 minutes
-for two configs; DDRM's diffusion sampling is the bottleneck). Needs a new Kaggle Dataset
-(`clean_sg.fits`, `dirty_sg.fits`, `dirty_beam_recovered_v2.fits`, two checkpoints renamed
-`.ckpt` per RULES.md #3), staged locally at upload time, not yet uploaded.
+`experiments/wiggle_all_methods.py`, on GPU instead of CPU. **Run on Kaggle Version 1,
+2026-08-29**: 9.3 minutes total for both configs against 173 minutes on local CPU, a ~19x
+speedup, and a third independent reproduction of Phase H's corrected table (0.891/0.920/0.804/
+0.584, matching to within fit noise). Archived at
+`results/09-wiggle-scoring/v1_2026-08-29_7d73e2e/`. Ready to score the kinematic-loss
+checkpoints once they exist; the Kaggle Dataset it reads from
+(`kaggle-wiggle-scoring-dataset`, on `krishanyadav333`) already has the beam and current
+`winner_aug` checkpoint, just needs the new `.ckpt` files added when the sweep finishes.
 
 ---
 

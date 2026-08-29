@@ -90,7 +90,7 @@ single-channel output throughout, and the wiggle score needs the self-gravitatin
 05 never loads. Scoring stays local (`experiments/wiggle_all_methods.py`).
 
 Verified by extracting and executing the notebook's real cell sources against local data at
-reduced scale (k=3, 64px, 1 epoch) — data shapes match, velocity axis builds correctly from
+reduced scale (k=3, 64px, 1 epoch): data shapes match, velocity axis builds correctly from
 `CDELT3`, both gamma=0 and gamma=1 train and checkpoint. Not real numbers, plumbing only.
 
 **Not yet run on Kaggle GPU.** Success criterion: wiggle residual correlation above the
