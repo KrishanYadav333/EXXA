@@ -1,0 +1,86 @@
+[
+  {
+    "run": "clean_sg.fits",
+    "shape": [
+      601,
+      600,
+      600
+    ],
+    "clean_bunit": "JY/BEAM",
+    "dirty_bunit": "JY/BEAM",
+    "neg_frac": 0.4141464052287582,
+    "lead_pad": 39,
+    "trail_pad": 38,
+    "verdict": "non_gaussian_convolution"
+  },
+  {
+    "run": "run_sg_00019_rt_00019",
+    "shape": [
+      601,
+      600,
+      600
+    ],
+    "clean_bunit": "JY/BEAM",
+    "dirty_bunit": "JY/BEAM",
+    "neg_frac": 0.0,
+    "lead_pad": 39,
+    "trail_pad": 38,
+    "verdict": "no_convolution"
+  },
+  {
+    "run": "run_sg_15_00370_rt_rt00",
+    "shape": [
+      201,
+      301,
+      301
+    ],
+    "clean_bunit": "JY/BEAM",
+    "dirty_bunit": "JY/BEAM",
+    "neg_frac": 0.012784995014771728,
+    "lead_pad": 28,
+    "trail_pad": 0,
+    "verdict": "no_convolution"
+  },
+  {
+    "run": "run_sg_25_00370_rt_00",
+    "shape": [
+      201,
+      301,
+      301
+    ],
+    "clean_bunit": "JY/BEAM",
+    "dirty_bunit": "JY/BEAM",
+    "neg_frac": 0.242033752386839,
+    "lead_pad": 20,
+    "trail_pad": 7,
+    "verdict": "indeterminate"
+  },
+  {
+    "run": "run_sg_32_00020_rt_00.",
+    "shape": [
+      201,
+      301,
+      301
+    ],
+    "clean_bunit": "JY/BEAM",
+    "dirty_bunit": "JY/BEAM",
+    "neg_frac": 0.2642502106304934,
+    "lead_pad": 0,
+    "trail_pad": 38,
+    "verdict": "no_convolution"
+  },
+  {
+    "run": "run_sg_74_00025_rt_00",
+    "shape": [
+      201,
+      301,
+      301
+    ],
+    "clean_bunit": "JY/BEAM",
+    "dirty_bunit": "JY/BEAM",
+    "neg_frac": 0.0,
+    "lead_pad": 0,
+    "trail_pad": 0,
+    "verdict": "no_convolution"
+  }
+]

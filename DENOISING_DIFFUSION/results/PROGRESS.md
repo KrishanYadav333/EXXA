@@ -9,6 +9,89 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-04 | arrival + bug | September SG batch: unusable as training pairs, and it exposed
+a degeneracy in the Keplerian fit
+
+Jason sent more self-gravitating data (Drive, two zips, 3.7 GB) and said using SG data in
+training would be a good idea. Extracted to
+`self-gravitating cube and dirty cube/_v3_extract/`. Five new run folders plus the v2 pair
+re-shipped, and MCFOST `.para` files alongside each, which turned out to matter more than the
+cubes did.
+
+**The pairs cannot train a denoiser as shipped.** Measured clean-vs-dirty difference at the
+brightest channel, against the line-emission training set for scale:
+
+| dataset | rmsdiff / rms_clean |
+|---|---|
+| line-emission training cubes | **0.41 - 0.57** |
+| `run_sg_00019_rt_00019` | **0.0000** |
+| `run_sg_74_00025_rt_00` | 0.0038 |
+| `run_sg_15_00370_rt_rt00` | 0.0113 |
+| `run_sg_32_00020_rt_00.` | 0.0265 |
+| `run_sg_25_00370_rt_00` | 0.0708 |
+
+The training set's dirty cubes differ from clean by ~50%; these differ by 0.4-7%. A network
+trained on the latter learns the identity. `run_sg_00019`'s dirty is its clean: max absolute
+difference 0.03125 against a 1e10 peak, a relative 3e-12, and that 1e10 Jy/beam scale is
+itself wrong (v2's dirty peaks at 0.075). Nor are they a deconvolution task: clean and dirty
+carry identical `BMAJ/BMIN` in every pair, so both sides already share a beam and there is no
+operator between them. Phase 0 agrees (`NO_CONVOLUTION`), though the direct measurement above
+is the evidence -- Phase 0 returned `A=nan`, which is a failed fit, not a verdict (RULES.md #8).
+
+**What the `.para` files gave us is worth more: stated ground truth.** Stellar mass,
+inclination, distance and grid size per run. Two configurations: 0.6 Msun / 30 deg / 140 pc,
+and 1.0 Msun / 20 deg / 175.178 pc. The pixel scale they imply (600 AU over 301 px = 1.993
+AU/px) matches what the code computes from the header, so the physical scale is confirmed
+correct.
+
+**First real validation of `fit_keplerian`, and it failed 3/5.** Until now the diagnostic had
+exactly one check: 0.639 Msun recovered from the v2 cube against Hall+2020's 0.6, and that
+0.6 came from a paper, not the data. Clean cubes, no noise, no beam, no model:
+
+| run | true M | true incl | fitted M | fitted incl |
+|---|---|---|---|---|
+| `run_sg_00019` | 0.6 | 30 | 0.519 (-13%) | 31.8 |
+| `run_sg_15` | 1.0 | 20 | **50.0 (bound)** | 3.3 |
+| `run_sg_25` | 1.0 | 20 | 10.5 (+948%) | 6.8 |
+| `run_sg_32` | 1.0 | 20 | 0.572 (-43%) | 22.6 |
+| `run_sg_74` | 1.0 | 20 | **50.0 (bound)** | 2.2 |
+
+**Cause: mass and inclination are nearly degenerate.** The line-of-sight velocity is
+`sqrt(GM/r) sin(i) cos(theta)`, so the two enter as the single product `sqrt(M) sin(i)`. Only
+the geometric deprojection, which stretches sky coordinates by `1/cos i`, separates them, and
+that is a 6% effect at i = 20 deg against 15% at 30 deg. Hence the one disk at 30 deg
+converging correctly (31.8 fitted against 30 true) while three at 20 deg collapsed toward
+face-on and drove the mass to its bound to compensate.
+
+Holding inclination at its stated value: -5.1% / +47% / +26% / -29% / still-pinned. Four of
+five go from catastrophic to the right order of magnitude. The residual error is plausibly
+physical rather than a bug, since these are *self-gravitating* disks and a point-mass
+Keplerian model is the wrong model for one, but that is not demonstrated.
+
+**Fixed in code.** `fit_keplerian` gains `m0=` (initial geometry from the emission's shape)
+and `fix_incl_deg=` (hold inclination when it is known independently), and now returns
+`mstar_at_bound` so a pinned fit cannot be quoted as a measurement. Case 8 in
+`tests/test_gi_wiggle.py` covers it.
+
+Also fixed a real but, as it turns out, *not causal* bug on the same line: the initial
+geometry came from `disk_geometry_from_m0(np.ones_like(m1), mask)`, i.e. the shape of the
+MASK rather than of the emission, which for a circular mask implies inclination ~0 and starts
+the optimiser at the degenerate end of the valley. Passing the true M0 changed the results
+barely at all (0.519 -> 0.519, 50 -> 50), so the degeneracy, not the initialisation, is what
+breaks these fits. Worth fixing regardless.
+
+**Which published numbers this touches.** The method comparison is safe: `compare_wiggles`
+fits ONE geometry on the clean cube and subtracts that same model from every method, so a
+mis-estimated absolute mass shifts all rows together and the ranking (beam preserves the
+wiggle, U-Net degrades it, DDRM degrades it most) is unaffected. What weakens is the
+standalone claim that recovering 0.639 Msun corroborates the cube's provenance: we now know
+the fit is only trustworthy at favourable inclination, and even at 30 deg it is 5-13% off.
+The v2 cube fitted 27-33 deg, in the favourable regime, so that number is not withdrawn --
+but it should be quoted with the inclination caveat attached.
+
+**`run_sg_74` fails even with inclination fixed** and has by far the smallest mask (2.2% of
+the field, 2034 px) and the largest residual RMS. Separate problem, not yet diagnosed.
+
 ## 2026-08-29 | run + added | notebook 09 on Kaggle GPU: third independent confirmation
 
 `09-wiggle-scoring.ipynb` run on GPU, first downloaded manually with outputs (exec counts

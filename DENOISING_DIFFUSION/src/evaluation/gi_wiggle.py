@@ -83,14 +83,34 @@ def keplerian_los(xy, cx, cy, pa_deg, incl_deg, vsys, mstar, au_per_px, r_min_px
 
 
 def fit_keplerian(m1: np.ndarray, mask: np.ndarray, au_per_px: float,
-                  init: Optional[Dict[str, float]] = None) -> Dict[str, float]:
+                  init: Optional[Dict[str, float]] = None,
+                  m0: Optional[np.ndarray] = None,
+                  fix_incl_deg: Optional[float] = None) -> Dict[str, float]:
     """
     Least-squares Keplerian fit to a moment-1 map, over `mask`.
 
-    Free parameters: centre (cx, cy), position angle, inclination, systemic velocity,
-    stellar mass. `au_per_px` fixes the physical scale (from the header's pixel scale and
-    distance) so `mstar` comes out in solar masses rather than as a degenerate GM/scale
-    product.
+    Free parameters: centre (cx, cy), position angle, systemic velocity, stellar mass, and
+    inclination unless `fix_incl_deg` is given. `au_per_px` fixes the physical scale (from
+    the header's pixel scale and distance) so `mstar` comes out in solar masses rather than
+    as a degenerate GM/scale product.
+
+    **Inclination and mass are very nearly degenerate, and at low inclination the fit cannot
+    separate them.** The line-of-sight velocity is `sqrt(GM/r) sin(i) cos(theta)`, so mass
+    and inclination enter through the single product `sqrt(M) sin(i)`. Only the geometric
+    deprojection (which stretches sky coordinates by `1/cos i`) breaks that, and it is a 6%
+    effect at i = 20 deg. Measured on the September self-gravitating batch, whose `.para`
+    files state the true values: with inclination free, three of five disks at a true 20-30
+    deg collapsed to a fitted 2-7 deg and drove `mstar` to its 50 Msun bound, errors up to
+    +4900%. Holding inclination at its true value brought the same fits to -29%..+47%, and
+    to -5% on the best-conditioned disk.
+
+    So pass `fix_incl_deg` whenever inclination is known independently (a `.para` file,
+    continuum imaging, the literature). Check `mstar_at_bound` in the result before quoting
+    a mass: a fit that pinned is a failure, not a measurement (RULES.md #8).
+
+    `m0` supplies the initial geometry. Without it this falls back to the mask's own shape,
+    which for a roughly circular mask implies inclination ~0 and starts the optimiser at the
+    degenerate end of that valley.
     """
     H, W = m1.shape
     y, x = np.mgrid[0:H, 0:W].astype(np.float64)
@@ -108,29 +128,53 @@ def fit_keplerian(m1: np.ndarray, mask: np.ndarray, au_per_px: float,
     if vs.size < 10:
         raise ValueError(f"only {vs.size} finite M1 pixels in the mask, too few to fit")
 
-    p0 = init or disk_geometry_from_m0(np.ones_like(m1), mask)
-    guess = [p0.get("cx", W / 2), p0.get("cy", H / 2), p0.get("pa_deg", 0.0),
-             p0.get("incl_deg", 45.0), float(np.median(vs)), 1.0]
+    # Initial geometry from the EMISSION's shape when M0 is available. Passing a uniform array
+    # here (which this did until 2026-09-04) measures the shape of the MASK instead, and a
+    # roughly circular mask implies inclination ~0 -- the degenerate end of the mass-inclination
+    # valley, and the worst possible place to start.
+    if init is None:
+        init = disk_geometry_from_m0(m0 if m0 is not None else np.ones_like(m1), mask)
+    p0 = init
+    incl_guess = p0.get("incl_deg", 45.0)
+    if m0 is None and init is None:
+        incl_guess = 45.0        # neutral, rather than the mask-shape ~0
 
-    def resid(p):
-        cx, cy, pa, inc, vsys, mstar = p
-        model = keplerian_los((xs, ys), cx, cy, pa, inc, vsys, mstar, au_per_px)
-        return model - vs
+    MSTAR_MAX = 50.0
 
-    lo = [0, 0, -360, 1, vs.min() - 5, 1e-3]
-    hi = [W, H, 360, 89, vs.max() + 5, 50.0]
-    # Clamp the initial guess into the bounds. disk_geometry_from_m0 on a uniform mask returns
-    # inclination ~0, below the lower bound of 1, and least_squares then raises "x0 is
-    # infeasible" rather than starting from the nearest legal point. Only reachable when no
-    # explicit init is passed, which is why it went unnoticed until compare_wiggles.
-    guess = [min(max(g, l), h) for g, l, h in zip(guess, lo, hi)]
-    fit = least_squares(resid, guess, bounds=(lo, hi), max_nfev=4000)
+    if fix_incl_deg is None:
+        def resid(p):
+            cx, cy, pa, inc, vsys, mstar = p
+            return keplerian_los((xs, ys), cx, cy, pa, inc, vsys, mstar, au_per_px) - vs
 
-    cx, cy, pa, inc, vsys, mstar = fit.x
+        guess = [p0.get("cx", W / 2), p0.get("cy", H / 2), p0.get("pa_deg", 0.0),
+                 incl_guess, float(np.median(vs)), 1.0]
+        lo = [0, 0, -360, 1, vs.min() - 5, 1e-3]
+        hi = [W, H, 360, 89, vs.max() + 5, MSTAR_MAX]
+        guess = [min(max(g, l), h) for g, l, h in zip(guess, lo, hi)]
+        fit = least_squares(resid, guess, bounds=(lo, hi), max_nfev=4000)
+        cx, cy, pa, inc, vsys, mstar = fit.x
+    else:
+        inc = float(fix_incl_deg)
+
+        def resid(p):
+            cx, cy, pa, vsys, mstar = p
+            return keplerian_los((xs, ys), cx, cy, pa, inc, vsys, mstar, au_per_px) - vs
+
+        guess = [p0.get("cx", W / 2), p0.get("cy", H / 2), p0.get("pa_deg", 0.0),
+                 float(np.median(vs)), 1.0]
+        lo = [0, 0, -360, vs.min() - 5, 1e-3]
+        hi = [W, H, 360, vs.max() + 5, MSTAR_MAX]
+        guess = [min(max(g, l), h) for g, l, h in zip(guess, lo, hi)]
+        fit = least_squares(resid, guess, bounds=(lo, hi), max_nfev=4000)
+        cx, cy, pa, vsys, mstar = fit.x
+
     return {"cx": float(cx), "cy": float(cy), "pa_deg": float(pa) % 180.0,
             "incl_deg": float(inc), "vsys": float(vsys), "mstar_msun": float(mstar),
             "au_per_px": au_per_px, "cost": float(fit.cost), "success": bool(fit.success),
-            "n_dropped_nonfinite": n_dropped, "n_fit": int(vs.size)}
+            "n_dropped_nonfinite": n_dropped, "n_fit": int(vs.size),
+            "incl_fixed": fix_incl_deg is not None,
+            # A pinned mass is a failed fit, not a measurement -- check this before quoting it.
+            "mstar_at_bound": bool(mstar > 0.9 * MSTAR_MAX)}
 
 
 def wiggle_residual(m1: np.ndarray, geom: Dict[str, float]) -> np.ndarray:

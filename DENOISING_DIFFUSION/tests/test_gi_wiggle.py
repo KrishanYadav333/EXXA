@@ -162,9 +162,38 @@ check("every method shares the reference's geometry",
 check("a missing reference raises rather than guessing",
       _raises(lambda: compare_wiggles({"a": m1_ref}, mask, AU_PER_PX, reference="clean")))
 
+print("\ncase 8  mass-inclination degeneracy, and what fixing inclination buys")
+# Measured on the September SG batch, whose .para files state the truth: with inclination
+# free, three of five disks at a true 20-30 deg fitted to 2-7 deg and drove mstar to its
+# bound (errors to +4900%). Holding inclination fixed brought them back to the right order.
+_H = _W = 121
+_au = 2.0
+_true = dict(cx=60.0, cy=60.0, pa=0.0, incl=20.0, vsys=0.0, mstar=1.0)
+_y, _x = np.mgrid[0:_H, 0:_W].astype(float)
+_m1 = keplerian_los((_x.ravel(), _y.ravel()), _true["cx"], _true["cy"], _true["pa"],
+                    _true["incl"], _true["vsys"], _true["mstar"], _au).reshape(_H, _W)
+_r = np.hypot(_x - _true["cx"], _y - _true["cy"])
+_mask = (_r > 4) & (_r < 55)
+_m0 = np.where(_mask, 1.0, 0.0)
+
+_fixed = fit_keplerian(_m1, _mask, _au, m0=_m0, fix_incl_deg=_true["incl"])
+check("case8: fixed-inclination fit recovers mstar within 5%",
+      abs(_fixed["mstar_msun"] - _true["mstar"]) / _true["mstar"] < 0.05,
+      f"{_fixed['mstar_msun']:.4f} vs {_true['mstar']}")
+check("case8: the fit reports that inclination was held fixed",
+      _fixed["incl_fixed"] is True and _fixed["incl_deg"] == _true["incl"])
+check("case8: a fixed-inclination fit on clean data does not pin the mass",
+      _fixed["mstar_at_bound"] is False)
+
+_free = fit_keplerian(_m1, _mask, _au, m0=_m0)
+check("case8: mstar_at_bound is always reported so a pinned fit cannot be quoted silently",
+      isinstance(_free["mstar_at_bound"], bool))
+
+
 print("\n" + "-" * 70)
 if failures:
     print(f"{len(failures)} FAILED: {', '.join(failures)}")
     sys.exit(1)
 print("all checks passed")
 sys.exit(0)
+
