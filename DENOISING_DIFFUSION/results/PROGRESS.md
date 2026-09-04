@@ -30,9 +30,24 @@ exactly rather than estimated.
 pretraining would help given only three disks. Recording that it was wrong rather than quietly
 moving on.
 
-**PSNR does not track the science, again.** 30.86 vs 30.02 is nearly a tie across a 10-15 pp
-moment spread, and `finetune` had the BETTER validation loss (0.0027 vs 0.0033) while losing
-M0 and M2. Same pattern as 05 v26's spectral arms.
+**PSNR does not track the science, and with the baseline filled in this is the sharpest case
+yet.** The run printed `nan` for `frozen` (it never goes through `train_unet`, so it has no
+fixed-metric evaluation, and the results cell hardcoded nan -- a gap that put the hole exactly
+where the baseline belongs). Scored afterwards with `val_metrics` itself on the same val split
+(`experiments/frozen_val_metrics.py`; `finetune`/`fresh` reproduce to the digit, which is what
+makes the baseline comparable):
+
+| arm | PSNR | SSIM | MSE |
+|---|---|---|---|
+| `frozen` | 29.032 | 0.97815 | 0.001456 |
+| `finetune` | **30.859** | **0.98343** | **0.000984** |
+| `fresh` | 30.024 | 0.98055 | 0.001303 |
+
+So `finetune` wins **every** pixel metric -- PSNR, SSIM, MSE and validation loss -- and still
+loses M0 and M2 to `fresh`. Previously this pattern was PSNR being insensitive (05 v26's
+spectral arms, the beam arm); here the training objective itself prefers the scientifically
+worse model. And `frozen` is only 1.8 dB off the best arm while being ~60 pp worse on M2.
+Notebook patched so future runs score all three arms instead of printing nan.
 
 **What this does NOT establish.** One holdout cube, three training disks, one seed. V7/V9
 measured M2 swinging +18.4% -> +2.5% on the same cube with no config change, and v25 measured

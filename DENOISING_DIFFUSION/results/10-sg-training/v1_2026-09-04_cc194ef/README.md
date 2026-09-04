@@ -10,11 +10,18 @@ Dataset `exxa-sg-synth-pairs`. Both arms converged and early-stopped, ~18 min ea
 Holdout cube `run_9074_00025_rt_00`, never trained or validated on. Moment improvement over
 the dirty cube, signal-masked at frac=0.05.
 
-| arm | PSNR | SSIM | M0 | M1 | M2 |
-|---|---|---|---|---|---|
-| `frozen` (winner_aug, no training) | -- | -- | -10.3% | -0.6% | **-43.6%** |
-| `finetune` (winner_aug, 0.1x LR) | 30.859 | 0.98343 | -6.5% | **+36.5%** | +15.6% |
-| `fresh` (random init) | 30.024 | 0.98055 | **+5.0%** | +21.8% | **+26.0%** |
+| arm | PSNR | SSIM | MSE | M0 | M1 | M2 |
+|---|---|---|---|---|---|---|
+| `frozen` (winner_aug, no training) | 29.032 | 0.97815 | 0.001456 | -10.3% | -0.6% | **-43.6%** |
+| `finetune` (winner_aug, 0.1x LR) | **30.859** | **0.98343** | **0.000984** | -6.5% | **+36.5%** | +15.6% |
+| `fresh` (random init) | 30.024 | 0.98055 | 0.001303 | **+5.0%** | +21.8% | **+26.0%** |
+
+The run itself printed `nan` for `frozen`'s PSNR/SSIM: it never goes through `train_unet`, so
+it never got that function's fixed-metric evaluation, and the results cell hardcoded nan.
+Filled in afterwards by `experiments/frozen_val_metrics.py`, which calls `val_metrics` itself
+on the same val split rather than reimplementing the metric. `finetune` and `fresh` reproduce
+to the digit there (30.859 / 30.024), which is what makes `frozen`'s 29.032 comparable. The
+notebook has since been patched to score all three arms, so future runs will not print nan.
 
 **Training on SG data works.** `frozen` is negative on all three moments; both trained arms
 are positive on M1 and M2. That is the domain gap closing, measured for the first time with a
@@ -25,10 +32,13 @@ forward operator that is known exactly rather than estimated.
 line-emission pretraining would help given only three training disks. It does not obviously
 help, and on M0 it appears to hurt.
 
-**PSNR does not track the science, again.** 30.86 against 30.02 is nearly a tie while the
-moments differ by 10-15 pp in opposite directions, and `finetune` had the BETTER validation
-loss (0.0027 vs 0.0033) while losing on M0 and M2. Consistent with the spectral-context result
-(05 v26) and with the reason RULES.md #4 exists.
+**PSNR does not track the science, and this is the sharpest case of it in the project.**
+With `frozen`'s baseline filled in, `finetune` wins EVERY pixel metric -- PSNR (+1.83 dB over
+frozen against fresh's +0.99), SSIM, MSE, and validation loss -- and still loses M0 and M2 to
+`fresh`. Previously this pattern showed up as PSNR being merely insensitive (the beam arm, the
+spectral arms in 05 v26). Here the training objective itself prefers the scientifically worse
+model. `frozen` also sits only 1.8 dB below the best arm on PSNR while being ~60 pp worse on
+M2. This is the reason RULES.md #4 exists, stated about as plainly as the data can state it.
 
 ## What this does not establish
 
