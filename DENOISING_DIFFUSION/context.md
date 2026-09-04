@@ -39,6 +39,8 @@ submitted; final submission window ahead).
   - `10-sg-training.ipynb`: frozen vs fine-tuned vs fresh on the synthesized self-gravitating
     pairs. Kaggle Version 1, 2026-09-04: SG training closes the domain gap, `fresh` beats
     `finetune` 2 of 3, but on one holdout cube so directional only
+  - `11-sg-loo.ipynb`: leave-one-out over the five SG disks, to test whether that gap survives
+    a spread across cubes. Verified locally, not yet run on GPU
 - **RULES.md now exists** (`DENOISING_DIFFUSION/RULES.md`), 12 numbered rules with the
   incident behind each, mandatory reading before touching a notebook. Supersedes the
   hand-written conventions in §6 below where they overlap.

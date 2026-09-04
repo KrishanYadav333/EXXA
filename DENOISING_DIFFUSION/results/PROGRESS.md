@@ -9,6 +9,36 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-04 | code + added | notebook 11: leave-one-out, to test whether `fresh > finetune` survives
+
+Notebook 10 V1's headline (`fresh` beating `finetune` on M0 and M2) rests on one holdout cube
+and one seed, which is inside variance this project has already measured twice (V7/V9: M2
++18.4% -> +2.5% on the same cube with no config change; v25: 1.73 dB from an identical-seed
+rerun). Five disks make leave-one-out available.
+
+**5 folds, each 3 train / 1 val / 1 holdout, every cube holding out exactly once.** Training
+seed fixed at 42 across folds, so the only thing varying is the fold: this measures spread
+across CUBES, not seeds, and the notebook says so where it prints the number (RULES.md #6).
+Folds are constructed explicitly rather than by reseeding `split_cubes`, so the assignment is
+auditable instead of being a function of a seed, and each fold asserts no cube appears twice.
+
+Reports `fresh - finetune` per moment against the fold-to-fold spread, compared against the
+full standard deviation rather than the standard error, deliberately: n=5 supports no
+significance claim and the wording must not imply one.
+
+**Recorded before the run:** `run_9032` will produce a strange fold. Its synthesized pair came
+out at rmsdiff 0.107 against the others' 0.46-0.54 and its signal mask covers 98.9% of the
+field. Written down now so it is not explained away afterwards.
+
+Results are written after every fold, so an interrupted session leaves usable partial data
+rather than nothing. ~3 h expected (5 folds x 2 arms x ~18 min), 10 checkpoints at ~112 MB.
+
+**Verified by executing the real cell sources** at reduced scale (64px, 1 epoch, 2 folds, 8
+scoring channels): folds build and pass the leakage assertion, both arms train per fold, all
+three arms score, per-fold persistence and the aggregate both run. **Not yet run for real.**
+The reduced-scale artifacts were deleted rather than left in `results/` -- the same toy files
+were briefly mistaken for results after notebook 10.
+
 ## 2026-09-04 | run | notebook 10 v1: SG training closes the domain gap, and `fresh` beats `finetune`
 
 Kaggle Version 1 (push `cc194ef`), code `be616fd` confirmed from cell 0b. Dataset
