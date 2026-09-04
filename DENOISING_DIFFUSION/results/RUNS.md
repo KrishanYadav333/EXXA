@@ -524,6 +524,33 @@ attribute it to, so only this auto-pushed run is archived.
 
 ---
 
+## 10-sg-training: training on self-gravitating data
+
+First training run on SG data. Uses the pairs synthesized in `experiments/synthesize_sg_pairs.py`,
+not the ones shipped, which differ clean-to-dirty by 0.4-7% RMS and would teach the identity.
+
+| Ver | Date (UTC) | code | push | Outcome | Artifacts |
+|----:|---|---|---|---|---|
+| 1 | 2026-09-04 | `be616fd` | `cc194ef` | complete, 2 arms + frozen baseline, ~18 min each | [`v1_2026-09-04_cc194ef/`](10-sg-training/v1_2026-09-04_cc194ef/) |
+
+Holdout `run_9074`, moment improvement at frac=0.05:
+
+| arm | PSNR | M0 | M1 | M2 |
+|---|---|---|---|---|
+| frozen | -- | -10.3 | -0.6 | -43.6 |
+| finetune | 30.859 | -6.5 | **+36.5** | +15.6 |
+| fresh | 30.024 | **+5.0** | +21.8 | **+26.0** |
+
+**SG training closes the domain gap**: frozen is negative on all three moments, both trained
+arms are positive on M1 and M2. **`fresh` beats `finetune` 2 of 3**, contradicting the
+prediction recorded before the run. But this is ONE holdout cube, three training disks, one
+seed -- inside the variance V7/V9 and v25 already measured -- so it is directional only.
+
+PSNR is nearly tied (30.86 vs 30.02) while the moments differ by 10-15 pp in opposite
+directions, and finetune had the better val loss while losing M0 and M2. RULES.md #4 again.
+
+---
+
 ## The metric changed — which runs are comparable
 
 `bab16d0` added a 3-sigma noise clip before the collapse. It was introduced to fix M2, but

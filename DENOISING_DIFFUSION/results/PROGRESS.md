@@ -9,6 +9,49 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-04 | run | notebook 10 v1: SG training closes the domain gap, and `fresh` beats `finetune`
+
+Kaggle Version 1 (push `cc194ef`), code `be616fd` confirmed from cell 0b. Dataset
+`exxa-sg-synth-pairs`. Both arms converged and early-stopped (32 and 33 epochs, ~18 min each),
+360 train items across 3 disks. Archived at `results/10-sg-training/v1_2026-09-04_cc194ef/`.
+
+| arm | PSNR | SSIM | M0 | M1 | M2 |
+|---|---|---|---|---|---|
+| `frozen` | -- | -- | -10.3% | -0.6% | **-43.6%** |
+| `finetune` | 30.859 | 0.98343 | -6.5% | **+36.5%** | +15.6% |
+| `fresh` | 30.024 | 0.98055 | **+5.0%** | +21.8% | **+26.0%** |
+
+**Training on SG data works.** `frozen` is negative on all three moments; both trained arms
+are positive on M1 and M2. First measurement of that gap closing with a forward operator known
+exactly rather than estimated.
+
+**`fresh` beats `finetune` 2 of 3** (M0 by 11.5 pp, M2 by 10.4 pp; `finetune` takes M1 by
+14.7 pp). **This contradicts the prediction written down before the run**, which was that
+pretraining would help given only three disks. Recording that it was wrong rather than quietly
+moving on.
+
+**PSNR does not track the science, again.** 30.86 vs 30.02 is nearly a tie across a 10-15 pp
+moment spread, and `finetune` had the BETTER validation loss (0.0027 vs 0.0033) while losing
+M0 and M2. Same pattern as 05 v26's spectral arms.
+
+**What this does NOT establish.** One holdout cube, three training disks, one seed. V7/V9
+measured M2 swinging +18.4% -> +2.5% on the same cube with no config change, and v25 measured
+1.73 dB from an identical-seed rerun. A 10-15 pp gap on n=1 is inside that. `fresh > finetune`
+is directional, not a finding. Also `frozen` scores M0 -10.3% here against -86.5% on Jason's
+real pair, so the synthesized corruption is gentler than the real one and this understates the
+true gap. And `run_9032`, one of the three training disks, came out at rmsdiff 0.107 against
+the others' 0.46-0.54, so a third of the training data is easier than intended.
+
+**Cleanup worth recording:** the local `results/checkpoints/sg_*.pth` and
+`results/self-gravitating/sg_training_arms.json` left by the reduced-scale verification run
+(1 epoch, 64px, 12 channels, M0 -111.6%) were deleted. They looked like results and were not,
+which is the RULES.md #7 failure mode in miniature.
+
+**Not yet done:** the real checkpoints are still only in the Kaggle Output and must be pulled
+before the next run wipes them (RULES.md #1, #12), and these arms have not been scored on the
+GI wiggle metric -- the kinematic question is what the SG data exists for, and `finetune`
+winning M1 by 14.7 pp is the hint worth chasing.
+
 ## 2026-09-04 | code + added | notebook 10: frozen vs fine-tuned vs fresh on the synthesized SG pairs
 
 Three arms against one baseline, on the pairs synthesized in the entry below:

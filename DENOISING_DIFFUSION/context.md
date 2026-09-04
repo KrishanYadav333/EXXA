@@ -37,7 +37,8 @@ submitted; final submission window ahead).
   - `09-wiggle-scoring.ipynb`: GPU version of `experiments/wiggle_all_methods.py`, run once
     (Kaggle Version 2, 2026-08-29, third confirmation of Phase H's corrected table)
   - `10-sg-training.ipynb`: frozen vs fine-tuned vs fresh on the synthesized self-gravitating
-    pairs, verified locally at reduced scale, not yet run on GPU
+    pairs. Kaggle Version 1, 2026-09-04: SG training closes the domain gap, `fresh` beats
+    `finetune` 2 of 3, but on one holdout cube so directional only
 - **RULES.md now exists** (`DENOISING_DIFFUSION/RULES.md`), 12 numbered rules with the
   incident behind each, mandatory reading before touching a notebook. Supersedes the
   hand-written conventions in §6 below where they overlap.
@@ -377,8 +378,12 @@ sampling, no phase errors, so CASA simobserve is the natural higher-fidelity fol
 would double as the first real ALMA-validation work.
 
 `10-sg-training.ipynb` runs three arms against that: `frozen` (winner_aug, no training),
-`finetune` (winner_aug, 0.1x LR) and `fresh` (random init). Verified locally at reduced scale.
-**Not yet run on GPU.**
+`finetune` (winner_aug, 0.1x LR) and `fresh` (random init). **Run as Kaggle Version 1 on
+2026-09-04.** `frozen` is negative on all three moments while both trained arms are positive
+on M1 and M2, so SG training does close the gap. `fresh` beat `finetune` on M0 and M2, which
+contradicts the pre-run prediction, but it is one holdout cube and one seed, so directional
+only. PSNR was nearly tied across a 10-15 pp moment spread. Full detail in
+`results/10-sg-training/v1_2026-09-04_cc194ef/`.
 
 ---
 
