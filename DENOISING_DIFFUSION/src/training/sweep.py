@@ -91,6 +91,7 @@ def train_unet(
     num_workers: int = 0,
     seed: int = 42,
     ckpt_path: Optional[str] = None,
+    init_state_dict=None,
     arch: str = "unet",
     latent_dim: int = 128,
     kl_weight: float = 0.0,
@@ -133,6 +134,21 @@ def train_unet(
                       channel_multipliers=channel_multipliers,
                       use_beam=use_beam, n_neighbors=n_neighbors,
                       out_channels=out_channels, latent_dim=latent_dim).to(device)
+
+    # Fine-tuning: start from trained weights instead of random init. Loaded STRICTLY, because
+    # a silent partial load is the same class of bug as `winner_beam` running with a dead
+    # conditioning branch for three days -- it trains, it reports numbers, and the numbers mean
+    # something other than what the arm is called.
+    if init_state_dict is not None:
+        missing, unexpected = net.load_state_dict(init_state_dict, strict=False)
+        if missing or unexpected:
+            raise ValueError(
+                f"init_state_dict does not match this architecture: "
+                f"{len(missing)} missing, {len(unexpected)} unexpected "
+                f"(first missing {missing[:3]}, first unexpected {unexpected[:3]})")
+        if verbose:
+            print(f"  [init] loaded {len(init_state_dict)} tensors as the starting point")
+
     fwd = forward_fn(arch)
     extra = extra_loss_fn(arch)
     model = torch.nn.DataParallel(net) if n_gpu > 1 else net

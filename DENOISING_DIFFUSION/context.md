@@ -2,7 +2,7 @@
 ## Project Context File for Agentic IDE
 
 Local-only tracking doc, tracked in git as of `b6cdd79` (syncing across machines). Last
-updated: 2026-08-28 (week 13-14 of 22; midterm evaluation Aug 10-14 is done, WordPress post
+updated: 2026-09-04 (week 14-15 of 22; midterm evaluation Aug 10-14 is done, WordPress post
 submitted; final submission window ahead).
 
 ---
@@ -36,6 +36,8 @@ submitted; final submission window ahead).
   - `08-kinematic-loss.ipynb`: velocity-aware training objective, `kinematic_gamma` sweep
   - `09-wiggle-scoring.ipynb`: GPU version of `experiments/wiggle_all_methods.py`, run once
     (Kaggle Version 2, 2026-08-29, third confirmation of Phase H's corrected table)
+  - `10-sg-training.ipynb`: frozen vs fine-tuned vs fresh on the synthesized self-gravitating
+    pairs, verified locally at reduced scale, not yet run on GPU
 - **RULES.md now exists** (`DENOISING_DIFFUSION/RULES.md`), 12 numbered rules with the
   incident behind each, mandatory reading before touching a notebook. Supersedes the
   hand-written conventions in §6 below where they overlap.
@@ -348,6 +350,35 @@ at `results/09-wiggle-scoring/v2_2026-08-29_ce1b6ae/`. Ready to score the kinema
 checkpoints once they exist; the Kaggle Dataset it reads from
 (`kaggle-wiggle-scoring-dataset`, on `krishanyadav333`) already has the beam and current
 `winner_aug` checkpoint, just needs the new `.ckpt` files added when the sweep finishes.
+
+### Phase J: Training on self-gravitating data (Week 14-15, in progress)
+
+Jason suggested using the SG data in training. Right in substance, blocked in practice: the
+five pairs he sent on 2026-09-04 differ clean-to-dirty by 0.4-7% RMS where the line-emission
+set differs by ~50%, and one differs by nothing at all, so a network trained on them learns
+the identity. They are not a deconvolution task either -- clean and dirty carry identical
+`BMAJ/BMIN`, so both sides already share a beam.
+
+What the batch does give: five genuinely new self-gravitating disks as clean targets, and
+MCFOST `.para` files stating stellar mass, inclination and distance per run.
+
+**That ground truth produced the first real validation of `fit_keplerian`, which it failed
+3/5.** Mass and inclination are near-degenerate (they enter as the single product
+`sqrt(M) sin(i)`, separable only through a 6%-at-20-deg deprojection term), so disks at a true
+20 deg fitted to 2-7 deg with the mass pinned at its bound. Fixed by adding `fix_incl_deg=`
+and `mstar_at_bound` to the fit; detail in PROGRESS.md 2026-09-04. Does not touch the method
+comparison, which shares one geometry across all methods.
+
+**Trainable pairs were then synthesized here** (`experiments/synthesize_sg_pairs.py`):
+`dirty = beam (*) clean + beam (*) noise`, five disks, four landing in the training set's
+0.41-0.57 difficulty band, identity baseline 12.19 dB. Two normalisation bugs caught doing it,
+both around the recovered beam summing to 355 rather than 1. Not an interferometer: no uv
+sampling, no phase errors, so CASA simobserve is the natural higher-fidelity follow-up and
+would double as the first real ALMA-validation work.
+
+`10-sg-training.ipynb` runs three arms against that: `frozen` (winner_aug, no training),
+`finetune` (winner_aug, 0.1x LR) and `fresh` (random init). Verified locally at reduced scale.
+**Not yet run on GPU.**
 
 ---
 

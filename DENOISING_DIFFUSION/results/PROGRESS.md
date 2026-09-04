@@ -9,6 +9,34 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-04 | code + added | notebook 10: frozen vs fine-tuned vs fresh on the synthesized SG pairs
+
+Three arms against one baseline, on the pairs synthesized in the entry below:
+
+| arm | init | trains on SG | the question it answers |
+|---|---|---|---|
+| `frozen` | `winner_aug` seed 43 | no | how large is the domain gap when the operator is known exactly |
+| `finetune` | `winner_aug` seed 43 | yes | does SG training close it |
+| `fresh` | random | yes | does line-emission pretraining help or hurt |
+
+All three share `winner_aug`'s architecture and optimiser settings, so they differ only in
+initialisation and whether they train. `finetune` runs at 0.1x the learning rate; at the full
+rate the first steps overwrite the pretrained weights and the arm silently becomes an
+expensive `fresh`.
+
+**`train_unet` gained `init_state_dict=`** for this. It loads STRICTLY and raises on any
+missing or unexpected key, because a silent partial load is the `winner_beam` failure again:
+it trains, it reports numbers, and the numbers describe something other than the arm's name.
+
+Scored on the holdout cube only, by moment improvement (RULES.md #4) rather than PSNR alone.
+
+**Verified by executing the notebook's real cell sources** at reduced scale (64px, 1 epoch, 4
+samples/cube, 12 scoring channels): the split is leakage-safe, `init_state_dict` loads its 256
+tensors, both arms train and checkpoint, and the holdout scoring and results table run.
+**Not yet run for real** -- no GPU numbers exist. Needs the `sg_synth` cubes (1.8 GB, of which
+1.4 GB is the single 600x600x512 cube) plus the `winner_aug` checkpoint uploaded as a Kaggle
+Dataset.
+
 ## 2026-09-04 | code | synthesized trainable SG pairs, since the shipped ones cannot train
 
 Jason's suggestion (use SG data in training) is right in substance and blocked in practice:
