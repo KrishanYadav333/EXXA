@@ -9,6 +9,60 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-04 | code | synthesized trainable SG pairs, since the shipped ones cannot train
+
+Jason's suggestion (use SG data in training) is right in substance and blocked in practice:
+the pairs he sent differ clean-to-dirty by 0.4-7% RMS against the training set's ~50%, entry
+below. So the corruption gets applied here instead:
+`dirty = beam (*) clean + beam (*) noise`, using the beam recovered from the v2 pair's
+cross-spectrum. `experiments/synthesize_sg_pairs.py`, output under
+`self-gravitating cube and dirty cube/sg_synth/` (1.8 GB, gitignored), manifest at
+`results/self-gravitating/sg_synth_manifest.json`.
+
+**Two bugs caught while building it, both in the same place: operator normalisation.**
+
+1. The recovered beam **sums to 355**, not 1 -- the Jy/pixel-to-Jy/beam area factor, plus the
+   129 px crop truncating the negative bowl. Convolving with it as-is multiplies the flux
+   scale by 355, and the first run produced `rmsdiff/rms_clean` of ~347 on every cube: a scale
+   factor wearing the costume of a corruption. That is the same signature the v2 pair shows
+   (341), and it would have been actively harmful in training, because
+   `fits_cube_dataset` normalises BOTH cubes by the DIRTY channel's range, so the target would
+   have landed ~355x below the input. That is the Week-5 conditioning bug all over again.
+   Fixed by normalising the beam to unit DC gain.
+2. Convolving white noise with a unit-sum kernel suppresses its variance by a kernel-dependent
+   factor (measured ~0.0384 here), so a sigma chosen before convolution silently tracks the
+   beam normalisation rather than the requested level. Now calibrated after convolution:
+   draw once, measure, rescale.
+
+**Result, against the line-emission training set's 0.41-0.57 band:**
+
+| run | source | channels | rmsdiff/rms_clean |
+|---|---|---|---|
+| `run_9019_00019_rt_00` | `run_sg_00019` | 512 | 0.4725 |
+| `run_9015_00370_rt_00` | `run_sg_15` | 172 | 0.4908 |
+| `run_9025_00370_rt_00` | `run_sg_25` | 172 | 0.5354 |
+| `run_9032_00020_rt_00` | `run_sg_32` | 157 | **0.1065** |
+| `run_9074_00025_rt_00` | `run_sg_74` | 201 | 0.4589 |
+
+Four of five sit in the band. `run_9032` comes out much easier, consistent with it being an
+odd cube generally: lowest in-signal RMS of the five by an order of magnitude, and the one
+whose signal mask covered 98.9% of the field in the validation entry below, i.e. almost no
+dynamic range in M0.
+
+**Verified end to end through the real pipeline** (`experiments/check_sg_synth_pipeline.py`),
+because being able to write FITS is not the same as being trainable: `split_cubes` discovers
+all five with distinct RunIDs and splits them leakage-safely (3 train / 1 val / 1 holdout, no
+cube in both), `FITSChannelDataset` returns matched finite (1, 256, 256) items, and the
+**identity baseline scores 12.19 dB** -- against the U-Net's ~39 dB on line emission. There is
+real signal to recover, which is precisely what the shipped pairs would have failed.
+
+**What this is not.** Convolution plus correlated Gaussian noise is not an interferometer: no
+uv sampling, no phase errors, no deconvolution residuals. It is a controlled approximation,
+and it is exactly the forward model DDRM already assumes -- which is the upside, since `A` is
+now known exactly rather than estimated at 0.80 held-out correlation. CASA `simobserve` on
+these same clean cubes is the higher-fidelity version and remains the natural follow-up, and
+would double as the first real work toward ALMA validation.
+
 ## 2026-09-04 | arrival + bug | September SG batch: unusable as training pairs, and it exposed
 a degeneracy in the Keplerian fit
 
