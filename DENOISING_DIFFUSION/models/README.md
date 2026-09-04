@@ -20,7 +20,9 @@ one path is safe and removing the last one is not.
 models/
   05-unet/    3 models trained inside notebook 05
   06-ddpm/    5 diffusion models from notebook 06
+  07-ddrm/    1 unconditional diffusion prior from notebook 07
   08-seeds/  12 U-Net seed repeats from notebook 08, reused by 05 and the moment tables
+  10-sg/      2 U-Nets trained on self-gravitating data, notebook 10
 ```
 
 All 20 are single-root torch archives, verified. RULES.md #3 exists because a checkpoint
@@ -109,3 +111,27 @@ here named `.ckpt`. Existing datasets: `exxa-nb08-checkpoints-v4`,
 
 Notebook 05's `_import_nb08` and `_import_prior_nb05` accept `.pth`, `.ckpt`, and
 `.pth.tar`, so a restored file does not need renaming back.
+
+## 10-sg — trained on self-gravitating data
+
+Notebook 10 Kaggle Version 1 (push `cc194ef`, code `be616fd`), 2026-09-04. Trained on the
+pairs synthesized in `experiments/synthesize_sg_pairs.py`, NOT on the ones Jason shipped,
+which differ clean-to-dirty by 0.4-7% RMS and would have taught the identity. Run archived at
+[`../results/10-sg-training/v1_2026-09-04_cc194ef/`](../results/10-sg-training/v1_2026-09-04_cc194ef/).
+
+| file | init | best epoch | val loss | PSNR | SSIM | holdout M0 / M1 / M2 |
+|---|---|---|---|---|---|---|
+| `sg_finetune.pth` | `winner_aug_seed43`, 0.1x LR | 24 | 0.002733 | 30.859 | 0.98343 | -6.5 / **+36.5** / +15.6 |
+| `sg_fresh.pth` | random | 25 | 0.003339 | 30.024 | 0.98055 | **+5.0** / +21.8 / **+26.0** |
+
+Both beat the frozen `winner_aug` baseline (-10.3 / -0.6 / -43.6) on M1 and M2, which is the
+domain gap closing. `fresh` beats `finetune` on M0 and M2 despite the WORSE validation loss --
+one more case of pixel metrics not tracking moment reliability. On one holdout cube and one
+seed, so directional only.
+
+Architecture is `winner_aug`'s: `base_channels=48, channel_multipliers=(1,2,4,8)`, `beam_dim=0`.
+Both verified single-root and `strict=True`-loadable against that architecture.
+
+These arrived from the Kaggle Output named `.zip`, because a torch checkpoint IS a zip and the
+browser labelled it accordingly. They were **renamed, not unpacked** -- unpacking gives the
+directory `torch.load` rejects, which is RULES.md #3 in the other direction.
