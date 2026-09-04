@@ -9,6 +9,47 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-04 | run | notebook 10 V4: V1's headline does not reproduce, `fresh` is high-variance
+
+Re-ran 10 at identical settings (same seed, split, data; code `340e26c` vs V1's `be616fd`,
+differing only by the `val_metrics` patch, which does not touch training) specifically to test
+whether V1's `fresh` > `finetune` survived a second draw. Push `ee040ae`, Kaggle Version 4.
+Archived at `results/10-sg-training/v4_2026-09-04_ee040ae/`.
+
+| arm | PSNR V1 -> V4 | M0 | M1 | M2 |
+|---|---|---|---|---|
+| `frozen` | 29.032 -> 29.032 | -10.3 -> -10.3 | -0.6 -> -0.6 | -43.6 -> -43.6 |
+| `finetune` | 30.859 -> 30.874 | -6.5 -> -7.0 | +36.5 -> +36.7 | +15.6 -> +15.3 |
+| `fresh` | 30.024 -> 29.258 | **+5.0 -> -61.1** | +21.8 -> -27.3 | +26.0 -> -42.2 |
+
+**WITHDRAWN: "`fresh` beats `finetune`" (2026-09-04, V1).** It was one draw of an arm that
+moves 66 pp on M0 between identical runs. `fresh` in V4 is worse than the untrained baseline.
+
+**Why this is trustworthy rather than just another noisy number:** `frozen` reproduced
+*exactly* (it is inference only, so it must, and it did) and `finetune` reproduced to within
+0.5 pp on every moment. The setup is not noisy in general; that arm is.
+
+**Cause, and it is a known one.** v25 measured that early stopping on a noisy validation set
+converts run-to-run nondeterminism into large performance swings. The logs show it directly:
+`fresh` early-stopped at epoch 23 with best epoch 15 here, against epoch 33 / best 25 in V1 --
+it stopped ten epochs sooner from a worse point. `finetune` stopped at 32 with best 24 in both
+runs, because starting from trained weights it sits near a good solution and the stopping
+decision is not delicate. Random init on three training disks is.
+
+**What survives.** SG training closing the domain gap: `frozen` negative on all three moments
+in both runs, `finetune` positive on M1 and M2 in both. That is the answer to Jason's
+suggestion and it is now reproduced.
+
+**Consequence for notebook 11.** Its LOO design fixes the seed across folds to isolate CUBE
+variance. For `fresh` that isolates the wrong thing -- a fold-to-fold difference cannot be
+read as a cube effect when the same cube moves 66 pp on its own. LOO stays valid for
+`finetune`; for `fresh` it needs seed repeats per fold, or its per-fold numbers are a lower
+bound on noise rather than a measurement. **This should be settled before 11 is run**, or its
+`fresh` column will not mean what the notebook says it means.
+
+**V4's checkpoints were not downloaded**, so `models/10-sg/` still holds V1's weights, which
+is correct: the V1 archive's numbers were measured from exactly those (RULES.md #12).
+
 ## 2026-09-04 | code + added | notebook 11: leave-one-out, to test whether `fresh > finetune` survives
 
 Notebook 10 V1's headline (`fresh` beating `finetune` on M0 and M2) rests on one holdout cube

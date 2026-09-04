@@ -37,8 +37,10 @@ submitted; final submission window ahead).
   - `09-wiggle-scoring.ipynb`: GPU version of `experiments/wiggle_all_methods.py`, run once
     (Kaggle Version 2, 2026-08-29, third confirmation of Phase H's corrected table)
   - `10-sg-training.ipynb`: frozen vs fine-tuned vs fresh on the synthesized self-gravitating
-    pairs. Kaggle Version 1, 2026-09-04: SG training closes the domain gap, `fresh` beats
-    `finetune` 2 of 3, but on one holdout cube so directional only
+    pairs. Kaggle V1 and V4, 2026-09-04: SG training closes the domain gap (reproduced in
+    both). V1's "`fresh` beats `finetune`" is WITHDRAWN -- V4 at identical settings had
+    `fresh` collapse 66 pp on M0 to below the untrained baseline, while `frozen` reproduced
+    exactly and `finetune` to 0.5 pp. `fresh` is high-variance, per v25's early-stopping finding
   - `11-sg-loo.ipynb`: leave-one-out over the five SG disks, to test whether that gap survives
     a spread across cubes. Verified locally, not yet run on GPU
 - **RULES.md now exists** (`DENOISING_DIFFUSION/RULES.md`), 12 numbered rules with the
@@ -382,10 +384,12 @@ would double as the first real ALMA-validation work.
 `10-sg-training.ipynb` runs three arms against that: `frozen` (winner_aug, no training),
 `finetune` (winner_aug, 0.1x LR) and `fresh` (random init). **Run as Kaggle Version 1 on
 2026-09-04.** `frozen` is negative on all three moments while both trained arms are positive
-on M1 and M2, so SG training does close the gap. `fresh` beat `finetune` on M0 and M2, which
-contradicts the pre-run prediction, but it is one holdout cube and one seed, so directional
-only. PSNR was nearly tied across a 10-15 pp moment spread. Full detail in
-`results/10-sg-training/v1_2026-09-04_cc194ef/`.
+on M1 and M2, so SG training does close the gap. V1 had `fresh` beating `finetune`
+on M0 and M2; **V4 at identical settings withdrew that**, with `fresh` collapsing to -61.1 on
+M0, below the untrained baseline, while `frozen` reproduced exactly and `finetune` to 0.5 pp.
+The variance is in the arm, not the setup: random init on three disks makes the early-stopping
+decision delicate (v25's finding). Full detail in `results/10-sg-training/v1_.../` and
+`v4_.../`.
 
 ---
 

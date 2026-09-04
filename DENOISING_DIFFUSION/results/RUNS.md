@@ -532,19 +532,27 @@ not the ones shipped, which differ clean-to-dirty by 0.4-7% RMS and would teach 
 | Ver | Date (UTC) | code | push | Outcome | Artifacts |
 |----:|---|---|---|---|---|
 | 1 | 2026-09-04 | `be616fd` | `cc194ef` | complete, 2 arms + frozen baseline, ~18 min each | [`v1_2026-09-04_cc194ef/`](10-sg-training/v1_2026-09-04_cc194ef/) |
+| **4** | 2026-09-04 | `340e26c` | `ee040ae` | complete, identical settings. **`fresh` collapsed; V1's headline does not reproduce** | [`v4_2026-09-04_ee040ae/`](10-sg-training/v4_2026-09-04_ee040ae/) |
 
 Holdout `run_9074`, moment improvement at frac=0.05:
 
-| arm | PSNR | M0 | M1 | M2 |
+| arm | PSNR (V1 / V4) | M0 | M1 | M2 |
 |---|---|---|---|---|
-| frozen | -- | -10.3 | -0.6 | -43.6 |
-| finetune | 30.859 | -6.5 | **+36.5** | +15.6 |
-| fresh | 30.024 | **+5.0** | +21.8 | **+26.0** |
+| frozen | 29.032 / 29.032 | -10.3 / -10.3 | -0.6 / -0.6 | -43.6 / -43.6 |
+| finetune | 30.859 / 30.874 | -6.5 / -7.0 | **+36.5 / +36.7** | +15.6 / +15.3 |
+| fresh | 30.024 / 29.258 | **+5.0 / -61.1** | +21.8 / -27.3 | +26.0 / -42.2 |
 
-**SG training closes the domain gap**: frozen is negative on all three moments, both trained
-arms are positive on M1 and M2. **`fresh` beats `finetune` 2 of 3**, contradicting the
-prediction recorded before the run. But this is ONE holdout cube, three training disks, one
-seed -- inside the variance V7/V9 and v25 already measured -- so it is directional only.
+**SG training closes the domain gap**, and that part holds across both runs: `frozen` is
+negative on all three moments while `finetune` is positive on M1 and M2 in V1 and V4 alike.
+
+**`fresh` beats `finetune` is WITHDRAWN.** V4 re-ran identical settings and `fresh` collapsed
+from +5.0 / +21.8 / +26.0 to **-61.1 / -27.3 / -42.2**, worse than the untrained baseline.
+`frozen` reproduced exactly and `finetune` to within 0.5 pp in the same run, so the 66 pp
+swing belongs to that arm, not the setup. V1's headline was one draw of a high-variance arm.
+
+Cause is v25's finding recurring: early stopping on a noisy val set turns run-to-run
+nondeterminism into large swings. `fresh` stopped at epoch 23 (best 15) in V4 against epoch 33
+(best 25) in V1; `finetune` stopped at 32 (best 24) both times, being already near a solution.
 
 PSNR is nearly tied (30.86 vs 30.02) while the moments differ by 10-15 pp in opposite
 directions, and finetune had the better val loss while losing M0 and M2. RULES.md #4 again.

@@ -1,0 +1,133 @@
+=== cell 2 (In [1]) ===
+Cloning into '/kaggle/working/EXXA'...
+Updating files: 100% (5440/5440), done.
+
+DATA_DIR:    /kaggle/input/datasets/krishanyadav333/exxa-sg-synth-pairs/kaggle-sg-training-dataset
+WINNER_CKPT: /kaggle/input/datasets/krishanyadav333/exxa-sg-synth-pairs/kaggle-sg-training-dataset/winner_aug_seed43.ckpt
+
+
+=== cell 4 (In [2]) ===
+From https://github.com/KrishanYadav333/EXXA
+ * branch            midterm-prep -> FETCH_HEAD
+
+HEAD is now at 340e26c chore: clear stale outputs from notebook 10 before it is re-imported
+340e26c chore: clear stale outputs from notebook 10 before it is re-imported
+
+
+
+=== cell 6 (In [3]) ===
+cuda | target 256px | 120 samples/cube
+
+
+=== cell 8 (In [4]) ===
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/exxa-sg-synth-pairs/kaggle-sg-training-dataset
+  total cubes       : 5  across 5 distinct RunIDs
+  seed=42  n_holdout=1  val_fraction=0.25
+----------------------------------------------------------------------
+  TRAIN   :  3 cubes | RunIDs ['9015', '9019', '9032']
+  VAL     :  1 cubes | RunIDs ['9025']
+  HOLDOUT :  1 cubes | RunIDs ['9074']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_9074_00025_rt_00
+======================================================================
+train 360 items / 3 cubes | val 120 / 1 | holdout 1
+item: dirty (1, 256, 256) clean (1, 256, 256)
+identity baseline MSE on train: 0.01423
+
+
+=== cell 10 (In [5]) ===
+winner_aug: epoch 46, val_loss 0.000914, base 48, mults [1, 2, 4, 8]
+
+
+=== cell 12 (In [6]) ===
+
+======================================================================
+finetune  (lr 8.20e-05, init winner_aug)
+======================================================================
+  [init] loaded 256 tensors as the starting point
+  ep   1 | train 0.0033 | val 0.0036 | lr 8.2e-05 (31s) *best
+  ep   2 | train 0.0028 | val 0.0035 | lr 8.2e-05 (29s) *best
+  ep   3 | train 0.0024 | val 0.0032 | lr 8.2e-05 (30s) *best
+  ep   4 | train 0.0023 | val 0.0032 | lr 8.2e-05 (32s) *best
+  ep   5 | train 0.0023 | val 0.0034 | lr 8.2e-05 (34s)
+  ep   6 | train 0.0024 | val 0.0033 | lr 8.2e-05 (34s)
+  ep   7 | train 0.0022 | val 0.0032 | lr 8.2e-05 (33s)
+  ep   8 | train 0.0021 | val 0.0032 | lr 8.2e-05 (34s)
+  ep   9 | train 0.0021 | val 0.0030 | lr 8.2e-05 (33s) *best
+  ep  10 | train 0.0020 | val 0.0038 | lr 8.2e-05 (34s)
+  ep  11 | train 0.0023 | val 0.0033 | lr 8.2e-05 (34s)
+  ep  12 | train 0.0021 | val 0.0035 | lr 8.2e-05 (34s)
+  ep  13 | train 0.0020 | val 0.0030 | lr 8.2e-05 (34s)
+  ep  14 | train 0.0019 | val 0.0033 | lr 8.2e-05 (34s)
+  ep  15 | train 0.0020 | val 0.0032 | lr 8.2e-05 (34s)
+  ep  16 | train 0.0021 | val 0.0031 | lr 8.2e-05 (34s)
+  ep  17 | train 0.0019 | val 0.0029 | lr 8.2e-05 (34s) *best
+  ep  18 | train 0.0018 | val 0.0030 | lr 8.2e-05 (34s)
+  ep  19 | train 0.0019 | val 0.0028 | lr 8.2e-05 (34s) *best
+  ep  20 | train 0.0018 | val 0.0029 | lr 8.2e-05 (34s)
+  ep  21 | train 0.0018 | val 0.0031 | lr 8.2e-05 (34s)
+  ep  22 | train 0.0018 | val 0.0037 | lr 8.2e-05 (34s)
+  ep  23 | train 0.0018 | val 0.0029 | lr 8.2e-05 (34s)
+  ep  24 | train 0.0017 | val 0.0027 | lr 8.2e-05 (34s) *best
+  ep  25 | train 0.0017 | val 0.0029 | lr 8.2e-05 (34s)
+  ep  26 | train 0.0016 | val 0.0028 | lr 8.2e-05 (34s)
+  ep  27 | train 0.0017 | val 0.0032 | lr 8.2e-05 (34s)
+  ep  28 | train 0.0017 | val 0.0029 | lr 8.2e-05 (34s)
+  ep  29 | train 0.0019 | val 0.0031 | lr 8.2e-05 (34s)
+  ep  30 | train 0.0017 | val 0.0030 | lr 8.2e-05 (34s)
+  ep  31 | train 0.0016 | val 0.0031 | lr 8.2e-05 (34s)
+  ep  32 | train 0.0016 | val 0.0029 | lr 8.2e-05 (34s)
+  early stop at epoch 32 (no improvement for 8 epochs)
+  finetune: PSNR 30.874 dB, SSIM 0.98353, best epoch 24, 17.9 min
+
+======================================================================
+fresh  (lr 8.20e-04, init random)
+======================================================================
+  ep   1 | train 0.0464 | val 0.0102 | lr 8.2e-04 (34s) *best
+  ep   2 | train 0.0136 | val 0.0083 | lr 8.2e-04 (34s) *best
+  ep   3 | train 0.0122 | val 0.0152 | lr 8.2e-04 (34s)
+  ep   4 | train 0.0117 | val 0.0066 | lr 8.2e-04 (34s) *best
+  ep   5 | train 0.0078 | val 0.0060 | lr 8.2e-04 (34s) *best
+  ep   6 | train 0.0068 | val 0.0059 | lr 8.2e-04 (34s) *best
+  ep   7 | train 0.0055 | val 0.0068 | lr 8.2e-04 (34s)
+  ep   8 | train 0.0046 | val 0.0045 | lr 8.2e-04 (34s) *best
+  ep   9 | train 0.0051 | val 0.0066 | lr 8.2e-04 (34s)
+  ep  10 | train 0.0045 | val 0.0050 | lr 8.2e-04 (34s)
+  ep  11 | train 0.0041 | val 0.0044 | lr 8.2e-04 (34s) *best
+  ep  12 | train 0.0038 | val 0.0045 | lr 8.2e-04 (34s)
+  ep  13 | train 0.0038 | val 0.0053 | lr 8.2e-04 (34s)
+  ep  14 | train 0.0035 | val 0.0040 | lr 8.2e-04 (34s) *best
+  ep  15 | train 0.0028 | val 0.0038 | lr 8.2e-04 (34s) *best
+  ep  16 | train 0.0030 | val 0.0043 | lr 8.2e-04 (34s)
+  ep  17 | train 0.0035 | val 0.0051 | lr 8.2e-04 (34s)
+  ep  18 | train 0.0035 | val 0.0039 | lr 8.2e-04 (34s)
+  ep  19 | train 0.0035 | val 0.0041 | lr 8.2e-04 (34s)
+  ep  20 | train 0.0032 | val 0.0043 | lr 8.2e-04 (34s)
+  ep  21 | train 0.0031 | val 0.0043 | lr 8.2e-04 (34s)
+  ep  22 | train 0.0030 | val 0.0041 | lr 8.2e-04 (34s)
+  ep  23 | train 0.0027 | val 0.0040 | lr 8.2e-04 (34s)
+  early stop at epoch 23 (no improvement for 8 epochs)
+  fresh: PSNR 29.258 dB, SSIM 0.97922, best epoch 15, 13.1 min
+
+
+=== cell 14 (In [7]) ===
+holdout: run_9074_00025_rt_00
+  cube (201, 301, 301), dv 0.1000 km/s
+  frozen    M0   -10.3%  M1    -0.6%  M2   -43.6%   (0.2 min)
+  finetune  M0    -7.0%  M1   +36.7%  M2   +15.3%   (0.2 min)
+  fresh     M0   -61.1%  M1   -27.3%  M2   -42.2%   (0.2 min)
+
+
+=== cell 16 (In [8]) ===
+arm            PSNR      SSIM        M0        M1        M2
+frozen       29.032   0.97815     -10.3      -0.6     -43.6
+finetune     30.874   0.98353      -7.0     +36.7     +15.3
+fresh        29.258   0.97922     -61.1     -27.3     -42.2
+
+saved -> results/self-gravitating/sg_training_arms.json
+checkpoints in ../results/checkpoints -- download these, they are not in the notebook Output by default
+
