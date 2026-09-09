@@ -9,6 +9,39 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-10 | finding | SG training improves the moments and degrades the wiggle, on the one disk checked
+
+Notebook 10's headline was scored on M0/M1/M2 amplitude. That is not the same question as
+whether the kinematic signature (the Keplerian-subtracted residual) comes back, which is the
+actual reason the SG thread exists. Scored it directly: `experiments/score_sg_wiggle.py`,
+holdout `run_9074`, one shared geometry fit on clean with inclination FIXED at 20 deg (this
+disk's stated `.para` truth), avoiding the mass-inclination degeneracy from the 2026-09-04
+entry rather than re-triggering it.
+
+| method | resid RMS | raw r | resid r |
+|---|---|---|---|
+| clean (ref) | 2.341 | -- | -- |
+| dirty | 2.746 | 0.267 | 0.594 |
+| frozen | 3.461 | 0.209 | 0.487 |
+| finetune | 3.569 | 0.183 | 0.459 |
+| fresh | 3.627 | 0.143 | 0.424 |
+
+**Doing nothing beats every trained model, and it degrades monotonically with how much the
+model diverges from untouched: dirty > frozen > finetune > fresh.** The same shape as the
+original line-emission-cube finding (RETRACTION entry, 2026-08-28): denoising improves pixel
+moments and damages the kinematic diagnostic underneath them. Notebook 10's positive M1/M2
+numbers do not mean the wiggle came back; on this disk it got worse the more the model was
+trained.
+
+**Not yet a claim, a data point.** n=1 holdout, and the baseline wiggle signal here is weak to
+start: raw dirty-vs-clean r is only 0.267, against >0.9 on the disks used for the earlier line-
+emission wiggle work. `run_9074` also has the smallest signal mask of the five disks (2.2% of
+field, 2034 px), consistent with it being generally low-SNR. Could be a genuinely weak-signal
+draw rather than a universal result. Needs scoring on at least one more disk with a stronger
+baseline wiggle before this is reportable as more than "measured once, this is what it showed."
+
+---
+
 ## 2026-09-10 | run | notebook 11 v2: leave-one-out, nothing is separable, but `frozen`'s spread isolates cube variance cleanly
 
 5 folds, every cube holding out exactly once, seed fixed at 42. 128 min total. Version number
