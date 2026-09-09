@@ -135,3 +135,26 @@ Both verified single-root and `strict=True`-loadable against that architecture.
 These arrived from the Kaggle Output named `.zip`, because a torch checkpoint IS a zip and the
 browser labelled it accordingly. They were **renamed, not unpacked** -- unpacking gives the
 directory `torch.load` rejects, which is RULES.md #3 in the other direction.
+
+## 11-loo — leave-one-out over the five SG disks
+
+Notebook 11 Kaggle Version 2 (author-reported, no push commit to verify against), 2026-09-10.
+10 checkpoints: 5 folds x 2 arms (`finetune` from `winner_aug`, `fresh` random init), each
+fold holding out one disk entirely. Run archived at
+[`../results/11-sg-loo/v2_2026-09-10_b7b140d/`](../results/11-sg-loo/v2_2026-09-10_b7b140d/).
+
+| fold | holdout | finetune epoch/val_loss | fresh epoch/val_loss |
+|---|---|---|---|
+| 0 | run_9015 | 1 / 0.000956 | 26 / 0.004635 |
+| 1 | run_9019 | 24 / 0.002818 | 26 / 0.003176 |
+| 2 | run_9025 | 2 / 0.005938 | 12 / 0.007684 |
+| 3 | run_9032 | 2 / 0.003101 | 24 / 0.003302 |
+| 4 | run_9074 | 7 / 0.002585 | 9 / 0.004713 |
+
+All 10 verified single-root, uncorrupted, and strict-`load_state_dict`-compatible against
+`winner_aug`'s architecture; every checkpoint's stored epoch matches the run log's printed
+best epoch exactly. Arrived from the Kaggle Output named `.zip` (a torch checkpoint is a zip;
+the browser labelled it as such), renamed not unpacked, per RULES.md #3.
+
+Notebook 10's `sg_finetune.pth` / `sg_fresh.pth` (V1) are a DIFFERENT run, single holdout
+(`run_9074`) rather than leave-one-out, and are not superseded by these -- both are kept.
