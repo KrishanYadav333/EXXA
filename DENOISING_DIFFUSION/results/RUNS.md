@@ -559,6 +559,34 @@ directions, and finetune had the better val loss while losing M0 and M2. RULES.m
 
 ---
 
+## 11-sg-loo: leave-one-out over the five SG disks
+
+| Ver | Date (UTC) | code | push | Outcome | Artifacts |
+|----:|---|---|---|---|---|
+| 2 (author-reported, no push commit to verify against) | 2026-09-10 | `b7b140d` | -- | complete, 5 folds x 2 arms, 128 min, checkpoints NOT downloaded | [`v2_2026-09-10_b7b140d/`](11-sg-loo/v2_2026-09-10_b7b140d/) |
+
+Seed fixed at 42 across folds, every cube holds out exactly once.
+
+| arm | PSNR mean +/- std | M0 mean +/- std | M1 mean +/- std | M2 mean +/- std |
+|---|---|---|---|---|
+| frozen | 29.53 +/- 2.98 | -13.93 +/- 56.28 | -52.70 +/- 129.56 | -52.91 +/- 41.98 |
+| finetune | 30.88 +/- 3.03 | -11.84 +/- 39.27 | -6.30 +/- 50.18 | -11.64 +/- 26.42 |
+| fresh | 28.27 +/- 1.36 | -46.55 +/- 136.27 | -66.56 +/- 160.08 | -83.89 +/- 109.02 |
+
+**`fresh - finetune` is smaller than the fold-to-fold spread on all three moments** (M0
+-34.7+/-104.4 pp, M1 -60.3+/-111.1 pp, M2 -72.3+/-86.6 pp). Not separable at n=5.
+
+**Fold 3 (`run_9032` as holdout) is catastrophic for every arm**, predicted in the notebook
+before the run from that cube's own diagnostics (rmsdiff 0.107 vs the others' 0.46-0.54).
+
+**`frozen`'s spread is the only clean cube-variance measurement** -- it never trains. Against
+it, `finetune` has lower std on M0/M2 and the best mean on all three moments: "more stable and
+not worse," not "better." Design caveat: seed was fixed to isolate cube variance, but notebook
+10 V1 vs V4 showed `fresh` alone can move 66 pp between identical runs on ONE cube, so `fresh`'s
+column here mixes cube and training variance.
+
+---
+
 ## The metric changed — which runs are comparable
 
 `bab16d0` added a 3-sigma noise clip before the collapse. It was introduced to fix M2, but

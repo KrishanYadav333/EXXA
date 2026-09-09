@@ -9,6 +9,48 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-10 | run | notebook 11 v2: leave-one-out, nothing is separable, but `frozen`'s spread isolates cube variance cleanly
+
+5 folds, every cube holding out exactly once, seed fixed at 42. 128 min total. Version number
+is author-reported (no push commit exists to verify it, unlike 10's V4); code `b7b140d`
+confirmed from cell 0b's own log. Checkpoints NOT downloaded -- `loo*_*.pth` (10 files) still
+only on Kaggle. Archived at `results/11-sg-loo/v2_2026-09-10_b7b140d/`.
+
+| fold | holdout | frozen M0/M1/M2 | finetune M0/M1/M2 | fresh M0/M1/M2 |
+|---|---|---|---|---|
+| 0 | run_9015 | +23.6/-0.6/-22.3 | +35.0/+26.3/+9.3 | +37.4/+17.9/+7.4 |
+| 1 | run_9019 | +23.8/+9.7/-76.3 | -24.1/-7.5/-44.0 | -6.3/-20.7/-139.7 |
+| 2 | run_9025 | +4.6/+12.3/-9.5 | +13.2/+22.3/+7.1 | +14.2/+19.2/+7.7 |
+| 3 | run_9032 | -111.3/-284.2/-112.8 | -68.2/-92.8/-36.9 | -288.7/-351.5/-246.5 |
+| 4 | run_9074 | -10.3/-0.6/-43.6 | -15.1/+20.3/+6.2 | +10.7/+2.2/-48.4 |
+
+**The notebook's own printed verdict: `fresh - finetune` is smaller than the fold-to-fold
+spread on all three moments** (M0 -34.7+/-104.4pp, M1 -60.3+/-111.1pp, M2 -72.3+/-86.6pp).
+Nothing separable at n=5, exactly what was expected going in.
+
+**Fold 3 (`run_9032`) is catastrophic for every arm, `frozen` included.** Predicted in the
+notebook before this run, from that cube's own diagnostics (rmsdiff 0.107 vs the others'
+0.46-0.54, mask covering 98.9% of the field). Recorded in advance, not explained after.
+
+**The one clean read: `frozen`'s fold-to-fold spread is pure cube variance**, since it never
+trains (PSNR std 2.98, M0 std 56.3, M2 std 42.0). Against that baseline, `finetune` has LOWER
+std on M0 and M2 and the best mean on all three moments -- "more stable and not worse," which
+is a real, if modest, finding. "Finetune is better" is still not supported; the spreads remain
+too large.
+
+**Confirms the design caveat flagged before this ran.** Seed was fixed across folds to
+isolate cube variance (RULES.md #6), but notebook 10 V1-vs-V4 showed `fresh` alone can move
+66pp between IDENTICAL runs on ONE cube. So `fresh`'s per-fold numbers here mix cube variance
+with that arm's own training noise, and cannot be read as a pure cube effect the way
+`frozen`'s can. `finetune`'s spread is more trustworthy as a cube measurement, since notebook
+10's logs showed its early-stopping point barely moved between V1 and V4 (epoch 32/24 both
+times) where `fresh`'s did not (epoch 33/25 vs 23/15).
+
+**Not yet done:** seed repeats per fold, which would actually separate cube variance from
+training variance instead of confounding them for two of three arms. Checkpoints need pulling.
+
+---
+
 ## 2026-09-04 | run | notebook 10 V4: V1's headline does not reproduce, `fresh` is high-variance
 
 Re-ran 10 at identical settings (same seed, split, data; code `340e26c` vs V1's `be616fd`,

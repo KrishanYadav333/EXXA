@@ -1,0 +1,124 @@
+=== cell 2 (In [1]) ===
+Cloning into '/kaggle/working/EXXA'...
+Updating files: 100% (5440/5440), done.
+
+DATA_DIR:    /kaggle/input/datasets/krishanyadav333/exxa-sg-synth-pairs/kaggle-sg-training-dataset
+WINNER_CKPT: /kaggle/input/datasets/krishanyadav333/exxa-sg-synth-pairs/kaggle-sg-training-dataset/winner_aug_seed43.ckpt
+
+
+=== cell 4 (In [2]) ===
+From https://github.com/KrishanYadav333/EXXA
+ * branch            midterm-prep -> FETCH_HEAD
+
+HEAD is now at b7b140d feat: notebook 11, leave-one-out over the five SG disks
+b7b140d feat: notebook 11, leave-one-out over the five SG disks
+
+
+
+=== cell 6 (In [3]) ===
+cuda | seed 42 fixed across folds
+
+
+=== cell 8 (In [4]) ===
+fold 0: holdout run_9015_00370_rt_00     val run_9019_00019_rt_00     train ['9025', '9032', '9074']
+fold 1: holdout run_9019_00019_rt_00     val run_9025_00370_rt_00     train ['9015', '9032', '9074']
+fold 2: holdout run_9025_00370_rt_00     val run_9032_00020_rt_00     train ['9015', '9019', '9074']
+fold 3: holdout run_9032_00020_rt_00     val run_9074_00025_rt_00     train ['9015', '9019', '9025']
+fold 4: holdout run_9074_00025_rt_00     val run_9015_00370_rt_00     train ['9019', '9025', '9032']
+
+no cube appears in two roles in any fold
+
+
+=== cell 10 (In [5]) ===
+winner_aug: epoch 46, val_loss 0.000914
+
+
+=== cell 12 (In [6]) ===
+
+=== cell 14 (In [7]) ===
+
+######################################################################
+# FOLD 0  holdout=run_9015_00370_rt_00
+######################################################################
+  train 360 / 3 cubes | val 120
+  finetune  PSNR 35.991 best_ep  1 (5.5 min)
+  fresh     PSNR 27.687 best_ep 26 (18.7 min)
+    frozen    PSNR  34.558  M0   +23.6  M1    -0.6  M2   -22.3
+    finetune  PSNR  35.991  M0   +35.0  M1   +26.3  M2    +9.3
+    fresh     PSNR  27.687  M0   +37.4  M1   +17.9  M2    +7.4
+  [saved 1/5 folds, 25 min elapsed]
+
+######################################################################
+# FOLD 1  holdout=run_9019_00019_rt_00
+######################################################################
+  train 360 / 3 cubes | val 120
+  finetune  PSNR 30.638 best_ep 24 (17.7 min)
+  fresh     PSNR 30.281 best_ep 26 (19.0 min)
+    frozen    PSNR  29.032  M0   +23.8  M1    +9.7  M2   -76.3
+    finetune  PSNR  30.638  M0   -24.1  M1    -7.5  M2   -44.0
+    fresh     PSNR  30.281  M0    -6.3  M1   -20.7  M2  -139.7
+  [saved 2/5 folds, 66 min elapsed]
+
+######################################################################
+# FOLD 2  holdout=run_9025_00370_rt_00
+######################################################################
+  train 360 / 3 cubes | val 120
+  finetune  PSNR 28.034 best_ep  2 (5.6 min)
+  fresh     PSNR 26.981 best_ep 12 (11.3 min)
+    frozen    PSNR  26.623  M0    +4.6  M1   +12.3  M2    -9.5
+    finetune  PSNR  28.034  M0   +13.2  M1   +22.3  M2    +7.1
+    fresh     PSNR  26.981  M0   +14.2  M1   +19.2  M2    +7.7
+  [saved 3/5 folds, 84 min elapsed]
+
+######################################################################
+# FOLD 3  holdout=run_9032_00020_rt_00
+######################################################################
+  train 360 / 3 cubes | val 120
+  finetune  PSNR 29.410 best_ep  2 (5.7 min)
+  fresh     PSNR 29.036 best_ep 24 (18.2 min)
+    frozen    PSNR  29.141  M0  -111.3  M1  -284.2  M2  -112.8
+    finetune  PSNR  29.410  M0   -68.2  M1   -92.8  M2   -36.9
+    fresh     PSNR  29.036  M0  -288.7  M1  -351.5  M2  -246.5
+  [saved 4/5 folds, 109 min elapsed]
+
+######################################################################
+# FOLD 4  holdout=run_9074_00025_rt_00
+######################################################################
+  train 360 / 3 cubes | val 120
+  finetune  PSNR 30.316 best_ep  7 (8.6 min)
+  fresh     PSNR 27.380 best_ep  9 (9.8 min)
+    frozen    PSNR  28.311  M0   -10.3  M1    -0.6  M2   -43.6
+    finetune  PSNR  30.316  M0   -15.1  M1   +20.3  M2    +6.2
+    fresh     PSNR  27.380  M0   +10.7  M1    +2.2  M2   -48.4
+  [saved 5/5 folds, 128 min elapsed]
+
+
+=== cell 16 (In [8]) ===
+per fold:
+
+fold holdout                                  frozen               finetune                  fresh
+                                   M0     M1      M2      M0     M1      M2      M0     M1      M2
+   0 run_9015_00370_rt_00        23.6   -0.6   -22.3    35.0   26.3     9.3    37.4   17.9     7.4
+   1 run_9019_00019_rt_00        23.8    9.7   -76.3   -24.1   -7.5   -44.0    -6.3  -20.7  -139.7
+   2 run_9025_00370_rt_00         4.6   12.3    -9.5    13.2   22.3     7.1    14.2   19.2     7.7
+   3 run_9032_00020_rt_00      -111.3 -284.2  -112.8   -68.2  -92.8   -36.9  -288.7 -351.5  -246.5
+   4 run_9074_00025_rt_00       -10.3   -0.6   -43.6   -15.1   20.3     6.2    10.7    2.2   -48.4
+
+mean +/- std across folds (spread is ACROSS CUBES, not seeds -- RULES.md #6):
+
+arm                    PSNR               M0               M1               M2
+frozen         29.53 +/- 2.98    -13.93 +/-56.28    -52.70 +/-129.56    -52.91 +/-41.98
+finetune       30.88 +/- 3.03    -11.84 +/-39.27     -6.30 +/-50.18    -11.64 +/-26.42
+fresh          28.27 +/- 1.36    -46.55 +/-136.27    -66.56 +/-160.08    -83.89 +/-109.02
+
+fresh minus finetune, per moment:
+  M0:  -34.71 +/- 104.38 pp, fresh wins 4/5 folds
+      smaller than the fold-to-fold spread, so not separable here
+  M1:  -60.26 +/- 111.05 pp, fresh wins 0/5 folds
+      smaller than the fold-to-fold spread, so not separable here
+  M2:  -72.25 +/- 86.59 pp, fresh wins 1/5 folds
+      smaller than the fold-to-fold spread, so not separable here
+
+saved -> ../results/self-gravitating/sg_loo_results.json
+checkpoints: ../results/checkpoints/loo*_*.pth  (10 files, ~112 MB each)
+
