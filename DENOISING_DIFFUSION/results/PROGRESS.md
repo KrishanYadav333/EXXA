@@ -9,6 +9,41 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-11 | run | frac sweep on `wiggle_all_methods.py`'s own comparison, confirms 0.05
+
+Before trusting the frac=0.05 fix on this specific comparison (it had only been checked on
+the SG holdout cube's mask sensitivity, not this line-emission-vs-SG cube one), swept it here
+too, reusing the M1 maps cached in `experiments/wiggle_all_methods_step1.npz` (2026-08-28's
+original-correction run) rather than re-denoising -- same trick as the earlier sweep, minutes
+not hours.
+
+| frac | mask% | dirty | beam-only | U-Net | DDRM | mstar |
+|---|---|---|---|---|---|---|
+| 0.02 (old) | 39.3% | 0.892 | 0.920 | 0.805 | 0.587 | 0.535 |
+| 0.03 | 28.6% | 0.979 | 0.984 | 0.966 | 0.892 | **1.587** |
+| **0.05 (new)** | 16.0% | 0.862 | 0.888 | 0.760 | 0.571 | 0.643 |
+| 0.08 | 6.9% | 0.997 | 0.997 | 0.995 | 0.983 | 0.524 |
+| 0.10 | 4.4% | 0.997 | 0.997 | 0.995 | 0.982 | 0.552 |
+| 0.15 | 0.9% | 0.993 | 0.994 | 0.989 | 0.962 | **50.0 DEGEN** |
+| 0.20 | 0.4% | 0.990 | 0.990 | 0.983 | 0.940 | **50.0 DEGEN** |
+
+**Same three-zone shape as the SG mask-sensitivity sweep**, on independent data: loose (0.02)
+pulls in a halo, 0.05 sits in the zone where the four methods actually separate, past ~0.08
+the comparison flattens toward 1.0 (only the bright core survives, uninformative), past ~0.15
+the fit degenerates.
+
+**Caught one thing this sweep specifically exposed: `frac=0.03` is a bad fit, not a data
+point.** `mstar` jumps to 1.587 there against 0.535 and 0.643 on either side, and every
+correlation spikes with it -- the least-squares geometry fit landing on a different local
+optimum at that mask size, not a real trend. Flagging it so it never gets read as a stronger
+result than 0.05.
+
+**Confirms 0.05 as the right choice for this comparison specifically**, not just inherited
+from the SG holdout check. This is what the queued Kaggle rerun of `09-wiggle-scoring.ipynb`
+will produce; the "third confirmation" table stays provisional until that actually lands.
+
+---
+
 ## 2026-09-11 | bug | the "third confirmation" wiggle table was still on the flagged frac=0.02
 
 The masking fix (Jason's flag, 0.02 -> 0.05, PROGRESS.md 2026-09-04) reached the SG training
