@@ -22,10 +22,11 @@ models/
   06-ddpm/       5 diffusion models from notebook 06
   07-ddrm/       1 unconditional diffusion prior from notebook 07
   08-seeds/     12 U-Net seed repeats from notebook 08, reused by 05 and the moment tables
-  08-kinematic/  3 U-Nets, kinematic_gamma sweep on line emission, notebook 08
+  08-kinematic/  4 U-Nets, kinematic_gamma sweep on line emission, notebook 08
   10-sg/         2 U-Nets trained on self-gravitating data, notebook 10
   11-loo/       10 U-Nets, leave-one-out over the five SG disks, notebook 11
   12-spectral/   4 U-Nets, spectral-context sweep on SG training, notebook 12
+  best_models/   3 hardlinks, the project's current finalized picks, one per role
 ```
 
 All 40 are single-root torch archives, verified. RULES.md #3 exists because a checkpoint
