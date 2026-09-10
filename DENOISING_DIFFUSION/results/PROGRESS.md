@@ -9,6 +9,60 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-11 | run | rendering audit: the smoothness is in the M1 pixels, the renderer is exonerated
+
+Before running any more checkpoints, settled whether the smooth look in the published M1
+panels is in the arrays or in the mask/contour rendering. Logically the audit could only ever
+change a presentation question -- mask, moment estimator and rendering are applied identically
+to every panel, so they cancel in a between-method comparison and cannot manufacture the
+dirty-0.862-vs-U-Net-0.760 gap, which is computed on raw arrays before any renderer runs.
+`clean` is the control: if clean stays sharp through the same estimator, mask and rendering
+while the U-Net goes smooth, the renderer is not the cause.
+
+**First, a grep that shortcuts most of the question:** `wiggle_all_methods.py`,
+`wiggle_patch_unet.py` and `wiggle_domain_split.py` contain **no `gaussian_filter` and no
+`contour` call at all**. Every published panel is a raw `imshow` of the raw M1 with NaN
+outside the mask. The contour-smoothing code in `moment_maps.py:435` is in a different
+function that none of these scripts call. Contouring was never in the path.
+
+`experiments/m1_rendering_audit.py`, plot-independent sharpness on the raw M1 arrays:
+
+| cube | gradE (masked) | gradE (all px) | lapvar (frame) | hf>1/10 | hf>1/5 |
+|---|---|---|---|---|---|
+| clean | **4.994e-03** | 1.073e-03 | 7.569e-03 | 0.0308 | 0.0182 |
+| dirty | **3.029e-03** | 1.447e-03 | 4.807e-03 | 0.0292 | 0.0172 |
+| winner_aug (resize) | **1.928e-03** | 1.488e-03 | 5.324e-03 | 0.0289 | 0.0172 |
+
+**Verdict: the masked gradient energy is decisive and the renderer is cleared.** Inside the
+mask the U-Net's M1 carries 0.386 of clean's gradient energy against dirty's 0.607 -- a real,
+large, monotonic difference in the RAW arrays with no mask or contour involved in the metric.
+The ordering clean > dirty > U-Net matches both the visual impression and the resid_r ordering
+(1.0 > 0.862 > 0.760) exactly.
+
+**Honest note on the other three metrics: they are uninformative here, and should not be
+quoted as if they corroborate.**
+- `gradE (all px)` and `lapvar` are computed outside the mask as well, where M1 is fitted to
+  noise and has no physical content. Both dirty and the U-Net exceed clean there simply
+  because both carry noise where clean has none. The pre-registered mask-artifact trigger was
+  "masked and all-pixel disagree for the U-Net ONLY"; they disagree for dirty (1.348) and the
+  U-Net (1.386) almost equally, so the trigger does not fire and there is no mask artifact --
+  but the column establishes that, not the main claim.
+- The `hf` spectral fractions land within 0.0289-0.0308 for all three cubes. The mask-zeroing
+  injects a hard edge whose broadband power dominates the FFT, and the mask is shared, so the
+  ratio is set by the mask edge rather than by the disk. A null from a metric that turned out
+  to be measuring the wrong thing, not evidence of similarity.
+
+The 4x3 rendering matrix (`m1_rendering_audit.png`) shows the same ordering under imshow
+no-mask, imshow masked (the published path), contourf-24 no-mask and contourf-24 masked. The
+unmasked imshow column is the clearest: clean is visibly mottled with spiral texture, dirty
+intermediate, the U-Net a smooth dipole with almost no texture. `_60lev.png` confirms level
+quantization at 60 levels does not recover structure in the U-Net panel.
+
+**Consequence: every published M1 figure stands as-is.** No reissue needed. The smoothness
+readers see is a property of the model output, which is what those figures were drawn to show.
+
+---
+
 ## 2026-09-11 | run | spectral context does NOT transfer to the SG v2 cube -- every trained checkpoint lands ~0.10 below dirty
 
 Ran `kin_gamma0` (notebook 08's 31-channel stack, the only checkpoint with a large measured
