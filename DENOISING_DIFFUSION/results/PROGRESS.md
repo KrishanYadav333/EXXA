@@ -9,6 +9,55 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-11 | run | resolution-vs-loss split test: the objective is 6x the resolution term, native-res retrain is NOT the fix
+
+Cheap decisive test, minutes of CPU, no training. Ran the CLEAN SG cube through the exact
+training-target path (bilinear 600->256->600, per channel, what `FITSChannelDataset` does to
+every clean target) and scored it against untouched clean with the usual shared geometry
+(fit on clean, mstar=0.643, `at_bound=False`), frac=0.05, channels 240-360 step 1.
+
+| signal | residRMS | resid r |
+|---|---|---|
+| clean (reference) | 0.233 | -- |
+| clean@256 (the training-target path) | 0.228 | **0.9714** |
+| dirty | 0.213 | 0.8620 |
+| dirty@256 | 0.213 | 0.8617 |
+| U-Net patch (native-res inference) | 0.211 | 0.7853 |
+| U-Net resize (existing path) | 0.218 | 0.7603 |
+
+**Decomposition of the model deficit:**
+
+| term | cost in resid_r |
+|---|---|
+| resolution ceiling (clean -> clean@256) | 0.029 |
+| loss / learning (clean@256 -> U-Net patch) | **0.186** |
+| inference resize (patch -> resize) | 0.025 |
+
+**The objective term is about 6x the resolution term.** A native-resolution retrain, the
+GPU-weeks option that has been deferred twice, can recover at most 0.029 of resid_r on this
+diagnostic. That is not where the deficit lives. The network is realizing only 0.785 of the
+0.9714 its own 256px training targets already permitted, so the ceiling was never the data.
+
+**Correction to this morning's entry ("resize round trip quantified: 89.6% of real structure
+lost").** That measurement stands and is not withdrawn: a pure 600->256->600 round trip does
+keep only 10.4% of the clean channel's Laplacian-variance sharpness. But that entry let a
+pixel-scale SHARPNESS metric imply the resize was also the dominant cause of the WIGGLE
+deficit, and it is not. `dirty@256` scores 0.8617 against `dirty`'s 0.8620 -- the resize is
+worth 0.0003 on the wiggle. The GI wiggle evidently lives at a spatial scale coarser than the
+~2.3px Nyquist cutoff a 2.34x downsample imposes, so it survives almost intact. Two different
+questions with two different answers: **the resize costs visual sharpness, the objective costs
+the wiggle.** Both matter, they need different fixes, and they should never again be quoted as
+one problem.
+
+**What this redirects.** Objective/architecture changes, not resolution, are where the GPU
+time belongs -- which is exactly the direction notebook 12's spectral context (k=3, 0.681 vs
+dirty's 0.594) and notebook 08's `kin_gamma0` (0.8155 mean vs dirty's 0.4284, in-domain) have
+independently been pointing all along. Those two results and this test now agree.
+
+Patch inference stays worth keeping (0.025, free, no retraining), it is just a small term, not
+the lever.
+
+
 ## 2026-09-11 | run | `wiggle_patch_unet.py`: native-resolution patch inference, tested against the resize baseline
 
 Direct test of the resize-vs-quality hypothesis from earlier today, on `winner_aug_seed43`
@@ -89,6 +138,12 @@ effect flagged earlier, which only ever acts on an already-blurred 256px image -
 cannot recover detail that resize already discarded before inference began. Downsampling
 600->256 is a 2.34x reduction, which by Nyquist removes everything finer than ~2.3px, and
 that is exactly the scale spiral-wiggle substructure lives at in these disks.
+
+**SCOPE CORRECTION (same day, see the split-test entry above):** this 89.6% figure is a
+pixel-scale SHARPNESS measurement and stands as such, but it does NOT explain the wiggle
+deficit. `dirty@256` scores resid_r 0.8617 against `dirty`'s 0.8620, so the resize is worth
+0.0003 on the wiggle diagnostic. The wiggle lives at a coarser scale than the ~2.3px cutoff.
+Read this entry as "resize costs visual sharpness", never as "resize costs the wiggle".
 
 **Bigger implication: this is not only an inference-time artifact.** Every training pipeline
 in this project (`FITSChannelDataset`, `target_size=256` default) resizes both dirty AND
