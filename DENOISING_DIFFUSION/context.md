@@ -359,12 +359,17 @@ trains `winner_aug` at `out_channels=31` (k=15 neighbours, sized to the line's ~
 FWHM) sweeping `kinematic_gamma` over 0/0.1/1/10, gamma=0 a fresh control at the same
 architecture so a result can't confound the loss change with the channel-count change.
 All four `kinematic_gamma` checkpoints (0/0.1/1/10) trained and stored (`models/08-kinematic/`).
-`experiments/score_08_kinematic.py` is scoring all four on moments AND the wiggle across the
-5 line-emission holdout cubes, local CPU, started 2026-09-11, 4/5 cubes complete as of this
-writing. Not yet run on Kaggle GPU, and figures (`figures_08_kinematic.py`) are queued to run
-once the sweep finishes. Success criterion: wiggle residual correlation above the U-Net's
-0.760 (the frac=0.05 corrected number, see below) without losing the M0/PSNR gains
-`winner_aug` already has.
+`experiments/score_08_kinematic.py` scored all four on moments AND the wiggle across the 5
+line-emission holdout cubes, local CPU, 282 min, complete 2026-09-11. **gamma=0 and gamma=0.1
+both crush dirty on the wiggle (0.8155 and 0.8242 mean resid_r vs dirty's own 0.4284), but are
+statistically indistinguishable from each other** -- the real lever is the 31-channel
+spectral-context stack itself (`n_neighbors=15`), not the kinematic loss term, which is a
+second independent confirmation of notebook 12's spectral-context finding on completely
+different data (line emission here, self-gravitating there). gamma=1/10 collapse hard
+(resid_r 0.23 / 0.37), consistent with their exploding training val_loss. Success criterion
+(wiggle above the U-Net's 0.760) is met, but by the architecture change, not the loss term the
+notebook was built to test. Figures (`figures_08_kinematic.py`) run immediately after. Not
+yet run on Kaggle GPU.
 
 `09-wiggle-scoring.ipynb` exists to score whatever comes out of that sweep: same comparison as
 `experiments/wiggle_all_methods.py`, on GPU instead of CPU. Kaggle Version 2 (2026-08-29,
