@@ -1,6 +1,6 @@
 # Local checkpoint store
 
-Every trained model this project has produced, one copy each, 20 files. Gitignored
+Every trained model this project has produced, one copy each, 36 files. Gitignored
 (`*.pth` is ignored repo-wide) and never committed, so this is the only place they exist
 outside Kaggle.
 
@@ -18,14 +18,16 @@ one path is safe and removing the last one is not.
 
 ```
 models/
-  05-unet/    3 models trained inside notebook 05
-  06-ddpm/    5 diffusion models from notebook 06
-  07-ddrm/    1 unconditional diffusion prior from notebook 07
-  08-seeds/  12 U-Net seed repeats from notebook 08, reused by 05 and the moment tables
-  10-sg/      2 U-Nets trained on self-gravitating data, notebook 10
+  05-unet/       3 models trained inside notebook 05
+  06-ddpm/       5 diffusion models from notebook 06
+  07-ddrm/       1 unconditional diffusion prior from notebook 07
+  08-seeds/     12 U-Net seed repeats from notebook 08, reused by 05 and the moment tables
+  10-sg/         2 U-Nets trained on self-gravitating data, notebook 10
+  11-loo/       10 U-Nets, leave-one-out over the five SG disks, notebook 11
+  12-spectral/   3 U-Nets, spectral-context sweep on SG training, notebook 12
 ```
 
-All 20 are single-root torch archives, verified. RULES.md #3 exists because a checkpoint
+All 36 are single-root torch archives, verified. RULES.md #3 exists because a checkpoint
 that loses its single top-level directory stops loading, so that property is the thing
 worth re-checking after any move:
 
@@ -158,3 +160,25 @@ the browser labelled it as such), renamed not unpacked, per RULES.md #3.
 
 Notebook 10's `sg_finetune.pth` / `sg_fresh.pth` (V1) are a DIFFERENT run, single holdout
 (`run_9074`) rather than leave-one-out, and are not superseded by these -- both are kept.
+
+## 12-spectral — spectral context on SG training
+
+Notebook 12, run 2026-09-11 (code `07f047f`, no push commit, downloaded manually). Three
+`fresh` (random-init) arms, `n_neighbors=k`, differing only in `in_channels` (2k+1). Same
+split as notebook 10: train `{9015, 9019, 9032}`, val `9025`, holdout `9074`. Run archived at
+`../results/PROGRESS.md` 2026-09-11 (no dedicated results/12-*/ folder yet, see open item).
+
+| k | in_channels | epoch | val_loss | PSNR | holdout M0/M1/M2 | wiggle resid_r |
+|---|---|---|---|---|---|---|
+| 0 (control) | 1 | 46 | 0.003133 | 30.053 | -26.5 / +4.2 / -44.4 | 0.366 |
+| 1 | 3 | 33 | 0.002004 | 32.828 | +29.2 / +31.0 / +62.5 | **0.590** |
+| 2 | 5 | 29 | 0.001779 | 33.576 | **+61.4 / +31.4 / +67.6** | 0.506 |
+
+`k=1`'s wiggle score is within 0.004 of dirty's own 0.594 on this holdout, effectively
+matching doing nothing on the kinematic diagnostic while posting the largest moment gains in
+the SG thread. `k=2` has the best moments but a lower wiggle than `k=1`, not monotonic. A
+`k=3` run is queued to check whether `k=1` is a real peak or n=1 noise.
+
+All three verified single-root, strict-`load_state_dict`-compatible at their respective
+`in_channels`, epochs matching the run log exactly. Arrived as `.zip` (a torch checkpoint is
+one), renamed not unpacked, RULES.md #3.
