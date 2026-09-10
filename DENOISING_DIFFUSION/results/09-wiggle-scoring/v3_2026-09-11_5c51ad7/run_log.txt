@@ -1,0 +1,46 @@
+=== bootstrap ===
+Cloning into '/kaggle/working/EXXA'...
+Updating files: 100% (5458/5458), done.
+
+DATA_DIR: /kaggle/input/datasets/krishanyadav333/kaggle-wiggle-scoring-dataset/kaggle-wiggle-scoring-dataset
+
+=== cell 0b (pull latest code) ===
+From https://github.com/KrishanYadav333/EXXA
+ * branch            midterm-prep -> FETCH_HEAD
+
+HEAD is now at 5c51ad7 results: frac sweep confirms 0.05 on wiggle_all_methods' own comparison
+5c51ad7 results: frac sweep confirms 0.05 on wiggle_all_methods' own comparison
+
+=== cell (imports/paths) ===
+device: cuda
+
+=== cell (scoring, both configs) ===
+==============================================================================
+CONFIG: channels 240-360 step 1  (121 channels, dv = 0.033 km/s)
+==============================================================================
+  (methods computed in 7.4 min)
+
+  shared model (fit on clean): mstar=0.644 incl=27.4 pa=0.4 vsys=0.111
+
+  method        residRMS    raw r   resid r
+  clean            0.233       --        --
+  dirty            0.213   0.9892    0.8619
+  beam-only        0.211   0.9912    0.8878
+  U-Net            0.219   0.9821    0.7601
+  DDRM             0.392   0.9471    0.5681
+
+  saved -> results/self-gravitating/wiggle_all_methods.png
+
+==============================================================================
+CONFIG: channels 240-360 step 4  (31 channels, dv = 0.133 km/s)
+==============================================================================
+  (methods computed in 1.9 min)
+
+  shared model (fit on clean): mstar=0.728 incl=25.2 pa=0.4 vsys=0.115
+
+  method        residRMS    raw r   resid r
+  clean            0.244       --        --
+  dirty            0.227   0.9909    0.8733
+  beam-only        0.224   0.9916    0.8824
+  U-Net            0.241   0.9839    0.7635
+  DDRM             0.407   0.9527    0.6296

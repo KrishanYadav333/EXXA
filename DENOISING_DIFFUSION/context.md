@@ -34,8 +34,12 @@ submitted; final submission window ahead).
   - `07-ddrm-restoration.ipynb`: unconditional diffusion prior + DDRM sampler for the
     self-gravitating pair
   - `08-kinematic-loss.ipynb`: velocity-aware training objective, `kinematic_gamma` sweep
-  - `09-wiggle-scoring.ipynb`: GPU version of `experiments/wiggle_all_methods.py`, run once
-    (Kaggle Version 2, 2026-08-29, third confirmation of Phase H's corrected table)
+  - `09-wiggle-scoring.ipynb`: GPU version of `experiments/wiggle_all_methods.py`. Kaggle
+    Version 2 (2026-08-29) confirmed Phase H's corrected table, but at the flagged
+    `frac=0.02`, not the `frac=0.05` fix. Version 3 (2026-09-11) reran at frac=0.05, matches
+    the same-day local CPU sweep to 3 decimal places -- the frac=0.05 table is no longer
+    provisional. V3 also surfaced a resize-induced smoothing artifact in U-Net/DDRM
+    inference (600x600 cube resized to 256 and back), logged in PROGRESS.md, not yet fixed
   - `10-sg-training.ipynb`: frozen vs fine-tuned vs fresh on the synthesized self-gravitating
     pairs. Kaggle V1 and V4, 2026-09-04: SG training closes the domain gap (reproduced in
     both). V1's "`fresh` beats `finetune`" is WITHDRAWN -- V4 at identical settings had
@@ -354,20 +358,30 @@ prediction and target in a loss, unlike in a standalone diagnostic). `08-kinemat
 trains `winner_aug` at `out_channels=31` (k=15 neighbours, sized to the line's ~37-channel
 FWHM) sweeping `kinematic_gamma` over 0/0.1/1/10, gamma=0 a fresh control at the same
 architecture so a result can't confound the loss change with the channel-count change.
-**Verified locally at reduced scale only; not yet run on Kaggle GPU, no real numbers exist.**
-Success criterion: wiggle residual correlation above the U-Net's 0.805 without losing the
-M0/PSNR gains `winner_aug` already has.
+All four `kinematic_gamma` checkpoints (0/0.1/1/10) trained and stored (`models/08-kinematic/`).
+`experiments/score_08_kinematic.py` is scoring all four on moments AND the wiggle across the
+5 line-emission holdout cubes, local CPU, started 2026-09-11, 4/5 cubes complete as of this
+writing. Not yet run on Kaggle GPU, and figures (`figures_08_kinematic.py`) are queued to run
+once the sweep finishes. Success criterion: wiggle residual correlation above the U-Net's
+0.760 (the frac=0.05 corrected number, see below) without losing the M0/PSNR gains
+`winner_aug` already has.
 
 `09-wiggle-scoring.ipynb` exists to score whatever comes out of that sweep: same comparison as
-`experiments/wiggle_all_methods.py`, on GPU instead of CPU. **Run on Kaggle Version 2,
-2026-08-29** (auto-pushed as `ce1b6ae`, the number this project trusts per RULES.md over an
-earlier uncommitted interactive run that gave the same numbers): 9.0 minutes total for both
-configs against 173 minutes on local CPU, a ~19x speedup, and a third independent reproduction
-of Phase H's corrected table (0.891/0.920/0.804/0.583, matching to within fit noise). Archived
-at `results/09-wiggle-scoring/v2_2026-08-29_ce1b6ae/`. Ready to score the kinematic-loss
-checkpoints once they exist; the Kaggle Dataset it reads from
-(`kaggle-wiggle-scoring-dataset`, on `krishanyadav333`) already has the beam and current
-`winner_aug` checkpoint, just needs the new `.ckpt` files added when the sweep finishes.
+`experiments/wiggle_all_methods.py`, on GPU instead of CPU. Kaggle Version 2 (2026-08-29,
+`ce1b6ae`) reproduced Phase H's corrected table a third time, but at `frac=0.02`, the mask
+width Jason flagged as too loose -- caught 2026-09-10 by auditing every scoring script's
+actual `frac` value rather than assuming the project-wide 0.02->0.05 fix had propagated
+(`613aa0e`). **Version 3 (2026-09-11, `5c51ad7`, downloaded manually, no push commit)** reran
+at the corrected `frac=0.05`: dirty 0.862 / beam-only 0.888 / U-Net 0.760 / DDRM 0.568,
+mstar=0.644, matching the same-day local CPU frac sweep to 3 decimal places. The frac=0.05
+table is no longer provisional. V3's own `wiggle_all_methods.png` also surfaced a second
+smoothing source: U-Net/DDRM inference resizes the native 600x600 cube down to 256 for the
+network and back up, a lossy round trip dirty/beam-only never go through -- logged in
+PROGRESS.md 2026-09-11, not yet fixed, patch-based inference at native resolution agreed as
+the next step. Archived at `results/09-wiggle-scoring/v3_2026-09-11_5c51ad7/`. Ready to score
+the kinematic-loss checkpoints once `score_08_kinematic.py` finishes; the Kaggle Dataset it
+reads from (`kaggle-wiggle-scoring-dataset`, on `krishanyadav333`) already has the beam and
+current `winner_aug` checkpoint, just needs the new `.ckpt` files added when the sweep ends.
 
 ### Phase J: Training on self-gravitating data (Week 14-15, in progress)
 

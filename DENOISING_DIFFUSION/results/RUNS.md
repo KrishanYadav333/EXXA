@@ -510,6 +510,7 @@ the commit confirmed pulled from the run's own cell 0/0b log.
 | Ver | Date (UTC) | code | push | Outcome | Artifacts |
 |----:|---|---|---|---|---|
 | 2 | 2026-08-29 | `7d73e2e` | `ce1b6ae` | complete, both configs, 9.0 min total (19x the 173 min local CPU run): **third independent confirmation of the retraction's corrected table** | [`v2_2026-08-29_ce1b6ae/`](09-wiggle-scoring/v2_2026-08-29_ce1b6ae/) |
+| 3 | 2026-09-11 | `5c51ad7` | -- (downloaded manually, no push commit yet) | complete, both configs, 9.3 min total: **first GPU confirmation at the corrected frac=0.05**, matches the local CPU frac sweep to 3 decimal places | [`v3_2026-09-11_5c51ad7/`](09-wiggle-scoring/v3_2026-09-11_5c51ad7/) |
 
 240-360 step 1 (121 channels): resid r dirty 0.891 / beam-only 0.920 / U-Net 0.804 /
 DDRM 0.583, matching the original correction and the local CPU rerun to within fit noise.
@@ -517,6 +518,15 @@ Step 4 (31 channels) bunches all methods near 1.0, a known `quadratic_moment1` c
 artifact, not a real finding. `wiggle_all_methods.png` was regenerated on Kaggle per the run
 log but not downloaded from the Output tab; the version committed at
 `results/self-gravitating/wiggle_all_methods.png` is from the local CPU rerun, not this run.
+
+**Version 3** reran at the corrected `frac=0.05` after `613aa0e` found v2's table had been
+computed at the flagged `frac=0.02`. Result: dirty 0.862 / beam-only 0.888 / U-Net 0.760 /
+DDRM 0.568, mstar=0.644 (not degenerate). Matches the same-day local CPU sweep at frac=0.05
+(dirty 0.862 / beam-only 0.888 / U-Net 0.760 / DDRM 0.571 / mstar=0.643) to within fit noise
+-- independent code path (GPU vs CPU), independent cube read. The frac=0.05 table is no
+longer provisional. This run's own `wiggle_all_methods.png` also surfaced a second smoothing
+source in U-Net/DDRM inference (a 600x600->256->600 resize round trip); see PROGRESS.md
+2026-09-11.
 
 An earlier interactive run on the same kernel, downloaded manually rather than committed, gave
 the same numbers (0.5835 vs this run's 0.5833 on DDRM) but has no Kaggle version number to
