@@ -9,6 +9,41 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-11 | bug | resize round trip quantified: 89.6% of real structure lost, not the network's fault primarily
+
+Follow-up to the 600->256->600 resize finding logged earlier today. That entry named the
+resize as a second smoothing source alongside the known MSE regression-to-mean effect, but
+did not separate how much each actually contributes. Isolated it directly: took the `clean`
+channel (300) from `kinematic_data_v2`, noise-free, so any loss measured is genuine structure,
+not noise being smoothed away, and ran it through a PURE bilinear 600->256->600 round trip
+with NO network involved at all. Sharpness measured as Laplacian variance (`scipy.ndimage.
+laplace`, standard no-reference high-frequency-content metric), cropped to the disk region
+(the full 600x600 frame is mostly empty background and swamps the metric otherwise).
+
+    clean, native 600x600:                 baseline
+    clean, after resize round-trip only:   10.4% of native sharpness
+
+**89.6% of the clean image's own real structure is destroyed by resize alone, zero network,
+zero noise.** This is the dominant smoothing source, larger than the MSE regression-to-mean
+effect flagged earlier, which only ever acts on an already-blurred 256px image -- the network
+cannot recover detail that resize already discarded before inference began. Downsampling
+600->256 is a 2.34x reduction, which by Nyquist removes everything finer than ~2.3px, and
+that is exactly the scale spiral-wiggle substructure lives at in these disks.
+
+**Bigger implication: this is not only an inference-time artifact.** Every training pipeline
+in this project (`FITSChannelDataset`, `target_size=256` default) resizes both dirty AND
+clean to 256 for every training sample, on both line-emission and self-gravitating cubes,
+both native 600x600. So no checkpoint currently in `models/best_models/` has ever been asked
+to represent detail finer than 256px resolution, training-side. Patch-based inference
+(`wiggle_patch_unet.py`, built earlier today, not yet run -- CPU still occupied by the
+kinematic_gamma sweep and its figure generation) can only recover what a 256px-trained
+network actually learned to reconstruct; it removes the inference-side resize but not the
+training-side resolution ceiling underneath it. A full fix needs native-resolution (or
+patch-based) TRAINING, not just inference, which is the "full retrain" option already
+discussed and deferred given the Nov 2 deadline and Block 2 (ALMA) not yet started.
+
+---
+
 ## 2026-09-11 | run | notebook 08's kinematic_gamma sweep, all 4 checkpoints scored on moments and the wiggle, 5 holdout cubes complete
 
 `experiments/score_08_kinematic.py`, full run, 282 minutes on local CPU (mps fix landed
