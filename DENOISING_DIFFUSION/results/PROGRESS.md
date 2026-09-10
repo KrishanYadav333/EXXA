@@ -9,6 +9,44 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-11 | run | leaderboard extends: winner_p10 and winner_beam also below dirty, beam OOD confirmed with real numbers
+
+`experiments/wiggle_leaderboard_sg.py`, two more line-emission checkpoints on the SG v2 cube,
+same protocol as every run in this thread. `winner_beam`'s beam vector taken directly from the
+SG dirty header via `beam_features_of()`, confirmed real and non-zero before running
+(`[0.983, 0.185, 0.160, 0.100]` -- BPA/BMAJ/BMIN are present in the header), not a degenerate
+zero-vector test. `beam_dim=4` verified against the checkpoint's own stored value before
+forcing it, and the state dict load asserted exact (no `strict=False` skip-on-mismatch).
+
+| method | residRMS | raw r | resid r |
+|---|---|---|---|
+| clean | 0.233 | -- | -- |
+| dirty | 0.213 | 0.9892 | 0.8620 |
+| winner_aug_seed43 | 0.218 | 0.9821 | 0.7603 |
+| winner_p10_seed44 | 0.219 | 0.9757 | 0.6912 |
+| winner_beam_seed42 | 0.210 | 0.9794 | 0.7113 |
+
+Both land below `winner_aug`, both below dirty. `winner_beam`'s residRMS (0.210) is actually
+the lowest of the three trained models, closer to dirty's 0.213 than either of the others --
+and it still loses on resid_r. Another instance of the RULES.md #6 lesson: RMS and the
+wiggle's resid_r are not interchangeable, a method can look best on one and mid-pack on the
+other because RMS doesn't see whether the residual PATTERN survives.
+
+**Now six checkpoints tested on this cube** (winner_aug, winner_p10, winner_beam, sg_k3_fresh,
+kin_gamma0, DDRM), spanning 3 architectures, 2 domains, 2 loss variants, a patience/early-stop
+change, and a beam-conditioning arm run out of its training distribution. All six land in
+0.568-0.760, all six lose to dirty's 0.862. This is now a strong pattern, not a handful of
+coincidences: nothing tried has closed even half the gap to doing nothing on this specific
+cube. The standing read from the last two entries holds and strengthens -- the SG v2 cube
+cannot rank models, and the objective (or the input-quality regime, see the headroom table in
+the domain-split entry) is where the remaining gap lives, not any one architecture or
+checkpoint choice tried so far.
+
+DDPM K_AVG=1 remains the one queued, unrun row (needs porting the DDIM sampler from
+06-ddpm-line-emission.ipynb, not attempted inline).
+
+---
+
 ## 2026-09-11 | run | rendering audit: the smoothness is in the M1 pixels, the renderer is exonerated
 
 Before running any more checkpoints, settled whether the smooth look in the published M1
