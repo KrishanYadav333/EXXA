@@ -1,6 +1,6 @@
 # Local checkpoint store
 
-Every trained model this project has produced, one copy each, 36 files. Gitignored
+Every trained model this project has produced, one copy each, 40 files. Gitignored
 (`*.pth` is ignored repo-wide) and never committed, so this is the only place they exist
 outside Kaggle.
 
@@ -22,12 +22,13 @@ models/
   06-ddpm/       5 diffusion models from notebook 06
   07-ddrm/       1 unconditional diffusion prior from notebook 07
   08-seeds/     12 U-Net seed repeats from notebook 08, reused by 05 and the moment tables
+  08-kinematic/  3 U-Nets, kinematic_gamma sweep on line emission, notebook 08
   10-sg/         2 U-Nets trained on self-gravitating data, notebook 10
   11-loo/       10 U-Nets, leave-one-out over the five SG disks, notebook 11
-  12-spectral/   3 U-Nets, spectral-context sweep on SG training, notebook 12
+  12-spectral/   4 U-Nets, spectral-context sweep on SG training, notebook 12
 ```
 
-All 36 are single-root torch archives, verified. RULES.md #3 exists because a checkpoint
+All 40 are single-root torch archives, verified. RULES.md #3 exists because a checkpoint
 that loses its single top-level directory stops loading, so that property is the thing
 worth re-checking after any move:
 
@@ -171,14 +172,37 @@ split as notebook 10: train `{9015, 9019, 9032}`, val `9025`, holdout `9074`. Ru
 | k | in_channels | epoch | val_loss | PSNR | holdout M0/M1/M2 | wiggle resid_r |
 |---|---|---|---|---|---|---|
 | 0 (control) | 1 | 46 | 0.003133 | 30.053 | -26.5 / +4.2 / -44.4 | 0.366 |
-| 1 | 3 | 33 | 0.002004 | 32.828 | +29.2 / +31.0 / +62.5 | **0.590** |
-| 2 | 5 | 29 | 0.001779 | 33.576 | **+61.4 / +31.4 / +67.6** | 0.506 |
+| 1 | 3 | 33 | 0.002004 | 32.828 | +29.2 / +31.0 / +62.5 | 0.590 |
+| 2 | 5 | 29 | 0.001779 | 33.576 | +61.4 / +31.4 / +67.6 | 0.506 |
+| 3 | 7 | 60 | 0.001366 | 35.114 | **+53.0 / +38.8 / +70.1** | **0.681** |
 
-`k=1`'s wiggle score is within 0.004 of dirty's own 0.594 on this holdout, effectively
-matching doing nothing on the kinematic diagnostic while posting the largest moment gains in
-the SG thread. `k=2` has the best moments but a lower wiggle than `k=1`, not monotonic. A
-`k=3` run is queued to check whether `k=1` is a real peak or n=1 noise.
+`k=3` scores 0.681 against dirty's own 0.594 on this holdout -- the first SG-trained arm in
+this project to EXCEED doing nothing on the wiggle, not just approach it -- while also posting
+the best PSNR, M1 and M2 in the SG thread. Not monotonic (`k=2` dips below `k=1`), but the
+trend is clearly upward. This is Block 1's recipe: spectral context, `k=3` as the strongest
+candidate, `k=1` as the cheaper alternative (22 min vs 34 at a real but smaller wiggle cost).
 
 All three verified single-root, strict-`load_state_dict`-compatible at their respective
 `in_channels`, epochs matching the run log exactly. Arrived as `.zip` (a torch checkpoint is
 one), renamed not unpacked, RULES.md #3.
+
+## 08-kinematic — kinematic_gamma sweep on line emission
+
+Notebook 08, `gamma=0/0.1/1` from the run 2026-09-11 (code before the memory-clear fix,
+`kin_gamma10` died mid-run, platform kill with no Python traceback in the training code, not
+these three arms; `gamma=10`'s checkpoint not yet produced). `n_neighbors=15, out_channels=31`
+(the channel-stack architecture), on the line-emission dataset, not SG data.
+
+| gamma | epoch | val_loss | in/out channels |
+|---|---|---|---|
+| 0.0 | 27 | 0.000721 | 31 / 31 |
+| 0.1 | 17 | 0.001721 | 31 / 31 |
+| 1.0 | 28 | 0.016901 | 31 / 31 |
+
+`val_loss` is not comparable across gamma: the loss function itself changes weight
+(`kinematic_gamma` scales the velocity term added to it), so a higher number at higher gamma
+does not mean worse pixel performance, RULES.md #4. Not yet scored on moments or the wiggle.
+
+All three verified single-root, strict-`load_state_dict`-compatible at `in_channels=31,
+out_channels=31`, and each checkpoint's own `kinematic_gamma` field matches its arm name
+exactly. Arrived as `.zip`, renamed not unpacked, RULES.md #3.
