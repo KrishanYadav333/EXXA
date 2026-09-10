@@ -9,6 +9,40 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-11 | run | notebook 08's `gamma=10` rerun completes clean, the memory-clear fix held
+
+Kaggle auto-push (`c1b2245`, "Version 5"), code `d9919bc`. `GAMMAS=[10.0]` only, per-arm
+`gc.collect()` + `torch.cuda.empty_cache()` fix from the same day applied. No kernel death this
+time: early stop at epoch 16 (best epoch 10, val_loss 0.0896), PSNR 24.333 / SSIM 0.9293 over
+the full 31-channel stack (not comparable to single-channel PSNR elsewhere, the notebook's own
+printed output says so).
+
+All four arms of the sweep now complete:
+
+| gamma | best epoch | val_loss |
+|---|---|---|
+| 0.0 | 27 | 0.000721 |
+| 0.1 | 17 | 0.001721 |
+| 1.0 | 28 | 0.016901 |
+| 10.0 | 10 | 0.0896 |
+
+`val_loss` is not comparable across gamma (RULES.md #4): the kinematic term's weight changes
+the loss function's own scale, so a higher number at higher gamma does not mean worse pixel
+performance on its own. Whether `kinematic_gamma>0` actually helps needs scoring on moments
+and the wiggle, not read off this table.
+
+**Not yet scored, and now lower priority than it was.** This run's original purpose (PLAN.md
+Block 1) was a fast diagnostic on whether `KinematicLoss` was worth rebuilding for SG data
+before spending days on it. Notebook 12's spectral-context result (two entries below) already
+resolved that question positively without needing `KinematicLoss` at all, so this sweep is now
+an informational data point on line emission rather than a blocking decision. Worth scoring
+eventually, not urgent.
+
+**`kin_gamma10.pth` not yet pulled** (111.02 MB, Kaggle Output), the other three arms already
+stored (`models/08-kinematic/`, entry earlier).
+
+---
+
 ## 2026-09-11 | run | notebook 12, k=3: spectral context now exceeds doing nothing on the wiggle
 
 Kaggle auto-push (`83c7ac0`, "Version 4"), single arm, `KS=[3]` only, reusing `k=0/1/2` from
