@@ -18,9 +18,9 @@ don't pretend the slower path fits the same slots.
 |---|---|---|---|
 | 1 | Sep 10 | Thu | Notebook 12 running on Kaggle (started today). |
 | 2 | Sep 11 | Fri | **Gate resolved: fast path.** `k=1` matches doing-nothing on the wiggle (0.590 vs dirty's 0.594) with the biggest moment gains in the SG thread; `k=2` has better moments but a lower wiggle (0.506), not cleanly monotonic, PROGRESS.md 2026-09-11. Pull the 3 checkpoints off Kaggle before they're wiped. Notebook 08 started on Kaggle same day (was queued behind 12's GPU session). |
-| 3 | Sep 12 | Sat | Run `k=3` on notebook 12 to check whether `k=1` is a real peak or n=1 noise. Notebook 08 still running. |
-| 4 | Sep 13 | Sun | Pull `k=3` result, log it. Pull notebook 08's result if it's landed; log whether `kinematic_gamma>0` helps M1 on 14 cubes. |
-| 5 | Sep 14 | Mon | Fast path confirmed, no rebuild needed: pick the SG training recipe from the `k` sweep (leaning `k=1` unless `k=3` changes the picture) and move to day 10's task early. |
+| 3 | Sep 12 | Sat | `k=3` landed: 0.681 wiggle resid_r, EXCEEDS dirty's 0.594. Recipe confirmed, `k=3` (or `k=1` as the cheaper option). Notebook 08's `gamma=10` arm died mid-run (platform kill, not a code bug); rerunning that one arm only (`GAMMAS=[10.0]`), the other three already completed and persisted. |
+| 4 | Sep 13 | Sun | Pull `sg_k3_fresh.pth` off Kaggle. Pull notebook 08's rerun result once it lands; log whether `kinematic_gamma>0` helps M1 on 14 cubes. |
+| 5 | Sep 14 | Mon | Block 1's recipe is settled (spectral context, `k=3`/`k=1`). Move to day 10's task (seed repeats, lower priority) early, or straight to day 12's writeup if 08's result is also in. |
 | 6 | Sep 15 | Tue | (slow path) Build the SG channel-stack dataset + notebook (13), mirroring notebook 08's design. Verify locally at reduced scale per the standing convention. |
 | 7 | Sep 16 | Wed | (slow path) Run notebook 13 on Kaggle: `kinematic_gamma` sweep on SG data. |
 | 8 | Sep 17 | Thu | (slow path) Pull results, score wiggle directly (reuse `score_sg_wiggle_loo.py`'s pattern). |

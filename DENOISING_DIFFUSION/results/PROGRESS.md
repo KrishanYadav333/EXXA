@@ -9,6 +9,39 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-11 | run | notebook 12, k=3: spectral context now exceeds doing nothing on the wiggle
+
+Kaggle auto-push (`83c7ac0`, "Version 4"), single arm, `KS=[3]` only, reusing `k=0/1/2` from
+the entry below rather than retraining them. Same holdout, same fixed-inclination geometry.
+
+| k | in_channels | PSNR | M0 | M1 | M2 | wiggle resid_r |
+|---|---|---|---|---|---|---|
+| 0 | 1 | 30.053 | -26.5% | +4.2% | -44.4% | 0.366 |
+| 1 | 3 | 32.828 | +29.2% | +31.0% | +62.5% | 0.590 |
+| 2 | 5 | 33.576 | **+61.4%** | +31.4% | +67.6% | 0.506 |
+| 3 | 7 | 35.114 | +53.0% | **+38.8%** | **+70.1%** | **0.681** |
+
+**`k=3` exceeds dirty's own wiggle score (0.594) on this holdout**, not merely matches it, the
+first SG-trained arm anywhere in this project to do so. Also the best PSNR, M1 and M2 in the
+SG thread. `k=2`'s dip now reads as real non-monotonic structure rather than a fluke that
+would wash out with one more point, since `k=3` recovered past it, though the mechanism for
+why `k=2` specifically dips is not established.
+
+**Block 1's decision gate (PLAN.md) is resolved: fast path, confirmed, not just directional.**
+Spectral context is a working recipe that keeps the moment gains and improves the wiggle past
+baseline. `k=3` is the strongest candidate on hand; `k=1` remains the cheapest (22 min vs
+`k=3`'s 34) at a real but smaller cost (0.590 vs 0.681).
+
+**Still n=1, one holdout disk, one seed, all `fresh`.** The magnitude and the above-baseline
+result make this a genuine finding, but "`k=3` is the final recipe" isn't established past one
+measurement, same caveat as `k=1`/`k=2` carried. A `k=4` point would say whether the trend
+continues, plateaus, or was already past its peak at `k=3`; not run, lower priority now that
+Block 1 has a working, positive result rather than an open question.
+
+**Checkpoint not yet pulled** (`sg_k3_fresh.pth`, Kaggle Output).
+
+---
+
 ## 2026-09-11 | run | notebook 12: spectral context fixes most of the wiggle loss, and improves the moments more than anything tried so far
 
 Kaggle run (code `07f047f`, confirmed from cell 0b's log; no push commit, downloaded
