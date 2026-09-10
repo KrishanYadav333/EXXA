@@ -50,7 +50,12 @@ submitted; final submission window ahead).
     training degrades the wiggle monotonically in 3 of 5 folds. SG training improves the
     moments and damages the kinematic diagnostic underneath them, on this evidence, same shape
     as the original line-emission RETRACTION finding. `fresh` is worst and most variable in
-    both measurements. Detail in PROGRESS.md 2026-09-10
+    both measurements. Confirmed not a masking artifact (fold 1 rechecked at frac 0.05/0.10/
+    0.15, gap widens not closes). Detail in PROGRESS.md 2026-09-10
+  - `12-sg-spectral-context.ipynb`: response to the above. Feeds `n_neighbors=k` channels of
+    context (proven on line emission as `winner_k1`/`k2`) into SG training, scored on the
+    wiggle directly. All arms `fresh` (no matching-shape checkpoint exists for k>0 to
+    fine-tune from). Verified locally, not yet run on GPU
 - **RULES.md now exists** (`DENOISING_DIFFUSION/RULES.md`), 12 numbered rules with the
   incident behind each, mandatory reading before touching a notebook. Supersedes the
   hand-written conventions in §6 below where they overlap.

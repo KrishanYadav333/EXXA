@@ -9,6 +9,32 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-10 | code + added | notebook 12: spectral context on SG training, scored on the wiggle directly
+
+Response to the finding above: the model gets one dirty channel in, one clean channel out,
+zero information about neighbouring velocity channels, which is the documented mechanism
+(2026-08-19 entry) for why per-channel denoising cannot preserve a sub-channel velocity
+centroid. Spectral context (`n_neighbors=k`) already exists and was proven on line emission
+(`winner_k1`/`k2`); this applies it to SG training for the first time, and scores the result
+on the wiggle directly rather than only the moments.
+
+Three arms, `k=0/1/2`, ALL `fresh` (random init): no stored checkpoint has `in_channels`
+matching `k>0`, so fine-tuning from `winner_aug` is not available without first training a
+matching-shape prior. `k0` is a same-day retrain of the fresh control, not a reused
+checkpoint from notebook 10 or 11, so the comparison isn't confounded by which session
+produced it. Same split as notebook 10 (train `{9015,9019,9032}`, val `9025`, holdout `9074`)
+for direct comparability, inclination fixed at that disk's stated 20 deg throughout.
+
+**Verified by executing the real cell sources** at reduced scale (64px, 1 epoch, 4
+samples/cube, 10 scoring channels): shapes correct at each k (in_channels 1/3/5, out_channels
+1 throughout), the neighbour-gathering denoise function (adapted from notebook 05's
+`denoise_cube`, each neighbour normalised by the CENTRE channel's scale, ends clamped not
+wrapped) runs without error at every k, wiggle scoring and the results table run. Numbers at
+this scale are noise (10 channels sliced outside the line, `mstar` pins at its lower bound as
+expected on flat signal). **Not yet run for real. No GPU numbers exist.**
+
+---
+
 ## 2026-09-10 | run | sanity check: the wiggle finding is not a masking artifact
 
 Before trusting the n=5 result below, checked whether fold 1's near-ceiling numbers (every
