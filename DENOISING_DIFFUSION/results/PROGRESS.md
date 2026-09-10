@@ -9,6 +9,59 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-11 | run | domain split: SG-trained loses to line-emission-trained on the SG cube -- domain is NOT the 0.186
+
+Splits the 0.186 "loss/learning" term from today's resolution-vs-loss test into DOMAIN
+(`winner_aug_seed43` trained on line emission, run on an SG cube) versus OBJECTIVE (MSE
+posterior-mean averaging). `experiments/wiggle_domain_split.py`, same cube, same frac=0.05
+mask, same shared geometry (mstar=0.643, matches every prior run of this comparison), each
+checkpoint through its OWN training preprocessing read off the training code -- notebook 12's
+`subtract_continuum=False`, 7 clamped neighbours, min-max shared from the centre dirty
+channel, resize 256.
+
+| method | residRMS | raw r | resid r |
+|---|---|---|---|
+| clean | 0.233 | -- | -- |
+| dirty | 0.213 | 0.9892 | 0.8620 |
+| `winner_aug_seed43` (line-emission trained) | 0.218 | 0.9821 | 0.7603 |
+| `sg_k3_fresh` (SG trained, k=3) | 0.242 | 0.9783 | **0.7053** |
+
+**The SG-trained model is WORSE here than the line-emission one, and both lose to dirty.**
+Domain is not the explanation for the 0.186. `sg_k3_fresh`'s residual RMS (0.242) also
+exceeds clean's own (0.233), so it is inflating residual amplitude rather than recovering
+signal -- the same signature DDRM shows, and the M1 panel is visibly broader/smoother than
+`winner_aug`'s.
+
+**The cross-check is the real finding.** `sg_k3_fresh` BEAT dirty on its own notebook 12
+holdout (0.681 vs that cube's dirty at 0.594). Here it LOSES to dirty (0.705 vs 0.862). Same
+checkpoint, opposite verdict, different benchmark cube. What changed is how degraded the
+input is:
+
+| benchmark | dirty's own resid_r | headroom to the ~0.971 target ceiling |
+|---|---|---|
+| line-emission holdouts (notebook 08, n=5) | 0.4284 | ~0.54 |
+| SG leave-one-out folds (notebook 11, n=5) | 0.6644 | ~0.31 |
+| **SG v2 cube (this comparison)** | **0.8620** | **~0.109** |
+
+**The SG v2 cube is by a wide margin the least-degraded benchmark in the project**, and it is
+the one every "the model loses to dirty" headline comes from (Phase H onward). When dirty
+already sits at 0.862, any model that smooths at all loses, because the smoothing is a
+systematic error aligned with the signal while the noise it removes is not. When dirty sits
+at 0.43, the same class of model wins by a wide margin (`kin_gamma0`: 0.8155).
+
+**Consequence for the standing conclusions.** "Doing nothing beats both models" remains true
+AS MEASURED, but its scope is now much narrower than it has been stated: it is a statement
+about this one unusually clean cube, not about the models in general. The in-domain results
+(notebook 08's `kin_gamma0`, notebook 12's k=3 on its own holdout) are not in conflict with
+it and never were -- they are measured where there is headroom to win. Both belong in the
+writeup, together, with the headroom column attached. Quoting either alone misrepresents the
+result.
+
+Objective/architecture remains the lever for the part that is real (spectral context, twice
+confirmed). Domain: refuted. Resolution: 0.029. Inference resize: 0.025.
+
+---
+
 ## 2026-09-11 | run | resolution-vs-loss split test: the objective is 6x the resolution term, native-res retrain is NOT the fix
 
 Cheap decisive test, minutes of CPU, no training. Ran the CLEAN SG cube through the exact
