@@ -9,6 +9,58 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-11 | run | spectral context does NOT transfer to the SG v2 cube -- every trained checkpoint lands ~0.10 below dirty
+
+Ran `kin_gamma0` (notebook 08's 31-channel stack, the only checkpoint with a large measured
+win where there was headroom) on the SG v2 cube, through its own training preprocessing
+(`subtract_continuum=True`, 31 clamped neighbours, min-max shared from the centre dirty
+channel, `stack_target=True` so only the centre output channel is read, continuum added back
+so the result lands in the same raw space as clean/dirty). 8.8 min on mps.
+`experiments/wiggle_domain_split.py`, extended to carry all three checkpoints.
+
+| method | residRMS | raw r | resid r |
+|---|---|---|---|
+| clean | 0.233 | -- | -- |
+| **dirty (do nothing)** | 0.213 | 0.9892 | **0.8620** |
+| `winner_aug_seed43` (line-em, 1 channel) | 0.218 | 0.9821 | 0.7603 |
+| `kin_gamma0` (line-em, 31-channel stack) | 0.217 | 0.9814 | 0.7581 |
+| `sg_k3_fresh` (SG, 7-channel stack) | 0.242 | 0.9783 | 0.7053 |
+
+**Spectral context does not transfer.** `kin_gamma0` scores 0.7581 here against
+`winner_aug`'s 0.7603 -- indistinguishable, and slightly worse. The same checkpoint scores
+0.8155 against its line-emission holdouts' dirty at 0.4284. The mechanism that wins there
+does nothing here.
+
+**The decisive pattern: three architecturally different models (1 / 7 / 31 input channels),
+two training domains (line emission, self-gravitating), two loss variants (MSE, MSE +
+kinematic term) all land in 0.705-0.760, and every one of them loses to dirty's 0.862.** The
+model-to-model spread (0.055) is about half the gap from the best model to doing nothing
+(0.104). When every model in a family that different clusters that tightly and all fall on the
+same side of the baseline, the result is a property of the SETUP, not of any model's design.
+The M1 panels show it directly: all three are visibly smoother than both clean and dirty and
+nearly identical to each other.
+
+**What is now tested and ruled out as the explanation**, each with a number:
+
+| hypothesis | test | verdict |
+|---|---|---|
+| inference-time resize | patch inference | real but 0.025 |
+| training resolution ceiling | clean through the 600->256->600 target path | 0.029, scores 0.9714 |
+| training domain mismatch | SG-trained model on SG cube | refuted, it did WORSE |
+| architecture / spectral context | `kin_gamma0` (k=15) on SG cube | refuted, matches the 1-channel model |
+
+What remains is the objective and the benchmark's headroom, and those two are not separable
+with what is on hand. Note the one genuinely non-MSE method tried on this cube, DDRM, is the
+worst result in the entire comparison (0.568), so "swap the objective" is a hypothesis with a
+discouraging first data point, not a demonstrated fix. State it that way in the writeup.
+
+**Practical consequence: the SG v2 cube cannot rank models.** Every checkpoint scores
+0.70-0.76 on it. It is a benchmark that says "do not denoise this cube", not one that says
+which denoiser is better. Model selection has to happen on the line-emission holdouts and the
+leave-one-out folds, where dirty sits at 0.428 and 0.664 and there is room to distinguish.
+
+---
+
 ## 2026-09-11 | run | domain split: SG-trained loses to line-emission-trained on the SG cube -- domain is NOT the 0.186
 
 Splits the 0.186 "loss/learning" term from today's resolution-vs-loss test into DOMAIN

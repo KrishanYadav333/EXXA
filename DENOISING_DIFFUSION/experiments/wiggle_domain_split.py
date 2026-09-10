@@ -42,13 +42,15 @@ from astropy.io import fits
 
 from src.models.unet import UNet
 from src.training.architectures import build_model
+from src.data.fits_cube_dataset import continuum_of
 from src.evaluation.moment_maps import generate_moment_maps, signal_mask
 from src.evaluation.gi_wiggle import quadratic_moment1, compare_wiggles
 
 SG = "self-gravitating cube and dirty cube/kinematic_data_v2"
 UNET_CKPT = "models/08-seeds/winner_aug_seed43.pth"
 K3_CKPT = "models/12-spectral/sg_k3_fresh.pth"
-SIZE, FRAC, MSTAR_BOUND = 256, 0.05, 50.0
+KIN_CKPT = "models/08-kinematic/kin_gamma0.pth"
+SIZE, FRAC, MSTAR_BOUND, CONTINUUM_N = 256, 0.05, 50.0, 5
 CH0, CH1 = 240, 361
 dev = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")
 
@@ -72,6 +74,53 @@ def load_k3():
     miss, unexp = net.load_state_dict(ck["model_state_dict"], strict=True)
     net.eval()
     return net, ck["n_neighbors"]
+
+
+def load_kin_gamma0():
+    """
+    Notebook 08's 31-channel stack, kinematic_gamma=0 (the architecture control, no loss term).
+    The only checkpoint in the project with a large measured win where there was headroom to
+    win: 0.8155 mean resid_r against its line-emission holdouts' dirty at 0.4284. Never run on
+    SG data. This asks whether the spectral-context mechanism transfers.
+    """
+    ck = torch.load(KIN_CKPT, map_location=dev, weights_only=False)
+    net = build_model("unet", base_channels=ck["base_channels"],
+                      channel_multipliers=tuple(ck["channel_multipliers"]), use_beam=False,
+                      n_neighbors=ck["n_neighbors"], out_channels=ck["out_channels"],
+                      latent_dim=ck.get("latent_dim", 128)).to(dev)
+    net.load_state_dict(ck["model_state_dict"], strict=True)
+    net.eval()
+    return net, ck["n_neighbors"]
+
+
+def denoise_stack31(net, csub_full, centres, k, continuum, batch=8):
+    """
+    Notebook 08's path: subtract_continuum=True, 2k+1 clamped neighbours, min-max shared from
+    the CENTRE dirty channel, stack_target=True so the output is 2k+1 channels of which only
+    the CENTRE (index k) is the prediction for this position. The continuum is added back at
+    the end so the result lives in the same raw space as clean/dirty and drops straight into
+    the standing comparison table.
+    """
+    nchan, H, W = csub_full.shape
+    out = np.empty((len(centres), H, W), dtype=np.float64)
+    with torch.no_grad():
+        for s in range(0, len(centres), batch):
+            cen = np.asarray(centres[s:s + batch])
+            nb = np.clip(cen[:, None] + np.arange(-k, k + 1)[None, :], 0, nchan - 1)
+            stack = csub_full[nb]
+            ref = csub_full[cen]
+            lo = ref.reshape(len(cen), -1).min(axis=1)
+            hi = ref.reshape(len(cen), -1).max(axis=1)
+            rng = np.where((hi - lo) > 0, hi - lo, 1.0)
+            n = (stack - lo[:, None, None, None]) / rng[:, None, None, None]
+            t = torch.from_numpy(n).float().to(dev)
+            t = Fn.interpolate(t, (SIZE, SIZE), mode="bilinear", align_corners=False)
+            p = net(t, torch.zeros(t.size(0), dtype=torch.long, device=dev), None)
+            p = Fn.interpolate(p, (H, W), mode="bilinear", align_corners=False).cpu().numpy()
+            centre_out = p[:, k]                       # centre of the predicted stack
+            for j in range(len(cen)):
+                out[s + j] = centre_out[j] * rng[j] + lo[j] + continuum
+    return out
 
 
 def denoise_single(net, dirty, batch=8):
@@ -146,8 +195,15 @@ def main():
     k3 = denoise_stack_k(k3net, full_dirty, CH, k)
     print(f"  sg_k3_fresh (SG trained, k={k}):            {(time.time()-t0)/60:.1f} min")
 
+    t0 = time.time()
+    kinnet, kk = load_kin_gamma0()
+    cont = continuum_of(full_dirty, CONTINUUM_N)
+    kin = denoise_stack31(kinnet, full_dirty - cont[None], CH, kk, cont)
+    print(f"  kin_gamma0 (line-em, k={kk} stack):         {(time.time()-t0)/60:.1f} min")
+
     cubes = {"clean": clean, "dirty": dirty,
-             "winner_aug (line-em)": wa, "sg_k3_fresh (SG)": k3}
+             "winner_aug (line-em)": wa, "sg_k3_fresh (SG)": k3,
+             "kin_gamma0 (k=15 stack)": kin}
 
     m0, _, _ = generate_moment_maps("", data_velax=(clean, velax))
     mask = signal_mask(m0, frac=FRAC)
@@ -169,7 +225,7 @@ def main():
         raw = float(np.corrcoef(rows["clean"][mask][ok], rows[tag][mask][ok])[0, 1])
         print(f"  {tag:24s} {rms:9.3f} {raw:8.4f} {cmp[tag]['corr']:9.4f}")
 
-    fig, ax = plt.subplots(2, 4, figsize=(19, 9))
+    fig, ax = plt.subplots(2, len(cubes), figsize=(4.8*len(cubes), 9))
     vm = np.nanpercentile(np.abs(rows["clean"][mask]), 98)
     vr = np.nanpercentile(np.abs(cmp["clean"]["residual"][mask]), 98)
     for i, tag in enumerate(cubes):
@@ -180,7 +236,7 @@ def main():
                               vmin=-vr, vmax=vr, origin="lower")
         ax[1, i].set_title(f"{tag}: residual (RMS {cmp[tag]['rms_kms']:.2f})")
         plt.colorbar(im2, ax=ax[1, i], fraction=0.046)
-    plt.suptitle("Domain split: line-emission-trained vs SG-trained, same SG cube (frac=0.05)",
+    plt.suptitle("Which trained checkpoint helps on the SG v2 cube? (frac=0.05, shared geometry)",
                  fontsize=13)
     plt.tight_layout()
     out = "results/self-gravitating/wiggle_domain_split.png"
