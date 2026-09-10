@@ -26,7 +26,8 @@ models/
   10-sg/         2 U-Nets trained on self-gravitating data, notebook 10
   11-loo/       10 U-Nets, leave-one-out over the five SG disks, notebook 11
   12-spectral/   4 U-Nets, spectral-context sweep on SG training, notebook 12
-  best_models/   3 hardlinks, the project's current finalized picks, one per role
+  best_models/   3 wiggle-confirmed picks + DDRM (kept as a negative result) + untested/
+                 (2 best-PSNR checkpoints never scored on the wiggle), all hardlinks
 ```
 
 All 40 are single-root torch archives, verified. RULES.md #3 exists because a checkpoint
