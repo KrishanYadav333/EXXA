@@ -10,12 +10,20 @@ costs no extra disk).
 | `winner_aug_seed43.pth` | production line-emission U-Net | 46 | 0.000914 | 39.808 | 0.760 (frac=0.05) | `models/08-seeds/` |
 | `winner_beam_seed42.pth` | beam-conditioned line-emission U-Net | 24 | -- | 38.710 | not scored | `models/05-unet/` |
 | `sg_k3_fresh.pth` | self-gravitating, spectral context k=3 | 60 | 0.001366 | 35.114 | **0.681**, beats dirty's own 0.594 | `models/12-spectral/` |
+| `kin_gamma0.pth` | line-emission, 31-channel spectral context, kinematic_gamma=0 (control, no loss term) | 27 | 0.000721 | not measured | **0.8155+/-0.2106** mean across 5 holdouts, beats dirty's own 0.4284+/-0.3556 | `models/08-kinematic/` |
 
 `winner_aug_seed43` is the reference every wiggle comparison in this project is measured
 against (`wiggle_all_methods.py`, `score_08_kinematic.py`, notebook 09). `winner_beam` is the
 best beam-conditioned arm once the dead-conditioning-branch bug was fixed (v24, M0
 -95.7%->+9.6%). `sg_k3_fresh` is the only self-gravitating-trained checkpoint in the project
-to beat doing nothing on the wiggle across a genuine holdout.
+to beat doing nothing on the wiggle across a genuine holdout. `kin_gamma0` is the strongest
+in-domain wiggle result in the project -- unlike `winner_aug_seed43`, which has only been
+wiggle-tested cross-domain on the SG cube (where it actually lost to dirty, 0.760 vs 0.862),
+this one was scored natively on 5 line-emission holdouts, its own training domain, and wins by
+a wide margin. Tied with `kin_gamma0.1.pth` (0.8242+/-0.1713, inside gamma=0's own std) --
+gamma=0 chosen over it for parsimony, since the kinematic loss term is not shown to add
+anything over the architecture alone (see PROGRESS.md 2026-09-11). Not tested cross-domain on
+SG data.
 
 ## `ddrm_prior.pth` -- kept here, but it is a negative result, not a candidate
 
@@ -44,11 +52,10 @@ confirmed table above until someone actually runs it through `compare_wiggles()`
 - **Notebook 10's `sg_fresh.pth`** -- WITHDRAWN. V1 looked like the best SG arm
   (+5.0/+21.8/+26.0 M0/M1/M2); V4, identical settings, same day, collapsed to
   -61.1/-27.3/-42.2. High-variance, does not reproduce.
-- **`kin_gamma*.pth`** (`models/08-kinematic/`) -- kinematic-loss sweep, scoring in progress
-  (4/5 holdout cubes as of this writing). No verdict yet; partial numbers show gamma=1/10
-  degrading moments badly. Add here only if a gamma clears `winner_aug_seed43`'s 0.760 once
-  the sweep finishes.
+- **`kin_gamma0.1.pth`** -- tied with `kin_gamma0` (see above), not duplicated here.
+- **`kin_gamma1.pth`, `kin_gamma10.pth`** -- collapse hard (resid_r 0.23 / 0.37, below dirty's
+  own 0.43), consistent with exploding training val_loss at high gamma. Confirmed negative.
 
-Revisit this list once `score_08_kinematic.py` finishes and once `wiggle_patch_unet.py`
+Revisit this list once `wiggle_patch_unet.py`
 (native-resolution patch inference, built 2026-09-11, not yet run) reports whether removing
 the 600->256->600 resize changes which checkpoint or which inference method actually wins.
