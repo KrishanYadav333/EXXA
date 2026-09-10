@@ -9,6 +9,24 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-11 | run | DDPM K_AVG=1 on SG v2: deliberately not run
+
+The row was queued after v13 diagnosed the DDPM's moment collapse as posterior-mean averaging
+over K draws, and K_AVG=1 is the natural counterfactual. Not run here because no outcome would
+change a decision: DDRM, the diffusion family's measurement-consistent member, is the worst
+row on this cube (0.568), so the family verdict on kinematics is already in from v13 and the
+DDRM comparisons; and on this cube the headroom term (dirty at 0.862, headroom 0.109 to the
+target ceiling) dominates any sampler-level effect, so a wiggle number here would confound the
+pedestal mechanism with the input-quality regime rather than isolate it. Best realistic case
+is DDPM moving from worst to mid-pack, still below dirty -- a seventh losing row bought at the
+cost of porting the DDIM sampler (schedule reconstruction, EMA weights, normalisation
+inversion), the exact class of work that has hidden a bug every time in this project (the
+DotDict pickle break, the missing F import, the silent `beam=None`). The pedestal test belongs
+where it was diagnosed, on the line-emission moment collapse, and remains open there. Not-run
+with rationale is recorded instead of a number that cannot be interpreted.
+
+---
+
 ## 2026-09-11 | run | leaderboard extends: winner_p10 and winner_beam also below dirty, beam OOD confirmed with real numbers
 
 `experiments/wiggle_leaderboard_sg.py`, two more line-emission checkpoints on the SG v2 cube,
