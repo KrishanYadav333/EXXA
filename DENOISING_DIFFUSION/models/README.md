@@ -186,23 +186,26 @@ All three verified single-root, strict-`load_state_dict`-compatible at their res
 `in_channels`, epochs matching the run log exactly. Arrived as `.zip` (a torch checkpoint is
 one), renamed not unpacked, RULES.md #3.
 
-## 08-kinematic — kinematic_gamma sweep on line emission
+## 08-kinematic — kinematic_gamma sweep on line emission, complete at all 4 arms
 
-Notebook 08, `gamma=0/0.1/1` from the run 2026-09-11 (code before the memory-clear fix,
-`kin_gamma10` died mid-run, platform kill with no Python traceback in the training code, not
-these three arms; `gamma=10`'s checkpoint not yet produced). `n_neighbors=15, out_channels=31`
-(the channel-stack architecture), on the line-emission dataset, not SG data.
+Notebook 08. `gamma=0/0.1/1` from the run 2026-09-11 (code before the memory-clear fix;
+`kin_gamma10` died mid-run that session, a platform kill with no Python traceback in the
+training code, not a failure of these three arms). `gamma=10` reran alone after
+`f398484` freed GPU memory between arms, completed clean, Kaggle Version 5. `n_neighbors=15,
+out_channels=31` (the channel-stack architecture) throughout, on the line-emission dataset,
+not SG data.
 
 | gamma | epoch | val_loss | in/out channels |
 |---|---|---|---|
 | 0.0 | 27 | 0.000721 | 31 / 31 |
 | 0.1 | 17 | 0.001721 | 31 / 31 |
 | 1.0 | 28 | 0.016901 | 31 / 31 |
+| 10.0 | 10 | 0.089597 | 31 / 31 |
 
 `val_loss` is not comparable across gamma: the loss function itself changes weight
 (`kinematic_gamma` scales the velocity term added to it), so a higher number at higher gamma
 does not mean worse pixel performance, RULES.md #4. Not yet scored on moments or the wiggle.
 
-All three verified single-root, strict-`load_state_dict`-compatible at `in_channels=31,
+All four verified single-root, strict-`load_state_dict`-compatible at `in_channels=31,
 out_channels=31`, and each checkpoint's own `kinematic_gamma` field matches its arm name
 exactly. Arrived as `.zip`, renamed not unpacked, RULES.md #3.

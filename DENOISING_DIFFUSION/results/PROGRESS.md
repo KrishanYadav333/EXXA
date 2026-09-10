@@ -38,6 +38,10 @@ resolved that question positively without needing `KinematicLoss` at all, so thi
 an informational data point on line emission rather than a blocking decision. Worth scoring
 eventually, not urgent.
 
+**`kin_gamma10.pth` downloaded and stored** in `models/08-kinematic/`, verified single-root,
+strict-loadable, `epoch=10, val_loss=0.089597` matching this entry's table exactly. All four
+gammas now in the local store, indexed in `models/README.md`.
+
 **`kin_gamma10.pth` not yet pulled** (111.02 MB, Kaggle Output), the other three arms already
 stored (`models/08-kinematic/`, entry earlier).
 
