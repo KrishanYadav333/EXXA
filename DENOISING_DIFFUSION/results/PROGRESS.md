@@ -9,6 +9,42 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-11 | run | `wiggle_patch_unet.py`: native-resolution patch inference, tested against the resize baseline
+
+Direct test of the resize-vs-quality hypothesis from earlier today, on `winner_aug_seed43`
+(no retraining, same checkpoint both ways). Same SG cube, same shared Keplerian geometry
+(fit on clean, mstar=0.643, matches every prior run of this comparison), same frac=0.05 mask.
+9 tiles/channel, Hann-window overlap-blended, ran on `mps`, resize-based 0.2 min, patch-based
+1.9 min (the tile-count multiplier as expected).
+
+| method | residRMS | raw r | resid r |
+|---|---|---|---|
+| clean | 0.233 | -- | -- |
+| dirty | 0.213 | 0.9892 | 0.8620 |
+| U-Net (resize, existing) | 0.218 | 0.9821 | 0.7603 |
+| U-Net (patch, native res) | 0.211 | 0.9834 | **0.7853** |
+
+**Real, measurable gain (resid_r +0.025, ~3% relative), but does not close the gap to dirty's
+own 0.862, let alone approach clean.** This is the expected outcome given today's other
+finding: `FITSChannelDataset` resizes to 256 on the TRAINING side too, for every checkpoint in
+this project, so `winner_aug_seed43` has never been asked to represent detail finer than
+256px. Patch inference removes the inference-side resize and recovers what the network
+already learned, it cannot recover detail the network was never trained to produce. Confirms
+the ceiling is primarily set during training, not at inference -- a native-resolution (or
+patch-based) retrain is the only way past this, still deferred given the Nov 2 deadline and
+Block 2 (ALMA) not yet started.
+
+Figure: `results/self-gravitating/wiggle_patch_vs_resize.png`. Visually, the patch residual
+panel carries more fine texture than the resize panel, consistent with the small quantitative
+gain, still visibly coarser than dirty's own residual.
+
+**Worth keeping regardless of the retrain decision**: patch inference is strictly better than
+resize at zero extra cost (no retraining, ~10x runtime for this cube, U-Net only, not
+DDRM-prohibitive). Candidate to become the default inference path for `winner_aug_seed43`,
+not yet swapped into `wiggle_all_methods.py`/`score_08_kinematic.py`.
+
+---
+
 ## 2026-09-11 | run | notebook 08 kinematic_gamma figures land, first run on mps
 
 `figures_08_kinematic.py`, ran clean end to end on `device mps` (the Apple GPU fix landed
