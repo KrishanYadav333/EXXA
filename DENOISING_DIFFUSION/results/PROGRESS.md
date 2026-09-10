@@ -9,6 +9,36 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-10 | run | figure for notebook 11's leave-one-out wiggle (metrics-only, no re-denoise)
+
+Notebook 11 had a JSON (`sg_loo_wiggle.json`, 5 folds) but no figure -- flagged as a gap
+during a general audit of missing visual results across the SG-training notebooks. Built
+`experiments/figures_sg_loo.py`, reading the JSON directly, no re-denoising: per-fold
+`resid_r` bars (dirty/frozen/finetune/fresh) plus a mean +/- std summary panel, saved to
+`results/self-gravitating/sg_loo_wiggle_vs_fold.png`. All 5 folds hold `mstar_at_bound=False`
+(RULES.md #8 checked, not assumed).
+
+Summary across the 5 leave-one-out folds:
+
+| method | resid_r (mean +/- std) |
+|---|---|
+| dirty | 0.664 +/- 0.207 |
+| frozen | 0.641 +/- 0.213 |
+| finetune | 0.564 +/- 0.265 |
+| fresh | 0.522 +/- 0.282 |
+
+**None of the three trained arms beat the untouched dirty cube on this metric, and `fresh`
+is the worst of the four, not the best.** This is consistent with the standing WITHDRAWAL
+(`4e88cad`, notebook 10 V1's "fresh beats finetune" does not reproduce) rather than a new
+finding: across genuine per-disk holdouts, SG training does not yet recover the wiggle
+signature better than doing nothing. Per-fold spread is also large (std nearly half the
+mean for finetune/fresh), and one fold (`run_9019_00019`) sits near 0.99 for every method
+including dirty, meaning that disk's own wiggle is close to undetectable at this mask
+regardless of denoising -- worth keeping in mind before averaging fold numbers together in
+any future writeup.
+
+---
+
 ## 2026-09-11 | run | frac sweep on `wiggle_all_methods.py`'s own comparison, confirms 0.05
 
 Before trusting the frac=0.05 fix on this specific comparison (it had only been checked on
