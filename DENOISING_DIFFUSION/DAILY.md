@@ -17,10 +17,10 @@ don't pretend the slower path fits the same slots.
 | # | Date | Day | Task |
 |---|---|---|---|
 | 1 | Sep 10 | Thu | Notebook 12 running on Kaggle (started today). |
-| 2 | Sep 11 | Fri | Pull notebook 12's result + checkpoints once it lands. Read `resid_r` vs `k`. **Decision gate**, see note above. In parallel: kick off notebook 08 (line-emission kinematic-gamma sweep) on Kaggle, it's independent of the gate and has been idle 2 weeks. |
-| 3 | Sep 12 | Sat | Notebook 08 still running (4 arms, hours). If gate said "sweep k further": start `k=3` on Kaggle. |
-| 4 | Sep 13 | Sun | Pull notebook 08's result. Log to PROGRESS.md: does `kinematic_gamma>0` help M1 on 14 cubes at all. This is the evidence that decides whether the SG rebuild (if needed) is worth building. |
-| 5 | Sep 14 | Mon | **If gate was "spectral context works":** pick the best `k`, this is now the SG training recipe. Move to day 10's task early. **If gate was "no fix, build KinematicLoss for SG":** start the rework -- `synthesize_sg_pairs.py`'s consumer needs `n_neighbors=15, stack_target=True, out_channels=31` to match notebook 08's shape. |
+| 2 | Sep 11 | Fri | **Gate resolved: fast path.** `k=1` matches doing-nothing on the wiggle (0.590 vs dirty's 0.594) with the biggest moment gains in the SG thread; `k=2` has better moments but a lower wiggle (0.506), not cleanly monotonic, PROGRESS.md 2026-09-11. Pull the 3 checkpoints off Kaggle before they're wiped. Notebook 08 started on Kaggle same day (was queued behind 12's GPU session). |
+| 3 | Sep 12 | Sat | Run `k=3` on notebook 12 to check whether `k=1` is a real peak or n=1 noise. Notebook 08 still running. |
+| 4 | Sep 13 | Sun | Pull `k=3` result, log it. Pull notebook 08's result if it's landed; log whether `kinematic_gamma>0` helps M1 on 14 cubes. |
+| 5 | Sep 14 | Mon | Fast path confirmed, no rebuild needed: pick the SG training recipe from the `k` sweep (leaning `k=1` unless `k=3` changes the picture) and move to day 10's task early. |
 | 6 | Sep 15 | Tue | (slow path) Build the SG channel-stack dataset + notebook (13), mirroring notebook 08's design. Verify locally at reduced scale per the standing convention. |
 | 7 | Sep 16 | Wed | (slow path) Run notebook 13 on Kaggle: `kinematic_gamma` sweep on SG data. |
 | 8 | Sep 17 | Thu | (slow path) Pull results, score wiggle directly (reuse `score_sg_wiggle_loo.py`'s pattern). |

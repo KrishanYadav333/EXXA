@@ -34,6 +34,14 @@ at n=5 with a confirmed-not-a-masking-artifact check (PROGRESS.md 2026-09-10). N
   (`n_neighbors=15, stack_target=True, out_channels=31`), which is real rework of
   `synthesize_sg_pairs`'s consumer, budget 2-3 days including a Kaggle run.
 
+**Gate resolved 2026-09-11: fast path.** `k=1` recovers the wiggle to within 0.004 of doing
+nothing (dirty 0.594, `k=1` 0.590) while posting the largest moment gains seen anywhere in the
+SG thread. Not cleanly monotonic though, `k=2` has better moments and a lower wiggle than
+`k=1` (0.506), so this is not yet fully settled, PROGRESS.md 2026-09-11 has the full entry.
+**Remaining before this block can close:** run `k=3` to see whether `k=1` is a real peak or
+noise (n=1 so far), pull the three checkpoints off Kaggle before they're wiped, and decide the
+SG training recipe. No architecture rebuild needed either way, the fast path held.
+
 **Before committing to the SG rebuild either way, run notebook 08 first** (line-emission
 kinematic-gamma sweep, built 2026-08-29, never run). 14 cubes instead of 3-5 disks means a much
 cleaner read on whether `KinematicLoss` helps the wiggle-adjacent M1 signal at all, before

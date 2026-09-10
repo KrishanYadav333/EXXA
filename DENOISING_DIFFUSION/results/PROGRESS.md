@@ -9,6 +9,51 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-11 | run | notebook 12: spectral context fixes most of the wiggle loss, and improves the moments more than anything tried so far
+
+Kaggle run (code `07f047f`, confirmed from cell 0b's log; no push commit, downloaded
+manually). Same split as notebook 10 (train `{9015, 9019, 9032}`, val `9025`, holdout `9074`)
+for direct comparability. All three arms `fresh` (random init), since no stored checkpoint
+has `in_channels` matching `k>0` to fine-tune from. Holdout scored on moments AND the wiggle
+directly (`fix_incl_deg=20`, this disk's `.para` truth), not moments alone.
+
+| k | in_channels | PSNR | M0 | M1 | M2 | wiggle resid_r |
+|---|---|---|---|---|---|---|
+| 0 (control) | 1 | 30.053 | -26.5% | +4.2% | -44.4% | 0.366 |
+| 1 | 3 | 32.828 | +29.2% | +31.0% | +62.5% | **0.590** |
+| 2 | 5 | 33.576 | **+61.4%** | **+31.4%** | **+67.6%** | 0.506 |
+
+**`k=1` recovers the wiggle to essentially the level of doing nothing.** dirty scored 0.594 on
+this exact holdout (2026-09-10 entry); `k=1`'s 0.590 is a 0.004 difference, while every trained
+arm from notebooks 10 and 11 sat well below that (`frozen` 0.487, `finetune` 0.465, `fresh`
+0.278 on this same cube in notebook 11's fold 4). **And `k=1`/`k=2` post the largest moment
+gains seen anywhere in the SG thread**, well past `k=0`'s own already-positive numbers.
+
+**Mechanism, as predicted before this run (PLAN.md's Block 1 decision gate):** the `k=0` model
+gets one dirty channel in, one clean channel out, with no information about neighbouring
+velocity channels, so it cannot preserve a sub-channel velocity centroid it never sees.
+Feeding `2k+1` channels while still predicting the centre channel gives it that information
+directly, the same lever already proven on line emission (`winner_k1`/`k2`, 2026-08-20/21).
+
+**Not monotonic, and this is reported rather than smoothed over: `k=2` has the best moments
+and a LOWER wiggle than `k=1`** (0.506 vs 0.590), though still far above `k=0` and every prior
+arm. Consistent with the mechanism, more context keeps helping pixel accuracy, but something
+about `k=2`'s particular fit trades a little kinematic fidelity for it. On n=1 this cannot yet
+be told apart from run-to-run noise the way `fresh`'s instability was shown to be real
+(notebook 10 V1 vs V4). A third point (`k=3`) would say whether this is a real peak at `k=1`
+or noise; not yet run.
+
+**What this does NOT yet establish, same caveats as every SG result so far:** one holdout
+disk, one seed, all `fresh` (no fine-tuned arm at `k>0` to compare against, since fine-tuning
+from `winner_aug` needs a matching `in_channels=1` checkpoint that spectral context breaks by
+construction). The magnitude here is large enough to be a real lever regardless, but "`k=1` is
+the recipe" is not yet a claim past one measurement.
+
+**Checkpoints not yet pulled** (`sg_k0_fresh.pth`, `sg_k1_fresh.pth`, `sg_k2_fresh.pth`,
+Kaggle Output, `results/checkpoints/`), needed before storing per RULES.md #12.
+
+---
+
 ## 2026-09-10 | code + added | notebook 12: spectral context on SG training, scored on the wiggle directly
 
 Response to the finding above: the model gets one dirty channel in, one clean channel out,
