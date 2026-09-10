@@ -9,6 +9,46 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-11 | run | headroom scatter: the SG thread's unifying figure, built from existing data only
+
+Assembled from three already-logged JSON/PROGRESS sources, no new denoising: `sg_v2` (6
+checkpoints, one cube, today's leaderboard + domain-split runs), `sg_loo_wiggle.json` (5 folds
+x 3 trained arms, each fold's own dirty), `nb08_kinematic_wiggle.json` (5 cubes x
+gamma=0/0.1, each cube's own dirty). Real per-point data, not per-regime means -- 31 points
+total, each plotted at its OWN dirty resid_r rather than a pooled average, since the x-axis
+IS the quantity the thesis is about and pooling would hide the within-regime spread that
+makes it legible.
+
+`experiments/headroom_scatter.py` -> `results/self-gravitating/headroom_scatter.png`.
+
+Mean kinematic gain (model resid_r - dirty resid_r) by regime:
+
+| regime | n | x range (dirty resid_r) | mean gain |
+|---|---|---|---|
+| line-emission holdouts (gamma=0/0.1) | 10 | 0.118 - 0.996 | **+0.391** |
+| SG leave-one-out folds (frozen/finetune/fresh) | 15 | 0.468 - 0.996 | -0.089 |
+| SG v2 cube (6 checkpoints) | 6 | 0.862 (fixed) | -0.163 |
+
+**The scatter shows a monotonic decline in gain as dirty's own resid_r rises, not just three
+separated clusters.** Every line-emission point sits above zero except one (`run_0002_00560_
+rt_00`, dirty resid_r=0.996 -- the near-undetectable-wiggle cube flagged back in the original
+kinematic-gamma sweep entry, sitting at gain~0 because there is no headroom there either,
+consistent with the trend rather than an exception to it). LOO folds straddle zero, tilting
+negative as their own dirty rises within the regime (compare the frozen arm at dirty=0.468,
+gain=-0.01, against the same arm at dirty=0.723, gain=-0.08). SG v2's six points cluster at
+the high-dirty end, all negative.
+
+**This is the figure that reconciles the project's two headline results without either one
+being wrong.** "Doing nothing beats every model" (SG v2, Phase H onward) and "kin_gamma0
+crushes dirty" (notebook 08, today) are the same mechanism measured at opposite ends of one
+axis, not a contradiction requiring a tie-breaker. Model value here is a property of how
+degraded the input already is, not of architecture, training domain, or loss function --
+every one of which was tested and shown NOT to explain the SG v2 losses in the preceding four
+entries. This closes the SG investigation thread that opened with "why is the denoised image
+smooth" three system-turns ago.
+
+---
+
 ## 2026-09-11 | run | DDPM K_AVG=1 on SG v2: deliberately not run
 
 The row was queued after v13 diagnosed the DDPM's moment collapse as posterior-mean averaging
