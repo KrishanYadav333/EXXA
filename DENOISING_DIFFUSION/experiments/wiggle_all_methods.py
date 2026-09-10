@@ -120,7 +120,7 @@ for step in (1, 4):
     print(f"  (methods computed in {(time.time()-t0)/60:.1f} min)")
 
     m0, _, _ = generate_moment_maps("", data_velax=(clean.astype(np.float64), velax))
-    mask = signal_mask(m0, frac=0.02)
+    mask = signal_mask(m0, frac=0.05)
 
     rows = {}
     for tag, cube in cubes.items():

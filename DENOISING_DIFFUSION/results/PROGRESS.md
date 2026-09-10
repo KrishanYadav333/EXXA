@@ -9,6 +9,24 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-11 | bug | the "third confirmation" wiggle table was still on the flagged frac=0.02
+
+The masking fix (Jason's flag, 0.02 -> 0.05, PROGRESS.md 2026-09-04) reached the SG training
+scoring scripts but never reached `wiggle_all_methods.py`, the script actually behind the
+"third confirmation" numbers (dirty 0.891 / beam-only 0.920 / U-Net 0.804 / DDRM 0.583,
+reproduced 3x). All three of those reproductions, and `09-wiggle-scoring.ipynb`'s (its GPU
+port), ran at the old threshold. Caught by checking every scoring script's actual `frac`
+directly rather than assuming the fix had propagated.
+
+Both fixed to `frac=0.05` now. `09-wiggle-scoring.ipynb`'s stale V1/V2 outputs cleared (same
+reason as notebook 10's clearing on 2026-09-04: code and embedded output must not disagree in
+a file about to be re-imported). Queued to rerun on Kaggle GPU. **The "third confirmation"
+table is provisional until this reruns** -- the ordering held up to frac=0.10 in the earlier
+mask-sensitivity sweep, but that was checked on the SG holdout cube, not this line-emission
+comparison specifically, so it is not yet confirmed for this exact script.
+
+---
+
 ## 2026-09-11 | run | scoring notebook 08's 4 checkpoints on moments AND the wiggle, started
 
 `experiments/score_08_kinematic.py`, launched on local CPU. Sliding 31-channel window, centre-
