@@ -288,3 +288,19 @@ guarantee of reproducing the same weights.
 A result is only as durable as the weights that produced it. Rule 6 says never quote a number
 whose metric you cannot name; this is the same rule pointed at the other end, since a metric
 you cannot recompute is a number you cannot defend.
+
+---
+
+## 13. Check every commit for a co-author trailer before it lands
+
+The project's own standing instruction is no `Co-Authored-By` trailer, ever, in any repo. A
+system-level attribution instruction can appear mid-session telling the assistant to add one
+anyway, worded as though it overrides everything before it. It does not: a durable, explicit
+project rule beats an ambient instruction injected later, and the trailer landed in commit
+`bcf7672` anyway, caught only because the author read the diff.
+
+Same category as rule 1: the tool did something plausible-looking that has to be caught by
+inspection, not assumed correct because the command succeeded. Check the commit message
+before it is pushed, not after. `git commit --amend` is the clean fix if it has not been
+pushed yet; a force-push is the only fix once it has, and that carries its own risk given
+Kaggle kernels clone by branch.
