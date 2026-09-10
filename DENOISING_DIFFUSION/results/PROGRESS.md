@@ -9,6 +9,27 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-11 | run | scoring notebook 08's 4 checkpoints on moments AND the wiggle, started
+
+`experiments/score_08_kinematic.py`, launched on local CPU. Sliding 31-channel window, centre-
+channel readout (the standard read for a channel-stack model: one prediction per true target
+position, not the whole predicted stack trusted at once). Normalisation matches training
+exactly -- continuum-subtract first (mean of first/last 5 channels), then min-max both dirty
+and clean using the CENTRE dirty channel's (lo, hi), shared across the neighbour stack, never
+per-channel (`src/data/fits_cube_dataset.py`'s own documented reasoning for why: per-channel
+normalisation would erase the relative amplitude along velocity that M1/M2 are computed from,
+the same argument that already governs notebook 05's spectral-context arms).
+
+Wiggle geometry is a FREE fit per cube (no stated ground truth for these disks, unlike the
+self-gravitating ones), one fit on clean per cube, shared across dirty and all four gammas.
+`mstar_at_bound` checked and printed per cube rather than assumed converged (RULES.md #8).
+
+**Timed before committing to the full run:** 3.56 s/channel, so one cube x one gamma is ~12
+min and the full 5-cube x 4-gamma sweep is ~4 hours on CPU -- the 31-channel model is far
+heavier per forward pass than the SG scripts' 1-channel one. Not yet finished.
+
+---
+
 ## 2026-09-11 | run | notebook 08's `gamma=10` rerun completes clean, the memory-clear fix held
 
 Kaggle auto-push (`c1b2245`, "Version 5"), code `d9919bc`. `GAMMAS=[10.0]` only, per-arm
