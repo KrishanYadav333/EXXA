@@ -9,6 +9,30 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-11 | run | notebook 08 kinematic_gamma figures land, first run on mps
+
+`figures_08_kinematic.py`, ran clean end to end on `device mps` (the Apple GPU fix landed
+mid-way through the main sweep, this is the first script to actually pick it up). Denoised
+one representative holdout cube (`run_0002_00560_rt_00`, the mstar=18.69 outlier fit flagged
+earlier -- worth rerunning `--cube 1` or later for a less unusual example at some point) at
+all 4 gammas, ~36 min total (9-11 min/gamma), faster than the CPU-only estimate but not the
+dramatic speedup hoped for; mps has its own overhead on convolution-heavy nets.
+
+`results/self-gravitating/nb08_kinematic_moments.png`: visually confirms the numbers.
+gamma=0/0.1's M0 keeps the dirty cube's lobe structure while cleaning up the halo; M1 keeps
+the smooth blue/red dipole. gamma=1's M0 nearly loses the lobes, M2 saturates solid yellow
+across the whole field (same total-saturation failure mode already seen in DDPM's
+sampler-collapse bug, worth noting as a recurring pattern in how these models fail, not
+necessarily the same cause). gamma=10 is visibly noisy/grainy throughout, matches its high
+per-cube variance in the numbers.
+
+`results/self-gravitating/nb08_kinematic_vs_gamma.png`: one nuance the summary table alone
+didn't show -- gamma=10 partially recovers above gamma=1 on 2 of 5 cubes (not a clean
+monotonic collapse), though the mean stays well below gamma=0/0.1 either way. Confirms this
+is a real per-cube effect, not a mean-hiding-a-clean-trend situation.
+
+---
+
 ## 2026-09-11 | bug | resize round trip quantified: 89.6% of real structure lost, not the network's fault primarily
 
 Follow-up to the 600->256->600 resize finding logged earlier today. That entry named the
