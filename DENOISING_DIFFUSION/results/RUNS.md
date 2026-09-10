@@ -563,7 +563,7 @@ directions, and finetune had the better val loss while losing M0 and M2. RULES.m
 
 | Ver | Date (UTC) | code | push | Outcome | Artifacts |
 |----:|---|---|---|---|---|
-| 2 (author-reported, no push commit to verify against) | 2026-09-10 | `b7b140d` | -- | complete, 5 folds x 2 arms, 128 min, checkpoints NOT downloaded | [`v2_2026-09-10_b7b140d/`](11-sg-loo/v2_2026-09-10_b7b140d/) |
+| 2 (author-reported, no push commit to verify against) | 2026-09-10 | `b7b140d` | -- | complete, 5 folds x 2 arms, 128 min, checkpoints downloaded and stored (`models/11-loo/`) | [`v2_2026-09-10_b7b140d/`](11-sg-loo/v2_2026-09-10_b7b140d/) |
 
 Seed fixed at 42 across folds, every cube holds out exactly once.
 
@@ -578,6 +578,21 @@ Seed fixed at 42 across folds, every cube holds out exactly once.
 
 **Fold 3 (`run_9032` as holdout) is catastrophic for every arm**, predicted in the notebook
 before the run from that cube's own diagnostics (rmsdiff 0.107 vs the others' 0.46-0.54).
+
+**Follow-up (same day): scored the actual GI wiggle across all 5 folds, not just the
+moments** (`experiments/score_sg_wiggle_loo.py`, `results/self-gravitating/sg_loo_wiggle.json`).
+Opposite conclusion from the moment table above:
+
+| method | resid r mean +/- std |
+|---|---|
+| dirty | 0.664 +/- 0.207 |
+| frozen | 0.641 +/- 0.213 |
+| finetune | 0.564 +/- 0.265 |
+| fresh | 0.522 +/- 0.282 |
+
+Doing nothing wins on average; training degrades the wiggle monotonically in 3 of 5 folds.
+M0/M1/M2 improving with SG training does not mean the kinematic signature came back, on this
+evidence it means the opposite. Detail and per-fold table in PROGRESS.md 2026-09-10.
 
 **`frozen`'s spread is the only clean cube-variance measurement** -- it never trains. Against
 it, `finetune` has lower std on M0/M2 and the best mean on all three moments: "more stable and

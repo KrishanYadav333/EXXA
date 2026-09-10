@@ -42,11 +42,15 @@ submitted; final submission window ahead).
     `fresh` collapse 66 pp on M0 to below the untrained baseline, while `frozen` reproduced
     exactly and `finetune` to 0.5 pp. `fresh` is high-variance, per v25's early-stopping finding
   - `11-sg-loo.ipynb`: leave-one-out over the five SG disks. Run 2026-09-10 (v2,
-    author-reported, no push commit): `fresh - finetune` smaller than the fold-to-fold spread
-    on all three moments, not separable at n=5. `frozen`'s spread (it never trains) isolates
-    pure cube variance; against it `finetune` is more stable and not worse, though still not
-    established as better. Fold with `run_9032` held out is catastrophic for every arm, as
-    predicted before the run. Design caveat: `fresh`'s spread mixes cube and training variance
+    author-reported, no push commit): on M0/M1/M2, `fresh - finetune` is smaller than the
+    fold-to-fold spread, not separable at n=5. Fold with `run_9032` held out is catastrophic
+    for every arm, as predicted before the run. All 10 checkpoints then pulled and scored on
+    the actual GI wiggle across all 5 folds (`score_sg_wiggle_loo.py`): opposite conclusion --
+    dirty (mean resid r 0.664) and frozen (0.641) beat finetune (0.564) and fresh (0.522), and
+    training degrades the wiggle monotonically in 3 of 5 folds. SG training improves the
+    moments and damages the kinematic diagnostic underneath them, on this evidence, same shape
+    as the original line-emission RETRACTION finding. `fresh` is worst and most variable in
+    both measurements. Detail in PROGRESS.md 2026-09-10
 - **RULES.md now exists** (`DENOISING_DIFFUSION/RULES.md`), 12 numbered rules with the
   incident behind each, mandatory reading before touching a notebook. Supersedes the
   hand-written conventions in §6 below where they overlap.

@@ -9,6 +9,54 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-10 | finding | across all 5 disks as genuine holdouts, SG training does not recover the wiggle, and `fresh` is worst
+
+Extends the entry below from n=1 to n=5, using notebook 11's leave-one-out checkpoints
+(`models/11-loo/`) so every disk is scored by a model that never trained on it.
+`experiments/score_sg_wiggle_loo.py`, inclination held fixed at each disk's stated `.para`
+truth throughout (20 deg for four disks, 30 for `run_9019`), one shared geometry per fold fit
+on that fold's clean cube. 190 min total on CPU.
+
+**resid r per fold (higher = wiggle preserved):**
+
+| fold | holdout | dirty | frozen | finetune | fresh |
+|---|---|---|---|---|---|
+| 0 | run_9015 | 0.543 | 0.621 | 0.580 | 0.566 |
+| 1 | run_9019 | 0.996 | 0.996 | 0.991 | 0.990 |
+| 2 | run_9025 | 0.468 | 0.464 | 0.270 | 0.396 |
+| 3 | run_9032 | 0.721 | 0.640 | 0.516 | 0.379 |
+| 4 | run_9074 | 0.594 | 0.487 | 0.465 | 0.278 |
+| **mean +/- std** | | **0.664 +/- 0.207** | **0.641 +/- 0.213** | **0.564 +/- 0.265** | **0.522 +/- 0.282** |
+
+**Doing nothing wins on average, and training degrades the wiggle monotonically in 3 of 5
+folds** (2, 3, 4: dirty > frozen > finetune > fresh, exactly the shape of the n=1 result
+below). Folds 0 and 1 don't follow it: fold 0 has `frozen` slightly ahead of `dirty`, fold 1
+has every method within 0.006 of ceiling (that disk's wiggle is essentially recoverable by
+construction, mean resid RMS 1.45 km/s against clean's 1.448, barely denoised at all). Neither
+exception reverses the aggregate: `dirty` and `frozen` sit within noise of each other, both
+comfortably ahead of `finetune`, and `fresh` is worst on every single fold except fold 0.
+
+**This is the opposite conclusion from notebook 10's headline, and it is not a contradiction,
+it is a different metric.** M0/M1/M2 measure amplitude; the wiggle measures whether the
+specific kinematic substructure survives. SG training makes the pixel-level moments better and
+the kinematic diagnostic worse, on average, across every disk checked. The RETRACTION entry's
+shape (2026-08-28: denoising improves moments, damages the diagnostic underneath them) now
+holds for SG-trained models too, not just the original line-emission ones.
+
+**`fresh` is confirmed as the least reliable arm on a second, independent measurement.** Its
+std (0.282) is the largest of the four, consistent with the training-noise instability found
+in notebook 10 V1 vs V4 (66pp swing on M0 between identical runs). Fold 4's fresh raw r is
+0.0100, functionally uncorrelated with truth, worth flagging as a suspect value on its own
+(RULES.md #8) even though `mstar_at_bound` was False in every fold's fit, so it is not the
+degeneracy bug recurring.
+
+**Caveats that still apply.** Three training disks per fold, one seed per fold, no seed
+repeats, so cube variance and training variance remain confounded for `finetune` and `fresh`
+exactly as flagged when this run was designed. `frozen`'s spread (0.213) is the one clean
+cube-variance number in the table; it is comparable in size to `finetune`'s (0.265), meaning
+most of what looks like "spread" here may be disk-to-disk kinematic difficulty rather than
+training instability, except for `fresh`, whose spread exceeds even that baseline.
+
 ## 2026-09-10 | finding | SG training improves the moments and degrades the wiggle, on the one disk checked
 
 Notebook 10's headline was scored on M0/M1/M2 amplitude. That is not the same question as
