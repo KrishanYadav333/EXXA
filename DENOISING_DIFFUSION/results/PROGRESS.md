@@ -9,6 +9,22 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-10 | run | sanity check: the wiggle finding is not a masking artifact
+
+Before trusting the n=5 result below, checked whether fold 1's near-ceiling numbers (every
+method within 0.006) were a `frac=0.05` masking effect that would dissolve at a tighter
+threshold. `experiments/sanity_mask_frac_fold1.py`: denoised `run_9019` once, scored at
+frac 0.05 / 0.10 / 0.15 without repeating the denoise per frac.
+
+| frac | mask% | dirty | frozen | finetune | fresh |
+|---|---|---|---|---|---|
+| 0.05 | 24.4% | 0.9956 | 0.9956 | 0.9912 | 0.9901 |
+| 0.10 | 5.1% | 0.9952 | 0.9950 | 0.9865 | 0.9827 |
+| 0.15 | 1.4% | 0.9921 | 0.9917 | 0.9769 | 0.9687 |
+
+**The gap widens as the mask tightens, it does not close.** No degenerate fit at any frac.
+The ordering (dirty ~ frozen > finetune > fresh) is not a loose-mask artifact.
+
 ## 2026-09-10 | finding | across all 5 disks as genuine holdouts, SG training does not recover the wiggle, and `fresh` is worst
 
 Extends the entry below from n=1 to n=5, using notebook 11's leave-one-out checkpoints
