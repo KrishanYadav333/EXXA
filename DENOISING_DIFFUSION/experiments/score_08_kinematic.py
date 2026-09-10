@@ -41,7 +41,7 @@ DATA_DIR = "Line Emission Data"
 BASE, MULTS, K, TARGET_SIZE, CONTINUUM_N, FRAC = 48, (1, 2, 4, 8), 15, 256, 5, 0.05
 GAMMAS = [0.0, 0.1, 1.0, 10.0]
 CKPTS = {g: f"models/08-kinematic/kin_gamma{g if g != int(g) else int(g)}.pth" for g in GAMMAS}
-dev = "cuda" if torch.cuda.is_available() else "cpu"
+dev = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")
 
 
 def load_net(gamma):

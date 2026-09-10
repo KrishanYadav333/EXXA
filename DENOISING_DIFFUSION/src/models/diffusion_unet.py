@@ -394,7 +394,7 @@ class DiffusionUNet(nn.Module):
         return h
 
 
-def create_diffusion_unet(config=None, device: str = "cuda" if torch.cuda.is_available() else "cpu"):
+def create_diffusion_unet(config=None, device: str = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")):
     """Build the scaled-down conditional DDPM U-Net and move it to ``device``."""
     if config is None:
         config = default_diffusion_config()
@@ -402,7 +402,7 @@ def create_diffusion_unet(config=None, device: str = "cuda" if torch.cuda.is_ava
 
 
 if __name__ == "__main__":
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu"))
     print(f"Device: {device}")
 
     cfg = default_diffusion_config()

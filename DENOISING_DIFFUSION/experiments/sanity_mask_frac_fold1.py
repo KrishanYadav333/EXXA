@@ -27,7 +27,7 @@ D = f"self-gravitating cube and dirty cube/sg_synth/{RUN}"
 TRUE_INCL = 30.0
 BASE, MULTS, SIZE = 48, (1, 2, 4, 8), 256
 FRACS = [0.05, 0.10, 0.15]
-dev = "cuda" if torch.cuda.is_available() else "cpu"
+dev = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")
 
 ARMS = {
     "frozen": "models/08-seeds/winner_aug_seed43.pth",

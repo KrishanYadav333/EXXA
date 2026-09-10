@@ -30,7 +30,7 @@ class Trainer:
         scheduler: NoiseScheduler,
         train_loader: DataLoader,
         val_loader: Optional[DataLoader] = None,
-        device: str = "cuda" if torch.cuda.is_available() else "cpu",
+        device: str = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu"),
         learning_rate: float = 1e-4,
         weight_decay: float = 1e-5,
         checkpoint_dir: str = "experiments/checkpoints",
@@ -213,7 +213,7 @@ def train_ddpm(
     val_loader: Optional[DataLoader] = None,
     num_epochs: int = 10,
     learning_rate: float = 1e-4,
-    device: str = "cuda" if torch.cuda.is_available() else "cpu",
+    device: str = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu"),
 ) -> Tuple[UNet, Dict]:
     """
     Train a DDPM model for denoising.

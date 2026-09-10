@@ -38,7 +38,7 @@ UNET_CKPT = "models/08-seeds/winner_aug_seed43.pth"
 PRIOR_CKPT = "models/07-ddrm/ddrm_prior.pth"
 BEAM = "results/self-gravitating/dirty_beam_recovered_v2.fits"
 SIZE, MSTAR_BOUND = 256, 50.0
-dev = "cuda" if torch.cuda.is_available() else "cpu"
+dev = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")
 
 with fits.open(f"{SG}/clean_sg.fits", memmap=True) as h:
     hdr, cdata = h[0].header, h[0].data[:]

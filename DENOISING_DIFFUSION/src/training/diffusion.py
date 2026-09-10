@@ -276,7 +276,7 @@ class DenoisingDiffusion:
         data_parallel: Optional[bool] = None,
     ):
         self.config = config or default_diffusion_config()
-        self.device = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
+        self.device = torch.device(device or ("cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")))
         self.checkpoint_path = checkpoint_path
 
         # Unwrapped model is the source of truth for params/EMA/checkpoints.

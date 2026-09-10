@@ -28,7 +28,7 @@ DATA = "self-gravitating cube and dirty cube/sg_synth"
 SEED, TARGET_SIZE, N_SAMPLES = 42, 256, 120
 WINNER = dict(base_channels=48, channel_multipliers=(1, 2, 4, 8))
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu"))
 torch.manual_seed(SEED); np.random.seed(SEED)
 
 _, val_cubes, _ = split_cubes(data_dir=DATA, n_holdout=1, val_fraction=0.25, seed=SEED)

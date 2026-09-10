@@ -56,7 +56,7 @@ def parse_args():
     p.add_argument("--loss-plot", default="results/diffusion_loss.png")
     p.add_argument("--no-plot", action="store_true")
     p.add_argument("--no-eval", action="store_true")
-    p.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    p.add_argument("--device", default="cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu"))
     dp = p.add_mutually_exclusive_group()
     dp.add_argument("--data-parallel", dest="data_parallel", action="store_true", default=None,
                     help="force nn.DataParallel across all visible GPUs (default: auto when >1 GPU)")

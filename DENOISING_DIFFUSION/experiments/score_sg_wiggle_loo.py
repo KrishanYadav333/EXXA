@@ -29,7 +29,7 @@ from src.evaluation.gi_wiggle import quadratic_moment1, fit_keplerian, wiggle_re
 
 SYN = "self-gravitating cube and dirty cube/sg_synth"
 BASE, MULTS, SIZE, FRAC = 48, (1, 2, 4, 8), 256, 0.05
-dev = "cuda" if torch.cuda.is_available() else "cpu"
+dev = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")
 
 # fold index -> (holdout run folder, true inclination from its .para)
 FOLDS = [

@@ -38,7 +38,7 @@ ARMS = {
     "fresh":    "models/10-sg/sg_fresh.pth",
 }
 BASE, MULTS, SIZE, FRAC = 48, (1, 2, 4, 8), 256, 0.05
-dev = "cuda" if torch.cuda.is_available() else "cpu"
+dev = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")
 
 
 def denoise(path, cube):

@@ -340,7 +340,7 @@ def create_model(
     in_channels: int = 2,
     out_channels: int = 1,
     base_channels: int = 64,
-    device: str = "cuda" if torch.cuda.is_available() else "cpu",
+    device: str = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu"),
 ) -> UNet:
     """
     Original DDPM factory — 2-channel input (noisy+clean), 1-channel noise output.
@@ -369,7 +369,7 @@ def create_model(
 
 
 def DenoisingUNet(
-    device: str = "cuda" if torch.cuda.is_available() else "cpu",
+    device: str = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu"),
     beam_dim: int = 0,
 ) -> UNet:
     """
@@ -417,7 +417,7 @@ def DenoisingUNet(
 
 
 if __name__ == "__main__":
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu"))
     print(f"Device: {device}")
 
     print("\n--- DenoisingUNet (lightweight, single-channel 64x64 patches) ---")

@@ -87,7 +87,7 @@ class DenoisingAutoencoder(nn.Module):
 
 
 if __name__ == "__main__":
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu"))
     model = DenoisingAutoencoder().to(device)
     
     total_params = sum(p.numel() for p in model.parameters())

@@ -36,7 +36,7 @@ SIZE = 256
 MSTAR_BOUND = 50.0
 DDIM_STEPS = 50
 
-dev = "cuda" if torch.cuda.is_available() else "cpu"
+dev = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")
 print(f"device: {dev} | {len(CHANNELS)} channels")
 
 ck = torch.load(CKPT, map_location=dev, weights_only=False)
