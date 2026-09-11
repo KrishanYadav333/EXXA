@@ -57,15 +57,22 @@ submitted; final submission window ahead).
     both measurements. Confirmed not a masking artifact (fold 1 rechecked at frac 0.05/0.10/
     0.15, gap widens not closes). Detail in PROGRESS.md 2026-09-10
   - `12-sg-spectral-context.ipynb`: response to the above. Feeds `n_neighbors=k` channels of
-    context (proven on line emission as `winner_k1`/`k2`) into SG training, scored on the
-    wiggle directly. All arms `fresh` (no matching-shape checkpoint exists for k>0 to
-    fine-tune from). Verified locally, not yet run on GPU
-- **RULES.md now exists** (`DENOISING_DIFFUSION/RULES.md`), 12 numbered rules with the
-  incident behind each, mandatory reading before touching a notebook. Supersedes the
-  hand-written conventions in §6 below where they overlap.
+    context into SG training, scored on the wiggle directly. All arms `fresh` (no
+    matching-shape checkpoint exists for k>0 to fine-tune from). **Run 2026-09-11**: `k=0`
+    0.366, `k=1` 0.590, `k=2` 0.506, `k=3` **0.681** against that holdout's own dirty at
+    0.594 -- the first SG-trained arm in the project to beat doing nothing on the wiggle.
+    `sg_k3_fresh` tested against the SG v2 cube the same day did NOT transfer (0.7053, worse
+    than the line-emission-trained baseline there) -- see the Phase J closing summary below
+    for the full six-test chain this triggered and the figure that resolves it.
+- **RULES.md now has 13 numbered rules** (`DENOISING_DIFFUSION/RULES.md`), the incident
+  behind each, mandatory reading before touching a notebook. Rule 13 (2026-09-11): check
+  every commit for a co-author trailer before it lands, added after one slipped through and
+  was caught by re-reading the diff before push. Supersedes the hand-written conventions in
+  §6 below where they overlap.
 - Local machine now **does** have FITS data and checkpoints: `models/` is a hardlinked local
-  checkpoint store (20 archives, retained until GSoC finishes per RULES.md #12,
-  `models/README.md`), the self-gravitating pair lives under
+  checkpoint store (41 archives, retained until GSoC finishes per RULES.md #12,
+  `models/README.md`; `models/best_models/` holds hardlinks to the wiggle-confirmed subset),
+  the self-gravitating pair lives under
   `self-gravitating cube and dirty cube/` (gitignored, ~1.6 GB), and a `~/.venvs/exxa-test`
   virtualenv runs local scoring scripts (`experiments/`) against both.
 - For current repo structure, run `find`/`git ls-files` directly rather than trusting a
@@ -422,6 +429,66 @@ M0, below the untrained baseline, while `frozen` reproduced exactly and `finetun
 The variance is in the arm, not the setup: random init on three disks makes the early-stopping
 decision delicate (v25's finding). Full detail in `results/10-sg-training/v1_.../` and
 `v4_.../`.
+
+`11-sg-loo.ipynb` (Kaggle V2, 2026-09-10) reruns `frozen`/`finetune`/`fresh` as genuine
+leave-one-out across all 5 SG disks instead of one holdout. Moments improve for `finetune`,
+but the follow-up wiggle scoring (`sg_loo_wiggle.json`, same day) shows the opposite: dirty
+beats all three trained arms on resid_r (0.664 vs 0.641/0.564/0.522), `fresh` worst. Moments
+improving does not mean the kinematic signature came back -- on this evidence it means the
+opposite. `12-sg-spectral-context.ipynb` (2026-09-11) tests why: feeding `k` neighbouring
+channels instead of one. `k=3` scores 0.681 against that cube's own dirty at 0.594 -- the
+first SG-trained arm anywhere in the project to beat doing nothing on the wiggle, not just
+approach it.
+
+**Phase J closes 2026-09-11 with a single unifying result, not a recipe.** The `k=3` win
+looked like the fix, so the natural next step was pressure-testing it: does spectral context
+transfer to the SG v2 cube (the one Phase H's "doing nothing beats every model" verdict comes
+from), and is the smoothness everyone's been looking at even real. A same-day chain of
+six tests, each closed out with a measurement before the next opened (full numbers and
+figures in `PROGRESS.md` 2026-09-11, all entries):
+
+1. **Rendering audit** -- cleared. Masked gradient energy on raw M1 arrays (no mask, no
+   contour): clean 4.994e-3, dirty 3.029e-3 (61%), U-Net 1.928e-3 (39%). The smoothness is in
+   the pixels; no published figure needed reissuing.
+2. **Inference-time resize** (600->256->600) -- real but small on the metric that matters.
+   89.6% of pixel sharpness lost (measured on noise-free clean, no network), but only 0.025
+   of resid_r. Patch-based inference (native 256px crops, no resize) is now the default
+   path, free, no retraining.
+3. **Training-side 256px resolution ceiling** -- also small. Clean run through the exact
+   training-target resize scores 0.9714 on the wiggle; a native-resolution retrain could
+   recover at most 0.029. Not worth the GPU-weeks this would cost.
+4. **Domain mismatch** -- refuted. `sg_k3_fresh` (SG-trained) scores WORSE on the SG v2 cube
+   (0.7053) than the line-emission-trained `winner_aug` (0.7603), despite beating dirty on
+   its own notebook 12 holdout. Same checkpoint, opposite verdict -- domain wasn't the
+   variable.
+5. **Architecture / spectral context** -- refuted on this cube. `kin_gamma0` (the 31-channel
+   line-emission checkpoint that beats dirty by +0.39 in-domain) scores 0.7581 here,
+   indistinguishable from the 1-channel `winner_aug`.
+6. **Seven-checkpoint leaderboard** -- confirms the pattern isn't one bad model. Adding
+   `winner_p10_seed44` (0.691) and `winner_beam_seed42` run genuinely out-of-distribution
+   (0.711, real beam vector from the SG header) puts every checkpoint tried in
+   0.568-0.760, all below dirty's 0.862, model-to-model spread about half the gap to doing
+   nothing.
+
+**The closing figure: `headroom_scatter.png`.** Model gain (resid_r minus dirty's own
+resid_r) plotted against dirty's own resid_r, 31 real points across line-emission holdouts
+(mean gain +0.391 at dirty~0.43), the SG leave-one-out folds (-0.089 at dirty~0.66) and the
+SG v2 cube (-0.163 at dirty=0.862, fixed). A monotonic decline, not three disconnected facts
+-- **model value is a function of how degraded the input already is.** This reconciles
+"doing nothing beats every model" (true, but specific to the SG v2 cube's unusually high
+dirty score) with "`kin_gamma0` crushes dirty" (true, on cubes with real headroom) as the
+same mechanism, not a contradiction. `models/best_models/` now holds 4 wiggle-confirmed
+checkpoints (`winner_aug_seed43`, `winner_beam_seed42`, `sg_k3_fresh`, `kin_gamma0`) plus
+`ddrm_prior` labelled as a negative result and an `untested/` folder for best-PSNR
+checkpoints never wiggle-scored.
+
+**Consequence for Block 2:** the SG v2 cube cannot rank models (everything scores 0.70-0.76
+on it) and should not be used as the sole ALMA-validation benchmark either -- real ALMA dirty
+data tends to be similarly low-degradation, the exact regime this figure predicts every
+model loses in. The ALMA validation redesign (inject synthetic signal into real telescope
+noise at several degradation levels, plot recovery the same way) is not yet reflected in
+`PLAN.md`, which still describes the single-cube version; needs updating before Block 2
+starts 2026-09-24.
 
 ---
 
