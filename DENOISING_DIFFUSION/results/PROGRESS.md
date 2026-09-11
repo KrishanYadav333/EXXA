@@ -9,6 +9,27 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-12 | added | PLAN.md and RUNS.md caught up to Phase J's close
+
+Two doc gaps found while updating context.md yesterday, closed today. `PLAN.md`'s Block 2
+still described the original single-cube ALMA verdict, which the headroom scatter now
+predicts would likely just be an eighth instance of "doing nothing wins" -- real DSHARP dirty
+data tends to sit in the low-degradation regime this project's own figure says models lose in.
+Rewrote Block 2 as the degradation-axis redesign discussed 2026-09-11: inject the synthetic
+signal into real DSHARP dirty at several noise/config levels, score recovery the same way
+`headroom_scatter.png` does. Week 3 changes from a free overrun buffer to part of the sweep
+itself, since this needs more `simobserve` runs than one. Exit criterion changed from "one
+cube scored" to "at least 3 points on a real-noise degradation-vs-gain curve."
+
+`results/RUNS.md` never had a section for notebook 12 (spectral context, the `k=3` result the
+entire Phase J closing chain was triggered by) -- only `models/README.md` documented it.
+Added, matching notebook 11's format, including the SG v2 non-transfer result and a link back
+to the six-test chain. Flags an open item: notebook 12 has never been archived per RULES.md
+#10 (no `results/12-sg-spectral-context/v<N>_.../` folder exists), unlike every other
+notebook in the project. Deferred, not fixed today -- close before Block 3's cleanup pass.
+
+---
+
 ## 2026-09-11 | run | headroom scatter: the SG thread's unifying figure, built from existing data only
 
 Assembled from three already-logged JSON/PROGRESS sources, no new denoising: `sg_v2` (6

@@ -72,30 +72,51 @@ Org task 6. Zero work against it as of today, repeatedly identified as the large
 repeatedly deferred for whichever SG thread was active. This is not optional for the final
 blog; Jason named it explicitly.
 
-**Week 1 (Sep 24-30): setup and first real ALMA-realistic pair.** CASA `simobserve` on the
-clean SG disks (or a subset), a real antenna configuration and integration time rather than
-the beam-convolution-plus-noise approximation used so far. Goal for the week is one genuinely
-simulated dirty cube, not five. Budget real time for CASA's own learning curve; this is new
-tooling for the project.
+**Redesigned 2026-09-11, after Phase J closed.** The original plan scored one clean disk
+through one real `simobserve` dirty cube -- a single verdict. That design now carries a known
+risk it didn't have before: the headroom scatter (`context.md`, Phase J closing summary)
+shows every model tested loses to doing nothing whenever the input is already lightly
+degraded, and real ALMA/DSHARP dirty data tends to sit in exactly that low-degradation
+regime. A single-cube ALMA verdict is likely to just be an eighth instance of that pattern,
+not a new finding -- which would waste the block's one shot at real-telescope validation on
+a result this project can already predict.
 
-**Week 2 (Oct 1-7): compare against the synthesized pairs, then validate whatever SG training
-recipe Block 1 produced.** Two separate questions, don't conflate them: (a) does the
-beam-plus-noise approximation used in `synthesize_sg_pairs.py` hold up against a real
-`simobserve` dirty cube, on the same clean disk -- if it doesn't, that is itself a finding
-worth reporting, since it bounds how much to trust every SG-training result in Block 1; (b)
-score the trained model(s) from Block 1 on the `simobserve` cube directly, moments and wiggle
-both. This is the actual ALMA-realistic result the final blog needs.
+**New design: a degradation-axis experiment, not a single verdict.** Inject the synthetic
+kinematic signal into real DSHARP dirty data at several degradation levels (added noise, or
+array configuration/integration time via `simobserve`), score U-Net, classical filters
+(Gaussian/median, already in `src/baselines.py`) and `tclean` at each level, and plot
+recovery against input degradation the same way `headroom_scatter.png` does. This tests the
+project's actual central claim -- that model value is a function of input degradation -- on
+real telescope noise, instead of re-litigating one more high-headroom cube. If the trend
+holds on real data too, that is a substantially stronger final-blog result than one cube
+either winning or losing.
 
-**Week 3 (Oct 8-14): buffer.** CASA and interferometric simulation are exactly the kind of
-new-tooling work that overruns (see: the four wrong Phase 0 verdicts, the DDRM checkpointing
-bug, every "verified locally first" lesson this project has already paid for). If Weeks 1-2
-finish on time, use this week to simulate a second disk for a real n=2 rather than n=1 on the
-ALMA comparison. If they don't finish on time, this is where the overrun gets absorbed instead
-of eating into Block 3.
+**Week 1 (Sep 24-30): setup and CASA fluency.** `simobserve` on the clean SG disks (or DSHARP
+data directly), building toward several noise/configuration levels rather than one. Goal for
+the week is the CASA pipeline working end-to-end at a single level first -- fluency before
+breadth. Budget real time for CASA's own learning curve; this is new tooling for the project.
 
-**Exit criterion:** at least one clean disk scored end-to-end through a real `simobserve`
-pipeline, with the moment and wiggle numbers reported the same honest way as everything else
-in this project, including if they're bad.
+**Week 2 (Oct 1-7): the degradation sweep itself.** Run the same injected-signal comparison
+across at least 3 degradation levels (more if time allows), scoring U-Net / classical
+baselines / `tclean` at each with the same wiggle protocol used throughout Phase J. Separately,
+still worth checking: does the beam-plus-noise approximation in `synthesize_sg_pairs.py` hold
+up against a real `simobserve` dirty cube on the same clean disk -- if it doesn't, that bounds
+how much to trust every SG-training result from Block 1.
+
+**Week 3 (Oct 8-14): sweep continuation, not slack.** This redesign needs more `simobserve`
+runs than the original single-cube plan, so this week is no longer a free overrun buffer --
+it is where the degradation sweep actually gets its 3rd-5th points if Week 2 only managed 2-3.
+If Weeks 1-2 finish with a full sweep already, use this week for a second disk. CASA and
+interferometric simulation are exactly the kind of new-tooling work that has overrun before
+in this project (the four wrong Phase 0 verdicts, the DDRM checkpointing bug); if the sweep
+itself is short even at 3 points, that is still a real result and better than forcing a 5th
+point into Block 3's time.
+
+**Exit criterion:** at least 3 points on a real-DSHARP-noise degradation-vs-gain curve, for
+at least one method (U-Net), scored and reported the same honest way as everything else in
+this project, including if the trend doesn't hold on real data -- that would itself be a
+finding worth having, since it would mean the synthetic-noise headroom scatter doesn't
+generalize, which the final blog needs to know before claiming it does.
 
 ---
 

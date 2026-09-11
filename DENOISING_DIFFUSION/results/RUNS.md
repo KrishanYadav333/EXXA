@@ -612,6 +612,45 @@ column here mixes cube and training variance.
 
 ---
 
+## 12-sg-spectral-context: does feeding neighbouring channels fix the SG wiggle collapse
+
+| Ver | Date (UTC) | code | push | Outcome | Artifacts |
+|----:|---|---|---|---|---|
+| (author-reported, no push commit) | 2026-09-11 | `07f047f` | -- | complete, 4 arms (`k=0/1/2/3`), all `fresh` init, checkpoints downloaded and stored (`models/12-spectral/`) | no dedicated `results/12-*/` archive yet -- notebook itself not yet pulled into a run folder, see open item below |
+
+Direct response to 11-sg-loo's wiggle follow-up: SG training improves moments and damages the
+wiggle. Same split as notebook 10 (`train {9015, 9019, 9032}`, `val 9025`, `holdout 9074`),
+`n_neighbors=k` (`in_channels=2k+1`) fed to a fresh U-Net, scored on the wiggle directly rather
+than assumed from moments.
+
+| k | in_channels | epoch | val_loss | PSNR | M0/M1/M2 | wiggle resid_r |
+|---|---|---|---|---|---|---|
+| 0 (control) | 1 | 46 | 0.003133 | 30.053 | -26.5 / +4.2 / -44.4 | 0.366 |
+| 1 | 3 | 33 | 0.002004 | 32.828 | +29.2 / +31.0 / +62.5 | 0.590 |
+| 2 | 5 | 29 | 0.001779 | 33.576 | +61.4 / +31.4 / +67.6 | 0.506 |
+| **3** | 7 | 60 | 0.001366 | **35.114** | **+53.0 / +38.8 / +70.1** | **0.681** |
+
+**`k=3` beats that holdout's own dirty (0.594) -- the first SG-trained arm in the project to
+exceed doing nothing on the wiggle, not just approach it.** Not cleanly monotonic (`k=2` dips
+below `k=1`), but the trend is upward. All four checkpoints verified single-root,
+strict-`load_state_dict`-compatible at their `in_channels`, epochs matching the run log.
+
+**Does not transfer to the SG v2 cube.** `sg_k3_fresh` scored on the separate SG v2 cube
+(2026-09-11, `wiggle_domain_split.py`) gets 0.7053, worse than the line-emission-trained
+`winner_aug` (0.7603) there, both below that cube's dirty at 0.862. Same checkpoint, opposite
+verdict depending on which cube -- the variable that matters is how degraded the specific
+cube's dirty already is, not which model or domain trained it. This triggered the full
+six-test chain closing Phase J; see `context.md`'s Phase J closing summary and `PROGRESS.md`
+2026-09-11 (six entries, rendering audit through the headroom scatter) for the complete
+picture, not just this notebook's own holdout number.
+
+**Open item:** unlike every other notebook in this project, 12 has never been archived per
+RULES.md #10 (the notebook itself, outputs intact, plus log/figures/README under
+`results/12-sg-spectral-context/v<N>_.../`). The numbers above are attributed only through
+`models/README.md` and `PROGRESS.md`. Close this before Block 3's cleanup pass at the latest.
+
+---
+
 ## The metric changed — which runs are comparable
 
 `bab16d0` added a 3-sigma noise clip before the collapse. It was introduced to fix M2, but
