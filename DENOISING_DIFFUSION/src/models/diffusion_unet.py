@@ -99,6 +99,10 @@ def default_diffusion_config(image_size: int = 64) -> DotDict:
             # converging fastest and degrading least at low SNR.
             "prediction_type": "eps",
             "min_snr_gamma": 0.0,
+            # loss sweep (2026-09-15): "l2" reproduces the original objective exactly.
+            "loss_type": "l2",              # "l2" | "l1"
+            "aux_loss_name": None,          # None | "wavelet" | "starlet" | "gradient"
+            "aux_weight": 0.0,
             "beta_start": 1e-4,
             "beta_end": 2e-2,
             "num_diffusion_timesteps": 1000,

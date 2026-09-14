@@ -2,7 +2,7 @@
 ## Project Context File for Agentic IDE
 
 Local-only tracking doc, tracked in git as of `b6cdd79` (syncing across machines). Last
-updated: 2026-09-04 (week 14-15 of 22; midterm evaluation Aug 10-14 is done, WordPress post
+updated: 2026-09-15 (week 16 of 22; midterm evaluation Aug 10-14 is done, WordPress post
 submitted; final submission window ahead).
 
 ---
@@ -64,6 +64,15 @@ submitted; final submission window ahead).
     `sg_k3_fresh` tested against the SG v2 cube the same day did NOT transfer (0.7053, worse
     than the line-emission-trained baseline there) -- see the Phase J closing summary below
     for the full six-test chain this triggered and the figure that resolves it.
+  - `13-checkpoint-loss-sweep.ipynb`: **added 2026-09-15, not yet run.** MAE/wavelet/starlet/
+    gradient loss sweep (mentee, 2026-09-12) for the four best_models checkpoints that don't
+    share 05's 1-channel U-Net shape -- `kin_gamma0`, `sg_k3_fresh`, `ddpm_seed42`,
+    `ddrm_prior`. `05-unet-line-emission.ipynb` covers the same sweep for the other three
+    (`winner_aug_seed43`, `winner_p10_seed44`, `winner_beam_seed42`) in-notebook, no separate
+    file. Every arm runs both fine-tuned and fresh-init. Needs a Kaggle Dataset built from
+    `models/_kaggle-upload/13/` attached before the fine-tune arms can run (fresh arms don't
+    need it). Rough cost estimate 20-35 combined GPU hours across both notebooks -- see
+    PROGRESS.md 2026-09-15 for the full breakdown and the caveats on that number.
 - **RULES.md now has 13 numbered rules** (`DENOISING_DIFFUSION/RULES.md`), the incident
   behind each, mandatory reading before touching a notebook. Rule 13 (2026-09-11): check
   every commit for a co-author trailer before it lands, added after one slipped through and

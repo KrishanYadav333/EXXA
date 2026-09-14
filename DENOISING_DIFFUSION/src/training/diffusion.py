@@ -136,7 +136,8 @@ class EMAHelper:
 # Conditional noise-estimation loss                                          #
 # --------------------------------------------------------------------------- #
 def noise_estimation_loss(model, x0, t, e, b, *, prediction_type="eps",
-                          min_snr_gamma=0.0):
+                          min_snr_gamma=0.0, loss_type="l2",
+                          aux_loss_name=None, aux_weight=0.0):
     """
     Conditional DDPM loss.
 
@@ -147,6 +148,19 @@ def noise_estimation_loss(model, x0, t, e, b, *, prediction_type="eps",
         e:  (B, 1, H, W) sampled noise.
         b:  (T,) betas.
         prediction_type: ``"eps"`` (classic) or ``"v"``.
+        loss_type: ``"l2"`` (classic, squared error) or ``"l1"`` (absolute error) on the
+            noise-prediction residual (2026-09-15, mentee smoothing sweep -- the diffusion
+            analogue of swapping MSE for MAE in the U-Net loss: same motivation, applied to
+            what THIS model actually regresses, the noise/v target, not a direct pixel
+            comparison).
+        aux_loss_name: ``None`` | "wavelet" | "starlet" | "gradient" (LOSS_REGISTRY minus
+            "mae"/"hybrid", which have no meaning here -- there is no separate MSE+detail
+            split to reweight on a noise target). Adds a detail-preserving term on the
+            PREDICTED-CLEAN estimate x0_hat vs the true clean channel, recovered from the
+            noise/v prediction by the standard DDPM inversion. Requires `conditional` (x0
+            has 2 channels) since there is nothing to compare x0_hat against otherwise.
+        aux_weight: weight on the aux term. 0 (default) leaves the objective exactly the
+            eps/v loss, so existing calls are unaffected.
 
             v-prediction (Salimans & Ho 2022) regresses
             ``v = sqrt(a)*eps - sqrt(1-a)*x0``. It behaves like eps-prediction at high
@@ -181,7 +195,11 @@ def noise_estimation_loss(model, x0, t, e, b, *, prediction_type="eps",
     else:
         raise ValueError(f"unknown prediction_type {prediction_type!r}")
 
-    per_sample = (target - output).square().sum(dim=(1, 2, 3))
+    resid = target - output
+    per_sample = (resid.abs().sum(dim=(1, 2, 3)) if loss_type == "l1"
+                 else resid.square().sum(dim=(1, 2, 3)))
+    if loss_type not in ("l1", "l2"):
+        raise ValueError(f"unknown loss_type {loss_type!r}, expected 'l1' or 'l2'")
 
     if min_snr_gamma and min_snr_gamma > 0:
         snr = (a / (1.0 - a)).view(-1)                             # alpha_bar / (1 - alpha_bar)
@@ -191,7 +209,22 @@ def noise_estimation_loss(model, x0, t, e, b, *, prediction_type="eps",
         w = clipped / (snr + 1.0) if prediction_type == "v" else clipped / snr
         per_sample = per_sample * w
 
-    return per_sample.mean(dim=0)
+    total = per_sample.mean(dim=0)
+
+    if aux_loss_name and aux_weight and conditional:
+        # Invert eps/v to a predicted-clean estimate (standard DDPM identities), then run
+        # the same detail-preserving transform the U-Net sweep uses, output-vs-clean. This
+        # is the only point where a wavelet/starlet/gradient term is even meaningful here --
+        # the primary loss operates on noise, which has no wavelet structure to preserve.
+        if prediction_type == "eps":
+            x0_hat = (x - (1.0 - a).sqrt() * output) / a.sqrt().clamp(min=1e-6)
+        else:  # "v"
+            x0_hat = a.sqrt() * x - (1.0 - a).sqrt() * output
+        from src.utils.losses import LOSS_REGISTRY_DETAIL_ONLY
+        aux_fn = LOSS_REGISTRY_DETAIL_ONLY[aux_loss_name]
+        total = total + aux_weight * aux_fn(x0_hat.clamp(-1, 1), clean)
+
+    return total
 
 
 # --------------------------------------------------------------------------- #
@@ -315,6 +348,12 @@ class DenoisingDiffusion:
         _d = self.config.diffusion
         self.prediction_type = getattr(_d, "prediction_type", "eps")
         self.min_snr_gamma = float(getattr(_d, "min_snr_gamma", 0.0) or 0.0)
+        # loss sweep (2026-09-15): l1 vs l2 on the noise/v residual, plus an optional
+        # detail-preserving aux term on the predicted-clean estimate. Defaults reproduce
+        # the original objective exactly.
+        self.loss_type = getattr(_d, "loss_type", "l2")
+        self.aux_loss_name = getattr(_d, "aux_loss_name", None)
+        self.aux_weight = float(getattr(_d, "aux_weight", 0.0) or 0.0)
         self.num_timesteps = self.betas.shape[0]
 
         self.step = 0
@@ -344,7 +383,10 @@ class DenoisingDiffusion:
 
             loss = noise_estimation_loss(self.model, x, t, e, self.betas,
                                          prediction_type=self.prediction_type,
-                                         min_snr_gamma=self.min_snr_gamma)
+                                         min_snr_gamma=self.min_snr_gamma,
+                                         loss_type=self.loss_type,
+                                         aux_loss_name=self.aux_loss_name,
+                                         aux_weight=self.aux_weight)
 
             if train:
                 self.optimizer.zero_grad()
@@ -495,6 +537,9 @@ class DenoisingDiffusion:
             "ema_helper": self.ema_helper.state_dict() if self.use_ema else None,
             "config": self.config,
             "prediction_type": self.prediction_type,
+            "loss_type": self.loss_type,
+            "aux_loss_name": self.aux_loss_name,
+            "aux_weight": self.aux_weight,
             "train_losses": self.train_losses,
             "val_losses": self.val_losses,
             "best_val_loss": self.best_val_loss,

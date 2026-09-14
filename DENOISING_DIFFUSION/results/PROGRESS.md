@@ -9,6 +9,88 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-15 | added | loss sweep expands to all 7 best_models checkpoints, plus a stale 06 restored
+
+Continuation of the same day's earlier entry. Mentor direction (mentee call, 2026-09-12) was
+to try MAE/wavelet/starlet/gradient losses and a 320/480px compromise; follow-up direction
+this session was to run every arm BOTH fine-tuned from an existing best checkpoint AND fresh
+(random init) -- not assumed to answer the same question -- and to cover all 7
+`models/best_models/` checkpoints, not just `winner_aug_seed43`.
+
+**`05-unet-line-emission.ipynb`**: the four losses now run from three fine-tune sources
+(`winner_aug_seed43`, `winner_p10_seed44` -- highest untested PSNR/SSIM, `winner_beam_seed42`
+-- needs the `beam` view) plus a `_fresh` random-init counterpart of each, so a source-name
+comparison and a fine-tune-vs-fresh comparison are both possible without conflating them.
+`winner_res320`/`winner_res480` get the same fine-tune/fresh split. 20 new arms total, on top
+of the original 8. None need an external checkpoint upload -- all three fine-tune sources
+train inside this same notebook, earlier in `CONFIGS`' dict order, so the checkpoint exists
+by the time the loss arms need it.
+
+**`13-checkpoint-loss-sweep.ipynb`** (new): covers the four checkpoints that don't fit 05's
+1-channel line-emission U-Net shape -- `kin_gamma0` (31-ch spectral, kinematic_gamma pinned
+at 0 to match its own training), `sg_k3_fresh` (7-ch spectral, self-gravitating domain, not
+line-emission -- a scientific stretch, flagged as such rather than assumed to transfer),
+`ddpm_seed42` and `ddrm_prior` (both diffusion). The diffusion pair needed a real design step,
+not a mechanical loss swap: `noise_estimation_loss` (`src/training/diffusion.py`) gained
+`loss_type` ("l1"/"l2" on the noise/v residual, the diffusion analogue of MAE) and
+`aux_loss_name`/`aux_weight` (an optional wavelet/starlet/gradient term on the predicted-clean
+estimate x0_hat, inverted from the noise/v prediction by the standard DDPM identity --
+`WaveletLoss`/`StarletLoss`/`GradientLoss` have no meaning on a noise residual directly).
+`AUX_WEIGHT` in the notebook is flagged explicitly as an order-of-magnitude guess (primary
+loss sums squared error over ~65k pixels; the aux functions are per-pixel means), not tuned --
+inspect the loss curve before trusting it.
+
+Every arm in both notebooks: `finetune` (min_epochs=6, cheap) and `fresh` (min_epochs matching
+that checkpoint's own original training budget). Fine-tune checkpoints for 13 staged at
+`models/_kaggle-upload/13/` (gitignored, hardlinked, `.ckpt` extension per RULES.md #3) --
+still needs manually creating the actual Kaggle Dataset and attaching it, which nothing here
+can do without Kaggle credentials.
+
+**Cost, not yet paid:** rough estimate from per-epoch timings elsewhere in this project puts
+05's new arms at 7-15 GPU hours and 13's at 10-20+ GPU hours (the diffusion sections are the
+uncertain part -- DDIM eval at K_AVG=4/25 steps is not cheap and nothing in this repo gives a
+solid per-epoch number for it). 20-35 GPU hours combined exceeds one 12h Kaggle session for
+either notebook alone; both resume correctly via their CSV skip-already-done logic, so this
+is safe to spread across sessions but is not a one-run cost.
+
+**Bug, separate from the above:** `06-ddpm-line-emission.ipynb`'s working-tree copy (present
+before this session started, not produced by it) had reverted three committed fixes against
+HEAD -- the `RESCALE_TO_DIRTY` pedestal fix, `RUN_SWEEP` flipped back to `True` (re-running a
+sweep already marked "ANSWERED TWICE"), and the entire `## 13b. Diagnostics` section, dropping
+cell count 47->45. Exactly the RULES.md #2 failure mode: Kaggle's own push sent a stale copy
+back over committed work. Restored from HEAD (`git stash` first, the stale copy recoverable
+if this diagnosis is wrong); cell-order test passes at 47 cells. Not yet re-verified against
+Kaggle -- next session there needs the same check (rule 2: confirm what got pulled before
+building on it).
+
+## 2026-09-15 | added | 05 gains a loss-fn sweep and a resolution sweep, not yet run
+
+Mentor direction (mentee call, 2026-09-12): the smoothing complaint on 256px output may be
+loss-driven (try MAE), resolution-driven (600px trains huge, try a 320/480 compromise), or
+both. `src/utils/losses.py` gained `MAELoss`, `WaveletLoss` (multi-level Haar DWT), `StarletLoss`
+(a trous B3-spline, the transform the mentee already validated on real ALMA data), and
+`GradientLoss` (Sobel edge L1, the pix2pix-style term without a discriminator). None need a
+new dependency -- all fixed-kernel `conv2d`. `train_unet` (`src/training/sweep.py`) gained
+`loss_name` (`LOSS_REGISTRY`), written into the checkpoint so `best_val_loss` stays
+attributable to the objective that produced it (RULES.md #4/#6).
+
+`05-unet-line-emission.ipynb` gained six exploratory (single-seed) arms: `winner_mae`,
+`winner_wavelet`, `winner_starlet`, `winner_gradient` (all 256px, WINNER config, loss_name
+swapped), `winner_res320`, `winner_res480` (WINNER config, new 320px/480px dataset views,
+smaller batch). `winner_native600` stays gated off (`RUN_NATIVE600 = False`, RULES.md #1 --
+has never once completed). None of the six are gated; they run by default alongside the
+existing arms next session.
+
+**Bug caught before running anything:** the "checkpoint found, scoring without retraining"
+resume branch only special-cased `n_neighbors`/`use_beam` when picking the val set, so a
+resumed `res320`/`res480`/`native600` run would score PSNR on the 256px `val_ds` while a
+freshly-completed run of the same arm scores on its own view's val set -- same config name,
+two metric bases, exactly what RULES.md #4 exists to prevent. Fixed: the resume branch now
+uses `VIEWS[view]()[1]` for those three arms.
+
+**Nothing measured yet.** Cell-order test passes; no Kaggle run has happened. Next: push
+through Kaggle, verify a marker (`winner_gradient` in the loaded cell) per RULES.md #2, run.
+
 ## 2026-09-12 | added | PLAN.md and RUNS.md caught up to Phase J's close
 
 Two doc gaps found while updating context.md yesterday, closed today. `PLAN.md`'s Block 2

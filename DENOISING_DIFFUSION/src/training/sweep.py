@@ -28,7 +28,19 @@ import torch
 from torch.utils.data import DataLoader
 
 from src.models.unet import UNet
-from src.utils.losses import HybridLoss, KinematicLoss
+from src.utils.losses import (HybridLoss, KinematicLoss, MAELoss, WaveletLoss,
+                              StarletLoss, GradientLoss)
+
+# loss_name -> (class, default alpha, default beta) for train_unet's loss sweep
+# (2026-09-15, mentee smoothing investigation). alpha/beta keep HybridLoss's meaning
+# (pixel-term weight, detail-term weight) even where the "pixel term" is MAE or MSE.
+LOSS_REGISTRY = {
+    "hybrid":   HybridLoss,
+    "mae":      MAELoss,
+    "wavelet":  WaveletLoss,
+    "starlet":  StarletLoss,
+    "gradient": GradientLoss,
+}
 
 
 def _unwrap(m):
@@ -78,6 +90,7 @@ def train_unet(
     channel_multipliers=(1, 2, 4),
     lr: float = 1e-3,
     alpha: float = 0.8,           # HybridLoss: alpha*MSE + (1-alpha)*(1-SSIM)
+    loss_name: str = "hybrid",    # "hybrid" | "mae" | "wavelet" | "starlet" (LOSS_REGISTRY)
     batch_size: int = 32,
     use_beam: bool = False,
     n_neighbors: int = 0,
@@ -166,7 +179,13 @@ def train_unet(
         criterion = KinematicLoss(alpha=alpha, beta=1.0 - alpha, gamma=kinematic_gamma,
                                   velax=v).to(device)
     else:
-        criterion = HybridLoss(alpha=alpha, beta=1.0 - alpha)
+        # kinematic_gamma>0 keeps HybridLoss regardless of loss_name: KinematicLoss
+        # is only defined as a HybridLoss + M1 term, not as a wrapper around every
+        # LOSS_REGISTRY entry, and swapping its pixel term is a separate question
+        # from this sweep (RULES.md #4 -- one objective at a time).
+        if loss_name not in LOSS_REGISTRY:
+            raise ValueError(f"unknown loss_name {loss_name!r}, expected one of {list(LOSS_REGISTRY)}")
+        criterion = LOSS_REGISTRY[loss_name](alpha=alpha, beta=1.0 - alpha)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode="min", factor=0.5, patience=sched_patience)
@@ -243,7 +262,7 @@ def train_unet(
                         "arch_key": arch,
                         "base_channels": base_channels,
                         "channel_multipliers": list(channel_multipliers),
-                        "alpha": alpha, "use_beam": use_beam,
+                        "alpha": alpha, "loss_name": loss_name, "use_beam": use_beam,
                         # in_channels is written so a checkpoint can be rebuilt without
                         # the caller remembering its k; the resume path in notebook 05
                         # reads it back rather than assuming 1.
