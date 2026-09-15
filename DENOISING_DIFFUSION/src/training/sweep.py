@@ -17,6 +17,7 @@ Training with early stopping + random hyperparameter sweep, across architectures
 """
 
 import csv
+import gc
 import math
 import os
 import random
@@ -41,6 +42,16 @@ LOSS_REGISTRY = {
     "starlet":  StarletLoss,
     "gradient": GradientLoss,
 }
+
+
+def _host_ram_note() -> str:
+    """' | RAM free X/Y GB' from /proc/meminfo (Linux/Kaggle); empty string elsewhere."""
+    try:
+        with open("/proc/meminfo") as f:
+            kb = {line.split(":")[0]: int(line.split()[1]) for line in f}
+        return f" | RAM free {kb['MemAvailable'] / 1048576:.1f}/{kb['MemTotal'] / 1048576:.1f} GB"
+    except (OSError, KeyError, ValueError, IndexError):
+        return ""
 
 
 def _unwrap(m):
@@ -238,10 +249,14 @@ def train_unet(
         else:
             epochs_no_improve += 1
             mark = ""
+        # Two Kaggle sessions died of host-RAM exhaustion with epoch times climbing 4x first;
+        # collecting cyclic garbage per epoch is a few ms, and printing available RAM makes
+        # the next such climb visible hours before the kernel is killed.
+        gc.collect()
         if verbose:
             print(f"  ep {ep:>3} | train {tr:.4f} | val {va:.4f} | "
-                  f"lr {optimizer.param_groups[0]['lr']:.1e} ({time.time()-t0:.0f}s){mark}",
-                  flush=True)
+                  f"lr {optimizer.param_groups[0]['lr']:.1e} ({time.time()-t0:.0f}s)"
+                  f"{_host_ram_note()}{mark}", flush=True)
 
         if ep >= min_epochs and epochs_no_improve >= patience:
             if verbose:

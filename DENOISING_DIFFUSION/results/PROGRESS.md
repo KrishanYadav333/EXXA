@@ -9,6 +9,39 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-16 | bug | both notebooks killed by host RAM; fine-tune arms ran at from-scratch lr
+
+**Runs:** 05 Version 28 died at 25367.8s, 13 Version 3 at 11907.4s. Both: Kaggle's "tried to
+allocate more memory than is available", `DeadKernelError`, no Python traceback -- host RAM
+(the ~30 GB CPU side), not GPU. So `a74022b`'s `gc.collect()`/`empty_cache()` after each arm
+was aimed at the wrong memory. 05 v27 died at 25240s and v28 at 25368s despite different arms
+and epoch budgets: a steady per-step leak, not one bad arm. 13 v3's `kin_gamma0_wavelet_finetune`
+epoch times climbed 110s -> 165 -> 270 -> 334 -> 406s before the kill, the page-cache squeeze
+of RAM filling; the two arms before it held ~100s for 75 epochs. **Leak not located.** Reading
+`FITSChannelDataset` found no cache and no memmap views surviving `_to_native_float32`.
+
+**Results that did survive (13 v3, persisted, attributable):** `kin_gamma0_mae_finetune` PSNR
+35.6845 / SSIM 0.9917 (30 epochs, full lr -- see below, superseded recipe);
+`kin_gamma0_mae_fresh` PSNR 30.3696 / SSIM 0.9724 (45 epochs). Pixel metrics only, not
+wiggle-scored, 31-channel val set -- not comparable to 05's 1-channel PSNRs (RULES.md #4).
+
+**Second bug, caught in the same log:** fine-tune arms used the arm's from-scratch lr
+(8.2e-4). Both v3 fine-tune arms spiked at epoch 3 (mae val 0.0096 -> 0.0369; wavelet 0.0005 ->
+0.0055) -- the pretrained weights knocked out, so "fine-tune" became a worse from-scratch run.
+Likely also why `winner_mae` fell 39.81 -> 35.89 in v27. Notebook 10 already had
+`FINETUNE_LR_SCALE = 0.1` for exactly this reason; 05 and 13 never adopted it. Also in 13:
+the DDPM section ran FRESH arms at the fine-tune lr (2e-5), 10x below 06's from-scratch 2e-4.
+
+**Fixed:** `FINETUNE_LR_SCALE = 0.1` in 05 and 13 (U-Net and diffusion); 13's DDPM base lr
+2e-4. Fine-tune arms renamed (`_ft`) so v27/v28/v3 full-lr rows stay their own record and
+retrain, rather than resume counting them as the current recipe. `MAX_NEW_ARMS_PER_SESSION`
+(05: 3, 13: 2) stops a session cleanly before the leak can kill it; next session resumes.
+`train_unet` now prints free host RAM every epoch (`/proc/meminfo`) and runs `gc.collect()`
+per epoch, so the next log shows the leak's slope instead of just its end.
+
+**Cost reality:** at 2-3 arms per session, 13's 28 arms need ~14 sessions and 05's ~18 new
+arms ~6 -- well past one account's 30 GPU-h/week. Trimming scope is the author's call.
+
 ## 2026-09-15 | added | 05's resolution arms rebuilt as winner_aug_seed43's recipe, from scratch
 
 Author direction: 320/480/600 should reproduce the best model's recipe exactly, trained from
