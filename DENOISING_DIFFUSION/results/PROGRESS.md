@@ -9,6 +9,38 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-15 | bug | 05 had no per-arm persistence, 7h run died and lost `winner_wavelet` entirely
+
+`05-unet-line-emission.ipynb` NEVER had per-arm checkpoint persistence to `/kaggle/working`
+-- section 9 was the only copy step, at the very end of the whole notebook, a pre-existing
+gap that predates this session. Adding 20 loss/resolution-sweep arms onto it pushed one
+session to ~7h (`DeadKernelError` at 25240.5s) before section 9 ever ran.
+
+**Caught by:** reading the crash log the user pasted after the session died -- kernel death
+traceback plus `papermill` writing `__notebook__.ipynb` (169905 bytes) as the final artifact,
+confirming section 9 never executed.
+
+**Consequence:** `winner_mae` seed 42 finished training (PSNR 35.8889) but its checkpoint
+was never copied out of the ephemeral git clone -- the number survives only as printed text
+in whatever Kaggle version the crash produced, not in a reloadable CSV or `.pth`. Nothing
+downstream (moment maps, wiggle scoring) can be built on it without retraining.
+`winner_wavelet` seed 42 was 5+ epochs in (val 0.0007, improving) when the kernel died;
+`train_unet` only writes `ckpt_path` when the call **returns**, so nothing was ever written
+for it at all -- total loss, retrains from scratch. Everything queued after it in `CONFIGS`
+order never started. This is exactly notebook 06 v11's incident (RULES.md #1), in a
+different notebook, because the fix from that incident was never backported here.
+
+**Fixed:** `persist_ckpt()` defined in cell 6, called after every arm in both the
+fresh-training and checkpoint-found-scoring branches of section 4's loop, copying the
+checkpoint and `nb05_seed_repeats.csv` to `/kaggle/working` immediately. Cell-order test
+passes. Not yet re-verified against an actual Kaggle run -- next session's crash-resistance
+depends on this actually being pulled before running (RULES.md #2).
+
+**Not yet done:** the crashed run itself needs archiving per RULES.md #10, failures included
+-- Kaggle version number needed from the author, not visible from here.
+
+No published numbers affected -- nothing from this run reached RUNS.md or the blog.
+
 ## 2026-09-15 | added | loss sweep expands to all 7 best_models checkpoints, plus a stale 06 restored
 
 Continuation of the same day's earlier entry. Mentor direction (mentee call, 2026-09-12) was
