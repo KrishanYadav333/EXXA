@@ -9,6 +9,25 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-15 | added | epoch budgets raised: fine-tune 6->30, fresh 20/15/10/6->50, across 05 and 13
+
+`winner_mae`'s only completed fine-tune arm from the crashed run (see the bug entry just
+below) stopped at epoch 10 on a 6-epoch floor -- author's call after seeing it: too thin to
+trust the plateau, especially on a loss that changed scale entirely (MAE vs the original
+hybrid MSE+SSIM). Raised uniformly: every fine-tune arm's `min_epochs` 6->30 (05's 14
+loss/resolution arms; 13's kin/sg/ddpm/ddrm sections, replacing the earlier
+per-checkpoint-matched floors of 15/10). Every fresh-init arm's `min_epochs` -> 50 (was 05's
+shared default of 20; 13's ddpm/ddrm sections' 30).
+
+**Cost, revised up substantially from the 20-35h estimate two entries below:** roughly 5x
+the epoch floor on fine-tune arms and 1.7-8x on fresh arms (depending which arm's old
+budget). Rough recompute for 05's new arms alone: ~9h floor on the 12 aug/p10/beam-source
+fine-tune arms, ~3-4h on res320/res480 fine-tune, ~5h on the four fresh losses, ~4-7h on
+res320/res480 fresh -- **21-25h just for 05's new arms' minimums**, before patience can push
+any of them longer, and before 13's four sections (also raised) are counted at all. This is
+a real, large increase, not a rounding change -- flagging it plainly rather than
+understating it because the earlier estimate turned out low once already.
+
 ## 2026-09-15 | bug | 05 had no per-arm persistence, 7h run died and lost `winner_wavelet` entirely
 
 `05-unet-line-emission.ipynb` NEVER had per-arm checkpoint persistence to `/kaggle/working`
