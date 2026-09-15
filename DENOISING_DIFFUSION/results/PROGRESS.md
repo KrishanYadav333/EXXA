@@ -9,6 +9,22 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-15 | added | 05's resolution arms rebuilt as winner_aug_seed43's recipe, from scratch
+
+Author direction: 320/480/600 should reproduce the best model's recipe exactly, trained from
+scratch -- fine-tuning from 256px weights risks carrying that resolution's smoothing into the
+new one. Checking the existing res arms against `winner_aug_seed43` found they were NOT the
+same recipe: no D4 augmentation (the defining feature of `winner_aug`) and seed 42, not 43.
+
+Replaced `winner_res320`/`_fresh`, `winner_res480`/`_fresh`, `winner_native600`/`_fresh` with
+three arms: `winner_aug_res320`, `winner_aug_res480`, `winner_aug_native600`. WINNER
+hyperparameters, `augment=True` on the 320/480/600 training views (val un-augmented), seed 43
+via a new `SEED_OVERRIDE`, `min_epochs=50`, no `init_from`. One forced deviation: batch 8/6/4
+instead of 16 for T4 memory, with lr kept identical rather than rescaled (noisier gradients --
+a confound to name when reading the result). Seed 43 was winner_aug's best of three, inside
+08's ~1 dB seed spread, so matching it keeps the recipe but won't carry that seed's luck.
+`winner_aug_native600` still gated by `RUN_NATIVE600 = False`.
+
 ## 2026-09-15 | added | epoch budgets raised: fine-tune 6->30, fresh 20/15/10/6->50, across 05 and 13
 
 `winner_mae`'s only completed fine-tune arm from the crashed run (see the bug entry just
