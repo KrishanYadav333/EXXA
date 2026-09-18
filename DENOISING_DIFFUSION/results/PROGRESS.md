@@ -9,6 +9,27 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-18 | run | 13's first clean finish -- LR fix confirmed, RAM leak still present but contained
+
+Kaggle Version 4 (exact number unconfirmed, author's next `Add Input` push will settle it),
+`afb2bbd` pulled and verified live (`_arm_tag`/`no checkpoint -- will retrain` markers present
+in the log). `MAX_NEW_ARMS_PER_SESSION=2` did its job: trained `kin_gamma0_mae_ft` and
+`kin_gamma0_mae_fresh`, deferred the other 26 arms, finished clean, `collect_outputs` ran.
+
+`kin_gamma0_mae_ft`: PSNR **42.1972**, SSIM 0.9954, 30 epochs, `lr` correctly scaled to 8.2e-5.
+Up from **35.6845** at the broken full-lr run two sessions ago -- the `FINETUNE_LR_SCALE=0.1`
+fix (`1832c54`) is confirmed doing real work, not a cosmetic change. `kin_gamma0_mae_fresh`:
+PSNR 30.5207 (45 epochs), consistent with the prior fresh run's 30.3696. Neither wiggle-scored
+yet; PSNR only, 31-channel val set, not comparable to 05's 1-channel PSNRs (RULES.md #4).
+
+**RAM leak not located, but no longer fatal.** Free RAM 27.8 -> 6.5 GB over the two arms
+(~2.3h, 75 epochs combined) -- roughly 280 MB/epoch, matching the slope from the crashed
+runs. The session cap stopped training before it reached zero, so this is contained rather
+than fixed. Worth a real trace once GPU-hour pressure allows it.
+
+`sg_k3_fresh`/`ddpm_seed42`/`ddrm_prior` source checkpoints all located correctly from
+`exxa-13-checkpoint-sources` -- those three sections are ready, just deferred by the cap.
+
 ## 2026-09-16 | bug | both notebooks killed by host RAM; fine-tune arms ran at from-scratch lr
 
 **Runs:** 05 Version 28 died at 25367.8s, 13 Version 3 at 11907.4s. Both: Kaggle's "tried to
