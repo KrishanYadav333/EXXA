@@ -9,6 +9,35 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-18 | bug | 05 crashed on a KeyError the session cap exposed; three loss arms beat winner_aug on every metric
+
+Kaggle version unconfirmed (pulled `1832c54`), notebook downloaded and archived at
+`results/05-unet-line-emission/v_pending_2026-09-17_1832c54/` pending the number (RULES.md
+#10 -- rename once known). This is a real bug, not host RAM: `MAX_NEW_ARMS_PER_SESSION=3`
+correctly trained 3 arms and deferred the rest (`winner_gradient_ft` included), then section
+6's moment-map table crashed with `KeyError: 'M0'` trying to print `winner_gradient_ft`'s
+row. `band_mom[name]` is built for every `CONFIGS` name unconditionally, valued `{}` when
+nothing scored it yet; `if name not in band_mom: continue` never catches an empty-but-present
+value, only a missing key. Section 6 onward, `collect_outputs` included, never ran.
+
+Found the identical pattern in section 6d's headline figure (cell 24, `_arms = [n for n in
+CONFIGS if n in band_mom]`) before it could cause a second crash on the next run -- fixed
+both, same guard (`band_mom.get(name) and all(m in band_mom[name] for m in moments)`).
+
+**Results that survived, before the crash -- all three beat `sweep_winner_aug` (PSNR 39.30,
+M0 +29.2%, M1 +74.0%, M2 +55.0%) on every metric:**
+
+| arm | PSNR | M0 | M1 | M2 |
+|---|---|---|---|---|
+| `winner_mae_ft` | 39.93 | +40.1% | +77.1% | +70.0% |
+| `winner_wavelet_ft` | 40.18 | +42.4% | +76.1% | +58.4% |
+| `winner_starlet_ft` | 40.14 | +39.3% | +75.8% | +59.9% |
+
+`moment_improvement`, clipped + signal-masked (RULES.md #6), 1 seed each -- not wiggle-scored
+yet, this is the ranking metric, not the kinematic diagnostic that actually answers the
+smoothing question. First time this project's loss sweep has moment-map evidence, not just
+PSNR, and the direction agrees with PSNR for once: real, not just a pixel-metric artifact.
+
 ## 2026-09-18 | run | 13's first clean finish -- LR fix confirmed, RAM leak still present but contained
 
 Kaggle Version 4 (exact number unconfirmed, author's next `Add Input` push will settle it),
