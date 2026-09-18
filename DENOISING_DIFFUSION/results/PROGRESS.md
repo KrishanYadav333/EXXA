@@ -9,6 +9,33 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-19 | run | both notebooks finish clean for the first time -- KeyError fix holds, RAM leak margin tightening
+
+05 Version 30 (`22b01ae`) and 13 Version 5 (`6b3e6ea`), both pulled `d93803d`, both verified
+against it (cell counts and every fix marker intact, nothing reverted), both archived at
+`results/05-unet-line-emission/v30_2026-09-19_22b01ae/` and
+`results/13-checkpoint-loss-sweep/v5_2026-09-19_6b3e6ea/`.
+
+**05**: the crashed session's Output (2026-09-18, likely Version 29, never confirmed) was
+never attached -- Kaggle can't attach a failed run and it wasn't manually recovered -- so
+`winner_mae_ft`/`wavelet_ft`/`starlet_ft` retrained from scratch instead of resuming,
+consuming the full `MAX_NEW_ARMS_PER_SESSION=3` cap on arms already done once. Numbers moved
+slightly (expected, not a discrepancy) and all three still beat `sweep_winner_aug` (PSNR
+39.30, M0 +29.2%, M1 +74.0%, M2 +55.0%) on every metric -- `winner_starlet_ft` (PSNR 40.32,
+M0 +42.6%, M1 +80.5%, M2 +81.1%) is now the best arm in this notebook's history on every
+metric. Section 6 completed this time; the `KeyError` fix (`d93803d`) held.
+
+**13**: `kin_gamma0_mae_ft`/`_fresh` resumed correctly this time (CSV + checkpoint both
+matched, `_import_prior_nb13` worked as designed). Trained `kin_gamma0_wavelet_ft` (PSNR
+42.88, now the best kin_gamma0 arm) and `_fresh` (38.86), deferred starlet/gradient and all
+of sg/ddpm/ddrm.
+
+**RAM leak still not traced, and the margin is tightening.** 05: 28.2 -> 17.9 GB over 98
+epochs (~105 MB/epoch). 13: 27.8 -> 3.3 GB over 86 epochs (~285 MB/epoch) -- closer to
+exhaustion than Version 4's run (6.5 GB left at the same cap). The cap is sized in ARMS, not
+epochs or GB, so it is not a fixed safety margin -- a future session with epoch-heavier arms
+under the same cap could still hit zero. Worth an actual trace before it does.
+
 ## 2026-09-18 | bug | 05 crashed on a KeyError the session cap exposed; three loss arms beat winner_aug on every metric
 
 Kaggle version unconfirmed (pulled `1832c54`), notebook downloaded and archived at
