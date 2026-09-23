@@ -202,10 +202,20 @@ def train_unet(
         optimizer, mode="min", factor=0.5, patience=sched_patience)
 
     pin = n_gpu > 0
+    # persistent_workers: without it (the default), DataLoader tears down and respawns
+    # every worker process at the end of EVERY epoch's iteration, for both loaders. Two
+    # Kaggle sessions (2026-09-20) died of host RAM exhaustion mid-arm with a steady,
+    # resolution-independent ~0.3 GB/epoch decline and no traceback -- exactly the profile
+    # of a fork-storm leak (num_workers x 2 loaders x every epoch), not a data-size leak.
+    # Keeping the same worker pool alive across epochs removes that per-epoch fork/destroy
+    # cycle entirely.
+    persist_workers = num_workers > 0
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True,
-                              num_workers=num_workers, pin_memory=pin)
+                              num_workers=num_workers, pin_memory=pin,
+                              persistent_workers=persist_workers)
     val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False,
-                            num_workers=num_workers, pin_memory=pin)
+                            num_workers=num_workers, pin_memory=pin,
+                            persistent_workers=persist_workers)
 
     def run_epoch(loader, train):
         model.train(train)

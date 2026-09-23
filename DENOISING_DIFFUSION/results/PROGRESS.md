@@ -9,6 +9,34 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-20 | bug | RAM leak root cause found and fixed: DataLoader worker fork-storm
+
+05 Versions 33 and 34 (pulled `fe52be5`/Version 32, and `c7083fb`) both died on the exact
+same arm, `winner_res480_fresh`, at RAM 0.9/31.3 GB free, no traceback -- host OOM-kill.
+Archived at `results/05-unet-line-emission/v33_2026-09-20_crashed/` and
+`v34_2026-09-20_crashed/`. Between them: all 12 loss-sweep + res-sweep arms reconfirmed
+(V33's `winner_res480` PSNR 40.1817, `winner_res320_fresh` 38.9608; V34 retrained the same
+set from scratch since a failed version's Output cannot be attached, same numbers), plus
+`winner_gradient_ft` finally has a value (40.1396) after two sessions deferred.
+
+**Root cause, found by inspection rather than another blind cap-and-retry:**
+`train_unet`'s `DataLoader`s (`src/training/sweep.py`) never set `persistent_workers=True`.
+With Kaggle's `num_workers=4` and PyTorch's default `persistent_workers=False`, BOTH loaders
+tear down and respawn all 4 worker processes at the end of EVERY epoch's iteration -- a
+fork-storm every epoch, for the whole run. This explains what three prior entries could only
+describe: a steady ~0.3 GB/epoch decline, IDENTICAL regardless of arm or image resolution
+(matching fixed per-process fork overhead, not data volume), that no `gc.collect()` or
+`empty_cache()` call could touch because it isn't Python-heap or GPU memory.
+
+**Fixed**, same pattern, everywhere a `DataLoader` sets `num_workers>0`: `sweep.py`
+(`train_unet`, covers 05 and 13's kin/sg sections), notebook 13's DDPM/DDRM cells
+(`_nw=4`), and notebooks 06 and 07 (`nw=4`/`num_workers=2`). Notebooks 10 and 11 use
+`num_workers=0` (no workers spawned) -- not exposed, left alone.
+
+Not yet re-verified against an actual Kaggle run. Next session's `RAM free` trend across
+epochs is the test: flat (or only GPU-driver-noise-level drift) confirms the fix; still
+declining means the leak has a second source.
+
 ## 2026-09-19 | run | both notebooks finish clean for the first time -- KeyError fix holds, RAM leak margin tightening
 
 05 Version 30 (`22b01ae`) and 13 Version 5 (`6b3e6ea`), both pulled `d93803d`, both verified
