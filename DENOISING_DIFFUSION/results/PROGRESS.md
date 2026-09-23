@@ -9,6 +9,38 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-23 | added | 14-native600-loss-sweep.ipynb, on an isolated branch, not yet run
+
+**Branch `native600-loss-sweep`, off `midterm-prep` at `80a199f`.** Author's explicit
+request: this experiment stays fully isolated from the working notebooks -- its own
+branch, its own bootstrap (`BRANCH = 'native600-loss-sweep'`, not `midterm-prep`), so its
+Kaggle kernel pulls independently and a crash or a bad result here cannot touch 05/13.
+This entry exists only on this branch; nothing here is on `midterm-prep` unless merged.
+
+Extends 05/13's loss-fn sweep (mae/wavelet/starlet/gradient, fine-tune/fresh) to full
+600px resolution -- 40 arms: 24 line-emission (aug/p10/beam sources x 4 losses x 2), 8
+`kin_gamma0` (31-channel), 8 `sg_k3_fresh` (7-channel, SG domain, cubes confirmed native
+601x600x600 same as line-emission). `ddpm_seed42`/`ddrm_prior` explicitly NOT included --
+their architecture (`ch_mult`, `attn_resolutions`) is tuned for 256px's downsampling
+depth, a real redesign not a `target_size` bump, not attempted.
+
+**Named going in, not discovered after**: `winner_native600` (05, single arm, original
+loss, batch_size=4) has never completed one full run in this project's history
+(RULES.md #1). This notebook runs 40 arms at the same resolution, 8 of them at 31 input
+channels (~31x that arm's tensor size). `MAX_NEW_ARMS_PER_SESSION=1` -- the most
+conservative setting anywhere in this project. `kin_gamma0` section wraps `train_unet` in
+a `try/except RuntimeError` catching CUDA OOM specifically: if 31ch x 600px does not fit
+in a T4's 16 GB even at `batch_size=1`, that is logged as a real negative result and the
+loop continues, not a crash to chase.
+
+Checkpoint sources staged at `models/_kaggle-upload/14/` (5 files, ~563 MB, `.ckpt`
+extension per RULES.md #3): `winner_aug_seed43`, `winner_p10_seed44`, `winner_beam_seed42`,
+`kin_gamma0`, `sg_k3_fresh`. Needs a Kaggle Dataset built from that folder and a new
+notebook created on Kaggle pointed at this branch, plus the line-emission and SG data
+Inputs -- none of that done from here, no Kaggle credentials in this environment.
+
+Nothing has run. Cell-order test passes; syntax-checked; not executed.
+
 ## 2026-09-20 | bug | RAM leak root cause found and fixed: DataLoader worker fork-storm
 
 05 Versions 33 and 34 (pulled `fe52be5`/Version 32, and `c7083fb`) both died on the exact
