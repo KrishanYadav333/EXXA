@@ -41,6 +41,52 @@ Inputs -- none of that done from here, no Kaggle credentials in this environment
 
 Nothing has run. Cell-order test passes; syntax-checked; not executed.
 
+## 2026-09-23 | added | 14 expanded to 54 arms -- core arms, k1/k2, and a designed (not
+## assumed) DDPM/DDRM architecture for 600px, still on the isolated branch, not yet run
+
+Author's explicit direction: cover everything 05 and 13 cover, at native resolution too,
+not just the loss-sweep fine-tune arms from the entry above. Added to section 2: the 6
+core arms (`sweep_winner`, `sweep_winner_aug`, `sweep_winner_p10`, `v12_cfg`,
+`winner_beam`, `winner_patch`) trained from scratch at 600px, plus `winner_k1`/`winner_k2`
+(spectral context). New sections 5/6: `ddpm_seed42` and `ddrm_prior` families at 600px.
+**54 arms total now** (up from 40) -- see the notebook's own intro cell for the full table.
+
+**DDPM/DDRM required an actual architecture decision, not a config bump, and it was worked
+out before writing any code:** 600 is not a power of 2 (600 = 2^3 x 75), so only 3 clean
+halvings exist before the 4th hits an odd input -- verified by hand against `Downsample`'s
+real conv formula (`floor((H-1)/2)+1`), which stops matching the code's own `curr_res // 2`
+tracking exactly at the point that would break the skip-connection concat during
+upsampling. 06's 256px `ch_mult=[1,2,2,2,4]` (5 levels, bottleneck 16px) assumes 4 clean
+halvings and would silently construct a broken graph at 600px, not fail loudly. Fixed by
+using the architecture's own default depth, `ch_mult=[1,2,2,4]` (4 levels, bottleneck
+75px), with `attn_resolutions=[75]` set explicitly -- the default `[16]` would simply never
+fire at this resolution, silently training an attention-free model with no error. Zero
+changes to `diffusion_unet.py`; this is a config choice using an existing default, not new
+architecture code.
+
+**Caught before it could waste a run: fine-tuning `ddpm_seed42`/`ddrm_prior` into this
+architecture is impossible, not merely risky.** Checked `DenoisingDiffusion.load_checkpoint`
+(`strict=True`) before assuming fine-tune arms would work the same way the U-Net arms do.
+The 256px checkpoint's 5-level structure and the 600px model's 4-level structure have a
+different number of `down`/`up` `ModuleList` entries -- `load_state_dict` would raise on
+missing/unexpected keys on every single attempt, before any training happens, unlike the
+U-Net-family arms (fully convolutional, same weight shapes at any resolution, which is
+exactly why THEIR fine-tune arms are valid). Sections 5/6 are fresh-init only as a result;
+the fine-tune branch was never left in the code to fail at runtime.
+
+`AUX_WEIGHT` also rescaled for 600px: the primary DDPM loss sums squared error over every
+pixel (~360,000 terms at 600px vs ~65,536 at 256px, a 5.49x ratio) while the aux term is a
+per-pixel mean; 13's `AUX_WEIGHT=2000` carried over unscaled would make the aux term
+relatively 5.49x weaker than intended. Scaled to ~11000 -- still an order-of-magnitude
+estimate, not tuned, same caveat as 13's original value.
+
+`kin_gamma0`'s OOM-catch pattern extended to sections 5/6 (`batch_size=1`/`2`, conditional
+DDPM's 2-channel input at 600x600 is heavy, DDIM sampling cost at this resolution is
+unmeasured anywhere in this project -- `sampling_timesteps`/`n_avg` both cut below 13's
+256px values to bound the unknown cost, a named trade-off, not a silent one).
+
+Still nothing run. Cell-order test passes; syntax-checked.
+
 ## 2026-09-20 | bug | RAM leak root cause found and fixed: DataLoader worker fork-storm
 
 05 Versions 33 and 34 (pulled `fe52be5`/Version 32, and `c7083fb`) both died on the exact
