@@ -2,7 +2,7 @@
 ## Project Context File for Agentic IDE
 
 Local-only tracking doc, tracked in git as of `b6cdd79` (syncing across machines). Last
-updated: 2026-09-15 (week 16 of 22; midterm evaluation Aug 10-14 is done, WordPress post
+updated: 2026-09-24 (week 17 of 22; midterm evaluation Aug 10-14 is done, WordPress post
 submitted; final submission window ahead).
 
 ---
@@ -64,15 +64,22 @@ submitted; final submission window ahead).
     `sg_k3_fresh` tested against the SG v2 cube the same day did NOT transfer (0.7053, worse
     than the line-emission-trained baseline there) -- see the Phase J closing summary below
     for the full six-test chain this triggered and the figure that resolves it.
-  - `13-checkpoint-loss-sweep.ipynb`: **added 2026-09-15, not yet run.** MAE/wavelet/starlet/
-    gradient loss sweep (mentee, 2026-09-12) for the four best_models checkpoints that don't
-    share 05's 1-channel U-Net shape -- `kin_gamma0`, `sg_k3_fresh`, `ddpm_seed42`,
-    `ddrm_prior`. `05-unet-line-emission.ipynb` covers the same sweep for the other three
-    (`winner_aug_seed43`, `winner_p10_seed44`, `winner_beam_seed42`) in-notebook, no separate
-    file. Every arm runs both fine-tuned and fresh-init. Needs a Kaggle Dataset built from
-    `models/_kaggle-upload/13/` attached before the fine-tune arms can run (fresh arms don't
-    need it). Rough cost estimate 20-35 combined GPU hours across both notebooks -- see
-    PROGRESS.md 2026-09-15 for the full breakdown and the caveats on that number.
+  - `13-checkpoint-loss-sweep.ipynb`: MAE/wavelet/starlet/gradient loss sweep (mentee,
+    2026-09-12) for the four best_models checkpoints that don't share 05's 1-channel U-Net
+    shape: `kin_gamma0`, `sg_k3_fresh`, `ddpm_seed42`, `ddrm_prior`. Every arm runs both
+    fine-tuned and fresh. **Running since 09-16, resumes across sessions** (2 new arms per
+    session, `_import_prior_nb13`). As of 09-24: kin 8/8 and sg 8/8 done; ddpm l1/wavelet/
+    starlet ft+fresh done, gradient in progress; ddrm 0/4. Known deviations, PROGRESS.md
+    2026-09-24: kin fresh arms ran 45 epochs (not 50), diffusion ft arms run at the source's
+    saved lr (DDPM 2e-4, DDRM 2e-5), not `FINETUNE_LR_SCALE` of it.
+    `05-unet-line-emission.ipynb` carries the same sweep for the other three checkpoints
+    (`winner_aug_seed43`, `winner_p10_seed44`, `winner_beam_seed42`), plus the 320/480/600
+    resolution arms. Those were restored to winner_aug_seed43's recipe (D4 aug, seed 43,
+    from scratch) on 09-24 after `1832c54` had silently reverted it; the v30-v34
+    `winner_res*` numbers are the old recipe.
+  - `14-native600-loss-sweep.ipynb`: **branch `native600-loss-sweep` only**, isolated from
+    `midterm-prep` on purpose. Every 05 and 13 scenario retrained at native 600x600 (DDPM at
+    608, the nearest size its 5-level U-Net can halve cleanly). Not yet run.
 - **RULES.md now has 13 numbered rules** (`DENOISING_DIFFUSION/RULES.md`), the incident
   behind each, mandatory reading before touching a notebook. Rule 13 (2026-09-11): check
   every commit for a co-author trailer before it lands, added after one slipped through and

@@ -9,6 +9,58 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-24 | bug | review of 05/13: three recipes were not what the log said they were
+
+A full check of both notebooks against their own claims, before the Sep 25 meeting. Three
+real defects, each found by reading what ran rather than what the code comments say.
+
+**1. 05's resolution arms lost winner_aug's recipe on 09-16, and nobody noticed for five
+runs.** The 09-15 entry below ("resolution arms rebuilt as winner_aug_seed43's recipe")
+was true for one commit. `1832c54` (the host-RAM fix, 09-16) was built on a Kaggle copy of
+05 downloaded before `090b5e8` landed, and silently reverted it: RULES.md #2's failure
+mode, caused by the assistant, not by Kaggle's push. Caught by `git log -S SEED_OVERRIDE`:
+the symbol appears in exactly two commits, the one that added it and the one that removed
+it. Every res arm trained in v30 to v34 used the OLD recipe: no D4 augmentation, seed 42,
+and `winner_res320`/`winner_res480` fine-tuned from `sweep_winner_aug` at 0.1x lr rather
+than trained from scratch.
+
+*Numbers this touches:* `winner_res320` 39.6676, `winner_res480` 40.1817,
+`winner_res320_fresh` 38.9608 (09-20 entry, RUNS.md). They are valid measurements of the
+old recipe, and must not be quoted as "winner_aug's recipe at 320/480". Fix: `090b5e8`
+re-applied by hand (the patch no longer applies, context moved): `winner_aug_res320`/
+`winner_aug_res480`/`winner_aug_native600`, WINNER hyperparameters, `augment=True` train
+views, seed 43 via `SEED_OVERRIDE`, from scratch, default `min_epochs=50`. New arm names,
+so resume trains them and the old rows stay as their own record. `winner_res480_fresh`
+(never finished, RAM-killed in v33 and v34) is dropped, the new arms replace it.
+
+**2. Diffusion fine-tune arms never used `FINETUNE_LR_SCALE`.**
+`DenoisingDiffusion.load_checkpoint` restores the source checkpoint's Adam state, lr
+included, overwriting the constructor's lr. Linear warmup cannot undo it, since `self.step`
+comes back at 7656 and warmup only runs below one epoch's steps. Read directly from the
+checkpoints (no torch needed, `.pth` is a zip): `ddpm_seed42` saved lr 2e-4, `ddrm_prior`
+2e-5. So 13's `ddpm_*_ft` arms trained at 2e-4, not the 2e-5 the notebook claimed.
+
+*Numbers this touches:* `ddpm_l1_ft` PSNR 37.2620 and every other finished `ddpm_*_ft`
+arm: the lr is 2e-4, not 2e-5. The numbers themselves stand. Its first fine-tune epoch
+shows no spike (val 1673 then 1123) and it beats `ddpm_l1_fresh` (35.7669), so this is
+"continued training at the source's own lr under a new loss", a valid fine-tune, just not
+the one described. Not retrained: every DDPM ft arm, finished or still to run, gets 2e-4 by
+the same mechanism, so the family stays internally consistent, and the DDRM ft arms (not
+yet run) get 2e-5 the same way. The fix below is behaviour-neutral on purpose. Fix:
+13's dead `* FINETUNE_LR_SCALE` removed from both diffusion cells and the comments now say
+what happens; `load_checkpoint` prints the effective lr so the next one is in the log.
+
+**3. 13's kin fresh arms ran 45 epochs, below the 50-epoch minimum.** The kin cell passed
+`min_epochs=50` with `max_epochs=45`. `train_unet` stops at max, and early stopping needs
+`ep >= min_epochs`, so every kin fresh arm ran exactly 45 epochs with early stopping unable
+to fire. *Numbers this touches:* `kin_gamma0_mae_fresh` 30.5207 and
+`kin_gamma0_wavelet_fresh` 38.8636, plus the starlet/gradient fresh arms. The 30.52 in
+particular may be budget-limited, and only a rerun would say. Fix: `max_epochs=60` (as the
+sg cell already had). The finished kin rows are not retrained by this, since resume skips
+them; retraining the four fresh arms is a separate, optional ~GPU cost.
+
+---
+
 ## 2026-09-20 | bug | RAM leak root cause found and fixed: DataLoader worker fork-storm
 
 05 Versions 33 and 34 (pulled `fe52be5`/Version 32, and `c7083fb`) both died on the exact

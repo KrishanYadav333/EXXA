@@ -567,5 +567,9 @@ class DenoisingDiffusion:
         self.train_losses = ckpt.get("train_losses", [])
         self.val_losses = ckpt.get("val_losses", [])
         self.best_val_loss = ckpt.get("best_val_loss", float("inf"))
-        print(f"=> loaded '{path}' (epoch {self.start_epoch}, step {self.step})")
+        # The optimizer state above carries the SOURCE run's lr and overrides the lr this
+        # object was built with (warmup cannot fix it: self.step is already past it). Print
+        # it so a fine-tune's real lr is in the log, not assumed from the constructor.
+        print(f"=> loaded '{path}' (epoch {self.start_epoch}, step {self.step}, "
+              f"lr {self.optimizer.param_groups[0]['lr']:.1e})")
         return self
