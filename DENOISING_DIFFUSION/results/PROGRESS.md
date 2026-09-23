@@ -87,6 +87,35 @@ unmeasured anywhere in this project -- `sampling_timesteps`/`n_avg` both cut bel
 
 Still nothing run. Cell-order test passes; syntax-checked.
 
+## 2026-09-23 | added | 14: DDPM/DDRM fine-tuning restored via padding, not depth change -- 60 arms total
+
+Previous entry declared fine-tuning `ddpm_seed42`/`ddrm_prior` at native resolution
+impossible, correctly, for the 4-level architecture that a true 600px input forces. Author
+asked for a way to fine-tune all of them anyway. Found one: the actual constraint is depth
+(5 levels vs 4), not resolution -- so instead of changing depth, pad the input to a size
+that supports the CHECKPOINT's depth.
+
+**`PADDED_SIZE = 608 = 16 x 38`.** 4 clean halvings exist (608 -> 304 -> 152 -> 76 -> 38,
+checked by hand against `Downsample`'s real conv formula, same verification method as the
+depth-4 design). `ch_mult=[1,2,2,2,4]` -- the SAME 5 levels as `ddpm_seed42`/`ddrm_prior`.
+`attn_resolutions=[38]` instead of the checkpoint's `[16]`: a different absolute number,
+but attention fires at the same LEVEL INDEX (bottleneck, level 5 of 5) in both, and
+`AttnBlock`'s parameters depend only on channel count, not spatial size -- so the resulting
+`state_dict` keys and shapes are identical to the original checkpoints. `strict=True`
+loading now succeeds; verified against the actual `load_checkpoint` code path before
+writing this, not assumed to work.
+
+608 vs the cube's true 600 is a 1.3% UPSCALE, not a downscale -- no native detail lost.
+Sections 2-4 (U-Net-family, fully convolutional, no depth constraint) stay at true 600px;
+this padding is specific to sections 5/6's fixed-depth diffusion architecture.
+
+Sections 5/6 rebuilt with both `finetune` and `fresh` sources restored (matching every
+other section's pattern), `AUX_WEIGHT` rescaled for 608px's pixel count (~11280, was ~2000
+at 256px, 5.64x ratio). **60 arms total now** (was 54): +4 to section 5 (ddpm ft sources),
++2 to section 6 (ddrm ft sources).
+
+Still nothing run. Cell-order test passes; syntax-checked.
+
 ## 2026-09-20 | bug | RAM leak root cause found and fixed: DataLoader worker fork-storm
 
 05 Versions 33 and 34 (pulled `fe52be5`/Version 32, and `c7083fb`) both died on the exact
