@@ -9,6 +9,47 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-24 | added | ALMA block started: CASA runs on this Mac, first real-`simobserve` pair, exoALMA is the real-data source
+
+PLAN.md Block 2 was at zero work. Today: CASA 6.7.6 (`casatools`/`casatasks`/`casadata`, Python
+3.12, native macOS arm64 wheels) installed in `~/Projects/exxa-casa-venv`, outside the repo per the
+repo's venv convention, with `~/.casa/config.py` pointing at the pip `casadata` package and
+auto-update off. `tools/alma_simobserve.py` builds a (clean, dirty) pair per integration time,
+laid out like `sg_synth/` (`run_99<xx>_<minutes>_rt_00/`) so existing loaders read it unchanged:
+`simobserve` (ALMA Cycle 10, thermal noise with atmosphere) then `tclean(niter=0)` for the dirty cube,
+and the same sky model convolved to that dirty cube's common restoring beam as the clean target.
+Integration time is the degradation axis (noise falls as 1/sqrt(time)).
+
+**First end-to-end pair, project's own `lines.fits`, 30 min, config C-6, 40 s wall:** 100 channels
+of 0.2 km/s, 600x600, beam 0.164x0.126", clean peak 84 mJy/beam, off-line noise 6.4 mJy/beam, peak
+SNR 15, moment-0 correlation clean/dirty 0.71, PSNR(dirty, clean) 21.3 dB. A pipeline test, not a
+result: nothing was scored by any model.
+
+**Three things found while getting there, each would have silently corrupted the sweep:**
+- `kinematic_data/lines.fits` is labelled `JY/PIXEL` but its values are exactly 1e11 times those of
+  `kinematic_data_v2/clean_sg.fits` at the same pixel (6.737e7 vs 6.737e-4). Fed in as labelled, the
+  simulated cube peaked at 1.5e9 "Jy/beam". The script takes `--scale 1e-11` for it. No published
+  number touches this file directly, but anything that assumed its stated unit is wrong.
+- ALMA config C-8 (0.05") is three times finer than the project's own cubes (0.10x0.16"); default is
+  now C-6 (0.12-0.16"), matched to what the U-Net was trained on.
+- A hand-written FITS header with right-aligned strings is rejected by casacore, which requires
+  strings to start in column 11 and pad to 8 characters.
+
+**Real-data source: Jason's pointer is the exoALMA fiducial release** (Teague et al., Harvard
+Dataverse doi:10.7910/DVN/CFHWNH): 15 disks, 12CO / 13CO / CS line cubes with masks and PSFs, 142 GB
+total, 0.6 to 1.3 GB per cube. MWC 758 12CO header, read by range request: 1024x1024 at 25 mas, 301
+channels of 0.1 km/s, 0.15" circular beam, real position (RA 82.6, Dec +25.3), band 7. Beam and
+channel width are near the project's own, which is why it is a good fit. It is a CLEANed Jy/beam image,
+so it is converted to Jy/pixel by the beam area and observed with a coarser-or-equal array; the model
+is therefore already smoothed to 0.15", a stated ceiling on any result built from it. `MWC_758_12CO`
+downloading to `alma_data/exoALMA/` (gitignored).
+
+**Not done:** no degradation sweep yet (PLAN.md Week 2), no model scored on an ALMA pair, `tclean`
+baseline not written, pixel scale of the exoALMA cubes (25 mas) is 3.5x coarser than the project's
+(7 mas) so the U-Net's input sampling will need resolving before scoring.
+
+---
+
 ## 2026-09-24 | run + bug | 05 v38: first winner_aug res arms finished, RAM leak NOT fixed, 09-20 root cause refuted
 
 Pulled `9856f17`, cells current (guard, `SEED_OVERRIDE`, `winner_aug_res*` all present, so
