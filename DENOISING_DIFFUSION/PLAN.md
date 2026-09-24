@@ -1,23 +1,128 @@
-# Plan to Nov 2
+# Plan to Nov 3
 
-53 days, ~7.5 weeks, from 2026-09-10. Written now rather than at the start of the project
-because the shape of the remaining work only became clear after the retraction and the
-SG-training wiggle result; a plan written in July would have pointed at the wrong problem.
+**Rewritten 2026-09-25 around what Jason actually asked for.** The earlier version (2026-09-10) was built on
+our own reading of what mattered, and by 2026-09-24 Block 2 had become a simulated degradation sweep he never
+requested. This version starts from his words in the 2026-09-12 meeting, quoted below, and from the ML4SCI org
+deadlines (email of 2026-09-23). Anything neither asked for is listed under "optional" and gets time only after
+the rest is delivered.
 
-Three blocks, in this order and for this reason: **close the SG-training question first**
-because it is already in flight and cheap to finish; **ALMA validation second** because it is
-the one item explicitly required for the final blog (Jason, 2026-08-07: "we can get to ALMA
-data for the final blog") and currently has zero work against it, the largest structural gap
-in the project; **writeup last**, with real days reserved rather than squeezed from whatever
-is left.
-
-Update this file the way `context.md` gets updated: when a week's plan changes because of what
-a result actually showed, not on a fixed schedule. `results/PROGRESS.md` still gets every run;
-this file only gets the decisions that change what's next.
+Update this file when a result changes what comes next, not on a schedule. `results/PROGRESS.md` still gets every
+run; this file gets the decisions.
 
 ---
 
-## Block 1 -- close the SG-training / wiggle question (Sep 10 - Sep 23, ~2 weeks)
+## What Jason asked for (2026-09-12 meeting, his words)
+
+1. *"My first suggestion would just be to see if mean absolute error helps. That would be really nice if such a
+   simple thing helped."* On the current 256px.
+2. *"Then try just upsampling or well, less downsampling to something like 480 or something like that."* Because
+   600 is expensive: *"those 600, those are so big. You could maybe try to compromise and do like a 320, 480."*
+3. Other losses if appropriate: *"like wavelet, or starlet, or maybe even like a negative log likelihood"*;
+   *"whatever losses that you have read about or heard about that you think would be appropriate here."*
+4. Which models: *"focus on your best ones right now ... your two or three best models and change the loss
+   function and the pixel sizes, and just see if anything changes."* Other architectures only *"if you feel like
+   you want to explore more"*.
+5. Real ALMA data: *"if you want to take the time to do inference on actual ALMA data, this is probably the data
+   that we're going to start with"*, the exoALMA release (Harvard Dataverse, doi:10.7910/DVN/CFHWNH).
+   - *"Do the Fiduciary line images"*; *"don't worry about the PSF or the mask. Just look at the image. So the dot
+     image dot fits, those are what you want."*
+   - *"13CO is the one you want ... 13CO is kind of like the canonical one, but 12CO is fine. CS is hard because
+     it's really dim."*
+   - Read the first exoALMA paper (arXiv:2504.18688) *"so you can just sort of get an idea as to which ones are
+     interesting"*. *"MWC 758 ... that's one that people like a lot because it's really weird."*
+   - DSHARP: *"D-sharp, absolutely, as well"*, but exoALMA first.
+6. VLT: *"If we don't get to the VLT data, you know, that's not a big deal at all."*
+7. Viewing: DS9.
+8. What he would be happiest with: *"if we get a really good ALMA pipeline down and show it can be used and
+   actually like give you scientific insights, that's the thing that I would be most happy with."*
+9. Pace: *"I don't expect you to get all that done by next week. But I think that's just a good plan for the next
+   few weeks."*
+
+## ML4SCI org requirements (email, 2026-09-23)
+
+- **Blog post shared with the mentors by Fri Sep 25, 17:00 US Central (Sat Sep 26, 03:30 IST).** Mentors are told
+  not to pass the evaluation until they have checked it. For a long project the org allows a progress post now
+  and an update at wrap-up.
+- **Code on the ML4SCI GitHub** (`ML4SCI/EXXA`, own folder), PR submitted before the org meeting. As of
+  2026-09-24 nothing from this summer is upstream.
+- **Lightning talk, 3 minutes, Tue Sep 29, 10:30 US Central (21:00 IST).** Attendance required, strict on time.
+- **Final submission: Nov 3.**
+
+---
+
+## Where each ask stands (2026-09-25)
+
+| # | Ask | Status |
+|---|---|---|
+| 1 | MAE | **Done.** `winner_mae_ft` PSNR 39.78, M0 **+26.3%**, below the `sweep_winner_aug` baseline (+29.2%). MAE alone did not help M0; M1/M2 rose. |
+| 3 | wavelet / starlet | **Done.** `winner_starlet_ft` 40.32 dB, M0 +42.6 / M1 +80.5 / M2 +81.1; `winner_wavelet_ft` 40.13, +38.8 / +76.1 / +70.0. One seed, spread across the 5 holdout cubes (v30). |
+| 3 | pix2pix-style gradient | Trained (`winner_gradient_ft` 40.14), moments not yet in the v30 table. |
+| 3 | NLL | Not tried. |
+| 2 | 480 / 320 | **Trained**, winner_aug's recipe from scratch (seed 43): `winner_aug_res480` 40.18, `res320` 37.36. **Moments not scored**, and PSNR does not compare across resolutions, so ask 2 has no answer yet. |
+| 4 | best 2-3 models | aug done; the p10 and beam loss arms (8) remain in notebook 05, ~4 Kaggle sessions. |
+| 5 | exoALMA inference | Notebook 15 (`15-alma-real-cube-inference.ipynb`, branch `alma-validation`) built, smoke-tested only. |
+
+Done but not asked for: notebook 13 (loss sweep on `kin_gamma0`, `sg_k3_fresh`, `ddpm_seed42`, `ddrm_prior`, 28/28
+arms). Built but not asked for: notebook 14 (native 600px, 56 arms), `tools/alma_simobserve.py`.
+
+---
+
+## Timeline
+
+Friday meetings: Sep 25, Oct 2, Oct 9, Oct 16, Oct 23, Oct 30.
+
+### Sep 25 to 29: org deadlines first
+
+- **Sep 25, before 03:30 IST Sep 26:** progress blog post to Jason. Content: the loss sweep (asks 1 and 3, with
+  the MAE result stated as it is), resolution arms trained, the SG / wiggle findings, ALMA started.
+- **Sep 25 meeting:** report asks 1 and 3, and that ask 2 is trained but not yet scored.
+- **By Sep 29:** PR to `ML4SCI/EXXA`; 3-minute talk rehearsed.
+- **Sep 29, 21:00 IST:** lightning talk.
+- **Kaggle, in the background:** notebook 05's remaining arms; notebook 15 on MWC 758 13CO.
+
+### Oct 1 to 7: answer asks 2 and 4
+
+- Score moments for `winner_aug_res480` and `res320` on the 5 holdout cubes, same metric as every other row.
+  That is the real answer to ask 2.
+- Moments for `winner_gradient_ft`, and for the p10 / beam loss arms as they finish.
+- **Pick the final 2-3 models on moments** (M0/M1/M2 and the wiggle), not on PSNR. Current candidates:
+  `winner_starlet_ft`, `winner_wavelet_ft`, and `winner_aug_res480` if its moments hold up.
+- NLL loss only if a slot is free; it is optional in his words.
+
+### Oct 1 to 20: real ALMA data (asks 5, 7, 8)
+
+- **Oct 1-7:** MWC 758 fiducial **13CO**, then 12CO, `.image.fits` only, run with the chosen 2-3 models. Open the
+  raw and denoised cubes in DS9.
+- **Oct 8-14:** 2-3 more exoALMA disks chosen from the exoALMA I paper, then DSHARP.
+- **Oct 15-20:** the scientific reading: what the denoiser does to the kinematics of real disks. MWC 758 has
+  known spirals and kinks in the exoALMA papers, so compare against them. This is the "scientific insights" he
+  asked for, and the headline of the final blog.
+
+### Oct 23 to 30: final blog and repo
+
+- Write the final blog update (org: update the progress post at wrap-up). Structure: loss and resolution results,
+  then real ALMA results, then the negative results told plainly.
+- Clean the upstream PR so the notebooks run; archive per RULES.md #10; check every checkpoint cited is in
+  `models/` (RULES.md #12).
+- Draft to Jason by Oct 27, leaving time for a revision round.
+
+### Oct 31 to Nov 2: buffer. Nov 3: final submission.
+
+---
+
+## Optional: only after everything above
+
+- **Notebook 14** (native 600px, 56 arms). Jason proposed 320/480 *because* 600 is expensive; parked.
+- **`tools/alma_simobserve.py` degradation sweep.** Tests our own question (does model value depend on how
+  degraded the input is, `headroom_scatter.png`) on simulated ALMA noise. Works end to end; not requested.
+- **VLT / PDS 70.** *"Not a big deal at all"* if skipped.
+- **NLL loss**, if not already fitted in during Oct 1-7.
+
+---
+
+## History: Block 1, SG-training / wiggle question (Sep 10 to 23, closed)
+
+Kept as the record of how that question was settled. Superseded as a plan by the sections above.
 
 Current state: SG training improves M0/M1/M2 and degrades the actual wiggle diagnostic, shown
 at n=5 with a confirmed-not-a-masking-artifact check (PROGRESS.md 2026-09-10). Notebook 12
@@ -66,75 +171,7 @@ not let this block run past 2026-09-23 chasing a positive result that isn't ther
 
 ---
 
-## Block 2 -- ALMA validation (Sep 24 - Oct 14, ~3 weeks)
-
-Org task 6. Zero work against it before 2026-09-24, repeatedly identified as the largest gap. This is not
-optional for the final blog; Jason named it explicitly.
-
-**What Jason asked for, in his words (2026-09-12 meeting).** Everything in this block follows from these:
-
-- Data: *"if you want to take the time to do inference on actual ALMA data, this is probably the data that
-  we're going to start with"*, the exoALMA release (Harvard Dataverse, doi:10.7910/DVN/CFHWNH).
-- Which files: *"do the Fiduciary line images"*; *"don't worry about the PSF or the mask. Just look at the image.
-  So the dot image dot fits, those are what you want."*
-- Which line: *"13CO is the one you want ... 13CO is kind of like the canonical one, but 12CO is fine. CS is hard
-  because it's really dim."*
-- Which disks: read the first exoALMA paper (arXiv:2504.18688) to see which are interesting; *"MWC 758 ... that's
-  one that people like a lot because it's really weird"*. PDS 70 is interesting but is VLT data.
-- DSHARP: *"D-sharp, absolutely, as well"*, though exoALMA is *"the state of the art"* and is the first to use.
-- Models: *"focus on your best ones"*, two or three, with loss function and pixel size the two variables.
-- VLT: *"let's focus on getting this as good as possible. If we don't get to the VLT data ... that's not a big
-  deal at all."*
-- Success: *"if we get a really good ALMA pipeline down and show it can be used and actually give scientific
-  insights, that's the thing that I would be most happy with."*
-- Viewing: DS9.
-
-**Plan.**
-- **Week 1 (Sep 24-30):** notebook 15 (`15-alma-real-cube-inference.ipynb`, Kaggle, branch `alma-validation`) on
-  MWC 758 fiducial **13CO** `.image.fits`, then 12CO, with `winner_aug_seed43` and the best two or three
-  loss-sweep models. Inspect the results in DS9.
-- **Week 2 (Oct 1-7):** more exoALMA disks chosen from exoALMA I, then the same pipeline on DSHARP.
-- **Week 3 (Oct 8-14):** the scientific reading: what the denoiser did to the kinematics on real disks.
-
-**Exit criterion (Jason's, unchanged):** a really good ALMA pipeline that can be used and gives scientific
-insights. No degradation-curve or point-count criterion comes from him.
-
-**Secondary track, our own design and NOT requested by Jason.** After Phase J closed (2026-09-11) this block was
-redesigned as a degradation-axis experiment: simulate ALMA observations of a known disk at several integration
-times with `simobserve` and plot recovery against input degradation, to test whether model value depends on how
-degraded the input already is (`headroom_scatter.png`). `tools/alma_simobserve.py` builds those (clean, dirty)
-pairs and works end to end. It is kept because it answers a question this project raised, but it only gets time
-after the primary track above is delivered, and its former "at least 3 points" exit criterion belongs to it alone.
-
----
-
-## Block 3 -- final blog and submission (Oct 15 - Nov 2, ~2.5 weeks)
-
-Deliberately not squeezed from whatever time is left; it is planned as its own block from the
-start, the way the midterm blog was.
-
-**Oct 15-21: write.** Structure mirrors the midterm post's (classical baselines to
-architecture comparison to line-emission U-Net to self-gravitating pivot), extended with:
-the Phase 0 gate and why DDRM/VIREO were struck for line emission and reopened for SG data;
-the retraction, told honestly, it is a stronger story than a clean result would have been;
-the SG-training result (Block 1's outcome, whichever way it landed); the ALMA validation
-(Block 2's outcome). Pull directly from `results/PROGRESS.md` rather than reconstructing the
-narrative from memory, it is already the accurate chronological record.
-
-**Oct 22-26: notebook and repo cleanup.** The public notebook link needs to actually run
-clean, not just be internally correct. Archive anything not already archived per RULES.md
-#10; confirm every checkpoint referenced in the blog is still in `models/` per RULES.md #12.
-
-**Oct 27-30: mentor pass.** Send the draft, leave real time for a response and a revision
-round rather than sending it two days before the deadline.
-
-**Oct 31 - Nov 2: submission buffer.** No new work scheduled here on purpose. If everything
-above finished on time, this is slack; if something ran long, this is where it lands instead
-of the deadline itself.
-
----
-
-## Standing practice, unchanged, applies through all three blocks
+## Standing practice, unchanged, applies throughout
 
 - `results/PROGRESS.md` and `context.md` updated in the same push as the change (CLAUDE.md,
   "Before every git push").
@@ -142,4 +179,4 @@ of the deadline itself.
   "losing arm" the way `winner_beam` almost was.
 - A result gets reported honestly whether it's positive or not -- the retraction and the
   wiggle-degradation finding are both more useful to Jason than a quieter, incomplete story
-  would have been, and that doesn't change for Blocks 2 and 3.
+  would have been, and that doesn't change now.
