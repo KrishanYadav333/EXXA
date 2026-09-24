@@ -12,9 +12,9 @@ Reproduces training's preprocessing exactly (src/data/fits_cube_dataset.py):
          -> per-channel min-max by that channel's own (min, max)      [invertible]
          -> bilinear resize to the model's pixel grid
          -> model -> undo the resize -> undo the min-max
-The one addition is the pixel-scale match. The training cubes are 600 px at 6.9 mas (4.1"),
-resized to 256 px, i.e. ~16 mas/px with a 0.14" beam (~9 px). exoALMA is 25 mas/px with a 0.15"
-beam (~6 px), so the crop is resampled to ~16 mas/px to hand the model the same beam-in-pixels.
+The one addition is the pixel-scale match. The 14 training simulations have a beam of 5.8 to 11.2 px at
+256 px, median 7.9. exoALMA's circular 0.15" beam is 7.9 px at 19 mas/px, so the crop is resampled to that
+(ALMA_PLAN.md section 4). Only 256 px models are run.
 
     ~/Projects/exxa-infer-venv/bin/python tools/alma_infer.py \\
         --cube alma_data/exoALMA/MWC_758_13CO_fiducial.image.fits \\
@@ -121,7 +121,8 @@ def main():
     ap.add_argument("--ckpt", nargs="+", required=True, metavar="LABEL=PATH")
     ap.add_argument("--out", required=True)
     ap.add_argument("--fov", type=float, default=8.0, help="central field of view kept, arcsec")
-    ap.add_argument("--pix-mas", type=float, default=16.0, help="model pixel scale; 16 mas matches training")
+    ap.add_argument("--pix-mas", type=float, default=19.0,
+                    help="model pixel scale; 19 mas puts the 0.15 arcsec beam at 7.9 px, the training median")
     ap.add_argument("--n-edge", type=int, default=5, help="edge channels for continuum, as in training")
     ap.add_argument("--partial", action="store_true", help="accept a truncated (unfinished) download")
     ap.add_argument("--device", default="cuda", help="cuda on Kaggle, mps or cpu locally")

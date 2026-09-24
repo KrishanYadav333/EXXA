@@ -9,6 +9,29 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-25 | plan | ALMA_PLAN.md: the design for real-cube inference, with the domain gap measured
+
+New `ALMA_PLAN.md` (data, domain gap, pipeline, evaluation, gates, risks); `PLAN.md` keeps the schedule and links to it.
+Built from Jason's asks in his words, the exoALMA I tables, and the training simulations' own `.para` files and FITS
+headers. What measuring the training domain showed, none of which was in the repo's notes:
+
+- The 14 training cubes are **MCFOST 13CO J=2-1** simulations. exoALMA's 13CO is J=3-2, so it is the same molecule;
+  12CO would be a larger gap. That is a concrete reason behind Jason's "13CO is the one you want".
+- Every training disk is **R_out = 300 AU in a 600 AU box**, so at 100 to 193 pc it spans 1.55" to 3.0" (11 to 22
+  beams) and always fills the frame. One stellar setting (1.0 Msun, 4282 K). Inclinations 11.7 to 70.3 deg; MWC 758
+  (19.4 deg) has three training neighbours at 11.7, 13.4 and 21.7.
+- Training beams span **5.8 to 11.2 px at 256 px, median 7.9**. exoALMA's 0.15" beam is 7.9 px at **19 mas/px**, so
+  the resampling default changes from 16 mas/px (9.4 px, near the top of the range) to 19. Applied to `tools/alma_infer.py`
+  and notebook 15. Both a beam-matched and a frame-filling policy are to be run and compared.
+
+Also in the plan, marked as our additions rather than Jason's: an invented-structure check on line-free planes,
+a model-agreement check, a pixel-scale robustness check, and **injection-recovery on real exoALMA noise** (the only
+test with a known answer on real noise, and a degradation curve on real noise as a by-product). Thresholds are
+provisional placeholders anchored to exoALMA's ~10 m/s velocity precision and are to be revised after the first run.
+Nothing has been run on a real cube yet.
+
+---
+
 ## 2026-09-24 | added | 15-alma-real-cube-inference.ipynb: Jason's actual ALMA ask, on branch alma-validation, not yet run
 
 Re-reading the 2026-09-12 meeting transcript: Jason asked for **inference on real exoALMA data** ("if you want
