@@ -44,6 +44,19 @@ so it is converted to Jy/pixel by the beam area and observed with a coarser-or-e
 is therefore already smoothed to 0.15", a stated ceiling on any result built from it. `MWC_758_12CO`
 downloading to `alma_data/exoALMA/` (gitignored).
 
+**Source paper, Jason's second pointer: exoALMA I (Teague et al. 2025, arXiv:2504.18688).** Read in full.
+What the release actually is: 15 disks, Band 7 (~345 GHz), 12CO and 13CO J=3-2 and CS J=7-6, observed with
+ALMA configurations C43-3 plus C43-6 (plus the ACA for DM Tau, LkCa 15, HD 34282, J1604, J1615, V4046 Sgr,
+AA Tau). Three image sets: "fiducial" (real data, CLEANed with a source-specific robust and uv-taper to a
+circular 0.15" beam, 100 m/s channels for CO, 200 m/s for CS, RMS ~1.5 K per channel), "high resolution"
+(65 to 150 mas, ~5x noisier), and "low resolution" (0.3", ~0.25 K). So a fiducial cube is an
+observation with its own noise and CLEAN artefacts, **not** a noiseless truth: using it as `simobserve`'s
+sky model bakes ~1.5 K of real noise and CLEAN errors into the "clean" target. The release also ships the
+per-channel PSF (`*.psf.fits`, the real dirty beam), a CLEAN mask, and a 2D `smoothed_psf`. The paper says the
+calibrated measurement sets exist and support finer channels, but they are not in this Dataverse record.
+The programme's own science goal is kinematic perturbations at ~10 m/s velocity precision (kinks, spirals,
+warps), which is what this project's moment-1 and Keplerian-residual ("wiggle") scoring measures.
+
 **Not done:** no degradation sweep yet (PLAN.md Week 2), no model scored on an ALMA pair, `tclean`
 baseline not written, pixel scale of the exoALMA cubes (25 mas) is 3.5x coarser than the project's
 (7 mas) so the U-Net's input sampling will need resolving before scoring.
