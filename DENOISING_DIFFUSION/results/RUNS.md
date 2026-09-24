@@ -35,6 +35,11 @@ Full lineage, recovered from every branch (`line-emission`, `midterm-prep`, `wee
 | 19 | 2026-08-14 | `c899750` | — | — | — | [`v19_.../`](05-unet-line-emission/v19_2026-08-14_crashed/) — **CRASHED** at 4.0 h, section 6 never ran, no moment scores |
 | **20** | 2026-08-14 | `c28b860` | — | 39.30 (aug) | **+29.2% ±7.2** (aug) | [`v20_.../`](05-unet-line-emission/v20_2026-08-14_c28b860/) — **mask + clip**, 15 checkpoints, **zero training** |
 | 22 | 2026-08-17 | `6f5c798` | — | unchanged | unchanged | [`v21_.../`](05-unet-line-emission/v22_2026-08-17_6f5c798/) — sections 7-8 only; artifact CSV finally saved |
+| — | — | — | — | — | — | **v23-v29 not entered here** — docs debt, not a gap in the runs themselves (each is archived under `results/05-unet-line-emission/` or noted in PROGRESS.md; `v_pending_2026-09-17_1832c54` still needs its real version number). Close before Block 3. |
+| 30 | 2026-09-19 | `22b01ae` | — | 40.32 (`winner_starlet_ft`) | not re-scored this version | [`v30_.../`](05-unet-line-emission/v30_2026-09-19_22b01ae/) — loss-sweep arms first clean finish: `winner_{mae,wavelet,starlet}_ft` 39.78/40.13/40.32 |
+| 33 | 2026-09-20 | `fe52be5` | — | 40.18 (`winner_res480` ft, old recipe) | — | [`v33_.../`](05-unet-line-emission/v33_2026-09-20_crashed/) — **CRASHED**, host RAM exhaustion, root cause found this run (DataLoader fork-storm) |
+| 34 | 2026-09-20 | `c7083fb` | — | 40.14 (`winner_gradient_ft`) | — | [`v34_.../`](05-unet-line-emission/v34_2026-09-20_crashed/) — **CRASHED**, same cause as v33, `persistent_workers` fix landed after |
+| 36 | 2026-09-24 | `1832c54` (stale — see README) | — | 39.93/40.18/40.14 (`winner_{mae,wavelet,starlet}_ft`, reconfirmed) | — | [`v36_.../`](05-unet-line-emission/v36_2026-09-24_stale-cells/) — **CRASHED**, `KeyError: 'M0'`, Kaggle ran cells frozen 3 fix-generations behind HEAD; not a code bug, see README |
 
 **v18 is the best 05 run to date, and the first with every moment positive on every cube.**
 M0 +81.2% ±12.6, M1 +31.5% ±9.2, M2 +19.9% ±18.8, 5/5 cubes positive on all three, against
