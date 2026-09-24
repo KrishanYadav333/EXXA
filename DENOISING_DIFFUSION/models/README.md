@@ -1,6 +1,6 @@
 # Local checkpoint store
 
-Every trained model this project has produced, one copy each, 40 files. Gitignored
+Every trained model this project has produced, one copy each, 68 files. Gitignored
 (`*.pth` is ignored repo-wide) and never committed, so this is the only place they exist
 outside Kaggle.
 
@@ -26,11 +26,12 @@ models/
   10-sg/         2 U-Nets trained on self-gravitating data, notebook 10
   11-loo/       10 U-Nets, leave-one-out over the five SG disks, notebook 11
   12-spectral/   4 U-Nets, spectral-context sweep on SG training, notebook 12
+  13-checkpoint-loss-sweep/  28 models, MAE/wavelet/starlet/gradient sweep on kin/sg/ddpm/ddrm, notebook 13
   best_models/   4 wiggle-confirmed picks + DDRM (kept as a negative result) + untested/
                  (2 best-PSNR checkpoints never scored on the wiggle), all hardlinks
 ```
 
-All 40 are single-root torch archives, verified. RULES.md #3 exists because a checkpoint
+All 68 are single-root torch archives, verified. RULES.md #3 exists because a checkpoint
 that loses its single top-level directory stops loading, so that property is the thing
 worth re-checking after any move:
 
@@ -211,3 +212,65 @@ does not mean worse pixel performance, RULES.md #4. Not yet scored on moments or
 All four verified single-root, strict-`load_state_dict`-compatible at `in_channels=31,
 out_channels=31`, and each checkpoint's own `kinematic_gamma` field matches its arm name
 exactly. Arrived as `.zip`, renamed not unpacked, RULES.md #3.
+
+## 13-checkpoint-loss-sweep: 28 arms, MAE/wavelet/starlet/gradient on the four non-05 checkpoints
+
+Notebook 13, Kaggle Version 17 (2026-09-24), the first version to finish all 28 arms.
+Sources: `kin_gamma0`, `sg_k3_fresh`, `ddpm_seed42`, `ddrm_prior`, each swept over four
+losses and each run both fine-tuned (`_ft`) and from fresh init (`_fresh`). Downloaded from
+the Kaggle Output as `*.zip` and renamed to `.pth`, not unpacked, RULES.md #3. All 28
+verified single-root with a clean CRC, and every checkpoint's own `loss_name` (U-Net) or
+`loss_type` and `aux_loss_name` (diffusion) matches its arm name.
+
+**Read the columns with RULES.md #4 in mind: no value below is comparable across rows with
+a different loss.** `val_loss` and `best_val_loss` are each measured under that arm's own
+objective, so `kin_gamma0_mae_fresh` at 0.0165 against `kin_gamma0_starlet_ft` at 0.0002 is
+a scale difference, not a 80x quality gap. Rank by PSNR and moments, from the CSVs, which
+are not in git yet. Nothing in these tables says which loss is best.
+
+U-Nets. `epoch` is the run's own best epoch (`_ft` arms load weights only, so it counts
+from 0, not from the source):
+
+| arm | best epoch | val_loss | loss | in/out ch |
+|---|---|---|---|---|
+| `kin_gamma0_gradient_fresh` | 43 | 0.000579 | gradient | 31 / 31 |
+| `kin_gamma0_gradient_ft` | 35 | 0.000500 | gradient | 31 / 31 |
+| `kin_gamma0_mae_fresh` | 40 | 0.016485 | mae | 31 / 31 |
+| `kin_gamma0_mae_ft` | 15 | 0.004242 | mae | 31 / 31 |
+| `kin_gamma0_starlet_fresh` | 43 | 0.000331 | starlet | 31 / 31 |
+| `kin_gamma0_starlet_ft` | 30 | 0.000197 | starlet | 31 / 31 |
+| `kin_gamma0_wavelet_fresh` | 34 | 0.000481 | wavelet | 31 / 31 |
+| `kin_gamma0_wavelet_ft` | 35 | 0.000359 | wavelet | 31 / 31 |
+| `sg_k3_gradient_fresh` | 43 | 0.001278 | gradient | 7 / 1 |
+| `sg_k3_gradient_ft` | 7 | 0.001068 | gradient | 7 / 1 |
+| `sg_k3_mae_fresh` | 47 | 0.011126 | mae | 7 / 1 |
+| `sg_k3_mae_ft` | 12 | 0.010668 | mae | 7 / 1 |
+| `sg_k3_starlet_fresh` | 58 | 0.000773 | starlet | 7 / 1 |
+| `sg_k3_starlet_ft` | 7 | 0.000628 | starlet | 7 / 1 |
+| `sg_k3_wavelet_fresh` | 59 | 0.000972 | wavelet | 7 / 1 |
+| `sg_k3_wavelet_ft` | 21 | 0.000924 | wavelet | 7 / 1 |
+
+Diffusion. `epoch` here includes the source's own epochs, because `load_checkpoint`
+restores the step counter: `ddpm_seed42` starts the fine-tune at 58 and `ddrm_prior` at 59.
+`ddpm_l1_ft` is therefore only 2 epochs past its source (best 60): 28 more epochs never beat
+it. The `_ft` diffusion arms run at the source's saved Adam lr (DDPM 2e-4, DDRM 2e-5), not
+`FINETUNE_LR_SCALE` of it, see PROGRESS.md 2026-09-24.
+
+| arm | best epoch | best_val_loss | loss_type | aux | conditional |
+|---|---|---|---|---|---|
+| `ddpm_gradient_fresh` | 33 | 136.922 | l2 | gradient | True |
+| `ddpm_gradient_ft` | 68 | 105.488 | l2 | gradient | True |
+| `ddpm_l1_fresh` | 50 | 1424.351 | l1 | - | True |
+| `ddpm_l1_ft` | 60 | 1123.346 | l1 | - | True |
+| `ddpm_starlet_fresh` | 44 | 85.739 | l2 | starlet | True |
+| `ddpm_starlet_ft` | 68 | 65.927 | l2 | starlet | True |
+| `ddpm_wavelet_fresh` | 44 | 110.199 | l2 | wavelet | True |
+| `ddpm_wavelet_ft` | 79 | 83.482 | l2 | wavelet | True |
+| `ddrm_l1_fresh` | 49 | 423.836 | l1 | - | False |
+| `ddrm_l1_ft` | 85 | 346.067 | l1 | - | False |
+| `ddrm_l2_fresh` | 48 | 24.359 | l2 | - | False |
+| `ddrm_l2_ft` | 84 | 20.585 | l2 | - | False |
+
+Not yet scored on PSNR/SSIM (diffusion) or moments and the wiggle (any arm). The `sg_k3_*_ft`
+arms peaked at epochs 7 to 21 of a 30-epoch minimum, so they moved little from the source
+before early stopping, worth remembering before reading anything into their ranking.
