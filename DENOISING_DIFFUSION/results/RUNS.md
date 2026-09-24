@@ -278,6 +278,27 @@ now filed under their own notebook name.
 Neither records a `HEAD is now at` line, so the code commit is unknown; the push commit is
 the only anchor.
 
+## 13-checkpoint-loss-sweep — MAE/wavelet/starlet/gradient sweep on the 4 non-05 checkpoints
+
+`kin_gamma0`, `sg_k3_fresh` (31/7-channel spectral U-Nets, `LOSS_REGISTRY` losses) and
+`ddpm_seed42`, `ddrm_prior` (`loss_type='l1'`/`'l2'` + optional wavelet/starlet/gradient
+aux on `x0_hat`, `src/training/diffusion.py`). Every arm both fine-tuned and fresh.
+Resumes across sessions (`_import_prior_nb13`, `MAX_NEW_ARMS_PER_SESSION=2`).
+
+| Ver | Date (UTC) | push | status | Artifacts |
+|----:|---|---|---|---|
+| 5 | 2026-09-18 | `27b6f7a` | kin 1/8, first clean finish | [`v5_.../`](13-checkpoint-loss-sweep/v5_2026-09-19_6b3e6ea/) |
+| 6-12 | 2026-09-19/20 | — | kin 8/8, sg 8/8, ddpm ramping up (RAM-leak sessions, capped) | not yet archived — see `v_pending`/PROGRESS.md |
+| 17 | 2026-09-24 | `aca35c5` | **kin 8/8, sg 8/8, ddpm 8/8, ddrm 4/4 — all 28 arms complete** | not yet archived; per-arm PSNR/`best_val_loss` live in the 4 CSVs inside this version's Kaggle Output, not pulled into git yet |
+
+**Read from cell output, not re-derived:** `ddrm_l2_fresh` (last arm to finish)
+`best_val_loss` 24.35863, 50 epochs, no early stop. The other 27 arms' numbers are not
+in this session's log capture (resumed arms print `SKIPPED, already done`, not their
+value) — pull `nb13_*.csv` from the Output before quoting anything else from v17.
+Same caveat as 05: v17's cells matched `aca35c5`, which predates today's lr-comment and
+kin-epoch-budget fixes (behaviour-neutral — see PROGRESS.md 2026-09-24) — reapplied on
+top in the merge that landed this row, not lost.
+
 ## 06-ddpm-line-emission — DDPM
 
 | Ver | Date (UTC) | code | Outcome | Artifacts |

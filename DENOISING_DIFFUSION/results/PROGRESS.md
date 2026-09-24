@@ -9,6 +9,38 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-24 | run | 13 Version 17 -- all 28 loss-sweep arms complete, pushed as a merge not a clobber
+
+Pushed the res-arm/lr/epoch fixes below, then `git push` rejected: Kaggle had already
+pushed `aca35c5` (13 Version 17) to `midterm-prep` in the meantime. Fetched and checked
+before merging, rather than force-pushing over it (RULES.md #2's usual failure runs the
+other way: Kaggle's push overwriting committed fixes; this time the risk was symmetric,
+my local fix overwriting Kaggle's finished training run if merged carelessly).
+
+**v17 finished the whole notebook**: kin 8/8, sg 8/8, ddpm 8/8 (`gradient_ft`/`gradient_fresh`
+were the last two, deferred since 09-20), ddrm 4/4 (`ddrm_l2_fresh` the final arm,
+`best_val_loss` 24.35863, 50 epochs, no early stop). First time 13 has reached 28/28.
+
+**v17's cells were the same stale-cell disease as 05 v36**, fingerprinted the same way:
+`FINETUNE_LR_SCALE` still multiplying the diffusion fine-tune lr (dead code, since
+`load_checkpoint` overwrites it either way -- see 2026-09-24 entry above), kin's
+`max_epochs=45` not yet raised to 60. Neither affects v17's actual results: the lr fix is
+comment-only (the real lr was always the source's saved value), and all 8 kin arms were
+`SKIPPED, already done` this version, so `max_epochs` never executed.
+
+**Resolved by merge, not overwrite.** `git checkout --theirs` took Kaggle's file (all 28
+arms' outputs intact), then the lr-comment and kin-epoch fixes were reapplied by editing
+only `source` fields at the same cell indices -- verified `cell 18`'s outputs (5985 chars)
+survived byte-for-byte. Cell-order test still passes. No training data lost, no stale
+code kept either.
+
+**Numbers this touches:** none newly wrong. Per-arm PSNR/`best_val_loss` for the 27 arms
+besides `ddrm_l2_fresh` are not yet in git -- resumed arms print `SKIPPED, already done`,
+not their value, so pull `nb13_*.csv` from v17's Kaggle Output before quoting any of them
+in RUNS.md, PROGRESS.md, or a blog draft.
+
+---
+
 ## 2026-09-24 | bug | review of 05/13: three recipes were not what the log said they were
 
 A full check of both notebooks against their own claims, before the Sep 25 meeting. Three
