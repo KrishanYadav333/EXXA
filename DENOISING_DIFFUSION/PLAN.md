@@ -91,6 +91,8 @@ Friday meetings: Sep 25, Oct 2, Oct 9, Oct 16, Oct 23, Oct 30.
 
 ### Oct 1 to 20: real ALMA data (asks 5, 7, 8)
 
+The full design (data, domain gap, pipeline, how we will know it worked, gates, risks) is in `ALMA_PLAN.md`.
+
 - **Oct 1-7:** MWC 758 fiducial **13CO**, then 12CO, `.image.fits` only, run with the chosen 2-3 models. Open the
   raw and denoised cubes in DS9.
 - **Oct 8-14:** 2-3 more exoALMA disks chosen from the exoALMA I paper, then DSHARP.
