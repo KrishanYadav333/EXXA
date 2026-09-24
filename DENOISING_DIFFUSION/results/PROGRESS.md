@@ -11,10 +11,12 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ## 2026-09-24 | added | 15-alma-real-cube-inference.ipynb: Jason's actual ALMA ask, on branch alma-validation, not yet run
 
-Re-reading the 09-11 meeting transcript: Jason asked for **inference on real exoALMA data** ("start with the
-fiducial line images, just the .image.fits, 13CO or 12CO"), not the degradation sweep PLAN.md Block 2 designed
-on 09-11 without his input. The simulated sweep (`tools/alma_simobserve.py`) stays as a secondary, controlled
-test; this is the primary deliverable, so it is built first.
+Re-reading the 2026-09-12 meeting transcript: Jason asked for **inference on real exoALMA data** ("if you want
+to take the time to do inference on actual ALMA data, this is probably the data that we're going to start with"),
+the **fiducial line images**, "just look at the image. So the dot image dot fits", **13CO** ("the one you want ...
+the canonical one, but 12CO is fine", CS too dim), MWC 758 named as a disk people like. He did not ask for the
+degradation sweep PLAN.md Block 2 was redesigned into on 2026-09-11. That sweep (`tools/alma_simobserve.py`) is now
+a labelled secondary track and PLAN.md Block 2 is rewritten around his words; this is the primary deliverable.
 
 `tools/alma_infer.py` runs trained 256px U-Nets on a real cube with training's exact preprocessing (crop,
 subtract the cube's continuum, per-channel min-max, bilinear resize, model, invert) plus a pixel-scale match:
@@ -59,7 +61,7 @@ result: nothing was scored by any model.
 - A hand-written FITS header with right-aligned strings is rejected by casacore, which requires
   strings to start in column 11 and pad to 8 characters.
 
-**Real-data source: Jason's pointer is the exoALMA fiducial release** (Teague et al., Harvard
+**Real-data source: Jason's pointer (2026-09-12) is the exoALMA fiducial release** (Teague et al., Harvard
 Dataverse doi:10.7910/DVN/CFHWNH): 15 disks, 12CO / 13CO / CS line cubes with masks and PSFs, 142 GB
 total, 0.6 to 1.3 GB per cube. MWC 758 12CO header, read by range request: 1024x1024 at 25 mas, 301
 channels of 0.1 km/s, 0.15" circular beam, real position (RA 82.6, Dec +25.3), band 7. Beam and
@@ -68,7 +70,7 @@ so it is converted to Jy/pixel by the beam area and observed with a coarser-or-e
 is therefore already smoothed to 0.15", a stated ceiling on any result built from it. `MWC_758_12CO`
 downloading to `alma_data/exoALMA/` (gitignored).
 
-**Source paper, Jason's second pointer: exoALMA I (Teague et al. 2025, arXiv:2504.18688).** Read in full.
+**Source paper, Jason's second pointer (2026-09-12): exoALMA I (Teague et al. 2025, arXiv:2504.18688).** Read in full.
 What the release actually is: 15 disks, Band 7 (~345 GHz), 12CO and 13CO J=3-2 and CS J=7-6, observed with
 ALMA configurations C43-3 plus C43-6 (plus the ACA for DM Tau, LkCa 15, HD 34282, J1604, J1615, V4046 Sgr,
 AA Tau). Three image sets: "fiducial" (real data, CLEANed with a source-specific robust and uv-taper to a

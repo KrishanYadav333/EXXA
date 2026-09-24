@@ -68,55 +68,43 @@ not let this block run past 2026-09-23 chasing a positive result that isn't ther
 
 ## Block 2 -- ALMA validation (Sep 24 - Oct 14, ~3 weeks)
 
-Org task 6. Zero work against it as of today, repeatedly identified as the largest gap,
-repeatedly deferred for whichever SG thread was active. This is not optional for the final
-blog; Jason named it explicitly.
+Org task 6. Zero work against it before 2026-09-24, repeatedly identified as the largest gap. This is not
+optional for the final blog; Jason named it explicitly.
 
-**Redesigned 2026-09-11, after Phase J closed.** The original plan scored one clean disk
-through one real `simobserve` dirty cube -- a single verdict. That design now carries a known
-risk it didn't have before: the headroom scatter (`context.md`, Phase J closing summary)
-shows every model tested loses to doing nothing whenever the input is already lightly
-degraded, and real ALMA/DSHARP dirty data tends to sit in exactly that low-degradation
-regime. A single-cube ALMA verdict is likely to just be an eighth instance of that pattern,
-not a new finding -- which would waste the block's one shot at real-telescope validation on
-a result this project can already predict.
+**What Jason asked for, in his words (2026-09-12 meeting).** Everything in this block follows from these:
 
-**New design: a degradation-axis experiment, not a single verdict.** Inject the synthetic
-kinematic signal into real DSHARP dirty data at several degradation levels (added noise, or
-array configuration/integration time via `simobserve`), score U-Net, classical filters
-(Gaussian/median, already in `src/baselines.py`) and `tclean` at each level, and plot
-recovery against input degradation the same way `headroom_scatter.png` does. This tests the
-project's actual central claim -- that model value is a function of input degradation -- on
-real telescope noise, instead of re-litigating one more high-headroom cube. If the trend
-holds on real data too, that is a substantially stronger final-blog result than one cube
-either winning or losing.
+- Data: *"if you want to take the time to do inference on actual ALMA data, this is probably the data that
+  we're going to start with"*, the exoALMA release (Harvard Dataverse, doi:10.7910/DVN/CFHWNH).
+- Which files: *"do the Fiduciary line images"*; *"don't worry about the PSF or the mask. Just look at the image.
+  So the dot image dot fits, those are what you want."*
+- Which line: *"13CO is the one you want ... 13CO is kind of like the canonical one, but 12CO is fine. CS is hard
+  because it's really dim."*
+- Which disks: read the first exoALMA paper (arXiv:2504.18688) to see which are interesting; *"MWC 758 ... that's
+  one that people like a lot because it's really weird"*. PDS 70 is interesting but is VLT data.
+- DSHARP: *"D-sharp, absolutely, as well"*, though exoALMA is *"the state of the art"* and is the first to use.
+- Models: *"focus on your best ones"*, two or three, with loss function and pixel size the two variables.
+- VLT: *"let's focus on getting this as good as possible. If we don't get to the VLT data ... that's not a big
+  deal at all."*
+- Success: *"if we get a really good ALMA pipeline down and show it can be used and actually give scientific
+  insights, that's the thing that I would be most happy with."*
+- Viewing: DS9.
 
-**Week 1 (Sep 24-30): setup and CASA fluency.** `simobserve` on the clean SG disks (or DSHARP
-data directly), building toward several noise/configuration levels rather than one. Goal for
-the week is the CASA pipeline working end-to-end at a single level first -- fluency before
-breadth. Budget real time for CASA's own learning curve; this is new tooling for the project.
+**Plan.**
+- **Week 1 (Sep 24-30):** notebook 15 (`15-alma-real-cube-inference.ipynb`, Kaggle, branch `alma-validation`) on
+  MWC 758 fiducial **13CO** `.image.fits`, then 12CO, with `winner_aug_seed43` and the best two or three
+  loss-sweep models. Inspect the results in DS9.
+- **Week 2 (Oct 1-7):** more exoALMA disks chosen from exoALMA I, then the same pipeline on DSHARP.
+- **Week 3 (Oct 8-14):** the scientific reading: what the denoiser did to the kinematics on real disks.
 
-**Week 2 (Oct 1-7): the degradation sweep itself.** Run the same injected-signal comparison
-across at least 3 degradation levels (more if time allows), scoring U-Net / classical
-baselines / `tclean` at each with the same wiggle protocol used throughout Phase J. Separately,
-still worth checking: does the beam-plus-noise approximation in `synthesize_sg_pairs.py` hold
-up against a real `simobserve` dirty cube on the same clean disk -- if it doesn't, that bounds
-how much to trust every SG-training result from Block 1.
+**Exit criterion (Jason's, unchanged):** a really good ALMA pipeline that can be used and gives scientific
+insights. No degradation-curve or point-count criterion comes from him.
 
-**Week 3 (Oct 8-14): sweep continuation, not slack.** This redesign needs more `simobserve`
-runs than the original single-cube plan, so this week is no longer a free overrun buffer --
-it is where the degradation sweep actually gets its 3rd-5th points if Week 2 only managed 2-3.
-If Weeks 1-2 finish with a full sweep already, use this week for a second disk. CASA and
-interferometric simulation are exactly the kind of new-tooling work that has overrun before
-in this project (the four wrong Phase 0 verdicts, the DDRM checkpointing bug); if the sweep
-itself is short even at 3 points, that is still a real result and better than forcing a 5th
-point into Block 3's time.
-
-**Exit criterion:** at least 3 points on a real-DSHARP-noise degradation-vs-gain curve, for
-at least one method (U-Net), scored and reported the same honest way as everything else in
-this project, including if the trend doesn't hold on real data -- that would itself be a
-finding worth having, since it would mean the synthetic-noise headroom scatter doesn't
-generalize, which the final blog needs to know before claiming it does.
+**Secondary track, our own design and NOT requested by Jason.** After Phase J closed (2026-09-11) this block was
+redesigned as a degradation-axis experiment: simulate ALMA observations of a known disk at several integration
+times with `simobserve` and plot recovery against input degradation, to test whether model value depends on how
+degraded the input already is (`headroom_scatter.png`). `tools/alma_simobserve.py` builds those (clean, dirty)
+pairs and works end to end. It is kept because it answers a question this project raised, but it only gets time
+after the primary track above is delivered, and its former "at least 3 points" exit criterion belongs to it alone.
 
 ---
 

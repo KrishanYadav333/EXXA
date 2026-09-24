@@ -1,9 +1,10 @@
 """
 Run trained U-Net denoisers on a REAL ALMA line cube (exoALMA / DSHARP fiducial images).
 
-Jason (2026-09-11): "do inference on actual ALMA data ... start with the fiducial line images,
-just the .image.fits, 13CO or 12CO." There is no ground truth on a real cube, so this measures
-what the model changes, not how far it is from the truth: noise reduction off the line, flux
+Jason (2026-09-12): "if you want to take the time to do inference on actual ALMA data, this is probably
+the data that we're going to start with"; the fiducial line images, "just look at the image. So the dot image
+dot fits"; "13CO is the one you want ... but 12CO is fine". There is no ground truth on a real cube, so this
+measures what the model changes, not how far it is from the truth: noise reduction off the line, flux
 conservation, and how far the velocity field moves.
 
 Reproduces training's preprocessing exactly (src/data/fits_cube_dataset.py):
@@ -16,7 +17,7 @@ resized to 256 px, i.e. ~16 mas/px with a 0.14" beam (~9 px). exoALMA is 25 mas/
 beam (~6 px), so the crop is resampled to ~16 mas/px to hand the model the same beam-in-pixels.
 
     ~/Projects/exxa-infer-venv/bin/python tools/alma_infer.py \\
-        --cube alma_data/exoALMA/MWC_758_12CO_fiducial.image.fits \\
+        --cube alma_data/exoALMA/MWC_758_13CO_fiducial.image.fits \\
         --ckpt aug43=models/best_models/winner_aug_seed43.pth --out alma_out/mwc758
 """
 import argparse
