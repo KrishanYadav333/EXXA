@@ -9,6 +9,42 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-24 | run + bug | 05 v38: first winner_aug res arms finished, RAM leak NOT fixed, 09-20 root cause refuted
+
+Pulled `9856f17`, cells current (guard, `SEED_OVERRIDE`, `winner_aug_res*` all present, so
+v36's stale-cell failure did not repeat). Archived `results/05-unet-line-emission/
+v38_2026-09-24_crashed/`. Killed by host RAM at epoch 19 of the third new arm.
+
+**Finished, the arms the mentor asked for:** `winner_aug_res320` seed 43 PSNR 37.3597 SSIM
+0.9932; `winner_aug_res480` seed 43 PSNR 40.1815 SSIM 0.9969. From scratch, augmented,
+winner_aug's hyperparameters. PSNR across 256/320/480 is on different pixel grids, so it does
+not rank resolutions; only the 600px moments in section 6 do, and this run never got there.
+Both are stranded in a failed version's Output (README has the by-hand recovery).
+
+**Correction to 2026-09-20 ("RAM leak root cause found and fixed").** That entry said the
+DataLoader fork-storm was the cause and `persistent_workers=True` the fix, and marked it
+unverified. v38 is the verification, and it failed: with the fix live, 480px still declines
+0.29 GB/epoch, the same as v33's 0.3 before it. Slope also scales with image size (0.11 GB/epoch
+at 256px, 0.22 at 320, 0.29 at 480), and no memory is returned at arm boundaries (free RAM 17.1
+then 16.4, and 2.3 then 2.3). The fork-storm theory is refuted; `persistent_workers` stays in
+because it is harmless, but it is not the fix. The cause is still unknown.
+
+*Published numbers this touches:* none of the PSNR values. But `context.md` and any draft that
+says the leak is fixed is wrong, and 05/13/06/07's per-arm cap `MAX_NEW_ARMS_PER_SESSION` is
+what keeps runs alive, not a repair. 13 finishing all 28 arms on v17 was the cap working over
+many sessions, not evidence the leak is gone.
+
+**Diagnostic added:** `_host_ram_note()` in `src/training/sweep.py` now appends `main / workers /
+cache` (this process's RSS, its DataLoader children's summed RSS, kernel page cache) to every
+epoch line. Hot-reloads through cell 0b, no cell edit. Whichever column grows with the epoch is
+the leak. Not a fix; it makes the next run decisive instead of a third guess.
+
+**Plan:** all remaining 05 arms except the gated `winner_aug_native600` are 256px (about 0.11
+GB/epoch, 4 to 5 GB per arm), so three fit one fresh session. If the two res arms are not
+recovered they retrain (about 2.2 h and 4.3 h) and must run with `MAX_NEW_ARMS_PER_SESSION = 1`.
+
+---
+
 ## 2026-09-24 | run | 13 Version 17 -- all 28 loss-sweep arms complete, pushed as a merge not a clobber
 
 Pushed the res-arm/lr/epoch fixes below, then `git push` rejected: Kaggle had already

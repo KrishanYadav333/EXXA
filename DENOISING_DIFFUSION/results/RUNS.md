@@ -40,6 +40,7 @@ Full lineage, recovered from every branch (`line-emission`, `midterm-prep`, `wee
 | 33 | 2026-09-20 | `fe52be5` | — | 40.18 (`winner_res480` ft, old recipe) | — | [`v33_.../`](05-unet-line-emission/v33_2026-09-20_crashed/) — **CRASHED**, host RAM exhaustion, root cause found this run (DataLoader fork-storm) |
 | 34 | 2026-09-20 | `c7083fb` | — | 40.14 (`winner_gradient_ft`) | — | [`v34_.../`](05-unet-line-emission/v34_2026-09-20_crashed/) — **CRASHED**, same cause as v33, `persistent_workers` fix landed after |
 | 36 | 2026-09-24 | `1832c54` (stale — see README) | — | 39.93/40.18/40.14 (`winner_{mae,wavelet,starlet}_ft`, reconfirmed) | — | [`v36_.../`](05-unet-line-emission/v36_2026-09-24_stale-cells/) — **CRASHED**, `KeyError: 'M0'`, Kaggle ran cells frozen 3 fix-generations behind HEAD; not a code bug, see README |
+| 38 | 2026-09-24 | `9856f17` | — | 40.18 (`winner_aug_res480`), 37.36 (`winner_aug_res320`) | — | [`v38_.../`](05-unet-line-emission/v38_2026-09-24_crashed/) — **CRASHED**, host RAM at epoch 19 of the third arm; first winner_aug-recipe res arms, PSNR not comparable across resolutions; RAM leak NOT fixed by `persistent_workers`, see PROGRESS.md |
 
 **v18 is the best 05 run to date, and the first with every moment positive on every cube.**
 M0 +81.2% ±12.6, M1 +31.5% ±9.2, M2 +19.9% ±18.8, 5/5 cubes positive on all three, against

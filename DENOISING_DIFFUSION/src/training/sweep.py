@@ -44,14 +44,51 @@ LOSS_REGISTRY = {
 }
 
 
+def _rss_gb(pid) -> float:
+    """VmRSS of one process in GB, 0.0 if it vanished or /proc is unavailable."""
+    try:
+        with open(f"/proc/{pid}/status") as f:
+            for line in f:
+                if line.startswith("VmRSS:"):
+                    return int(line.split()[1]) / 1048576
+    except (OSError, ValueError, IndexError):
+        pass
+    return 0.0
+
+
 def _host_ram_note() -> str:
-    """' | RAM free X/Y GB' from /proc/meminfo (Linux/Kaggle); empty string elsewhere."""
+    """' | RAM free X/Y GB | main A workers B cache C' from /proc (Linux/Kaggle); '' elsewhere.
+
+    05 v38 (2026-09-24) leaked 0.11-0.29 GB per epoch with persistent_workers already on,
+    the same slope as before it, and never gave the memory back between arms. `free` alone
+    cannot say who holds it, so this splits it: `main` is this process, `workers` the sum of
+    its child processes (DataLoader workers), `cache` the kernel page cache. Whichever grows
+    with the epoch number is the leak. `cache` is reclaimable and should not be fatal; `main`
+    or `workers` growing is.
+    """
     try:
         with open("/proc/meminfo") as f:
             kb = {line.split(":")[0]: int(line.split()[1]) for line in f}
-        return f" | RAM free {kb['MemAvailable'] / 1048576:.1f}/{kb['MemTotal'] / 1048576:.1f} GB"
+        note = f" | RAM free {kb['MemAvailable'] / 1048576:.1f}/{kb['MemTotal'] / 1048576:.1f} GB"
     except (OSError, KeyError, ValueError, IndexError):
         return ""
+    try:
+        me = os.getpid()
+        kids = 0.0
+        for entry in os.listdir("/proc"):
+            if not entry.isdigit():
+                continue
+            try:
+                with open(f"/proc/{entry}/stat") as f:
+                    ppid = int(f.read().rsplit(")", 1)[1].split()[1])
+            except (OSError, ValueError, IndexError):
+                continue
+            if ppid == me:
+                kids += _rss_gb(entry)
+        note += f" | main {_rss_gb(me):.1f} workers {kids:.1f} cache {kb['Cached'] / 1048576:.1f}"
+    except (OSError, KeyError):
+        pass
+    return note
 
 
 def _unwrap(m):
@@ -203,12 +240,13 @@ def train_unet(
 
     pin = n_gpu > 0
     # persistent_workers: without it (the default), DataLoader tears down and respawns
-    # every worker process at the end of EVERY epoch's iteration, for both loaders. Two
-    # Kaggle sessions (2026-09-20) died of host RAM exhaustion mid-arm with a steady,
-    # resolution-independent ~0.3 GB/epoch decline and no traceback -- exactly the profile
-    # of a fork-storm leak (num_workers x 2 loaders x every epoch), not a data-size leak.
-    # Keeping the same worker pool alive across epochs removes that per-epoch fork/destroy
-    # cycle entirely.
+    # every worker process at the end of EVERY epoch's iteration, for both loaders. This
+    # was added 2026-09-20 as the fix for a host-RAM leak, on a fork-storm theory. That
+    # theory is REFUTED: 05 v38 (2026-09-24) ran with it on and still lost 0.29 GB/epoch at
+    # 480px, the same as before, growing with image size and never returned between arms
+    # (PROGRESS.md 2026-09-24). Kept because it is harmless and avoids respawn cost, not
+    # because it fixes anything. The per-epoch `main/workers/cache` split in
+    # _host_ram_note() is what will locate the real cause.
     persist_workers = num_workers > 0
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True,
                               num_workers=num_workers, pin_memory=pin,
