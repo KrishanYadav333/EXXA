@@ -9,6 +9,23 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-25 | plan | PLAN.md rewritten around what Jason asked for, plus the ML4SCI org deadlines
+
+The 2026-09-10 plan was built on our own reading of what mattered, and by 2026-09-24 its Block 2 had become a
+simulated degradation sweep Jason never requested. Re-reading the 2026-09-12 transcript, the plan now starts from
+his nine asks in his words (MAE first, less downsampling to 320/480, wavelet/starlet/NLL, focus on the best two or
+three models, inference on real exoALMA fiducial 13CO `.image.fits`, MWC 758, DSHARP second, VLT optional, DS9, and
+"a really good ALMA pipeline ... scientific insights" as the success measure), then the org email's dates (blog to
+mentors Sep 25 17:00 US Central, PR to `ML4SCI/EXXA` and a 3-minute talk Sep 29, submission Nov 3), then a dated
+timeline. Notebook 14 (native 600px), the `simobserve` sweep, NLL and VLT are listed as optional. Block 1 is kept
+as history.
+
+Status of his asks found while writing it: MAE done and did not lift M0 (+26.3% against the +29.2% baseline);
+wavelet and starlet done and did (+38.8%, +42.6%); 320/480 **trained but not scored on moments**, and PSNR does
+not compare across resolutions, so ask 2 has no answer yet; NLL not tried; exoALMA inference built, not run.
+
+---
+
 ## 2026-09-24 | run + bug | 05 v38: first winner_aug res arms finished, RAM leak NOT fixed, 09-20 root cause refuted
 
 Pulled `9856f17`, cells current (guard, `SEED_OVERRIDE`, `winner_aug_res*` all present, so
