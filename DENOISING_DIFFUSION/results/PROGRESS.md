@@ -9,6 +9,30 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-24 | added | 15-alma-real-cube-inference.ipynb: Jason's actual ALMA ask, on branch alma-validation, not yet run
+
+Re-reading the 09-11 meeting transcript: Jason asked for **inference on real exoALMA data** ("start with the
+fiducial line images, just the .image.fits, 13CO or 12CO"), not the degradation sweep PLAN.md Block 2 designed
+on 09-11 without his input. The simulated sweep (`tools/alma_simobserve.py`) stays as a secondary, controlled
+test; this is the primary deliverable, so it is built first.
+
+`tools/alma_infer.py` runs trained 256px U-Nets on a real cube with training's exact preprocessing (crop,
+subtract the cube's continuum, per-channel min-max, bilinear resize, model, invert) plus a pixel-scale match:
+training cubes are ~16 mas/px with a 0.14" beam (~9 px), exoALMA is 25 mas/px with a 0.15" beam (~6 px), so the
+crop is resampled to ~16 mas/px. It reports what the model *changes*, since a real cube has no truth: off-line
+noise removed, M0 flux conserved, and how far M1 moves (in km/s and against the channel width). Notebook 15 wraps it
+for Kaggle (heavy compute belongs there): fetches MWC 758 12CO and 13CO from Harvard Dataverse
+(doi:10.7910/DVN/CFHWNH, 1.26 GB each), runs whichever of `winner_aug_seed43`, `winner_p10_seed44` and the 05
+`nb05_winner_{mae,wavelet,starlet,gradient}_ft` checkpoints are attached, and files the report and figures through
+`collect_outputs`. Needs no line-emission or SG data. Bootstraps from `alma-validation`.
+
+**Only smoke-tested:** 8 planes of the partial local download, CPU, 6 s, script runs end to end. Those planes are
+pure noise, so its numbers (96% noise removed, M0 ratio 0.10) mean nothing and are not results. Nothing has run on
+a full cube. Known limits, all stated in the notebook: only 256px models (320/480/600px arms train at a different
+pixel scale), first and last 5 channels assumed line-free, fiducial images are CLEANed data not clean truth.
+
+---
+
 ## 2026-09-24 | added | ALMA block started: CASA runs on this Mac, first real-`simobserve` pair, exoALMA is the real-data source
 
 PLAN.md Block 2 was at zero work. Today: CASA 6.7.6 (`casatools`/`casatasks`/`casadata`, Python

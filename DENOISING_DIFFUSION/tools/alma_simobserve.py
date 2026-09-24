@@ -27,8 +27,12 @@ import numpy as np
 C_KMS = 299792.458
 
 
-def read_fits(path):
-    """Header dict and big-endian data array of a single-HDU FITS, no astropy needed."""
+def read_fits(path, partial=False):
+    """Header dict and big-endian data array of a single-HDU FITS, no astropy needed.
+
+    partial=True accepts a truncated file (an unfinished download): the leading axis is cut to
+    the whole planes actually present and the header's NAXIS is left as written.
+    """
     hdr, off = {}, 0
     with open(path, "rb") as f:
         done = False
@@ -44,6 +48,9 @@ def read_fits(path):
                     hdr[card[:8].strip()] = card[10:].split(" /")[0].strip().strip("'").strip()
     dtype = {-32: ">f4", -64: ">f8"}[int(hdr["BITPIX"])]
     shape = tuple(int(hdr[f"NAXIS{k}"]) for k in range(int(hdr["NAXIS"]), 0, -1))
+    if partial:
+        plane = int(np.prod(shape[1:])) * np.dtype(dtype).itemsize
+        shape = ((os.path.getsize(path) - off) // plane,) + shape[1:]
     return hdr, np.memmap(path, dtype=dtype, mode="r", offset=off, shape=shape)
 
 
