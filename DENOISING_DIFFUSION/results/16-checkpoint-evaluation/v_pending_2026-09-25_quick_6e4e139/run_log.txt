@@ -1,0 +1,320 @@
+##CELL 2
+Cloning into '/kaggle/working/EXXA'...
+Updating files: 100% (5565/5565), done.
+
+##CELL 2
+DATA_DIR    : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+SG_V2_DIR   : /kaggle/input/datasets/krishanyadav333/self-gravitating-v2/kinematic_data_v2
+SG_HOLD_DIR : /kaggle/input/datasets/krishanyadav333/exxa-sg-synth-pairs/kaggle-sg-training-dataset/run_9074_00025_rt_00
+
+##CELL 4
+From https://github.com/KrishanYadav333/EXXA
+ * branch            midterm-prep -> FETCH_HEAD
+
+##CELL 4
+HEAD is now at 6e4e139 docs: archive 05 v47 (first valid 320/480 scores), blog section 2 answered
+6e4e139 docs: archive 05 v47 (first valid 320/480 scores), blog section 2 answered
+
+
+##CELL 6
+device cuda | profile quick | budget 450 min
+
+##CELL 8
+34 checkpoint(s) described, 0 unreadable
+
+label                                      source      family      in/out beam size  supported
+kin_gamma0                                 best_models stack_kin   31/31     0  256  yes
+kin_gamma0_mae_fresh                       nb13        stack_kin   31/31     0  256  yes
+kin_gamma0_mae_ft                          nb13        stack_kin   31/31     0  256  yes
+kin_gamma0_starlet_fresh                   nb13        stack_kin   31/31     0  256  yes
+kin_gamma0_starlet_ft                      nb13        stack_kin   31/31     0  256  yes
+sg_k3_fresh                                best_models stack_sg     7/1      0  256  yes
+sweep_winner_600                           nb14        unet         1/1      0  600  yes
+sweep_winner_aug_600                       nb14        unet         1/1      0  600  yes
+sweep_winner_aug_seed42                    nb05        unet         1/1      0  256  yes
+sweep_winner_aug_seed43                    nb05        unet         1/1      0  256  yes
+sweep_winner_aug_seed44                    nb05        unet         1/1      0  256  yes
+sweep_winner_p10_600                       nb14        unet         1/1      0  600  yes
+sweep_winner_p10_seed42                    nb05        unet         1/1      0  256  yes
+sweep_winner_p10_seed43                    nb05        unet         1/1      0  256  yes
+sweep_winner_p10_seed44                    nb05        unet         1/1      0  256  yes
+sweep_winner_seed42                        nb05        unet         1/1      0  256  yes
+sweep_winner_seed43                        nb05        unet         1/1      0  256  yes
+sweep_winner_seed44                        nb05        unet         1/1      0  256  yes
+winner_aug_res320_seed43                   nb05        unet         1/1      0  320  yes
+winner_aug_res480_seed43                   nb05        unet         1/1      0  480  yes
+winner_aug_seed43                          best_models unet         1/1      0  256  yes
+winner_beam_seed42                         nb05        unet         1/1      4  256  yes
+winner_gradient_fresh_seed42               nb05        unet         1/1      0  256  yes
+winner_gradient_p10_ft_seed42              nb05        unet         1/1      0  256  yes
+winner_hybrid_ft_seed42                    nb05        unet         1/1      0  256  yes
+winner_hybrid_p10_ft_seed42                nb05        unet         1/1      0  256  yes
+winner_mae_fresh_seed42                    nb05        unet         1/1      0  256  yes
+winner_mae_p10_ft_seed42                   nb05        unet         1/1      0  256  yes
+winner_p10_seed44                          best_models unet         1/1      0  256  yes
+winner_res320_seed42                       nb05        unet         1/1      0  320  yes
+winner_starlet_fresh_seed42                nb05        unet         1/1      0  256  yes
+winner_starlet_p10_ft_seed42               nb05        unet         1/1      0  256  yes
+winner_wavelet_fresh_seed42                nb05        unet         1/1      0  256  yes
+winner_wavelet_p10_ft_seed42               nb05        unet         1/1      0  256  yes
+
+##CELL 10
+restored 0 saved map file(s) from earlier sessions
+restored 0 scored row(s) from earlier sessions
+
+##CELL 12
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+
+==============================================================================
+run_0002_00560_rt_00  [line_emission, 201 ch]  34 checkpoint(s) to score
+==============================================================================
+  references ready in 18s | dirty: resid_r 0.9966, PSNR 22.54, gradE/clean 2.603
+  kin_gamma0                             PSNR  41.08 (+18.54)  M0   -38.3 M1   +54.4 M2   +29.1  resid_r 0.997 gradE 0.95  blobs 0.1  (34s)
+  kin_gamma0_mae_fresh                   PSNR  32.52 (+9.97)  M0  -350.0 M1  -106.2 M2  -103.0  resid_r 0.987 gradE 6.72  blobs 1.5  (33s)
+  kin_gamma0_mae_ft                      PSNR  44.03 (+21.49)  M0   +35.2 M1   +73.8 M2   +35.5  resid_r 0.997 gradE 0.81  blobs 0.0  (33s)
+  kin_gamma0_starlet_fresh               PSNR  41.78 (+19.24)  M0   +19.2 M1   +70.6 M2   +81.4  resid_r 0.997 gradE 1.46  blobs 0.4  (32s)
+  kin_gamma0_starlet_ft                  PSNR  44.89 (+22.35)  M0   +36.5 M1   +76.6 M2   +65.0  resid_r 0.997 gradE 0.83  blobs 0.0  (34s)
+  sg_k3_fresh                            PSNR  32.29 (+9.74)  M0  -163.1 M1   +19.9 M2   +25.8  resid_r 0.992 gradE 3.00  blobs 1.6  (24s)
+  sweep_winner_600                       PSNR  38.74 (+16.20)  M0   +19.6 M1   +49.6 M2   -21.9  resid_r 0.996 gradE 1.83  blobs 0.1  (74s)
+  sweep_winner_aug_600                   PSNR  36.32 (+13.78)  M0   -32.6 M1   +41.8 M2   +50.7  resid_r 0.990 gradE 5.72  blobs 0.7  (74s)
+  sweep_winner_aug_seed42                PSNR  39.77 (+17.22)  M0    -3.0 M1   +65.9 M2   +50.1  resid_r 0.996 gradE 2.24  blobs 0.4  (21s)
+  sweep_winner_aug_seed43                PSNR  40.37 (+17.83)  M0   +31.3 M1   +77.2 M2   +84.6  resid_r 0.997 gradE 2.08  blobs 0.3  (22s)
+  sweep_winner_aug_seed44                PSNR  40.05 (+17.50)  M0   +24.5 M1   +77.9 M2   +42.7  resid_r 0.997 gradE 1.77  blobs 0.2  (21s)
+  sweep_winner_p10_600                   PSNR  38.18 (+15.63)  M0   -16.5 M1   +56.4 M2    +7.6  resid_r 0.996 gradE 1.42  blobs 0.0  (74s)
+  sweep_winner_p10_seed42                PSNR  39.45 (+16.90)  M0   +29.2 M1   +64.0 M2    +8.0  resid_r 0.995 gradE 1.92  blobs 0.3  (21s)
+  sweep_winner_p10_seed43                PSNR  39.90 (+17.35)  M0    +0.0 M1   +71.9 M2   +55.0  resid_r 0.996 gradE 2.04  blobs 0.4  (22s)
+  sweep_winner_p10_seed44                PSNR  40.03 (+17.49)  M0    +4.1 M1   +38.8 M2    -5.7  resid_r 0.996 gradE 1.78  blobs 0.6  (22s)
+  sweep_winner_seed42                    PSNR  38.26 (+15.72)  M0   +29.2 M1   +32.7 M2  -124.0  resid_r 0.996 gradE 2.07  blobs 0.4  (22s)
+  sweep_winner_seed43                    PSNR  37.86 (+15.31)  M0   -23.0 M1   +62.0 M2   +23.3  resid_r 0.994 gradE 3.15  blobs 0.5  (22s)
+  sweep_winner_seed44                    PSNR  39.86 (+17.32)  M0   +36.3 M1   +60.5 M2   +32.2  resid_r 0.996 gradE 1.93  blobs 0.1  (21s)
+  winner_aug_res320_seed43               PSNR  37.27 (+14.72)  M0  -114.0 M1   -36.4 M2  -116.7  resid_r 0.997 gradE 1.77  blobs 0.5  (28s)
+  winner_aug_res480_seed43               PSNR  40.85 (+18.31)  M0   +33.6 M1   +75.4 M2   +85.9  resid_r 0.997 gradE 1.76  blobs 0.3  (50s)
+  winner_aug_seed43                      PSNR  40.37 (+17.83)  M0   +31.3 M1   +77.2 M2   +84.6  resid_r 0.997 gradE 2.08  blobs 0.3  (21s)
+  winner_beam_seed42                     PSNR  39.45 (+16.91)  M0   +14.4 M1   +54.4 M2    -7.5  resid_r 0.997 gradE 1.83  blobs 0.0  (21s)
+  winner_gradient_fresh_seed42           PSNR  39.81 (+17.26)  M0    +5.0 M1   +68.5 M2   +10.4  resid_r 0.996 gradE 2.40  blobs 0.4  (21s)
+  winner_gradient_p10_ft_seed42          PSNR  39.53 (+16.98)  M0   +10.4 M1   +71.3 M2   +76.0  resid_r 0.995 gradE 2.26  blobs 0.4  (22s)
+  winner_hybrid_ft_seed42                PSNR  40.16 (+17.62)  M0   +27.7 M1   +71.2 M2   +82.9  resid_r 0.997 gradE 2.22  blobs 0.2  (21s)
+  winner_hybrid_p10_ft_seed42            PSNR  39.91 (+17.37)  M0   +28.1 M1   +67.6 M2   +63.6  resid_r 0.995 gradE 2.62  blobs 0.3  (21s)
+  winner_mae_fresh_seed42                PSNR  40.45 (+17.90)  M0   +30.1 M1   +70.4 M2   +80.0  resid_r 0.996 gradE 2.00  blobs 0.3  (21s)
+  winner_mae_p10_ft_seed42               PSNR  40.33 (+17.78)  M0   +24.8 M1   +59.9 M2   +84.4  resid_r 0.996 gradE 1.99  blobs 0.3  (21s)
+  winner_p10_seed44                      PSNR  40.03 (+17.49)  M0    +4.1 M1   +38.8 M2    -5.7  resid_r 0.996 gradE 1.78  blobs 0.6  (21s)
+  winner_res320_seed42                   PSNR  40.35 (+17.80)  M0   +39.2 M1   +72.7 M2   +67.3  resid_r 0.996 gradE 2.63  blobs 0.4  (28s)
+  winner_starlet_fresh_seed42            PSNR  40.10 (+17.56)  M0   +17.7 M1   +72.7 M2   +71.9  resid_r 0.996 gradE 2.16  blobs 0.6  (21s)
+  winner_starlet_p10_ft_seed42           PSNR  40.07 (+17.53)  M0   +41.4 M1   +65.7 M2   +77.1  resid_r 0.996 gradE 2.36  blobs 0.5  (21s)
+  winner_wavelet_fresh_seed42            PSNR  39.98 (+17.44)  M0   +42.2 M1   +57.2 M2   +34.2  resid_r 0.995 gradE 2.59  blobs 0.4  (21s)
+  winner_wavelet_p10_ft_seed42           PSNR  40.43 (+17.89)  M0   +16.6 M1   +67.9 M2   +79.7  resid_r 0.995 gradE 2.19  blobs 0.4  (21s)
+
+==============================================================================
+run_0002_00560_rt_01  [line_emission, 201 ch]  34 checkpoint(s) to score
+==============================================================================
+  references ready in 15s | dirty: resid_r 0.1161, PSNR 19.23, gradE/clean 61.201
+  kin_gamma0                             PSNR  44.33 (+25.10)  M0    -7.8 M1   +84.5 M2   +64.4  resid_r 0.726 gradE 1.29  blobs 2.9  (33s)
+  kin_gamma0_mae_fresh                   PSNR  38.02 (+18.79)  M0  -183.2 M1    +6.0 M2   +27.5  resid_r 0.081 gradE 339.67  blobs 9.5  (34s)
+  kin_gamma0_mae_ft                      PSNR  46.22 (+26.98)  M0   +58.0 M1   +86.3 M2   +64.1  resid_r 0.750 gradE 1.28  blobs 4.2  (33s)
+  kin_gamma0_starlet_fresh               PSNR  43.04 (+23.81)  M0   +29.8 M1   +83.8 M2   +65.6  resid_r 0.730 gradE 1.19  blobs 10.3  (34s)
+  kin_gamma0_starlet_ft                  PSNR  49.70 (+30.47)  M0   +64.2 M1   +91.7 M2   +80.6  resid_r 0.714 gradE 1.37  blobs 4.4  (33s)
+  sg_k3_fresh                            PSNR  31.85 (+12.62)  M0  -113.7 M1   +13.1 M2  -139.5  resid_r 0.112 gradE 19.55  blobs 4.4  (24s)
+  sweep_winner_600                       PSNR  38.74 (+19.51)  M0    -9.0 M1   +71.8 M2   -24.8  resid_r 0.574 gradE 1.76  blobs 4.4  (74s)
+  sweep_winner_aug_600                   PSNR  39.05 (+19.82)  M0   +29.2 M1   +79.5 M2   +40.0  resid_r 0.440 gradE 2.67  blobs 4.0  (74s)
+  sweep_winner_aug_seed42                PSNR  41.33 (+22.10)  M0   +38.3 M1   +80.3 M2   +34.8  resid_r 0.566 gradE 2.03  blobs 3.3  (20s)
+  sweep_winner_aug_seed43                PSNR  43.13 (+23.90)  M0   +48.3 M1   +88.1 M2   +68.7  resid_r 0.579 gradE 1.60  blobs 3.7  (21s)
+  sweep_winner_aug_seed44                PSNR  41.14 (+21.90)  M0   +42.9 M1   +90.6 M2   +28.6  resid_r 0.549 gradE 1.84  blobs 2.2  (21s)
+  sweep_winner_p10_600                   PSNR  39.78 (+20.55)  M0   -10.2 M1   +78.8 M2   -19.9  resid_r 0.576 gradE 1.59  blobs 5.1  (74s)
+  sweep_winner_p10_seed42                PSNR  41.84 (+22.61)  M0   +48.5 M1   +88.2 M2   +51.5  resid_r 0.637 gradE 1.73  blobs 3.4  (21s)
+  sweep_winner_p10_seed43                PSNR  41.28 (+22.05)  M0   +45.0 M1   +80.0 M2    +8.5  resid_r 0.648 gradE 1.22  blobs 2.6  (21s)
+  sweep_winner_p10_seed44                PSNR  40.66 (+21.43)  M0   +51.2 M1   +85.0 M2    +4.1  resid_r 0.599 gradE 1.58  blobs 1.5  (22s)
+  sweep_winner_seed42                    PSNR  40.09 (+20.86)  M0   +55.4 M1   +83.1 M2    -6.5  resid_r 0.563 gradE 1.51  blobs 2.3  (21s)
+  sweep_winner_seed43                    PSNR  39.94 (+20.71)  M0   +26.8 M1   +82.0 M2   +47.3  resid_r 0.548 gradE 2.16  blobs 4.6  (21s)
+  sweep_winner_seed44                    PSNR  41.33 (+22.10)  M0   +20.9 M1   +82.1 M2   +12.8  resid_r 0.586 gradE 1.84  blobs 2.8  (21s)
+  winner_aug_res320_seed43               PSNR  39.87 (+20.63)  M0   +34.8 M1   +84.9 M2    +2.9  resid_r 0.542 gradE 1.80  blobs 2.3  (28s)
+  winner_aug_res480_seed43               PSNR  42.68 (+23.45)  M0   +55.4 M1   +86.6 M2   +51.9  resid_r 0.623 gradE 1.37  blobs 2.5  (50s)
+  winner_aug_seed43                      PSNR  43.13 (+23.90)  M0   +48.3 M1   +88.1 M2   +68.7  resid_r 0.579 gradE 1.60  blobs 3.7  (21s)
+  winner_beam_seed42                     PSNR  42.20 (+22.97)  M0   +45.5 M1   +83.4 M2   +54.1  resid_r 0.603 gradE 1.72  blobs 4.4  (21s)
+  winner_gradient_fresh_seed42           PSNR  42.84 (+23.61)  M0   +44.2 M1   +86.5 M2   +58.6  resid_r 0.644 gradE 1.29  blobs 5.3  (21s)
+  winner_gradient_p10_ft_seed42          PSNR  43.35 (+24.12)  M0   +51.1 M1   +92.5 M2   +79.6  resid_r 0.557 gradE 1.76  blobs 1.4  (21s)
+  winner_hybrid_ft_seed42                PSNR  41.81 (+22.58)  M0   +36.7 M1   +86.4 M2   +44.4  resid_r 0.595 gradE 1.45  blobs 4.4  (21s)
+  winner_hybrid_p10_ft_seed42            PSNR  43.31 (+24.08)  M0   +50.4 M1   +91.1 M2   +77.3  resid_r 0.668 gradE 1.44  blobs 3.5  (21s)
+  winner_mae_fresh_seed42                PSNR  42.13 (+22.90)  M0   +36.0 M1   +85.1 M2   +58.2  resid_r 0.573 gradE 1.91  blobs 4.9  (21s)
+  winner_mae_p10_ft_seed42               PSNR  43.47 (+24.24)  M0   +46.1 M1   +91.0 M2   +84.0  resid_r 0.624 gradE 1.39  blobs 5.2  (21s)
+  winner_p10_seed44                      PSNR  40.66 (+21.43)  M0   +51.2 M1   +85.0 M2    +4.1  resid_r 0.599 gradE 1.58  blobs 1.5  (21s)
+  winner_res320_seed42                   PSNR  42.45 (+23.22)  M0   +50.4 M1   +89.1 M2   +67.4  resid_r 0.622 gradE 1.29  blobs 3.5  (28s)
+  winner_starlet_fresh_seed42            PSNR  42.95 (+23.71)  M0   +48.2 M1   +91.9 M2   +82.0  resid_r 0.552 gradE 1.84  blobs 5.1  (21s)
+  winner_starlet_p10_ft_seed42           PSNR  43.47 (+24.24)  M0   +49.0 M1   +91.5 M2   +85.3  resid_r 0.537 gradE 1.75  blobs 3.2  (21s)
+  winner_wavelet_fresh_seed42            PSNR  42.89 (+23.66)  M0   +53.8 M1   +90.5 M2   +77.6  resid_r 0.626 gradE 1.61  blobs 2.0  (21s)
+  winner_wavelet_p10_ft_seed42           PSNR  43.12 (+23.89)  M0   +54.6 M1   +91.7 M2   +70.5  resid_r 0.593 gradE 1.57  blobs 1.5  (21s)
+
+==============================================================================
+sg_v2  [sg, 121 ch]  34 checkpoint(s) to score
+==============================================================================
+  clean rescaled x330 to the input's units (dirty and clean were on different intensity scales)
+  references ready in 12s | dirty: resid_r 0.8731, PSNR 28.37, gradE/clean 0.613
+  kin_gamma0                             PSNR  19.76 (-8.61)  M0   -27.1 M1   -63.3 M2   -34.0  resid_r 0.770 gradE 0.54  blobs 0.0  (20s)
+  kin_gamma0_mae_fresh                   PSNR  19.32 (-9.04)  M0  -599.6 M1  -234.2 M2   -93.4  resid_r 0.501 gradE 1.94  blobs 0.5  (21s)
+  kin_gamma0_mae_ft                      PSNR  21.17 (-7.20)  M0   -14.8 M1   -51.3 M2   -29.9  resid_r 0.748 gradE 0.51  blobs 0.0  (21s)
+  kin_gamma0_starlet_fresh               PSNR  21.05 (-7.32)  M0   -53.5 M1   -40.4 M2   -33.4  resid_r 0.792 gradE 0.71  blobs 0.0  (20s)
+  kin_gamma0_starlet_ft                  PSNR  21.32 (-7.05)  M0   -12.8 M1   -59.5 M2   -36.3  resid_r 0.728 gradE 0.44  blobs 0.1  (20s)
+  sg_k3_fresh                            PSNR  25.42 (-2.94)  M0   -66.0 M1   -56.7 M2  -123.5  resid_r 0.761 gradE 1.27  blobs 3.9  (15s)
+  sweep_winner_600                       PSNR  19.59 (-8.78)  M0   +10.5 M1   -67.8 M2   -43.8  resid_r 0.795 gradE 0.75  blobs 0.0  (45s)
+  sweep_winner_aug_600                   PSNR  18.87 (-9.50)  M0   -54.0 M1   -36.2 M2   -41.7  resid_r 0.740 gradE 1.32  blobs 0.7  (44s)
+  sweep_winner_aug_seed42                PSNR  21.49 (-6.87)  M0    -8.1 M1   -66.4 M2   -52.1  resid_r 0.775 gradE 0.65  blobs 0.4  (13s)
+  sweep_winner_aug_seed43                PSNR  21.72 (-6.64)  M0   +20.3 M1   -67.1 M2   -27.5  resid_r 0.790 gradE 0.44  blobs 0.3  (13s)
+  sweep_winner_aug_seed44                PSNR  20.56 (-7.80)  M0    +0.5 M1   -47.3 M2   -23.7  resid_r 0.776 gradE 0.66  blobs 0.1  (13s)
+  sweep_winner_p10_600                   PSNR  19.59 (-8.77)  M0   +13.9 M1   -49.0 M2   -27.8  resid_r 0.805 gradE 0.55  blobs 0.0  (46s)
+  sweep_winner_p10_seed42                PSNR  21.89 (-6.48)  M0   +11.0 M1   -73.4 M2   -52.0  resid_r 0.710 gradE 0.55  blobs 0.7  (13s)
+  sweep_winner_p10_seed43                PSNR  21.49 (-6.87)  M0    +9.1 M1   -67.2 M2   -40.8  resid_r 0.747 gradE 0.48  blobs 0.9  (13s)
+  sweep_winner_p10_seed44                PSNR  20.51 (-7.86)  M0    +6.7 M1   -70.9 M2   -61.9  resid_r 0.715 gradE 0.47  blobs 0.2  (13s)
+  sweep_winner_seed42                    PSNR  21.14 (-7.23)  M0   +14.0 M1   -59.0 M2   -38.0  resid_r 0.797 gradE 0.77  blobs 0.6  (13s)
+  sweep_winner_seed43                    PSNR  19.52 (-8.84)  M0    +4.8 M1   -41.0 M2   -23.3  resid_r 0.750 gradE 0.95  blobs 0.5  (13s)
+  sweep_winner_seed44                    PSNR  20.77 (-7.60)  M0   -12.6 M1   -58.4 M2   -56.0  resid_r 0.769 gradE 0.72  blobs 0.6  (13s)
+  winner_aug_res320_seed43               PSNR  19.91 (-8.46)  M0    -6.2 M1   -57.4 M2   -51.8  resid_r 0.828 gradE 0.63  blobs 0.3  (17s)
+  winner_aug_res480_seed43               PSNR  22.02 (-6.35)  M0   +15.8 M1   -70.8 M2   -34.6  resid_r 0.777 gradE 0.36  blobs 0.9  (30s)
+  winner_aug_seed43                      PSNR  21.72 (-6.64)  M0   +20.3 M1   -67.1 M2   -27.5  resid_r 0.790 gradE 0.44  blobs 0.3  (13s)
+  winner_beam_seed42                     PSNR  21.00 (-7.36)  M0    -7.6 M1   -46.7 M2   -23.7  resid_r 0.736 gradE 0.92  blobs 0.5  (13s)
+  winner_gradient_fresh_seed42           PSNR  21.65 (-6.72)  M0    +2.7 M1   -81.6 M2   -42.9  resid_r 0.703 gradE 0.64  blobs 0.7  (13s)
+  winner_gradient_p10_ft_seed42          PSNR  22.97 (-5.40)  M0    +3.9 M1   -98.0 M2   -60.5  resid_r 0.700 gradE 0.58  blobs 0.9  (13s)
+  winner_hybrid_ft_seed42                PSNR  22.62 (-5.75)  M0    +0.2 M1   -78.8 M2   -68.5  resid_r 0.730 gradE 0.49  blobs 0.6  (13s)
+  winner_hybrid_p10_ft_seed42            PSNR  22.48 (-5.89)  M0    +7.8 M1   -85.9 M2   -43.7  resid_r 0.715 gradE 0.63  blobs 0.5  (13s)
+  winner_mae_fresh_seed42                PSNR  21.91 (-6.46)  M0    +4.2 M1   -58.1 M2   -30.2  resid_r 0.705 gradE 0.79  blobs 0.2  (13s)
+  winner_mae_p10_ft_seed42               PSNR  23.06 (-5.31)  M0    +7.0 M1   -95.6 M2   -59.7  resid_r 0.728 gradE 0.55  blobs 0.7  (13s)
+  winner_p10_seed44                      PSNR  20.51 (-7.86)  M0    +6.7 M1   -70.9 M2   -61.9  resid_r 0.715 gradE 0.47  blobs 0.2  (13s)
+  winner_res320_seed42                   PSNR  22.31 (-6.06)  M0    +0.6 M1   -78.7 M2   -59.0  resid_r 0.705 gradE 0.61  blobs 0.3  (17s)
+  winner_starlet_fresh_seed42            PSNR  21.94 (-6.42)  M0    +0.1 M1   -96.5 M2   -92.5  resid_r 0.746 gradE 0.84  blobs 0.2  (13s)
+  winner_starlet_p10_ft_seed42           PSNR  22.58 (-5.79)  M0   +12.6 M1   -76.2 M2   -42.4  resid_r 0.734 gradE 0.67  blobs 0.3  (13s)
+  winner_wavelet_fresh_seed42            PSNR  20.17 (-8.19)  M0   +10.3 M1   -77.9 M2   -50.6  resid_r 0.697 gradE 0.68  blobs 0.4  (13s)
+  winner_wavelet_p10_ft_seed42           PSNR  22.55 (-5.81)  M0    +6.7 M1   -96.6 M2   -51.8  resid_r 0.702 gradE 0.63  blobs 0.7  (13s)
+
+102 new row(s) in 49 min
+
+##CELL 14
+102 scored rows, 34 checkpoints, cases: ['run_0002_00560_rt_00', 'run_0002_00560_rt_01', 'sg_v2']
+
+=== LINE-EMISSION cubes: mean across cubes, sd = spread ACROSS CUBES (not seeds). Ranked by M0. ===
+gradE_ratio / lapvar_ratio: 1.0 = as sharp as clean. dirty is ~2.6 (noise reads as sharpness); below 1 = smoother than truth.
+                               n_cubes     family       source    psnr       M0      M1      M2  resid_r  wiggle_gain  gradE_ratio  lapvar_ratio  invented_blobs  overshoot  M0_sd  M1_sd partial
+checkpoint                                                                                                                                                                                       
+kin_gamma0_starlet_ft                2  stack_kin         nb13  47.297   50.394  84.105  72.806    0.856        0.299        1.098      1105.020           2.211      0.885   19.6   10.7        
+winner_wavelet_fresh_seed42          2       unet         nb05  41.436   47.979  73.849  55.896    0.811        0.254        2.100        84.624           1.234      0.704    8.2   23.5        
+kin_gamma0_mae_ft                    2  stack_kin         nb13  45.123   46.631  80.047  49.825    0.874        0.317        1.045      1490.503           2.085      0.811   16.1    8.9        
+winner_starlet_p10_ft_seed42         2       unet         nb05  41.772   45.174  78.576  81.200    0.767        0.210        2.053       119.852           1.838      0.643    5.4   18.2        
+winner_res320_seed42                 2       unet         nb05  41.397   44.805  80.903  67.345    0.809        0.252        1.964       740.830           1.968      0.653    7.9   11.6        
+winner_aug_res480_seed43             2       unet         nb05  41.764   44.484  80.973  68.907    0.810        0.254        1.568       202.223           1.391      0.708   15.4    7.9        
+sweep_winner_seed42                  2       unet         nb05  39.174   42.312  57.911 -65.207    0.779        0.223        1.788       711.963           1.331      0.635   18.6   35.6        
+sweep_winner_aug_seed43              2       unet         nb05  41.752   39.778  82.614  76.670    0.788        0.231        1.840       332.556           2.002      0.708   12.0    7.7        
+winner_aug_seed43                    2       unet  best_models  41.752   39.778  82.614  76.670    0.788        0.231        1.840       332.529           2.002      0.708   12.0    7.7        
+winner_hybrid_p10_ft_seed42          2       unet         nb05  41.612   39.273  79.347  70.466    0.831        0.275        2.030        93.001           1.893      0.693   15.8   16.6        
+sweep_winner_p10_seed42              2       unet         nb05  40.643   38.836  76.080  29.725    0.816        0.260        1.827       893.313           1.853      0.617   13.7   17.1        
+winner_wavelet_p10_ft_seed42         2       unet         nb05  41.777   35.633  79.773  75.111    0.794        0.238        1.883       110.140           0.958      0.694   26.9   16.8        
+winner_mae_p10_ft_seed42             2       unet         nb05  41.900   35.463  75.410  84.190    0.810        0.254        1.688       274.845           2.774      0.643   15.1   22.0        
+sweep_winner_aug_seed44              2       unet         nb05  40.591   33.697  84.276  35.603    0.773        0.217        1.804        68.684           1.214      0.688   13.0    9.0        
+winner_mae_fresh_seed42              2       unet         nb05  41.290   33.028  77.740  69.069    0.785        0.228        1.955       425.787           2.600      0.738    4.1   10.4        
+winner_starlet_fresh_seed42          2       unet         nb05  41.525   32.939  82.313  76.958    0.774        0.218        1.999       314.002           2.881      0.702   21.5   13.6        
+winner_hybrid_ft_seed42              2       unet         nb05  40.986   32.236  78.759  63.678    0.796        0.239        1.837       361.298           2.303      0.619    6.4   10.7        
+winner_gradient_p10_ft_seed42        2       unet         nb05  41.438   30.726  81.913  77.792    0.776        0.220        2.010        26.017           0.898      0.696   28.8   15.0        
+winner_beam_seed42                   2       unet         nb05  40.824   29.915  68.900  23.317    0.800        0.244        1.774       485.212           2.204      0.619   22.0   20.5        
+sweep_winner_seed44                  2       unet         nb05  40.595   28.592  71.257  22.492    0.791        0.235        1.885        78.802           1.475      0.661   10.9   15.3        
+sweep_winner_p10_seed44              2       unet         nb05  40.343   27.642  61.916  -0.815    0.798        0.241        1.678       181.210           1.035      0.646   33.3   32.7        
+winner_p10_seed44                    2       unet  best_models  40.343   27.642  61.916  -0.815    0.798        0.241        1.678       181.210           1.035      0.646   33.3   32.7        
+winner_gradient_fresh_seed42         2       unet         nb05  41.324   24.587  77.499  34.519    0.820        0.264        1.847       118.894           2.868      0.698   27.7   12.7        
+kin_gamma0_starlet_fresh             2  stack_kin         nb13  42.408   24.478  77.193  73.518    0.864        0.307        1.324      1898.865           5.333      0.986    7.5    9.3        
+sweep_winner_p10_seed43              2       unet         nb05  40.587   22.506  75.944  31.786    0.822        0.266        1.630       245.870           1.488      0.696   31.8    5.7        
+sweep_winner_aug_seed42              2       unet         nb05  40.549   17.641  73.066  42.468    0.781        0.225        2.134       185.119           1.836      0.696   29.2   10.2        
+sweep_winner_600                     2       unet         nb14  38.739    5.324  60.672 -23.350    0.785        0.229        1.791       710.357           2.259      0.704   20.2   15.7        
+sweep_winner_seed43                  2       unet         nb05  38.897    1.860  72.038  35.284    0.771        0.214        2.654       760.112           2.537      0.835   35.2   14.1        
+sweep_winner_aug_600                 2       unet         nb14  37.689   -1.686  60.637  45.342    0.715        0.159        4.198       963.217           2.371      1.022   43.7   26.7        
+sweep_winner_p10_600                 2       unet         nb14  38.980  -13.350  67.608  -6.148    0.786        0.230        1.505       130.023           2.530      0.563    4.4   15.8        
+kin_gamma0                           2  stack_kin  best_models  42.707  -23.060  69.458  46.745    0.862        0.306        1.118       576.098           1.488      0.786   21.6   21.3        
+winner_aug_res320_seed43             2       unet         nb05  38.565  -39.618  24.247 -56.927    0.769        0.213        1.786        57.480           1.425      0.681  105.2   85.7        
+sg_k3_fresh                          2   stack_sg  best_models  32.071 -138.429  16.485 -56.840    0.552       -0.005       11.278      1278.095           3.010      1.273   34.9    4.8        
+kin_gamma0_mae_fresh                 2  stack_kin         nb13  35.269 -266.576 -50.110 -37.764    0.534       -0.023      173.195      3357.897           5.463      1.418  117.9   79.4        
+
+=== SG cubes (cross-domain for line-emission models) ===
+                               n_cubes     family       source    psnr       M0       M1       M2  resid_r  wiggle_gain  gradE_ratio  lapvar_ratio  invented_blobs  overshoot  M0_sd  M1_sd partial
+checkpoint                                                                                                                                                                                         
+winner_aug_res320_seed43             1       unet         nb05  19.910   -6.227  -57.422  -51.837    0.828       -0.045        0.633         3.909           0.339      0.325    NaN    NaN        
+sweep_winner_p10_600                 1       unet         nb14  19.593   13.854  -48.966  -27.812    0.805       -0.068        0.551         0.442           0.008      0.293    NaN    NaN        
+sweep_winner_seed42                  1       unet         nb05  21.141   14.029  -59.029  -37.976    0.797       -0.076        0.772         0.517           0.620      0.330    NaN    NaN        
+sweep_winner_600                     1       unet         nb14  19.591   10.504  -67.814  -43.775    0.795       -0.078        0.748         0.567           0.033      0.295    NaN    NaN        
+kin_gamma0_starlet_fresh             1  stack_kin         nb13  21.051  -53.452  -40.356  -33.401    0.792       -0.082        0.710         0.381           0.050      0.291    NaN    NaN        
+sweep_winner_aug_seed43              1       unet         nb05  21.724   20.283  -67.134  -27.496    0.790       -0.083        0.436         0.295           0.289      0.309    NaN    NaN        
+winner_aug_seed43                    1       unet  best_models  21.724   20.283  -67.134  -27.496    0.790       -0.083        0.436         0.295           0.289      0.309    NaN    NaN        
+winner_aug_res480_seed43             1       unet         nb05  22.021   15.841  -70.785  -34.644    0.777       -0.096        0.364         0.241           0.934      0.309    NaN    NaN        
+sweep_winner_aug_seed44              1       unet         nb05  20.564    0.465  -47.309  -23.686    0.776       -0.097        0.660         0.455           0.107      0.333    NaN    NaN        
+sweep_winner_aug_seed42              1       unet         nb05  21.494   -8.149  -66.413  -52.077    0.775       -0.098        0.649         0.440           0.380      0.318    NaN    NaN        
+kin_gamma0                           1  stack_kin  best_models  19.762  -27.063  -63.313  -33.975    0.770       -0.103        0.537         0.291           0.000      0.290    NaN    NaN        
+sweep_winner_seed44                  1       unet         nb05  20.770  -12.590  -58.434  -55.958    0.769       -0.104        0.718         0.468           0.612      0.359    NaN    NaN        
+sg_k3_fresh                          1   stack_sg  best_models  25.424  -66.033  -56.678 -123.464    0.761       -0.112        1.275         0.780           3.901      0.521    NaN    NaN        
+sweep_winner_seed43                  1       unet         nb05  19.525    4.758  -40.986  -23.290    0.750       -0.123        0.953         0.600           0.529      0.366    NaN    NaN        
+kin_gamma0_mae_ft                    1  stack_kin         nb13  21.170  -14.765  -51.318  -29.923    0.748       -0.125        0.509         0.293           0.008      0.306    NaN    NaN        
+sweep_winner_p10_seed43              1       unet         nb05  21.494    9.141  -67.250  -40.786    0.747       -0.126        0.480         0.314           0.860      0.328    NaN    NaN        
+winner_starlet_fresh_seed42          1       unet         nb05  21.943    0.057  -96.514  -92.523    0.746       -0.127        0.843         0.640           0.157      0.299    NaN    NaN        
+sweep_winner_aug_600                 1       unet         nb14  18.867  -54.002  -36.199  -41.695    0.740       -0.134        1.318         1.289           0.744      0.324    NaN    NaN        
+winner_beam_seed42                   1       unet         nb05  21.003   -7.583  -46.726  -23.720    0.736       -0.137        0.916         0.630           0.471      0.349    NaN    NaN        
+winner_starlet_p10_ft_seed42         1       unet         nb05  22.581   12.603  -76.172  -42.384    0.734       -0.139        0.671         0.412           0.347      0.303    NaN    NaN        
+winner_hybrid_ft_seed42              1       unet         nb05  22.622    0.206  -78.787  -68.538    0.730       -0.143        0.491         0.336           0.612      0.307    NaN    NaN        
+kin_gamma0_starlet_ft                1  stack_kin         nb13  21.315  -12.825  -59.455  -36.260    0.728       -0.145        0.439         0.232           0.058      0.304    NaN    NaN        
+winner_mae_p10_ft_seed42             1       unet         nb05  23.057    6.969  -95.596  -59.695    0.728       -0.145        0.552         0.370           0.669      0.306    NaN    NaN        
+winner_p10_seed44                    1       unet  best_models  20.512    6.737  -70.859  -61.903    0.715       -0.158        0.465         0.295           0.240      0.309    NaN    NaN        
+winner_hybrid_p10_ft_seed42          1       unet         nb05  22.475    7.782  -85.865  -43.707    0.715       -0.158        0.631         0.428           0.455      0.308    NaN    NaN        
+sweep_winner_p10_seed44              1       unet         nb05  20.512    6.737  -70.859  -61.903    0.715       -0.158        0.465         0.295           0.240      0.309    NaN    NaN        
+sweep_winner_p10_seed42              1       unet         nb05  21.891   10.999  -73.369  -51.994    0.710       -0.163        0.551         0.362           0.669      0.311    NaN    NaN        
+winner_res320_seed42                 1       unet         nb05  22.306    0.641  -78.679  -58.965    0.705       -0.168        0.607         0.399           0.339      0.302    NaN    NaN        
+winner_mae_fresh_seed42              1       unet         nb05  21.912    4.193  -58.083  -30.165    0.705       -0.169        0.794         0.466           0.248      0.316    NaN    NaN        
+winner_gradient_fresh_seed42         1       unet         nb05  21.648    2.716  -81.628  -42.898    0.703       -0.170        0.637         0.446           0.702      0.330    NaN    NaN        
+winner_wavelet_p10_ft_seed42         1       unet         nb05  22.554    6.730  -96.615  -51.796    0.702       -0.171        0.626         0.427           0.719      0.311    NaN    NaN        
+winner_gradient_p10_ft_seed42        1       unet         nb05  22.970    3.886  -97.953  -60.539    0.700       -0.173        0.576         0.382           0.851      0.315    NaN    NaN        
+winner_wavelet_fresh_seed42          1       unet         nb05  20.174   10.283  -77.935  -50.624    0.697       -0.176        0.685         0.425           0.438      0.320    NaN    NaN        
+kin_gamma0_mae_fresh                 1  stack_kin         nb13  19.323 -599.625 -234.197  -93.380    0.501       -0.373        1.938         1.807           0.529      0.353    NaN    NaN        
+
+##CELL 15
+rank correlation (Spearman) of PSNR with each check, line-emission cubes, across checkpoints:
+  PSNR vs M0              +0.66
+  PSNR vs M1              +0.73
+  PSNR vs M2              +0.81
+  PSNR vs resid_r         +0.63
+  PSNR vs wiggle_gain     +0.63
+  PSNR vs gradE_ratio     -0.36
+  PSNR vs invented_blobs  -0.07
+
+best PSNR: kin_gamma0_starlet_ft   best M0: kin_gamma0_starlet_ft   (same checkpoint)
+
+##CELL 19
+  run_0002_00560_rt_00: 34 checkpoint(s) -> 26 figure(s)
+  run_0002_00560_rt_01: 34 checkpoint(s) -> 26 figure(s)
+  sg_v2: 34 checkpoint(s) -> 26 figure(s)
+
+84 figure(s) written to /kaggle/working
+
+##CELL 20
+nb16_loss_x_source.png
+
+##CELL 20
+nb16_per_cube.png
+
+##CELL 20
+nb16_scoreboard_line_emission.png
+
+##CELL 20
+nb16_scoreboard_sg.png
+
+##CELL 20
+nb16_table_line_emission.png
+
+##CELL 20
+nb16_table_sg.png

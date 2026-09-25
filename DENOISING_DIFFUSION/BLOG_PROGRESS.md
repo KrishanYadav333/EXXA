@@ -28,16 +28,17 @@ All arms start from the same best U-Net recipe (base 48, augmented views). "Fine
 
 ## 2. Less downsampling (ask 2)
 
-Each resolution model scored at its own size, one seed each, against the 256 px baseline (3 seeds; M0 29.2 ± 7.2, M1 74.0 ± 2.0, M2 55.0 ± 13.9):
+Every resolution model scored at its own size (notebooks 05 and 16), M0 / M1 / M2, means over 2 to 5 holdout cubes, one seed per resolution:
 
-| model | PSNR (dB) | M0 | M1 | M2 |
-|---|---|---|---|---|
-| 320 px | 37.36 | -17.8 | 48.0 | -3.9 |
-| 480 px | 40.18 | 39.7 | 73.5 | 67.3 |
+| model | M0 | M1 | M2 |
+|---|---|---|---|
+| 256 px, 3 seeds (2 cubes) | 30.4 | 80.0 | 51.6 |
+| 320 px, two different models | 44.8 / -39.6 | 80.9 / 24.2 | 67.3 / -56.9 |
+| 480 px | 44.5 | 81.0 | 68.9 |
+| 600 px (three models) | -13 to 5 | 61 to 68 | -23 to 45 |
 
-320 px is worse, and fails on 2 of 5 cubes. 480 px matches 256 (M1 the same, M0 and M2 higher by less than one seed spread), so **less downsampling did not give an established gain.**
-The 320 result being worse than 256 while 480 is not is not monotonic, so a second seed is needed before concluding anything about resolution itself. Full 600 px models exist (notebook 14) and are
-being scored next.
+- **No established gain from less downsampling.** 480 px is level with or slightly above 256 (inside the seed spread). 600 px is worse, and costs 3.5 times the compute per cube.
+- **320 px is inconclusive, not bad.** One 320 px model matches 480; another fails badly on one cube. That is a training-run spread, so a second seed per resolution is needed.
 
 ## 3. A correction to earlier wiggle numbers
 
@@ -49,9 +50,10 @@ results were unaffected: on that cube every model still loses to the dirty image
 ## 4. One comparison for every checkpoint, as images
 
 Notebook 16 scores every checkpoint with one protocol and produces, for each, the moment and error maps, channel maps, the classic wiggle residual figure,
-radial profile, power spectrum, calibration, integrated spectrum and sharpness. On the SG v2 cube, 3 checkpoints so far: the wiggle figure reproduces the earlier one
-(residual RMS 0.23 / 0.21 / 0.22), the calibration plot puts the smoothing at peak amplitude 0.73 to 0.74 of the truth, and the integrated spectrum shows two models
-raising the line-free baseline. That is 3 models on 1 cube, an observation not a finding; the full run is next.
+radial profile, power spectrum, calibration, integrated spectrum and sharpness. First Kaggle run: 34 checkpoints on 2 line-emission cubes and the SG v2 cube
+(102 rows, 49 minutes, 84 figures); it reproduces the published number for the reference model. The best line-emission checkpoint on those two cubes is a kinematic-input
+model fine-tuned with the starlet loss (M0 +50, M1 +84, M2 +73), but two cubes is a shortlist, not a result. On the self-gravitating cube every line-emission model is worse than the dirty
+image on the velocity field, and even the model trained on self-gravitating data scores poorly there, which I am treating as suspect until the per-cube figures are checked.
 
 ## 5. Real ALMA (started)
 

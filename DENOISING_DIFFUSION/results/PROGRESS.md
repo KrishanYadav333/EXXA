@@ -9,6 +9,40 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-25 | run | notebook 16 first Kaggle run (quick): 34 checkpoints, 3 cases, 102 rows in 49 min; 320 px is NOT inherently bad, 600 px does not help
+
+Archived as `results/16-checkpoint-evaluation/v_pending_2026-09-25_quick_6e4e139/` (Kaggle version number unknown). Line-emission means are over **2 cubes** (`rt_00`, `rt_01`), sd across cubes:
+**not comparable to the 5-cube 05 tables**; the harness reproduces the published v20 row for `sweep_winner_aug_seed43` on `rt_00` (M0 +31.3 / M1 +77.2 / M2 +84.6), so it is scoring consistently.
+A display cell raised after all scoring and stopped `collect_outputs`; scoring/figures are in the Output, the CSV must be downloaded. Fixed.
+
+**Resolution (ask 2), 2-cube means M0 / M1 / M2:**
+| model | M0 | M1 | M2 |
+|---|---|---|---|
+| aug at 256, 3 seeds (mean) | 30.4 | 80.0 | 51.6 |
+| aug at 480 | 44.5 | 81.0 | 68.9 |
+| earlier 320 px arm `winner_res320_seed42` | 44.8 | 80.9 | 67.3 |
+| aug at 320 `winner_aug_res320_seed43` | -39.6 (sd 105) | 24.2 | -56.9 |
+| 600 px: plain / aug / p10 | 5.3 / -1.7 / -13.4 | 60.7 / 60.6 / 67.6 | -23.4 / 45.3 / -6.1 |
+
+**Corrects the 05 v47 reading ("320 is clearly worse").** A different 320 px model, `winner_res320_seed42`, scores like 480 (44.8 / 80.9 / 67.3), so 320 px is not inherently worse:
+`winner_aug_res320_seed43` is one bad training run (it fails on one cube by -114). Two 320 px models, one good and one bad, is a seed spread, not a resolution effect. 480 is level with or slightly above
+256 (M0 +14 is inside the 256 px seed spread of about 11 to 30 depending on the cube pair). **600 px is worse than 256 on M1 (61 to 68 against 71 to 84) and M0**, with lower PSNR (38 to 39 against 40 to 42) and it costs 74 s per cube per checkpoint against 21: the extra resolution is not recovered.
+One seed per resolution arm.
+
+**Loss controls (p10 source, 2 cubes) M0 / M1 / M2:** hybrid control 39.3 / 79.3 / 70.5; mae 35.5 / 75.4 / 84.2; wavelet 35.6 / 79.8 / 75.1; starlet 45.2 / 78.6 / 81.2; gradient 30.7 / 81.9 / 77.8.
+Same shape as the 5-cube reading: only starlet (M0 +6, M2 +11) and mae (M2 +14) sit above the control, and only on some moments; one seed. Not established.
+
+**kin_gamma0 family (stack_kin, 31 neighbour channels):** `kin_gamma0_starlet_ft` is the best line-emission checkpoint here on all three moments (50.4 / 84.1 / 72.8, PSNR 47.3; M0 sd across the 2 cubes 19.6) and `kin_gamma0_mae_ft` next (46.6 / 80.0 / 49.8). The base `kin_gamma0` is -23.1 on M0, and `kin_gamma0_mae_fresh` is a failed training (M0 -266.6, sharpness ratio 173). **A best-of-34 pick from two cubes; the 5-cube run must confirm it.**
+**PSNR vs the moments:** Spearman across checkpoints +0.66 (M0), +0.73 (M1), +0.81 (M2). That is dominated by the failed arms (`sg_k3_fresh`, `kin_gamma0_mae_fresh`); the top PSNR arm is also the top M0 arm here, unlike the 05 result where `winner_k1` had the best PSNR and a poor M2. Do not read either as PSNR ranking or not ranking from this alone.
+
+**SG v2 (cross-domain, 1 cube) is a suspect result (RULES.md #8), not a finding.** Every line-emission model has M1 -40 to -98 and M2 -23 to -93, and every wiggle gain is negative (worse than dirty, consistent with the earlier
+"every model loses to dirty on the wiggle here"). But `sg_k3_fresh`, trained on SG data, scores M0 -66, M1 -57, M2 -123 on it, and is among the worst; SG v2 is a different cube from its training family and its amplitude is rescaled by `match_amplitude`, so a domain gap and a harness artefact are both possible.
+Needs the per-cube figures and `amp_scale` from the CSV before it is quoted.
+**Speed:** measured 21 s (256 px U-Net), 33 s (stack_kin), 74 s (600 px) per row: a full run (about 66 supported checkpoints x 7 cases, plus slower DDPM rows) is now about 4 to 6 h, not the 15 to 30 h guessed earlier.
+**Published numbers it touches:** the 2026-09-25 v47 entry and BLOG_PROGRESS.md section 2 said 320 px was worse; both corrected.
+
+---
+
 ## 2026-09-25 | run | 05 v47: 320 and 480 px scored at their own size; ask 2 answered for the aug recipe, one seed each
 
 Clean scoring-only session (no training, 38 checkpoints restored, fixes live at `499030b`). Means over 5 holdout cubes, clipped + signal-masked, one seed per resolution arm
