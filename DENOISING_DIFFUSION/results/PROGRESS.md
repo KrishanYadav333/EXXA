@@ -9,6 +9,39 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-25 | run + bug | 05 v44 FAILED (CUDA OOM scoring res480), but the control arms ran: much of the fine-tune gain is extra training, not the loss
+
+**Run.** Fresh Kaggle import, cells current (`1b1ee7f`). Trained `winner_hybrid_ft` (from aug, PSNR 39.574) and `winner_hybrid_p10_ft` (from p10,
+PSNR 40.253), 30 epochs each, both persisted. Then the scoring step died: `OutOfMemoryError: Tried to allocate 3.96 GiB` in cell 18, scoring
+`winner_aug_res480`. **Cause:** the 2026-09-25 per-arm-size fix resized the image but kept `BS = 32` channels per forward, which fits at 256 and 320
+and not at 480 (or 600). **Fix:** `bs = max(1, int(BS*(TARGET_SIZE/size)**2))`, now in `tools/reapply_05_fixes.py`. **Published numbers it touches:**
+none; `res480` and `native600` still have no valid moment row.
+
+**The control arms answer the confound flagged on 2026-09-25 (RULES.md #4).** Same source, same 30 epochs at 0.1x lr, ORIGINAL hybrid loss. Means over
+the 5 holdout cubes, one seed each, against a baseline whose spread is across 3 seeds:
+
+| arm | M0 | M1 | M2 |
+|---|---|---|---|
+| aug baseline (3 seeds) | 29.2 +/-7.2 | 74.0 +/-2.0 | 55.0 +/-13.9 |
+| **control: hybrid, from aug** | **39.7** | **80.9** | **69.9** |
+| mae / wavelet / starlet / gradient, from aug | 26.3 / 38.8 / 42.6 / 32.1 | 77.4 / 76.1 / 80.5 / 78.7 | 70.5 / 70.0 / 81.1 / 77.3 |
+| p10 baseline (3 seeds) | 33.5 +/-9.6 | 70.7 +/-6.7 | 31.8 +/-11.1 |
+| **control: hybrid, from p10** | **40.4** | **76.2** | **68.4** |
+| mae / wavelet / starlet / gradient, from p10 | 43.5 / 41.4 / 44.5 / 41.7 | 79.6 / 78.1 / 77.1 / 80.3 | 83.8 / 73.1 / 79.6 / 70.5 |
+
+**Reading.** Extra training alone (no new loss) moves aug by +10.5 / +6.9 / +14.9 pp and p10 by +6.9 / +5.5 / +36.6 pp. From aug, no new loss beats that
+control except starlet on M2 (81.1 vs 69.9) and starlet on M0 (42.6 vs 39.7, inside noise); MAE is BELOW it on M0 (26.3 vs 39.7). From p10 the losses sit
+at or above the control by 0 to +4 on M0, 0 to +4 on M1, and +2 to +15 on M2. So **most of the `_ft` gain in the 2026-09-25 table was continued training, not the
+loss**, and the honest claim left is small: starlet and MAE (from p10) may add a little on M2, one seed, not established. The FRESH arms (which had a clean
+control) are unaffected by this: they still beat the non-aug baseline on M1/M2.
+**Published numbers it touches:** the 2026-09-25 "MAE helps M2 and M1 more than M0" paragraph and BLOG_PROGRESS.md section 1, both corrected. Also the res320 row:
+scored at its own 320 px it is M0 -114.0 / +34.8 / +38.3 / -113.5 / +65.4 per cube (cubes 00 and 0025 fail), single seed; PSNR 37.36 is the lowest of any arm.
+**RAM breakdown (first live reading).** `main` grows ~0.1 GB/epoch (2.4 to 8.6 GB across the two arms); workers' RSS stays flat (12.4 then 39.7 GB, shared pages).
+The leak is in the main process. Cause still unknown. **Archived:** `results/05-unet-line-emission/v44_2026-09-25_failed_oom/`.
+**Left:** a session to score `res480` and `native600` (fix in), and getting the two control checkpoints out of v44's Output (failed versions cannot be attached; download, re-upload as `.ckpt`).
+
+---
+
 ## 2026-09-25 | run | 05 v43: last spectral-context arm done; Kaggle's push overwrote the 05 fixes again, restored by script
 
 Ran the pre-fix cells (cell 0b pulled `ad600d2`), so nothing from the day's fixes was in it. One arm, `winner_k2` (two spectral neighbours),

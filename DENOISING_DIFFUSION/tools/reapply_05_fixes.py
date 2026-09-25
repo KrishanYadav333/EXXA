@@ -48,6 +48,15 @@ EDITS = [
          "    # at a time). These continue the same source for the same budget with the ORIGINAL hybrid loss.\n"
          "    'winner_hybrid_ft':     (dict(WINNER, loss_name='hybrid', init_from='sweep_winner_aug', min_epochs=30), 'full'),\n"
          "    'winner_hybrid_p10_ft': (dict(WINNER, loss_name='hybrid', init_from='sweep_winner_p10', min_epochs=30), 'full'),\n"),
+    (18, "    with torch.no_grad():\n        for s in range(0, C, BS):\n",
+         "    # Sub-batch scales with 1/size^2: 32 channels at 480 px asked for a 3.96 GiB tensor on a T4 and\n"
+         "    # killed 05 v44 at the winner_aug_res480 scoring step, after both control arms had trained.\n"
+         "    bs = max(1, int(BS * (TARGET_SIZE / size) ** 2))\n"
+         "    with torch.no_grad():\n        for s in range(0, C, bs):\n"),
+    (18, "_idx = np.arange(s, min(s + BS, C))\n",
+         "_idx = np.arange(s, min(s + bs, C))\n"),
+    (18, "t = torch.from_numpy(norm[s:s+BS])[:, None].float().to(device)\n",
+         "t = torch.from_numpy(norm[s:s+bs])[:, None].float().to(device)\n"),
 ]
 
 

@@ -15,19 +15,22 @@ All arms start from the same best U-Net recipe (base 48, augmented views). "Fine
 |---|---|---|---|---|
 | baseline, 3 seeds | 39.30 | 29.2 ± 7.2 | 74.0 ± 2.0 | 55.0 ± 13.9 |
 | MAE / wavelet / starlet / gradient, fine-tuned | 39.78 / 40.13 / 40.32 / 40.14 | 26.3 / 38.8 / 42.6 / 32.1 | 77.4 / 76.1 / 80.5 / 78.7 | 70.5 / 70.0 / 81.1 / 77.3 |
+| **control: same continuation, original loss, from aug / from p10** | 39.57 / 40.25 | 39.7 / 40.4 | 80.9 / 76.2 | 69.9 / 68.4 |
 | same four, fresh (control exists) | 39.96 / 40.03 / 39.90 / 39.73 | 36.0 / 20.4 / 38.1 / 33.9 | 75.2 / 66.1 / 77.8 / 75.6 | 69.1 / 60.9 / 75.6 / 56.4 |
 
-- **MAE did not lift M0** (26.3 against 29.2, inside the spread). It helped the velocity moments: M1 +3 to +9 points, M2 +15 to +50.
-- **No loss clearly beats the others.** The M0 range across the four (20 to 45) is inside single-seed noise; starlet and MAE are best and indistinguishable.
-- For the fresh arms the comparison is clean (same recipe, only the loss differs): they beat the plain baseline on M1 by 10 to 22 points and on M2 by 50 to 70.
-- **Caveat I have not yet closed.** Fine-tuned arms also get 30+ extra epochs, so part of their gain may be the training, not the loss. Two control arms
-  (same source, same budget, original loss) are queued. Until they run, "the loss helped" is established for the fresh arms and only suggested for the fine-tuned ones.
-- **PSNR does not rank.** The arm fed one neighbouring spectral channel has the best PSNR (42.59) and the worst M2 (40.5). Pixel accuracy and moment accuracy disagree.
+- **The control arms change the story.** Every fine-tuned arm also gets 30+ extra epochs, so I ran the same continuation with the ORIGINAL loss.
+  From aug it scores M0 39.7 / M1 80.9 / M2 69.9, from p10 40.4 / 76.2 / 68.4 (one seed). That is +7 to +37 points over the plain baselines with no new loss at all.
+  **Most of the fine-tuned gain was extra training, not the loss.**
+- Against those controls: from aug, MAE is worse on M0 (26.3 vs 39.7) and only starlet is clearly ahead, on M2 (81.1 vs 69.9). From p10, the losses sit 0 to 4 points
+  above the control on M0 and M1 and 2 to 15 on M2 (MAE and starlet the largest). One seed per arm, so this is suggestive, not established.
+- **Fresh arms are unaffected** (they have a clean control): from scratch they still beat the plain baseline on M1 by 10 to 22 points and on M2 by 50 to 70.
+- **PSNR does not rank.** The arm fed one neighbouring spectral channel has the best PSNR (42.59) and the worst M2 (40.5); two neighbours (42.81) are no better.
 
-## 2. Less downsampling (ask 2): trained, not yet answered
+## 2. Less downsampling (ask 2): partly answered
 
-Models at 320 and 480 px are trained. Their moment rows are **invalid**: my scoring resized every model to 256 px, a scale those two never saw, so I am not quoting them.
-The fix is in and they re-score in the next Kaggle session.
+Scored at its own 320 px, the 320 model is poor: M0 is strongly negative on 2 of 5 cubes (-114, -114) and its validation PSNR (37.36) is the lowest of any arm, so 320 px did
+not help (one seed). The 480 px model is trained but its scoring ran out of GPU memory at that resolution; that is fixed and it re-scores next. Earlier 320/480 rows scored at
+256 px were invalid and are not quoted.
 
 ## 3. A correction to earlier wiggle numbers
 
@@ -50,4 +53,4 @@ training pixel scale, denoise, moments, DS9-ready FITS) is written and waiting f
 0.15" beam, about 100 m/s channels), so the first output is a sanity check, not a result.
 
 ## What is next
-Control arms and resolution re-score (05), full checkpoint comparison (16), MWC 758 13CO then 12CO with the best 2 to 3 models, then the upstream PR and the final blog.
+480 and 600 px scoring (05), full checkpoint comparison (16), MWC 758 13CO then 12CO with the best 2 to 3 models, then the upstream PR and the final blog.
