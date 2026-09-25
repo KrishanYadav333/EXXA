@@ -33,10 +33,12 @@ any invented-structure number.
 **Figure bug found while reading:** tile labels dropped the seed, so the four sweep-winner seeds were all drawn "winner" and the aug/p10 seeds likewise; the two `best_models` byte copies took extra tiles. Fixed (`short`
 keeps `sNN`, `_drop_copies`).
 
-**Decision.** Candidates for the 2 to 3 ALMA models: `kin_gamma0_starlet_ft`, `kin_gamma0_mae_ft`, and the plain U-Net reference `sweep_winner_aug_seed43` / `winner_aug_res480_seed43`. `winner_starlet_p10_ft` is NOT
-carried despite its 5-cube M0, because of its wiggle ratio above 1, the calibration break and the inherited wedge. **None of the kin family has ever been scored on 5 cubes**, and `tools/alma_infer.py` only accepts
-1-channel models (`in_channels == 1` assert), so a kin model needs a 31-channel stack path there before it can run on MWC 758. Next run: the shortlist on all 5 line-emission cubes and both SG cases.
-
+**Decision: which checkpoints to score next, chosen from the images (no ALMA pick yet).** Kept because their pictures are closest to clean: `kin_gamma0_starlet_ft`, `kin_gamma0_mae_ft` (clean-like
+sharpness, calibration on the diagonal, lowest channel error), `kin_gamma0_starlet_fresh` (calibration near the line, low channel error), `kin_gamma0` (the family's base, as its control), `kin_gamma0_wavelet_ft` and
+`kin_gamma0_gradient_ft` (same family, never imaged), `sweep_winner_aug_seed43` and `sweep_winner_aug_seed44` (best U-Net M1 error maps, calibration near the line), `winner_aug_res480_seed43` (best U-Net channel error and
+wiggle ratio). Dropped on sight: every p10-sourced arm (shared wedge, calibration break), the 600 px arms (edge noise), `aug_res320` s43 (tilted field), `winner_res320` s42 and `wavelet_fresh` (calibration break),
+`beam` and the non-aug sweep-winner seeds (tilted M1 error), `sg_k3_fresh` and `kin_gamma0_mae_fresh` (broken). Based on ONE cube's images; the 5-cube run is what tests it. `tools/alma_infer.py` only accepts
+1-channel models, noted for later.
 ---
 
 ## 2026-09-25 | fix | notebook 16 figures: every checkpoint, 8 disks per page at 150 dpi, tight non-square crop
