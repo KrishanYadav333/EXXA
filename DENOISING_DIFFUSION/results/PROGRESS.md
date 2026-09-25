@@ -9,6 +9,19 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-25 | run | 05 v43: last spectral-context arm done; Kaggle's push overwrote the 05 fixes again, restored by script
+
+Ran the pre-fix cells (cell 0b pulled `ad600d2`), so nothing from the day's fixes was in it. One arm, `winner_k2` (two spectral neighbours),
+seed 42, early stop at epoch 50: PSNR 42.81 (best of any arm), M0 +20.2 / M1 +65.9 / M2 +36.8 (5 cubes, one seed, clipped + signal-masked).
+Same pattern as `winner_k1` (42.59, +33.3/+75.6/+40.5): spectral context is a pixel win and a moment loss, and the notebook's own line says
+ranking by PSNR would have picked it. Two neighbours are no better than one. Archived: `results/05-unet-line-emission/v43_2026-09-25_6fb324d/`.
+**Bug (RULES.md #2, third time).** Kaggle pushed v43 (`6fb324d`) over the notebook, reverting the per-arm scoring size, `STALE_MOMENT_ARMS`
+and the two control arms. Caught by grepping the pulled file for `_arm_size`. Restored with `tools/reapply_05_fixes.py` (8 edits, idempotent).
+**Published numbers it touches:** none new; the res320/480 rows in v42/v43 tables remain the invalid 256 px scores.
+**Left:** `winner_hybrid_ft`, `winner_hybrid_p10_ft` and the res re-score, in one session, from a fresh Kaggle GitHub import.
+
+---
+
 ## 2026-09-25 | bug | notebook 16's amplitude checks were meaningless on the SG v2 cube: clean and dirty are on different scales
 
 Found by looking at the first SG v2 calibration plot (denoised against clean, pixel by pixel): slopes of ~300 and empty tiles. The

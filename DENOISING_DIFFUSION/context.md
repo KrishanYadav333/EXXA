@@ -77,7 +77,7 @@ submitted; final submission window ahead).
     resolution arms. Those were restored to winner_aug_seed43's recipe (D4 aug, seed 43,
     from scratch) on 09-24 after `1832c54` had silently reverted it; the v30-v34
     `winner_res*` numbers are the old recipe.
-    **05 status as of v42 (2026-09-25):** 25 arms scored; only `winner_k2` and two control arms
+    **05 status as of v43 (2026-09-25):** 26 arms scored (`winner_k2` done); only the two control arms
     (`winner_hybrid_ft`, `winner_hybrid_p10_ft`) remain. The v42 res320/res480 moment rows are INVALID (they were scored at
     256 px; fixed, re-scored on the next run). See PROGRESS.md 2026-09-25.
   - `16-checkpoint-evaluation.ipynb` (added 2026-09-25, not yet run on Kaggle): one protocol for every checkpoint,

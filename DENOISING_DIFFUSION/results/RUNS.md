@@ -44,6 +44,7 @@ Full lineage, recovered from every branch (`line-emission`, `midterm-prep`, `wee
 | 40 | 2026-09-24 | `90f2390` | — | 40.41 (`winner_wavelet_p10_ft`) | best M0 +44.5 (`winner_starlet_p10_ft`) in v42's table | [`v40_.../`](05-unet-line-emission/v40_2026-09-24_90f2390/) — clean, 3 new arms: `mae`/`wavelet`/`starlet`_`p10_ft` |
 | 41 | 2026-09-25 | `d923d28` | — | 40.12 (`winner_gradient_p10_ft`) | — | [`v41_.../`](05-unet-line-emission/v41_2026-09-25_d923d28/) — clean, 3 new arms: `gradient_p10_ft`, `mae_beam_ft`, `wavelet_beam_ft` |
 | 42 | 2026-09-25 | `ad600d2` | — | 42.59 (`winner_k1`) | **moment table for 25 arms**; res320/res480 rows INVALID (scored at 256 px) | [`v42_.../`](05-unet-line-emission/v42_2026-09-25_ad600d2/) — clean, 3 new arms: `starlet_beam_ft`, `gradient_beam_ft`, `winner_k1`. Only `winner_k2` left, plus two control arms added afterwards |
+| 43 | 2026-09-25 | `6fb324d` | — | 42.81 (`winner_k2`) | `winner_k2` M0 +20.2 / M1 +65.9 / M2 +36.8; res320/res480 rows still INVALID | [`v43_.../`](05-unet-line-emission/v43_2026-09-25_6fb324d/) — clean, 1 new arm `winner_k2`, ran pre-fix cells (`ad600d2`); Kaggle's push clobbered the fixes, restored by `tools/reapply_05_fixes.py` |
 
 **v18 is the best 05 run to date, and the first with every moment positive on every cube.**
 M0 +81.2% ±12.6, M1 +31.5% ±9.2, M2 +19.9% ±18.8, 5/5 cubes positive on all three, against
