@@ -166,10 +166,10 @@ def contact_sheet(panels, *, title, path, cmap, vlim, cbar_label, n_ref=1, per_p
 CORE_SHEETS = ("M0", "M1", "M2", "err_M1")     # the disk sheets kept by default; the rest are opt-in (extra=True)
 
 
-def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str, top_k: Optional[int] = 16, extra: bool = False) -> List[str]:
+def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str, top_k: Optional[int] = None, extra: bool = False) -> List[str]:
     """
-    Paged sheets show only the `top_k` checkpoints by M0 (all of them are in the tables and single-image figures); with `extra=False`
-    only CORE_SHEETS plus the classic wiggle pages are built, so a quick run writes ~20 images per case instead of ~75.
+    Paged sheets show EVERY checkpoint unless `top_k` limits them to the best by M0; with `extra=False` only CORE_SHEETS plus the classic
+    wiggle pages are built (about 34 images per case for 34 checkpoints, instead of ~75).
     """
     out: List[str] = []
     labels_all = _order(list(arts), rows)
@@ -684,7 +684,7 @@ def fig_cube_heatmaps(ok, path, domain="line_emission"):
 
 
 # ------------------------------------------------------------------------------------------------ #
-def build_all(map_dir: str, ok, out_dir: str, figure_cases: Optional[Sequence[str]] = None, log=print, top_k: Optional[int] = 16, extra: bool = False) -> List[str]:
+def build_all(map_dir: str, ok, out_dir: str, figure_cases: Optional[Sequence[str]] = None, log=print, top_k: Optional[int] = None, extra: bool = False) -> List[str]:
     """Every figure, written to `out_dir`. `ok` is the scored-rows DataFrame. Returns the paths."""
     os.makedirs(out_dir, exist_ok=True)
     paths: List[str] = []

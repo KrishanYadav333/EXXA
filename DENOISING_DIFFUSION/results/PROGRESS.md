@@ -9,13 +9,13 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
-## 2026-09-25 | fix | notebook 16 writes ~20 images per case, not ~75
+## 2026-09-25 | fix | notebook 16 figures: every checkpoint, core disk sheets only (~34 images per case for 34 checkpoints)
 
-After paging (8 per page) the quick run would have written 228 images, still too many to look at. Now the default is **lean**: the disk sheets M0, M1, M2, M1 error and the classic wiggle pages for the
-**top 16 checkpoints by M0** (the other 18 remain in the tables, scoreboards and single-image figures), plus the single figures (spectra, radial/power, calibration, integrated spectrum,
-error histogram, ensemble, top-k detail). Per case: M0/M1/M2 2 pages each, M1 error 2, classic wiggle 4, singles ~7, so about 19; 3 cases plus 6 dashboards is about 63 for the quick run. The
-channel, sharpness, invented-structure, M0-error and residual-sheet kinds, and all checkpoints, come back with `FIG_TOP = None` and `FIG_EXTRA = True` (the old ~4x). The change is in `src/`, so a
-stale Kaggle cell still gets the lean default (cell 19 reads the knobs with `globals().get`). Figures only; no published number touched.
+Paging alone gave ~75 images per case (228 for the quick run). A first cut limited the disk sheets to the top 16 checkpoints by M0; that dropped 18 checkpoints from the images, against the standing
+requirement that every checkpoint has its disk figures, and was reverted the same day. **Default now:** EVERY checkpoint on the core disk sheets (M0, M1, M2, M1 error, 8 checkpoints per page with clean and dirty on
+every page) and the classic wiggle pages (5 per page), plus the single figures (spectra, radial/power, calibration, integrated spectrum, error histogram, ensemble, top-k detail): 5x4 + 7 + 7 = 34 per case, so
+about 108 for the quick run with its 6 dashboards. The channel, sharpness, invented-structure, M0-error and residual-sheet kinds return with `FIG_EXTRA = True` (about 4x); `FIG_TOP = n` limits the disk sheets to
+the best n. The defaults are in `src/`, so a stale Kaggle cell still gets them. Figures only; no published number touched.
 
 ---
 
