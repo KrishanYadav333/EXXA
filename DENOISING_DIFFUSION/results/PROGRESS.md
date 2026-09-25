@@ -14,7 +14,7 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 **What was wrong.** Every M0/M1/M2, error, channel, wiggle, sharpness and invented-structure sheet put clean, dirty and ALL checkpoints on one figure at 7 columns, so each disk was about
 1/8 of an 11 inch page and the fine structure (the thing the sheets exist to show) was not legible. **How it was caught.** The user looked at the sheets from the first Kaggle run against the
 one-checkpoint-per-figure images from the older notebooks. **Fix.** `contact_sheet` pages: 8 checkpoints per page, 4 columns, 3 inch tiles, the reference tiles (clean, dirty, or the error to beat)
-repeated at the top of every page, one shared colour scale across pages (`..._p01.png` ...; a sheet that fits keeps its old name). The notebook display cell shows page 1 of each and the classic wiggle
+repeated at the top of every page (the error, channel-error and invented-structure sheets open each page with clean and dirty on their own scales, then the error to beat), one shared colour scale across pages (`..._p01.png` ...; a sheet that fits keeps its old name). The notebook display cell shows page 1 of each and the classic wiggle
 pages 1 and 2; every page is in the Output. A test builds 34 panels and asserts 5 pages. **Published numbers it touches:** none (figures only). The first run's Output still has the old
 unpaged sheets; the next run, or a local rebuild from the downloaded `nb16_maps/*.npz` with `cf.build_all`, produces the paged ones.
 

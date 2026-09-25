@@ -109,10 +109,16 @@ def _sheet_page(panels, *, title, path, cmap, vlim, cbar_label, ncols=7, tile=2.
     for ax in axes.ravel():
         ax.axis("off")
     im = None
-    for ax, (t, arr) in zip(axes.ravel(), panels):
+    for ax, item in zip(axes.ravel(), panels):
+        t, arr = item[0], item[1]
         a = np.array(arr, dtype=np.float64)
         if blank is not None:
             a = np.where(blank, a, np.nan)
+        if len(item) == 4:            # a reference tile on its OWN scale (clean / dirty next to an error sheet): (title, array, cmap, (lo, hi))
+            c2 = plt.get_cmap(item[2]).copy(); c2.set_bad("#111111")
+            ax.imshow(a, origin="lower", cmap=c2, vmin=item[3][0], vmax=item[3][1], interpolation="nearest")
+            ax.set_title(t + "\n(own scale)", fontsize=fs, linespacing=1.15, color="#444")
+            continue
         im = ax.imshow(a, origin="lower", cmap=cm, vmin=vlim[0], vmax=vlim[1], interpolation="nearest")
         ax.set_title(t, fontsize=fs, linespacing=1.15)
     fh = fig.get_figheight()
@@ -194,14 +200,16 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
     for name, key, scale in (("M0", "m0", 1.0), ("M1", "m1", 1000.0)):
         cl = ref[f"clean_{key}"] / scale
         lim = _p(np.abs(ref[f"dirty_{key}"] / scale - cl), mask, 95)
-        t = [("DIRTY - CLEAN\n(the error to beat)", (ref[f"dirty_{key}"] / scale - cl)[sl])]
+        vl_ = ((0, _p(cl, mask, 99.5)), "inferno") if key == "m0" else (((vs - L1, vs + L1)), "RdBu_r")
+        t = [("CLEAN (truth)", cl[sl], vl_[1], vl_[0]), ("DIRTY (input)", (ref[f"dirty_{key}"] / scale)[sl], vl_[1], vl_[0]),
+             ("DIRTY - CLEAN\n(the error to beat)", (ref[f"dirty_{key}"] / scale - cl)[sl])]
         for l in labels:
             e = arts[l][key] / scale - cl
             mae = float(np.nanmean(np.abs(e[mask])))
             t.append((f"{short(l)}\nmean |err| {mae:.3g}", e[sl]))
         out.append(contact_sheet(t, title=f"{case}: {name} error (denoised - clean), symmetric, scaled by dirty's own error. "
                                           f"Red/blue = wrong; pale = right.",
-                                 n_ref=1, path=f"{base}_err_{name}.png", cmap="RdBu_r", vlim=(-lim, lim),
+                                 n_ref=3, path=f"{base}_err_{name}.png", cmap="RdBu_r", vlim=(-lim, lim),
                                  cbar_label=f"{name} error", blank=mk))
 
     # ---- wiggle residual ----
@@ -229,10 +237,12 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
     cc = ref["clean_chan"][1]
     L = _p(np.abs(ref["dirty_chan"][1] - cc), np.ones_like(cc, bool), 97)
     out.append(contact_sheet(
-        [("DIRTY - CLEAN\n(the error to beat)", (ref["dirty_chan"][1] - cc)[sl])] +
+        [("CLEAN (truth)", cc[sl], "RdBu_r", (-_p(np.abs(cc), np.ones_like(cc, bool), 99.7), _p(np.abs(cc), np.ones_like(cc, bool), 99.7))),
+         ("DIRTY (input)", ref["dirty_chan"][1][sl], "RdBu_r", (-_p(np.abs(cc), np.ones_like(cc, bool), 99.7), _p(np.abs(cc), np.ones_like(cc, bool), 99.7))),
+         ("DIRTY - CLEAN\n(the error to beat)", (ref["dirty_chan"][1] - cc)[sl])] +
         [(f"{short(l)}\nrms {float(np.sqrt(np.mean((arts[l]['chan'][1] - cc) ** 2))):.3g}", (arts[l]["chan"][1] - cc)[sl]) for l in labels],
         title=f"{case}: error at the systemic channel {int(ref['chan_idx'][1])} (denoised - clean)",
-        n_ref=1, path=f"{base}_chan_err.png", cmap="RdBu_r", vlim=(-L, L), cbar_label="channel error"))
+        n_ref=3, path=f"{base}_chan_err.png", cmap="RdBu_r", vlim=(-L, L), cbar_label="channel error"))
 
     # ---- sharpness ----
     def grad(m):
@@ -249,10 +259,12 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
 
     # ---- invented structure ----
     out.append(contact_sheet(
-        [("DIRTY input", ref["dirty_invented"][sl].astype(np.float32))] +
+        [("CLEAN systemic channel", ref["clean_chan"][1][sl], "RdBu_r", (-_p(np.abs(ref["clean_chan"][1]), np.ones_like(ref["clean_chan"][1], bool), 99.7), _p(np.abs(ref["clean_chan"][1]), np.ones_like(ref["clean_chan"][1], bool), 99.7))),
+         ("DIRTY systemic channel", ref["dirty_chan"][1][sl], "RdBu_r", (-_p(np.abs(ref["clean_chan"][1]), np.ones_like(ref["clean_chan"][1], bool), 99.7), _p(np.abs(ref["clean_chan"][1]), np.ones_like(ref["clean_chan"][1], bool), 99.7))),
+         ("DIRTY input", ref["dirty_invented"][sl].astype(np.float32))] +
         [(f"{short(l)}\nblobs/ch {r(l, 'invented_blobs', '{:.1f}')}", arts[l]["invented"][sl].astype(np.float32)) for l in labels],
         title=f"{case}: invented structure, the fraction of channels in which a checkpoint asserts signal where clean has none",
-        n_ref=1, path=f"{base}_invented.png", cmap="magma", vlim=(0, 0.25), cbar_label="fraction of channels"))
+        n_ref=3, path=f"{base}_invented.png", cmap="magma", vlim=(0, 0.25), cbar_label="fraction of channels"))
 
     # ---- spectra ----
     plt = _plt()
