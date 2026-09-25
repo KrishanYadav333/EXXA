@@ -23,6 +23,7 @@ check("label best_models ckpt", ce.label_of("winner_aug_seed43.ckpt") == "winner
 check("source nb05", ce.source_of("nb05_x.pth") == "nb05")
 check("source best_models", ce.source_of("winner_aug_seed43.pth") == "best_models")
 check("train size from label", [ce._train_size(l) for l in ("winner_aug_res320_seed43", "winner_aug_res480_seed43", "winner_aug_native600_seed43", "winner_mae_ft_seed42")] == [320, 480, 600, 256])
+check("notebook 14 native arms are 600, not 256", [ce._train_size(l) for l in ("sweep_winner_600", "sweep_winner_aug_600", "sweep_winner_p10_600", "sweep_winner_seed600x")] == [600, 600, 600, 256])
 
 root = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models", "best_models")
 if os.path.isdir(root):
