@@ -48,7 +48,7 @@ ROW_FIELDS = [
     "checkpoint", "source", "family", "case", "domain", "n_channels",
     "psnr", "psnr_dirty", "ssim", "ssim_dirty",
     "M0", "M1", "M2", "M0_all", "M1_all", "M2_all", "n_px",
-    "resid_r", "dirty_resid_r", "wiggle_gain", "resid_rms_ratio", "mstar_at_bound", "geom_ok", "geom_offset_px", "geom_mstar", "ref_resid_rms",
+    "resid_r", "dirty_resid_r", "wiggle_gain", "resid_err_ratio", "resid_rms_ratio", "mstar_at_bound", "geom_ok", "geom_offset_px", "geom_mstar", "ref_resid_rms",
     "gradE_ratio", "gradE_ratio_dirty", "lapvar_ratio", "lapvar_ratio_dirty",
     "invented_frac", "invented_blobs", "overshoot", "floor_leak",
     "wall_s", "note",
@@ -558,6 +558,11 @@ def score(prep: Prepared, pred: np.ndarray) -> dict:
     resid = wiggle_residual(m1, prep.geom)
     r = _corr(prep.ref_resid, resid, prep.mask)
     rms = lambda a: float(np.sqrt(np.nanmean(a[prep.mask] ** 2)))
+    # The wiggle correlation is fooled by a residual that clean and dirty SHARE (a flat Keplerian model leaves a large one on a
+    # flared, inclined disk: dirty scores 0.997 on run_0002_00560_rt_00 whatever a denoiser does). The ERROR is not: subtract
+    # clean's residual and the shared part cancels. < 1 means the model brings the residual closer to clean's than dirty is.
+    err_d = rms(prep.resid_dirty - prep.ref_resid)
+    err_ratio = rms(resid - prep.ref_resid) / err_d if err_d > 0 else float("nan")
     inv_frac, inv_blobs, over, leak = _artifacts(case.clean, case.dirty, pred)
     extras = dict(m1q=m1, resid=resid)
     wig = lambda v: v if prep.geom_ok else float("nan")       # a failed fit is not a measurement: keep it out of every mean
@@ -565,7 +570,7 @@ def score(prep: Prepared, pred: np.ndarray) -> dict:
         psnr=psnr, psnr_dirty=prep.psnr_dirty, ssim=ssim, ssim_dirty=prep.ssim_dirty,
         M0=imp["M0"], M1=imp["M1"], M2=imp["M2"], M0_all=imp["M0_all"], M1_all=imp["M1_all"],
         M2_all=imp["M2_all"], n_px=imp["n_px"],
-        resid_r=wig(r), dirty_resid_r=wig(prep.dirty_resid_r), wiggle_gain=wig(r - prep.dirty_resid_r),
+        resid_r=wig(r), dirty_resid_r=wig(prep.dirty_resid_r), wiggle_gain=wig(r - prep.dirty_resid_r), resid_err_ratio=wig(err_ratio),
         resid_rms_ratio=wig(rms(resid) / rms(prep.ref_resid)) if rms(prep.ref_resid) > 0 else float("nan"),
         mstar_at_bound=prep.mstar_at_bound, geom_ok=prep.geom_ok, geom_offset_px=round(prep.geom_offset_px, 1),
         geom_mstar=round(float(prep.geom["mstar_msun"]), 3),

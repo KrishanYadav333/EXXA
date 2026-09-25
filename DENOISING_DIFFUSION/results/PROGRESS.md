@@ -41,6 +41,12 @@ geometry is not yet known; notebook 16 will produce it.
 its residual against the flat Keplerian model is 4.4 km/s rms, dominated by the disk's flaring, and that shared error correlates
 between clean and dirty whatever the denoiser does. The wiggle correlation is uninformative on that cube (no gain or loss can be read
 from it). Notebook 16 now records `ref_resid_rms` so this is visible.
+**Fixed with a metric that shared error cannot fool.** Notebook 16 also reports `resid_err_ratio` = rms(model residual - clean residual) /
+rms(dirty residual - clean residual): subtracting clean's residual removes whatever the flat model leaves that clean and dirty share.
+< 1 means the model brings the wiggle closer to clean's than dirty is. On that cube's saved maps, correlation gives 0.9907 / 0.9966 /
+0.9967 for `sg_k3_fresh` / `winner_aug_seed43` / `winner_beam_seed42` (indistinguishable), while the error ratio gives 1.58 / 0.97 / 0.96:
+`sg_k3_fresh` is worse than doing nothing there. (Computed from that preview's maps, which predate the geometry fix, so read it as a
+demonstration that the metric discriminates, not as a result.)
 
 **Fixed in notebook 16, not in the old scripts.** `checkpoint_eval.prepare` starts the fit from the emission's shape and, for the
 line-emission cubes, holds the inclination at the true `.para` value (what `fit_keplerian` prescribes when it is known independently).

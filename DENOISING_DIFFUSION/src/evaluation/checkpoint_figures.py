@@ -368,7 +368,8 @@ def _domain_table(ok, domain):
     if d.empty:
         return None
     g = d.groupby("checkpoint")
-    cols = ["psnr", "ssim", "M0", "M1", "M2", "resid_r", "wiggle_gain", "gradE_ratio", "lapvar_ratio", "invented_blobs", "overshoot"]
+    cols = [c for c in ["psnr", "ssim", "M0", "M1", "M2", "resid_r", "wiggle_gain", "resid_err_ratio", "gradE_ratio", "lapvar_ratio",
+                        "invented_blobs", "overshoot"] if c in d.columns]
     t = g[cols].mean()
     t["M0_sd"], t["M1_sd"], t["n"] = g["M0"].std(), g["M1"].std(), g.size()
     t["family"] = g["family"].first()
@@ -378,9 +379,10 @@ def _domain_table(ok, domain):
 def img_table(t, title, path, sort="M0", cols=None):
     """A score table as a heat-coloured image: each column coloured by its own z-score, blue = better."""
     plt = _plt()
-    cols = cols or ["psnr", "ssim", "M0", "M1", "M2", "resid_r", "wiggle_gain", "gradE_ratio", "invented_blobs", "n"]
+    cols = [c for c in (cols or ["psnr", "ssim", "M0", "M1", "M2", "resid_r", "wiggle_gain", "resid_err_ratio", "gradE_ratio",
+                                 "invented_blobs", "n"]) if c in t.columns]
     t = t.sort_values(sort, ascending=False)
-    better = {"invented_blobs": -1, "gradE_ratio": 0}      # gradE: target is 1, coloured by distance below
+    better = {"invented_blobs": -1, "resid_err_ratio": -1, "gradE_ratio": 0}      # gradE: target is 1, coloured by distance below
     z = np.zeros((len(t), len(cols)))
     for j, c in enumerate(cols):
         v = t[c].astype(float).values
@@ -395,7 +397,7 @@ def img_table(t, title, path, sort="M0", cols=None):
     for i in range(len(t)):
         for j, c in enumerate(cols):
             v = t[c].iloc[i]
-            txt = "" if not np.isfinite(v) else (f"{int(v)}" if c == "n" else f"{v:.2f}" if c in ("resid_r", "wiggle_gain", "gradE_ratio", "psnr", "invented_blobs") else f"{v:.4f}" if c == "ssim" else f"{v:+.0f}")
+            txt = "" if not np.isfinite(v) else (f"{int(v)}" if c == "n" else f"{v:.2f}" if c in ("resid_r", "wiggle_gain", "resid_err_ratio", "gradE_ratio", "psnr", "invented_blobs") else f"{v:.4f}" if c == "ssim" else f"{v:+.0f}")
             ax.text(j, i, txt, ha="center", va="center", fontsize=6.6, color="k")
     ax.set_xticks(range(len(cols))); ax.set_xticklabels(cols, fontsize=8)
     ax.set_yticks(range(len(t))); ax.set_yticklabels([f"{short(i)}  [{f}]" for i, f in zip(t.index, t["family"])], fontsize=6.6)
@@ -409,10 +411,12 @@ def fig_scoreboard(t, title, path):
     """Every metric as bars, checkpoints in the same order down every panel, error bars = spread across cubes."""
     plt = _plt()
     t = t.sort_values("M0", ascending=True)
-    spec = [("M0", "M0 improvement (%)", "M0_sd", 0), ("M1", "M1 improvement (%)", "M1_sd", 0), ("M2", "M2 improvement (%)", None, 0),
+    spec_all = [("M0", "M0 improvement (%)", "M0_sd", 0), ("M1", "M1 improvement (%)", "M1_sd", 0), ("M2", "M2 improvement (%)", None, 0),
             ("resid_r", "wiggle corr. with clean", None, None), ("wiggle_gain", "wiggle gain over dirty", None, 0),
+            ("resid_err_ratio", "wiggle error / dirty's (<1 beats dirty)", None, 1),
             ("gradE_ratio", "sharpness / clean (1 = exact)", None, 1), ("invented_blobs", "invented blobs / channel", None, 0),
             ("psnr", "PSNR (does not rank)", None, None), ("ssim", "SSIM", None, None)]
+    spec = [x for x in spec_all if x[0] in t.columns]
     fig, ax = plt.subplots(1, len(spec), figsize=(2.35 * len(spec) + 2.4, 0.2 * len(t) + 1.8), sharey=True)
     y = np.arange(len(t))
     for a, (c, nm, sd, ref_line) in zip(ax, spec):
