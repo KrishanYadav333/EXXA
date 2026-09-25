@@ -18,7 +18,7 @@ one path is safe and removing the last one is not.
 
 ```
 models/
-  05-unet/       3 models trained inside notebook 05
+  05-unet/       3 models trained inside notebook 05, plus the 2 res-arm recoveries (v38) and the 2 control arms (v44)
   06-ddpm/       5 diffusion models from notebook 06
   07-ddrm/       1 unconditional diffusion prior from notebook 07
   08-seeds/     12 U-Net seed repeats from notebook 08, reused by 05 and the moment tables
@@ -98,6 +98,13 @@ in [`../results/RUNS.md`](../results/RUNS.md), run folder
 winner / winner_aug / winner_p10 / winner_beam / winner_patch; `base_channels=32, (1,2,4)`
 for v12. `beam_dim=4` only for `winner_beam`, `0` otherwise. Definition in
 [`../src/models/unet.py`](../src/models/unet.py).
+
+### 2026-09-25: control arms recovered from the FAILED 05 v44
+
+`nb05_winner_hybrid_ft_seed42.pth` (from aug, PSNR 39.574) and `nb05_winner_hybrid_p10_ft_seed42.pth` (from p10, PSNR 40.2533), 30 epochs each,
+original hybrid loss. Downloaded by hand from v44's Output because a failed version's Output cannot be attached. Single-root torch archives
+(262 entries, root = the file's own name, same layout as the other `nb05_*` files); `torch` is not installed locally, so they were not `torch.load`ed here.
+`_kaggle-upload/05-v44-recovered/` holds the `.ckpt` hardlinks for a Kaggle Dataset (RULES.md #3). Run: `results/05-unet-line-emission/v44_2026-09-25_failed_oom/`.
 
 ## 06-ddpm — 5 conditional diffusion models
 
