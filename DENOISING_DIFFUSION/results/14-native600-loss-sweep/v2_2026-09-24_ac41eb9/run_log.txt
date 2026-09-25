@@ -1,0 +1,237 @@
+===== cell 2 =====
+Cloning into '/kaggle/working/EXXA'...
+Updating files: 100% (5490/5490), done.
+
+===== cell 2 =====
+DATA_DIR   : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+SG_DATA_DIR: /kaggle/input/datasets/krishanyadav333/exxa-sg-synth-pairs/kaggle-sg-training-dataset
+
+===== cell 4 =====
+From https://github.com/KrishanYadav333/EXXA
+ * branch            native600-loss-sweep -> FETCH_HEAD
+
+===== cell 4 =====
+HEAD is now at 926d671 feat: restore DDPM/DDRM fine-tuning at native res via padding, not depth change
+926d671 feat: restore DDPM/DDRM fine-tuning at native res via padding, not depth change
+
+
+===== cell 6 =====
+device: cuda | GPUs: 2 | native size: 600 | losses: ['mae', 'wavelet', 'starlet', 'gradient']
+
+===== cell 8 =====
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+600px line-emission: train 700 | val 200
+  aug: 700 (8 orientations) | patch: 44,800 | k1: 700 | k2: 700
+
+===== cell 9 =====
+
+======================================================================
+=== sweep_winner_600
+======================================================================
+  ep   1 | train 0.0158 | val 0.0073 | lr 8.2e-04 (357s) | RAM free 28.0/31.3 GB *best
+  ep   2 | train 0.0035 | val 0.0032 | lr 8.2e-04 (356s) | RAM free 27.7/31.3 GB *best
+  ep   3 | train 0.0028 | val 0.0021 | lr 8.2e-04 (356s) | RAM free 27.4/31.3 GB *best
+  ep   4 | train 0.0021 | val 0.0018 | lr 8.2e-04 (356s) | RAM free 27.1/31.3 GB *best
+  ep   5 | train 0.0028 | val 0.0017 | lr 8.2e-04 (356s) | RAM free 26.8/31.3 GB *best
+  ep   6 | train 0.0017 | val 0.0012 | lr 8.2e-04 (356s) | RAM free 26.5/31.3 GB *best
+  ep   7 | train 0.0014 | val 0.0011 | lr 8.2e-04 (356s) | RAM free 26.3/31.3 GB *best
+  ep   8 | train 0.0013 | val 0.0014 | lr 8.2e-04 (356s) | RAM free 26.0/31.3 GB
+  ep   9 | train 0.0011 | val 0.0014 | lr 8.2e-04 (356s) | RAM free 25.7/31.3 GB
+  ep  10 | train 0.0013 | val 0.0019 | lr 8.2e-04 (356s) | RAM free 25.4/31.3 GB
+  ep  11 | train 0.0019 | val 0.0018 | lr 8.2e-04 (356s) | RAM free 25.1/31.3 GB
+  ep  12 | train 0.0012 | val 0.0010 | lr 8.2e-04 (356s) | RAM free 24.8/31.3 GB *best
+  ep  13 | train 0.0010 | val 0.0010 | lr 8.2e-04 (356s) | RAM free 24.6/31.3 GB *best
+  ep  14 | train 0.0008 | val 0.0008 | lr 8.2e-04 (356s) | RAM free 24.3/31.3 GB *best
+  ep  15 | train 0.0008 | val 0.0011 | lr 8.2e-04 (355s) | RAM free 24.0/31.3 GB
+  ep  16 | train 0.0008 | val 0.0009 | lr 8.2e-04 (355s) | RAM free 23.7/31.3 GB
+  ep  17 | train 0.0008 | val 0.0009 | lr 8.2e-04 (355s) | RAM free 23.4/31.3 GB
+  ep  18 | train 0.0009 | val 0.0007 | lr 8.2e-04 (355s) | RAM free 23.1/31.3 GB *best
+  ep  19 | train 0.0008 | val 0.0011 | lr 8.2e-04 (355s) | RAM free 22.9/31.3 GB
+  ep  20 | train 0.0008 | val 0.0020 | lr 8.2e-04 (355s) | RAM free 22.6/31.3 GB
+  ep  21 | train 0.0009 | val 0.0009 | lr 8.2e-04 (355s) | RAM free 22.3/31.3 GB
+  ep  22 | train 0.0010 | val 0.0008 | lr 8.2e-04 (355s) | RAM free 22.0/31.3 GB
+  ep  23 | train 0.0007 | val 0.0010 | lr 8.2e-04 (355s) | RAM free 21.7/31.3 GB
+  ep  24 | train 0.0009 | val 0.0007 | lr 8.2e-04 (355s) | RAM free 21.4/31.3 GB
+  ep  25 | train 0.0008 | val 0.0008 | lr 8.2e-04 (356s) | RAM free 21.2/31.3 GB
+  early stop at epoch 25 (no improvement for 6 epochs)
+    [persisted] nb14_sweep_winner_600.pth (116 MB) -- sweep_winner_600
+  sweep_winner_600: PSNR 37.1940 | SSIM 0.9961
+--- sweep_winner_aug_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- sweep_winner_p10_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- v12_cfg_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_beam_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_patch_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_k1_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_k2_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+
+600px core arms: 1 row(s)
+
+===== cell 10 =====
+aug source (winner_aug_seed43): /kaggle/input/datasets/krishanyadav333/exxa-sg-synth-pairs/kaggle-sg-training-dataset/winner_aug_seed43.ckpt
+p10 source (winner_p10_seed44): /kaggle/input/datasets/krishanyadav333/exxa-14-checkpoint-sources/winner_p10_seed44.ckpt
+beam source (winner_beam_seed42): /kaggle/input/datasets/krishanyadav333/exxa-14-checkpoint-sources/winner_beam_seed42.ckpt
+[resume] 1 arm(s) already scored: ['sweep_winner_600']
+--- winner_mae_aug_ft_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_mae_aug_fresh_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_wavelet_aug_ft_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_wavelet_aug_fresh_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_starlet_aug_ft_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_starlet_aug_fresh_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_gradient_aug_ft_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_gradient_aug_fresh_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_mae_p10_ft_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_mae_p10_fresh_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_wavelet_p10_ft_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_wavelet_p10_fresh_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_starlet_p10_ft_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_starlet_p10_fresh_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_gradient_p10_ft_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_gradient_p10_fresh_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_mae_beam_ft_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_mae_beam_fresh_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_wavelet_beam_ft_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_wavelet_beam_fresh_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_starlet_beam_ft_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_starlet_beam_fresh_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_gradient_beam_ft_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- winner_gradient_beam_fresh_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+
+600px line-emission sweep: 1 row(s)
+
+===== cell 12 =====
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+kin 600px: train 280 | val 80 | 31-channel stacks | one item = 45 MB (dirty alone)
+
+===== cell 13 =====
+kin_gamma0 source: /kaggle/input/datasets/krishanyadav333/exxa-13-checkpoint-sources/kin_gamma0.ckpt
+--- kin_gamma0_mae_ft_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- kin_gamma0_mae_fresh_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- kin_gamma0_wavelet_ft_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- kin_gamma0_wavelet_fresh_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- kin_gamma0_starlet_ft_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- kin_gamma0_starlet_fresh_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- kin_gamma0_gradient_ft_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- kin_gamma0_gradient_fresh_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+
+kin_gamma0 600px sweep: 0 row(s)
+
+===== cell 15 =====
+sg 600px: train 180 | val 60 | 7-channel input, 1-ch target
+
+===== cell 16 =====
+sg_k3_fresh source: /kaggle/input/datasets/krishanyadav333/exxa-13-checkpoint-sources/sg_k3_fresh.ckpt
+--- sg_k3_mae_ft_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- sg_k3_mae_fresh_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- sg_k3_wavelet_ft_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- sg_k3_wavelet_fresh_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- sg_k3_starlet_ft_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- sg_k3_starlet_fresh_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- sg_k3_gradient_ft_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- sg_k3_gradient_fresh_600: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+
+sg_k3_fresh 600px sweep: 0 row(s)
+
+===== cell 18 =====
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+ddpm 608px (padded from 600 native): train 280 | val 80 items
+
+===== cell 19 =====
+ddpm_seed42 source: /kaggle/input/datasets/krishanyadav333/exxa-13-checkpoint-sources/ddpm_seed42.ckpt
+--- ddpm_l1_ft_608: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- ddpm_l1_fresh_608: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- ddpm_wavelet_ft_608: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- ddpm_wavelet_fresh_608: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- ddpm_starlet_ft_608: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- ddpm_starlet_fresh_608: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- ddpm_gradient_ft_608: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- ddpm_gradient_fresh_608: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+
+ddpm_seed42 608px sweep: 0 row(s)
+
+===== cell 21 =====
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+ddrm 608px: train 420 | val 120 images
+
+===== cell 22 =====
+ddrm_prior source: /kaggle/input/datasets/krishanyadav333/exxa-13-checkpoint-sources/ddrm_prior.ckpt
+--- ddrm_l1_ft_608: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- ddrm_l1_fresh_608: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- ddrm_l2_ft_608: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+--- ddrm_l2_fresh_608: DEFERRED, session cap of 1 new arms reached -- resumes next session ---
+
+ddrm_prior 608px sweep: 0 row(s)
+
+===== cell 24 =====
+collected 1 file(s), 0.0 MiB -> /kaggle/working/outputs/14-native600-loss-sweep/2026-09-24T115826_926d671
+       0.00 MiB  nb14_loss_sweep.csv
+   NOT FOUND (not written this run?): ['nb14_kin_loss_sweep.csv', 'nb14_sg_loss_sweep.csv', 'nb14_ddpm_loss_sweep.csv', 'nb14_ddrm_loss_sweep.csv']
+
+Anything listed as NOT FOUND above did not get written this run.

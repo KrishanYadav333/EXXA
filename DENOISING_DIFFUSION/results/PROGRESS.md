@@ -9,6 +9,31 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-25 | run | 14 native-600px sweep: 3 of 56 arms done in three sessions, about 3 h each
+
+Kaggle ran notebook 14 three times on this branch (Versions 2, 4, 6, archived under `results/14-native600-loss-sweep/`), each
+clean, one new arm per session (`MAX_NEW_ARMS_PER_SESSION = 1`), on the code as of `926d671`, so before the DDRM fix:
+
+| version | arm (from scratch, 600 px) | PSNR (600px val) | epochs | time |
+|---|---|---|---|---|
+| 2 | `sweep_winner_600` | 37.19 | 25 | ~2.5 h |
+| 4 | `sweep_winner_aug_600` | 35.17 | 35 (the cap, no early stop) | ~3.0 h |
+| 6 | `sweep_winner_p10_600` | 37.21 | 31 | ~3.1 h |
+
+PSNR at 600 px is measured on 600 px images and does not compare with the 256 px arms' 39 to 40 dB, so read nothing into the gap. What
+it does say is cost: at about 3 h an arm, 56 arms is about 170 GPU hours and 56 sessions at the cap of one, which is far beyond what
+remains before the deadline. Jason proposed 320/480 *because* 600 is expensive, and this confirms the concern; the notebook is optional
+in PLAN.md and should stay parked. Host RAM fell about 0.2 to 0.3 GB per epoch (28 GB free to 18 to 21 GB over an arm), the same
+unexplained leak as 05, scaling with image size. Training looked unstable in at least the last arm (train loss rising after
+epoch ~20 with the lr halved at 30), which is worth a look before anyone trusts a 600 px from-scratch arm.
+
+**Merged and pushed with the DDRM fix (`bf8d1e7`).** Section 6 previously built `ddrm_prior` at 608 px with 5 levels, but the checkpoint
+is 4-level with no attention, so the first fine-tune would have crashed the notebook. It now builds the checkpoint's own architecture at
+true 600 px. 14 has not reached that section, so it had not failed yet. Kaggle's three pushes replaced the notebook file wholesale, so
+the merge kept the fixed notebook and the runs live in the archives.
+
+---
+
 ## 2026-09-23 | added | 14-native600-loss-sweep.ipynb, on an isolated branch, not yet run
 
 **Branch `native600-loss-sweep`, off `midterm-prep` at `80a199f`.** Author's explicit
