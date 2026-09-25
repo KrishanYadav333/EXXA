@@ -9,6 +9,17 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-25 | added | notebook 16 set to a QUICK first run: 3 cases, ~25 checkpoints
+
+Full inventory (~65 scoreable checkpoints) x 7 cases is ~455 rows; the only timing is the local CPU preview (230 to 275 s per row), so a full run is a guess of 15 to 30 h
+(2 to 4 sessions). Cell 6 now has `PROFILE = 'quick'` (2 line-emission cubes + SG v2) and an `INCLUDE` regex for the checkpoints the loss, resolution and
+best-model decision needs: the loss arms `_p10_ft` and `_fresh`, both hybrid controls, aug/p10/non-aug seed baselines, `winner_beam`, `res320`, `res480`, the three
+600 px arms, `kin_gamma0` (+ mae/starlet), `sg_k3_fresh`. ~25 checkpoints x 3 cases ~ 75 rows, guessed at 2.5 to 5 h. **Unmeasured until the first Kaggle session
+prints `wall_s`.** Not included on purpose: DDPM/DDRM, the older 08/10/11/12 families, `winner_k1/k2`, patch. A later session sets `INCLUDE = None`, `PROFILE = 'full'`
+and resumes from this Output. No published number touched.
+
+---
+
 ## 2026-09-25 | run + bug | 05 v44 FAILED (CUDA OOM scoring res480), but the control arms ran: much of the fine-tune gain is extra training, not the loss
 
 **Run.** Fresh Kaggle import, cells current (`1b1ee7f`). Trained `winner_hybrid_ft` (from aug, PSNR 39.574) and `winner_hybrid_p10_ft` (from p10,
