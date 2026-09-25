@@ -163,13 +163,13 @@ def contact_sheet(panels, *, title, path, cmap, vlim, cbar_label, n_ref=1, per_p
     return out
 
 
-CORE_SHEETS = ("M0", "M1", "M2", "err_M1")     # the disk sheets kept by default; the rest are opt-in (extra=True)
+CORE_SHEETS = ("M0", "M1", "M2", "err_M1", "sharpness", "invented")   # kept by default (sharpness = smoothing, invented = hallucination); the rest are opt-in (extra=True)
 
 
 def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str, top_k: Optional[int] = None, extra: bool = False) -> List[str]:
     """
     Paged sheets show EVERY checkpoint unless `top_k` limits them to the best by M0; with `extra=False` only CORE_SHEETS plus the classic
-    wiggle pages are built (about 34 images per case for 34 checkpoints, instead of ~75).
+    wiggle pages are built (about 44 images per case for 34 checkpoints, instead of ~75).
     """
     out: List[str] = []
     labels_all = _order(list(arts), rows)

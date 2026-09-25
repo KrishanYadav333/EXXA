@@ -13,8 +13,8 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 Paging alone gave ~75 images per case (228 for the quick run). A first cut limited the disk sheets to the top 16 checkpoints by M0; that dropped 18 checkpoints from the images, against the standing
 requirement that every checkpoint has its disk figures, and was reverted the same day. **Default now:** EVERY checkpoint on the core disk sheets (M0, M1, M2, M1 error, 8 checkpoints per page with clean and dirty on
-every page) and the classic wiggle pages (5 per page), plus the single figures (spectra, radial/power, calibration, integrated spectrum, error histogram, ensemble, top-k detail): 5x4 + 7 + 7 = 34 per case, so
-about 108 for the quick run with its 6 dashboards. The channel, sharpness, invented-structure, M0-error and residual-sheet kinds return with `FIG_EXTRA = True` (about 4x); `FIG_TOP = n` limits the disk sheets to
+every page) and the classic wiggle pages (5 per page), the sharpness and invented-structure sheets (the smoothing and hallucination views, kept on the same day because they are the only pictures of those two failure modes), plus the single figures (spectra, radial/power, calibration, integrated spectrum, error histogram, ensemble, top-k detail): 5x6 + 7 + 7 = 44 per case, so
+about 138 for the quick run with its 6 dashboards. The channel-map, M0-error and residual-sheet kinds return with `FIG_EXTRA = True`; `FIG_TOP = n` limits the disk sheets to
 the best n. The defaults are in `src/`, so a stale Kaggle cell still gets them. Figures only; no published number touched.
 
 ---

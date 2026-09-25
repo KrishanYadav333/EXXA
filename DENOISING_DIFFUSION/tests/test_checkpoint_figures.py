@@ -64,8 +64,8 @@ with tempfile.TemporaryDirectory() as d:
     paths = cf.build_all(md, df, out, figure_cases=None, log=lambda *a: None, extra=True)   # every figure kind
     lean = cf.build_all(md, df, out + '_lean', figure_cases=None, log=lambda *a: None)   # the default, lean set
     kinds = {os.path.basename(q) for q in lean}
-    check('default build is the lean set: no chan / sharpness / invented / err_M0 sheets, but the core disk sheets are there',
-          not any(k in n for n in kinds for k in ('_chan', '_sharpness', '_invented', '_err_M0')) and any('_M1' in n for n in kinds) and any('_err_M1' in n for n in kinds)
+    check('default build is the lean set: no chan / err_M0 sheets, but the core disk sheets, sharpness and invented are there',
+          not any(k in n for n in kinds for k in ('_chan', '_err_M0')) and any('_sharpness' in n for n in kinds) and any('_invented' in n for n in kinds) and any('_M1' in n for n in kinds) and any('_err_M1' in n for n in kinds)
           and any('wiggle_classic' in n for n in kinds) and len(lean) < len(paths))
     names = sorted(os.path.basename(p) for p in paths)
     for need in ("nb16_table_line_emission.png", "nb16_scoreboard_line_emission.png", "nb16_table_sg.png", "nb16_per_cube.png",
