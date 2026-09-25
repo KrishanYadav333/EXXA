@@ -1,7 +1,7 @@
 # 05-unet-line-emission, Version 44, FAILED (CUDA OOM at scoring), 2026-09-25
 
 Cells current: cell 0b pulled `1b1ee7f`, so per-arm scoring size, `STALE_MOMENT_ARMS` and both control arms were live.
-Ran 1 h 24 m. **Training finished; scoring died.** Traceback in cell 18: `torch.OutOfMemoryError: Tried to allocate 3.96 GiB`
+Runtime not recorded in the log; about 1.5 h by the epoch times (2 arms x 30 epochs x 84 s, plus setup and scoring). **Training finished; scoring died.** Traceback in cell 18: `torch.OutOfMemoryError: Tried to allocate 3.96 GiB`
 (T4, 14.56 GiB, 3.90 free) inside `UNet.forward` while scoring `winner_aug_res480` (480 px) with a sub-batch of `BS = 32`
 channels. `winner_aug_res320` scored fine at 320 px (20 channels' worth fit), so the failure is specific to 480 and would
 have hit `native600` too. Cause: the fix that scores each arm at its own size did not shrink the batch with it.
