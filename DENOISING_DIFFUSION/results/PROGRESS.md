@@ -19,7 +19,7 @@ Estimate from measured row times: ~55 min scoring + ~15 min figures. **Run 3:** 
 
 ## 2026-09-25 | analysis | notebook 16 quick run read as IMAGES: the kinematic-input models are the closest to clean; pick for the 5-cube run
 
-Read from the 12 `rt_00` sheets and the full CSV (`results/16-checkpoint-evaluation/v_pending_2026-09-25_quick_6e4e139/`). One cube for the images, two for the numbers, one seed per arm: **a shortlist, not a result.**
+Read from the 12 `rt_00` sheets and the full CSV (`results/16-checkpoint-evaluation/v5_2026-09-25_quick_6e4e139/`). One cube for the images, two for the numbers, one seed per arm: **a shortlist, not a result.**
 
 **What the pictures show that the tables did not.**
 - **Sharpness (M1 gradient).** Clean is a smooth radial fan with a few fine rays. Every single-channel U-Net draws a web of closed contour lines across the disk (gradE/clean 1.8 to 2.6): M1 comes out
@@ -74,7 +74,7 @@ unpaged sheets; the next run, or a local rebuild from the downloaded `nb16_maps/
 
 ## 2026-09-25 | run | notebook 16 first Kaggle run (quick): 34 checkpoints, 3 cases, 102 rows in 49 min; 320 px is NOT inherently bad, 600 px does not help
 
-Archived as `results/16-checkpoint-evaluation/v_pending_2026-09-25_quick_6e4e139/` (Kaggle version number unknown). Line-emission means are over **2 cubes** (`rt_00`, `rt_01`), sd across cubes:
+Archived as `results/16-checkpoint-evaluation/v5_2026-09-25_quick_6e4e139/` (Kaggle Version 5). Line-emission means are over **2 cubes** (`rt_00`, `rt_01`), sd across cubes:
 **not comparable to the 5-cube 05 tables**; the harness reproduces the published v20 row for `sweep_winner_aug_seed43` on `rt_00` (M0 +31.3 / M1 +77.2 / M2 +84.6), so it is scoring consistently.
 A display cell raised after all scoring and stopped `collect_outputs`; scoring/figures are in the Output, the CSV must be downloaded. Fixed.
 

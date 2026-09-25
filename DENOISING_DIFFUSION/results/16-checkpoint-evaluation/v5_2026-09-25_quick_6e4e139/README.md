@@ -1,6 +1,6 @@
 # 16-checkpoint-evaluation, first Kaggle run (QUICK), 2026-09-25
 
-Kaggle Version number not known to the kernel (RULES.md #10): folder is `v_pending_...`; rename to `v<N>_...` when it is known. Cell 0b pulled `6e4e139`
+Kaggle Version 5 (number from the author, RULES.md #10; it was `v_pending_...` until then). Cell 0b pulled `6e4e139`
 (size fix for notebook 14's 600 px arms live). Cells: the Kaggle copy had the old full-profile cell 6; the user pasted an override cell below it
 (`PROFILE='quick'`, `LE_LIMIT=2`, `INCLUDE` regex), so this run is 34 checkpoints x 3 cases = **102 rows in 49 min**
 (measured per-row seconds: 256 px U-Net ~21, stack_kin ~33, sg ~24, 600 px ~74, 320/480 px ~13 to 17 on the SG cube).

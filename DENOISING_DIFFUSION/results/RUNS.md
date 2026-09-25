@@ -306,6 +306,15 @@ Same caveat as 05: v17's cells matched `aca35c5`, which predates today's lr-comm
 kin-epoch-budget fixes (behaviour-neutral — see PROGRESS.md 2026-09-24) — reapplied on
 top in the merge that landed this row, not lost.
 
+## 16-checkpoint-evaluation: one protocol over every checkpoint, as numbers and images
+
+Scores every checkpoint it finds under `/kaggle/input` with one harness (`src/evaluation/checkpoint_eval.py`) on the same cubes, and writes paged image sheets (`checkpoint_figures.py`).
+Line-emission means depend on how many cubes the run used: **only compare rows from runs with the same cube set.**
+
+| Ver | Date | code | scope | Artifacts |
+|----:|---|---|---|---|
+| 5 | 2026-09-25 | `6e4e139` | QUICK: 34 checkpoints, 2 line-emission cubes (`rt_00`, `rt_01`) + SG v2, 102 rows in 49 min; display cell crashed after all scoring | [`v5_.../`](16-checkpoint-evaluation/v5_2026-09-25_quick_6e4e139/): notebook, log, CSV, inventory, 12 `rt_00` sheets |
+
 ## 06-ddpm-line-emission — DDPM
 
 | Ver | Date (UTC) | code | Outcome | Artifacts |
