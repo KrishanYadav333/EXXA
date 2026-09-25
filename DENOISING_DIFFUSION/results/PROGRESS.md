@@ -9,6 +9,14 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-25 | plan | notebook 16 runs 2 and 3
+
+**Run 2 (next):** the 9 image-chosen checkpoints plus every resolution arm (`winner_aug_res320` s43, `winner_res320` s42, `winner_aug_res480` s43, `sweep_winner_600`, `sweep_winner_aug_600`,
+`sweep_winner_p10_600`), 14 in all, on all 5 line-emission cubes and both SG cases (98 rows). Set in the repo's cell 6 (`PROFILE = 'full'`, `INCLUDE` regex), so a fresh import needs no override.
+Estimate from measured row times: ~55 min scoring + ~15 min figures. **Run 3:** `INCLUDE = None`, every checkpoint, resuming from run 2's Output; pages stay clean + dirty + 6 checkpoints.
+
+---
+
 ## 2026-09-25 | analysis | notebook 16 quick run read as IMAGES: the kinematic-input models are the closest to clean; pick for the 5-cube run
 
 Read from the 12 `rt_00` sheets and the full CSV (`results/16-checkpoint-evaluation/v_pending_2026-09-25_quick_6e4e139/`). One cube for the images, two for the numbers, one seed per arm: **a shortlist, not a result.**
