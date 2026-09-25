@@ -9,13 +9,15 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
-## 2026-09-25 | fix | notebook 16 figures: every checkpoint, core disk sheets only (~34 images per case for 34 checkpoints)
+## 2026-09-25 | fix | notebook 16 figures: every checkpoint, 8 disks per page at 150 dpi, tight non-square crop
 
-Paging alone gave ~75 images per case (228 for the quick run). A first cut limited the disk sheets to the top 16 checkpoints by M0; that dropped 18 checkpoints from the images, against the standing
-requirement that every checkpoint has its disk figures, and was reverted the same day. **Default now:** EVERY checkpoint on the core disk sheets (M0, M1, M2, M1 error, 8 checkpoints per page with clean and dirty on
-every page) and the classic wiggle pages (5 per page), the sharpness and invented-structure sheets (the smoothing and hallucination views, kept on the same day because they are the only pictures of those two failure modes), plus the single figures (spectra, radial/power, calibration, integrated spectrum, error histogram, ensemble, top-k detail): 5x6 + 7 + 7 = 44 per case, so
-about 138 for the quick run with its 6 dashboards. The channel-map, M0-error and residual-sheet kinds return with `FIG_EXTRA = True`; `FIG_TOP = n` limits the disk sheets to
-the best n. The defaults are in `src/`, so a stale Kaggle cell still gets them. Figures only; no published number touched.
+Requested layout: clean + dirty + 6 checkpoints = **8 disks per page**, each large. `DISKS_PER_PAGE = 8`, 4 x 2, 150 dpi, tiles 4.2 in wide (each disk ~630 px); the error and invented-structure sheets
+carry a third reference tile (dirty minus clean, or the dirty invented map), so they show 5 checkpoints a page to keep 8 disks. The classic wiggle page is clean + dirty + 2 checkpoints, each with its M1 and
+its residual (4 columns x 2 rows = 8 disks). **The crop is now a tight, non-square box around the disk** (10% margin): an inclined disk is an ellipse and the old square crop left over a third of every tile black,
+so the same page area shows the disk about 1.4x larger. EVERY checkpoint is on every sheet (an earlier top-16 cut dropped 18 checkpoints and was reverted). Sheet kinds in the default set: M0, M1, M2, M1 error, sharpness
+(smoothing), invented structure (hallucination), classic wiggle, plus the singles (spectra, radial/power, calibration, integrated spectrum, error histogram, ensemble, top-k). Channel maps, M0 error and the
+residual contact sheet need `FIG_EXTRA = True`. **Image count for 34 checkpoints:** per case 24 (M0, M1, M2, sharpness x 6 pages) + 14 (M1 error, invented x 7 pages) + 17 (classic) + 7 = 62; 3 cases + 6
+dashboards = **192**. `FIG_TOP = n` shows only the best n checkpoints and cuts that roughly in proportion. Defaults live in `src/`, so a stale Kaggle cell gets them. Figures only; no published number touched.
 
 ---
 

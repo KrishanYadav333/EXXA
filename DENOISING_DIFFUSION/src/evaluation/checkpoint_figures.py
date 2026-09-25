@@ -67,16 +67,17 @@ def load_case(map_dir: str, case: str):
     return ref, arts
 
 
-def _crop_box(mask: np.ndarray, pad: float = 0.14):
+def _crop_box(mask: np.ndarray, pad: float = 0.10):
+    """Tight box around the disk with `pad` margin on each side. NOT square: an inclined disk is an ellipse, and a square crop left over a third of every tile black."""
     ys, xs = np.where(mask)
     if len(ys) == 0:
         return 0, mask.shape[0], 0, mask.shape[1]
     y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
     h, w = y1 - y0, x1 - x0
-    side = int(max(h, w) * (1 + 2 * pad))
+    hh, ww = int(h * (1 + 2 * pad)), int(w * (1 + 2 * pad))
     cy, cx = (y0 + y1) // 2, (x0 + x1) // 2
-    Y0, X0 = max(0, cy - side // 2), max(0, cx - side // 2)
-    return Y0, min(mask.shape[0], Y0 + side), X0, min(mask.shape[1], X0 + side)
+    Y0, X0 = max(0, cy - hh // 2), max(0, cx - ww // 2)
+    return Y0, min(mask.shape[0], Y0 + hh), X0, min(mask.shape[1], X0 + ww)
 
 
 def _order(labels: Sequence[str], rows, key: str = "M0") -> List[str]:
@@ -103,7 +104,9 @@ def _sheet_page(panels, *, title, path, cmap, vlim, cbar_label, ncols=7, tile=2.
     n = len(panels)
     ncols = min(ncols, max(1, n))
     nrows = int(math.ceil(n / ncols))
-    fig, axes = plt.subplots(nrows, ncols, figsize=(max(11.0, ncols * tile), nrows * (tile + 0.62) + 0.7), squeeze=False)   # >= 11 in so a title always fits
+    a0 = np.asarray(panels[0][1])
+    aspect = a0.shape[0] / max(a0.shape[1], 1)                     # tile height follows the crop: an elliptical disk no longer sits in a square
+    fig, axes = plt.subplots(nrows, ncols, figsize=(max(11.0, ncols * tile), nrows * (tile * aspect + 0.85) + 0.7), squeeze=False)   # >= 11 in so a title always fits
     cm = plt.get_cmap(cmap).copy()
     cm.set_bad("#111111")
     for ax in axes.ravel():
@@ -123,11 +126,11 @@ def _sheet_page(panels, *, title, path, cmap, vlim, cbar_label, ncols=7, tile=2.
         ax.set_title(t, fontsize=fs, linespacing=1.15)
     fh = fig.get_figheight()
     fig.suptitle(title, fontsize=suptitle_fs, y=0.995)
-    fig.tight_layout(rect=(0, 0.75 / fh, 1, 0.975), h_pad=1.6)
+    fig.tight_layout(rect=(0, 0.75 / fh, 1, 0.975), h_pad=2.4)
     cax = fig.add_axes([0.25, 0.42 / fh, 0.5, 0.11 / fh])          # inches, so the tick labels always fit below the bar
     fig.colorbar(im, cax=cax, orientation="horizontal").set_label(cbar_label, fontsize=7)
     cax.tick_params(labelsize=6.5)
-    fig.savefig(path, dpi=105)
+    fig.savefig(path, dpi=150)
     plt.close(fig)
     return path
 
@@ -143,15 +146,16 @@ def _p(a, mask, q):
 # ------------------------------------------------------------------------------------------------ #
 
 
-PER_PAGE = 8      # checkpoints per page. 34 tiles in one figure left each disk ~1/8 of the page width and unreadable.
+DISKS_PER_PAGE = 8   # tiles per page INCLUDING the reference tiles: clean + dirty + 6 checkpoints, 4 x 2, each disk ~640 px wide at 150 dpi.
 
 
-def contact_sheet(panels, *, title, path, cmap, vlim, cbar_label, n_ref=1, per_page=PER_PAGE, ncols=4, tile=3.0, fs=8.0, blank=None, suptitle_fs=10):
+def contact_sheet(panels, *, title, path, cmap, vlim, cbar_label, n_ref=1, per_page=None, ncols=4, tile=4.2, fs=10.0, blank=None, suptitle_fs=12):
     """
-    Paged contact sheet. The first `n_ref` panels (clean, dirty, or the error to beat) are repeated at the top of EVERY page, followed by
-    `per_page` checkpoints, on one shared colour scale, so any page can be read alone. Returns the list of page paths
-    (`..._p01.png`, ...; a single page keeps `path` unchanged).
+    Paged contact sheet, DISKS_PER_PAGE tiles a page. The first `n_ref` panels (clean, dirty, or the error to beat) repeat at the top of EVERY
+    page, followed by `DISKS_PER_PAGE - n_ref` checkpoints (6 after clean and dirty), on one shared colour scale, so any page can be read alone.
+    Returns the list of page paths (`..._p01.png`, ...; a single page keeps `path` unchanged).
     """
+    per_page = per_page or max(1, DISKS_PER_PAGE - n_ref)
     refs, rest = list(panels[:n_ref]), list(panels[n_ref:])
     chunks = [rest[i:i + per_page] for i in range(0, len(rest), per_page)] or [[]]
     out = []
@@ -301,7 +305,7 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str, 
     return [q for o in out for q in (o if isinstance(o, list) else [o])]   # contact_sheet returns a list of pages
 
 
-def _wiggle_classic(case, ref, arts, labels, rows, base, sl, mk, per_page=5):
+def _wiggle_classic(case, ref, arts, labels, rows, base, sl, mk, per_page=2):
     """
     The figure that showed the smoothing (wiggle_all_methods.png), for EVERY checkpoint: row 1 the quadratic M1, row 2 the residual
     from the ONE shared Keplerian fit, each panel with its own colour bar and the residual RMS in the title. Clean and dirty open every
@@ -330,7 +334,7 @@ def _wiggle_classic(case, ref, arts, labels, rows, base, sl, mk, per_page=5):
             sub = f"\nerr/dirty {r['resid_err_ratio']:.2f}  r {r['resid_r']:.2f}" if np.isfinite(r.get("resid_err_ratio", np.nan)) else ""
             tiles.append((short(l), arts[l]["m1q"], arts[l]["resid"], sub))
         n = len(tiles)
-        fig, ax = plt.subplots(2, n, figsize=(2.9 * n, 6.6), squeeze=False)
+        fig, ax = plt.subplots(2, n, figsize=(4.6 * n, 8.6), squeeze=False)
         for j, (t, m1, res, sub) in enumerate(tiles):
             a = np.where(mk, np.array(m1[sl], np.float64), np.nan)
             im = ax[0, j].imshow(a, origin="lower", cmap=cm, vmin=vs - vm, vmax=vs + vm, interpolation="nearest")
@@ -343,7 +347,7 @@ def _wiggle_classic(case, ref, arts, labels, rows, base, sl, mk, per_page=5):
         fig.suptitle(f"{case}: GI wiggle, M1 and its residual from the shared Keplerian fit (km/s), page {pi}/{len(pages)}. Same scales in every "
                      f"panel; clean's residual is the target. Checkpoints ordered best wiggle first.{failed}", fontsize=10)
         fig.tight_layout(rect=(0, 0, 1, 0.95))
-        p = f"{base}_wiggle_classic_p{pi:02d}.png"; fig.savefig(p, dpi=105); plt.close(fig); paths.append(p)
+        p = f"{base}_wiggle_classic_p{pi:02d}.png"; fig.savefig(p, dpi=150); plt.close(fig); paths.append(p)
     return paths
 
 

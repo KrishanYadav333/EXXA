@@ -75,7 +75,7 @@ with tempfile.TemporaryDirectory() as d:
                  "nb16_sheet_synthetic_case_chan_err.png", "nb16_sheet_synthetic_case_sharpness.png", "nb16_sheet_synthetic_case_invented.png",
                  "nb16_sheet_synthetic_case_spectra.png", "nb16_sheet_synthetic_case_radial_power.png", "nb16_sheet_synthetic_case_integrated_spectrum.png",
                  "nb16_sheet_synthetic_case_calibration.png", "nb16_sheet_synthetic_case_error_hist.png", "nb16_sheet_synthetic_case_ensemble.png", "nb16_sheet_synthetic_case_topk.png"):
-        check(f"built {need}", need in names)
+        check(f"built {need}", need in names or need[:-4] + "_p01.png" in names)   # a sheet with more than 6 checkpoints is paged
     check("loss x source matrix built when some arm names match", "nb16_loss_x_source.png" in names)
     for p in paths:
         ok = os.path.getsize(p) > 8000
@@ -101,7 +101,7 @@ with tempfile.TemporaryDirectory() as d:
     disk = np.where(xx ** 2 + yy ** 2 < 0.8, xx, np.nan)
     panels = [("CLEAN", disk), ("DIRTY", disk)] + [(f"ck{i}", disk * (1 + i / 40)) for i in range(34)]
     pages = cf.contact_sheet(panels, title="paging", path=os.path.join(d, "pg.png"), cmap="RdBu_r", vlim=(-1, 1), cbar_label="x", n_ref=2)
-    check("34 checkpoints page into 5 sheets of at most 8", len(pages) == 5 and all(os.path.getsize(q) > 5000 for q in pages) and pages[0].endswith("pg_p01.png"))
+    check("34 checkpoints page into 6 sheets of 8 tiles (clean, dirty, 6 checkpoints)", len(pages) == 6 and all(os.path.getsize(q) > 5000 for q in pages) and pages[0].endswith("pg_p01.png"))
     one = cf.contact_sheet(panels[:6], title="one", path=os.path.join(d, "one.png"), cmap="RdBu_r", vlim=(-1, 1), cbar_label="x", n_ref=2)
     check("a small sheet stays one page under its own name", one == [os.path.join(d, "one.png")])
 
