@@ -118,6 +118,10 @@ def _train_size(label: str) -> int:
     for tag, size in (("native600", 600), ("res480", 480), ("res320", 320)):
         if tag in label:
             return size
+    # notebook 14's native-resolution arms are named sweep_winner_600 / _aug_600 / _p10_600, with no "native".
+    # Until 2026-09-25 they fell through to 256 and would have been scored at a scale they never saw.
+    if re.search(r"(^|_)600($|_)", label):
+        return 600
     return 256
 
 
