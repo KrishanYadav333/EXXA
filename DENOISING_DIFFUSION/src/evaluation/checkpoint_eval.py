@@ -46,7 +46,7 @@ SSIM_STRIDE = 2        # SSIM on every 2nd channel: it is the slow step and adds
 
 ROW_FIELDS = [
     "checkpoint", "source", "family", "case", "domain", "n_channels",
-    "psnr", "psnr_dirty", "ssim", "ssim_dirty",
+    "amp_scale", "psnr", "psnr_dirty", "ssim", "ssim_dirty",
     "M0", "M1", "M2", "M0_all", "M1_all", "M2_all", "n_px",
     "resid_r", "dirty_resid_r", "wiggle_gain", "resid_err_ratio", "resid_rms_ratio", "mstar_at_bound", "geom_ok", "geom_offset_px", "geom_mstar", "ref_resid_rms",
     "gradE_ratio", "gradE_ratio_dirty", "lapvar_ratio", "lapvar_ratio_dirty",
@@ -419,6 +419,7 @@ class Prepared:
     gradE_dirty: float
     lapvar_dirty: float
     mstar_at_bound: bool
+    amp_scale: float = 1.0           # factor clean was multiplied by to put it in the input's units (1.0 = untouched)
     geom_ok: bool = True             # fit converged, mass not pinned, centre on the disk (see prepare)
     geom_offset_px: float = 0.0      # fitted centre minus the M0-weighted centroid
     m1_dirty: np.ndarray = None      # quadratic M1, km/s
@@ -427,10 +428,35 @@ class Prepared:
     px: np.ndarray = None            # 3 (y, x) pixels for spectra: disk peak, disk edge, off source
 
 
+AMP_TOL = (0.8, 1.25)
+
+
+def match_amplitude(case: Case) -> float:
+    """
+    Put CLEAN in the input's units when the two cubes are on different intensity scales, and return the factor (1.0 = untouched).
+
+    The SG v2 cube's dirty is ~110 to 340x its clean (PROGRESS.md; `kinematic_data_v2_amplitude_check.png`). A model returns values in
+    its INPUT's units, so any amplitude comparison against an unscaled clean (PSNR, M0, channel and M0 errors, calibration, invented
+    structure, overshoot) measures the data's units, not the model. Velocity quantities (M1, the wiggle) are scale-free and unaffected.
+    The factor is the least-squares scale of dirty on clean over the whole cube. It is applied only outside `AMP_TOL`, so a cube whose
+    two halves already agree (the line-emission cubes: 1.01) is left exactly as it was and its validated numbers do not move.
+    """
+    c = case.clean.astype(np.float64)
+    den = float((c * c).sum())
+    if den <= 0:
+        return 1.0
+    k = float((c * case.dirty.astype(np.float64)).sum() / den)
+    if AMP_TOL[0] <= k <= AMP_TOL[1] or not np.isfinite(k) or k <= 0:
+        return 1.0
+    case.clean = (case.clean * k).astype(np.float32)
+    return k
+
+
 def prepare(case: Case) -> Prepared:
     """Everything that does not depend on the checkpoint: computed once, shared by every checkpoint on this case."""
     from src.evaluation.moment_maps import generate_moment_maps, signal_mask
     from src.evaluation.gi_wiggle import quadratic_moment1, fit_keplerian, wiggle_residual
+    amp = match_amplitude(case)
     clean, dirty = case.clean.astype(np.float64), case.dirty.astype(np.float64)
     m_clean = generate_moment_maps("", data_velax=(clean, case.velax))
     m_dirty = generate_moment_maps("", data_velax=(dirty, case.velax))
@@ -464,7 +490,7 @@ def prepare(case: Case) -> Prepared:
                     _grad_energy(m1c, mask), _lap_var(m1c),
                     _corr(ref_resid, resid_d, mask), p, s,
                     _grad_energy(m1d, mask), _lap_var(m1d), bool(geom.get("mstar_at_bound", False)),
-                    geom_ok, offset, m1d, resid_d, chan_idx, px)
+                    amp, geom_ok, offset, m1d, resid_d, chan_idx, px)
 
 
 def _artifacts(clean, dirty, pred):
@@ -522,6 +548,7 @@ def artifact_dict(prep: Prepared, pred: np.ndarray, m_den, m1q: np.ndarray, resi
         m1q=np.asarray(m1q, np.float32), resid=np.asarray(resid, np.float32),
         chan=pred[prep.chan_idx].astype(np.float32),
         spec=np.stack([pred[:, y, x] for y, x in prep.px]).astype(np.float32),
+        ispec=pred.sum(axis=(1, 2)).astype(np.float32),        # whole-image flux per channel: does the model conserve it?
         invented=invented_map(case.clean, case.dirty, pred).astype(np.float16))
 
 
@@ -534,14 +561,15 @@ def reference_dict(prep: Prepared) -> dict:
         d.update({f"{tag}_m0": np.asarray(maps[0], np.float32), f"{tag}_m1": np.asarray(maps[1], np.float32),
                   f"{tag}_m2": np.asarray(maps[2], np.float32), f"{tag}_m1q": np.asarray(m1q, np.float32),
                   f"{tag}_resid": np.asarray(resid, np.float32), f"{tag}_chan": cube[prep.chan_idx].astype(np.float32),
-                  f"{tag}_spec": np.stack([cube[:, y, x] for y, x in prep.px]).astype(np.float32)})
+                  f"{tag}_spec": np.stack([cube[:, y, x] for y, x in prep.px]).astype(np.float32),
+                  f"{tag}_ispec": cube.sum(axis=(1, 2)).astype(np.float32)})
     d["dirty_invented"] = invented_map(case.clean, case.dirty, case.dirty).astype(np.float16)
     m0c = np.nan_to_num(prep.m_clean[0])
     yy, xx = np.mgrid[0:m0c.shape[0], 0:m0c.shape[1]]
     w = np.where(prep.mask, np.abs(m0c), 0.0)
     d.update(mask=prep.mask, velax=case.velax, chan_idx=prep.chan_idx, px=prep.px,
              cx=float((w * xx).sum() / max(w.sum(), 1e-30)), cy=float((w * yy).sum() / max(w.sum(), 1e-30)),   # M0 centroid, not the fit
-             geom_ok=np.array(prep.geom_ok), case=np.array(case.name))
+             geom_ok=np.array(prep.geom_ok), amp_scale=np.array(prep.amp_scale), case=np.array(case.name))
     return d
 
 
@@ -572,7 +600,7 @@ def score(prep: Prepared, pred: np.ndarray) -> dict:
         M2_all=imp["M2_all"], n_px=imp["n_px"],
         resid_r=wig(r), dirty_resid_r=wig(prep.dirty_resid_r), wiggle_gain=wig(r - prep.dirty_resid_r), resid_err_ratio=wig(err_ratio),
         resid_rms_ratio=wig(rms(resid) / rms(prep.ref_resid)) if rms(prep.ref_resid) > 0 else float("nan"),
-        mstar_at_bound=prep.mstar_at_bound, geom_ok=prep.geom_ok, geom_offset_px=round(prep.geom_offset_px, 1),
+        amp_scale=round(prep.amp_scale, 3), mstar_at_bound=prep.mstar_at_bound, geom_ok=prep.geom_ok, geom_offset_px=round(prep.geom_offset_px, 1),
         geom_mstar=round(float(prep.geom["mstar_msun"]), 3),
         # clean's own residual against the fitted Keplerian, km/s. Large means the flat-disk model, not a wiggle, dominates
         # the residual, so clean and dirty correlate whatever the denoiser does (run_0002_00560_rt_00: dirty resid_r 0.997)
@@ -626,6 +654,8 @@ def evaluate_case(case: Case, specs: Sequence[Spec], device: str, done: set, on_
     prep = prepare(case)
     flag = ("" if prep.geom_ok else f"  !! GEOMETRY FIT FAILED (centre {prep.geom_offset_px:.0f} px off the disk, mstar "
             f"{prep.geom['mstar_msun']:.2f}{', pinned at bound' if prep.mstar_at_bound else ''}): wiggle numbers on this case are blanked")
+    if prep.amp_scale != 1.0:
+        log(f"  clean rescaled x{prep.amp_scale:.3g} to the input's units (dirty and clean were on different intensity scales)")
     log(f"  references ready in {time.time() - t0:.0f}s | dirty: resid_r {prep.dirty_resid_r:.4f}, "
         f"PSNR {prep.psnr_dirty:.2f}, gradE/clean {prep.gradE_dirty / prep.gradE_clean:.3f}{flag}")
     n = 0

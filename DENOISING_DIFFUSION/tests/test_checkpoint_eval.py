@@ -53,5 +53,21 @@ if os.path.isdir(ledir):
 else:
     print("  SKIP  para lookup (Line Emission Data not present)")
 
+# amplitude matching: rescale clean only when the two cubes are on clearly different scales
+try:
+    import numpy as np
+    rng = np.random.default_rng(1)
+    dirty = rng.normal(size=(6, 20, 20)).astype("f4") + 5.0
+    def mk(clean):
+        return ce.Case("t", "sg", clean.astype("f4"), dirty, np.arange(6.0), 1.0)
+    c_far = mk(dirty / 300.0 + 0.001 * rng.normal(size=dirty.shape))
+    k = ce.match_amplitude(c_far)
+    check("amplitude: a ~300x mismatch is corrected", 250 < k < 350 and abs(float(c_far.clean.mean()) - float(dirty.mean())) < 0.5)
+    c_near = mk(dirty * 0.99)
+    before = c_near.clean.copy()
+    check("amplitude: a 1% difference is left exactly as it was", ce.match_amplitude(c_near) == 1.0 and (c_near.clean == before).all())
+except ImportError:
+    print("  SKIP  amplitude (numpy missing)")
+
 print("\nPASSED" if not fails else f"\nFAILED: {fails}")
 sys.exit(1 if fails else 0)

@@ -31,6 +31,7 @@ def art(noise):
     return dict(m0=m0.astype("f4"), m1=m1.astype("f4"), m2=m2.astype("f4"), m1q=(m1 / 1000).astype("f4"),
                 resid=(0.2 * noise * rng.normal(size=(H, W))).astype("f4"),
                 chan=rng.normal(size=(3, H, W)).astype("f4") * noise + disk[None], spec=rng.normal(size=(3, C)).astype("f4"),
+                ispec=(np.sin(np.linspace(0, 3, C)) * (1 + noise)).astype("f4"),
                 invented=(rng.random((H, W)) * noise * 0.3).astype("f2"))
 
 c0, d0 = maps(0.0), maps(0.6)
@@ -39,7 +40,7 @@ ref = dict(mask=mask, velax=np.linspace(-5000, 5000, C), chan_idx=np.array([8, 1
 for tag, m in (("clean", c0), ("dirty", d0)):
     ref.update({f"{tag}_m0": m[0], f"{tag}_m1": m[1], f"{tag}_m2": m[2], f"{tag}_m1q": m[1] / 1000,
                 f"{tag}_resid": 0.05 * rng.normal(size=(H, W)), f"{tag}_chan": rng.normal(size=(3, H, W)) * (0.0 if tag == "clean" else 0.5) + disk[None],
-                f"{tag}_spec": rng.normal(size=(3, C))})
+                f"{tag}_spec": rng.normal(size=(3, C)), f"{tag}_ispec": np.sin(np.linspace(0, 3, C)) + 0.1})
 
 labels = [("winner_aug_seed43", "unet"), ("winner_mae_ft_seed42", "unet"), ("winner_starlet_p10_ft_seed42", "unet"),
           ("winner_hybrid_ft_seed42", "unet"), ("kin_gamma0", "stack_kin"), ("sg_k3_fresh", "stack_sg"), ("ddpm_l1_ft", "ddpm")]
@@ -64,10 +65,11 @@ with tempfile.TemporaryDirectory() as d:
     names = sorted(os.path.basename(p) for p in paths)
     for need in ("nb16_table_line_emission.png", "nb16_scoreboard_line_emission.png", "nb16_table_sg.png", "nb16_per_cube.png",
                  "nb16_sheet_synthetic_case_M0.png", "nb16_sheet_synthetic_case_M1.png", "nb16_sheet_synthetic_case_M2.png",
-                 "nb16_sheet_synthetic_case_err_M0.png", "nb16_sheet_synthetic_case_err_M1.png", "nb16_sheet_synthetic_case_wiggle.png",
+                 "nb16_sheet_synthetic_case_err_M0.png", "nb16_sheet_synthetic_case_err_M1.png", "nb16_sheet_synthetic_case_wiggle.png", "nb16_sheet_synthetic_case_wiggle_classic_p01.png", "nb16_sheet_synthetic_case_wiggle_classic_p02.png",
                  "nb16_sheet_synthetic_case_chan0.png", "nb16_sheet_synthetic_case_chan1.png", "nb16_sheet_synthetic_case_chan2.png",
                  "nb16_sheet_synthetic_case_chan_err.png", "nb16_sheet_synthetic_case_sharpness.png", "nb16_sheet_synthetic_case_invented.png",
-                 "nb16_sheet_synthetic_case_spectra.png", "nb16_sheet_synthetic_case_radial_power.png", "nb16_sheet_synthetic_case_topk.png"):
+                 "nb16_sheet_synthetic_case_spectra.png", "nb16_sheet_synthetic_case_radial_power.png", "nb16_sheet_synthetic_case_integrated_spectrum.png",
+                 "nb16_sheet_synthetic_case_calibration.png", "nb16_sheet_synthetic_case_error_hist.png", "nb16_sheet_synthetic_case_ensemble.png", "nb16_sheet_synthetic_case_topk.png"):
         check(f"built {need}", need in names)
     check("loss x source matrix built when some arm names match", "nb16_loss_x_source.png" in names)
     for p in paths:

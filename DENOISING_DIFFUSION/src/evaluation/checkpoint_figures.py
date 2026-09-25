@@ -138,6 +138,8 @@ def _p(a, mask, q):
 def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) -> List[str]:
     out: List[str] = []
     labels = _order(list(arts), rows)
+    amp = float(ref["amp_scale"]) if "amp_scale" in ref else 1.0
+    note = f"  [CLEAN rescaled x{amp:.3g} to the input's units]" if amp != 1.0 else ""
     mask = ref["mask"].astype(bool)
     y0, y1, x0, x1 = _crop_box(mask)
     sl = (slice(y0, y1), slice(x0, x1))
@@ -163,7 +165,7 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
         out.append(contact_sheet(
             tiles(lambda: ref[f"clean_{key}"] / scale, lambda: ref[f"dirty_{key}"] / scale, lambda a: a[key] / scale,
                   lambda l: f"{short(l)}\n{name} {r(l, name, '{:+.0f}')}%"),
-            title=f"{case}: {name}, every checkpoint on one scale (sorted by M0 improvement, best first). {unit}",
+            title=f"{case}: {name}, every checkpoint on one scale (sorted by M0 improvement, best first). {unit}{note if name != 'M1' else ''}",
             path=f"{base}_{name}.png", cmap=cm, vlim=vl, cbar_label=unit, blank=mk))
 
     # ---- errors, scaled by dirty's own error ----
@@ -190,6 +192,9 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
                + ("" if bool(ref.get("geom_ok", True)) else "   !! GEOMETRY FIT FAILED on this cube: residuals are not a wiggle, r is blanked")),
         path=f"{base}_wiggle.png", cmap="RdBu_r", vlim=(-lim, lim), cbar_label="M1 residual (km/s)", blank=mk))
 
+    # ---- the classic wiggle figure: M1 above, its Keplerian residual below, RMS in every title ----
+    out += _wiggle_classic(case, ref, arts, labels, rows, base, sl, mk)
+
     # ---- channels at the line peak ----
     names = ["blue side (20% of flux)", "systemic (50%)", "red side (80%)"]
     for i in range(3):
@@ -197,7 +202,7 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
         L = _p(np.abs(cc), np.ones_like(cc, bool), 99.7)
         out.append(contact_sheet(
             [("CLEAN", cc[sl]), ("DIRTY", ref["dirty_chan"][i][sl])] + [(short(l), arts[l]["chan"][i][sl]) for l in labels],
-            title=f"{case}: channel {int(ref['chan_idx'][i])}, {names[i]}", path=f"{base}_chan{i}.png",
+            title=f"{case}{_amp_note(ref)}: channel {int(ref['chan_idx'][i])}, {names[i]}", path=f"{base}_chan{i}.png",
             cmap="RdBu_r", vlim=(-L, L), cbar_label="Jy/beam (continuum-subtracted)"))
     cc = ref["clean_chan"][1]
     L = _p(np.abs(ref["dirty_chan"][1] - cc), np.ones_like(cc, bool), 97)
@@ -245,7 +250,150 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
 
     # ---- radial profile and power spectrum ----
     out.append(_radial_and_power(case, ref, arts, labels, rows, base))
+    out += _extra_views(case, ref, arts, labels, rows, base, sl, mk)
     out.append(_topk(case, ref, arts, labels, rows, base, sl, mk))
+    return out
+
+
+def _wiggle_classic(case, ref, arts, labels, rows, base, sl, mk, per_page=5):
+    """
+    The figure that showed the smoothing (wiggle_all_methods.png), for EVERY checkpoint: row 1 the quadratic M1, row 2 the residual
+    from the ONE shared Keplerian fit, each panel with its own colour bar and the residual RMS in the title. Clean and dirty open every
+    page as the reference; the checkpoints follow, `per_page` to a page, best wiggle first (lowest error against clean's residual).
+    A model that smooths the wiggle away has a residual quieter and blurrier than clean's; one that invents structure has more RMS.
+    Returns the list of page paths.
+    """
+    plt = _plt()
+    mask = ref["mask"].astype(bool)
+    rms = lambda a: float(np.sqrt(np.nanmean(a[mask] ** 2)))
+    def err(l):
+        v = rows.get(l, {}).get("resid_err_ratio", np.nan)
+        return v if np.isfinite(v) else 1e9
+    order = sorted(labels, key=err)
+    vs = float(np.nanmedian(ref["clean_m1q"][mask]))
+    vm = float(np.nanpercentile(np.abs(ref["clean_m1q"][mask] - vs), 99))
+    lim = 2.2 * rms(ref["clean_resid"])
+    cm = plt.get_cmap("RdBu_r").copy(); cm.set_bad("#111111")
+    pages = [order[i:i + per_page] for i in range(0, len(order), per_page)] or [[]]
+    failed = "" if bool(ref.get("geom_ok", True)) else "   !! GEOMETRY FIT FAILED on this cube: residuals are not a wiggle"
+    paths = []
+    for pi, chunk in enumerate(pages, 1):
+        tiles = [("clean", ref["clean_m1q"], ref["clean_resid"], ""), ("dirty", ref["dirty_m1q"], ref["dirty_resid"], "")]
+        for l in chunk:
+            r = rows.get(l, {})
+            sub = f"\nerr/dirty {r['resid_err_ratio']:.2f}  r {r['resid_r']:.2f}" if np.isfinite(r.get("resid_err_ratio", np.nan)) else ""
+            tiles.append((short(l), arts[l]["m1q"], arts[l]["resid"], sub))
+        n = len(tiles)
+        fig, ax = plt.subplots(2, n, figsize=(2.9 * n, 6.6), squeeze=False)
+        for j, (t, m1, res, sub) in enumerate(tiles):
+            a = np.where(mk, np.array(m1[sl], np.float64), np.nan)
+            im = ax[0, j].imshow(a, origin="lower", cmap=cm, vmin=vs - vm, vmax=vs + vm, interpolation="nearest")
+            ax[0, j].set_title(f"{t}: M1", fontsize=9); fig.colorbar(im, ax=ax[0, j], fraction=0.046, pad=0.02)
+            b = np.where(mk, np.array(res[sl], np.float64), np.nan)
+            im = ax[1, j].imshow(b, origin="lower", cmap=cm, vmin=-lim, vmax=lim, interpolation="nearest")
+            ax[1, j].set_title(f"{t}: residual (RMS {rms(res):.2f}){sub}", fontsize=8.5); fig.colorbar(im, ax=ax[1, j], fraction=0.046, pad=0.02)
+            for r_ in (0, 1):
+                ax[r_, j].set_xticks([]); ax[r_, j].set_yticks([])
+        fig.suptitle(f"{case}: GI wiggle, M1 and its residual from the shared Keplerian fit (km/s), page {pi}/{len(pages)}. Same scales in every "
+                     f"panel; clean's residual is the target. Checkpoints ordered best wiggle first.{failed}", fontsize=10)
+        fig.tight_layout(rect=(0, 0, 1, 0.95))
+        p = f"{base}_wiggle_classic_p{pi:02d}.png"; fig.savefig(p, dpi=105); plt.close(fig); paths.append(p)
+    return paths
+
+
+def _amp_note(ref):
+    a = float(ref["amp_scale"]) if "amp_scale" in ref else 1.0
+    return f" [clean rescaled x{a:.3g}]" if a != 1.0 else ""
+
+
+def _extra_views(case, ref, arts, labels, rows, base, sl, mk):
+    """Integrated spectrum, calibration (denoised vs clean pixel by pixel), error histograms, ensemble and disagreement maps."""
+    plt = _plt()
+    from matplotlib.colors import LogNorm
+    from matplotlib.lines import Line2D
+    out = []
+    col = lambda l: FAM.get(rows.get(l, {}).get("family", "unet"), "#888")
+    fams = sorted({rows.get(l, {}).get("family", "unet") for l in labels})
+    legend = [Line2D([0], [0], color="k", lw=1.8, label="clean"), Line2D([0], [0], color="#bbb", label="dirty")] + \
+             [Line2D([0], [0], color=FAM.get(f, "#888"), label=f) for f in fams]
+    v = ref["velax"] / 1000.0
+
+    # ---- integrated spectrum: flux per channel, and the ratio to clean ----
+    if "clean_ispec" in ref and all("ispec" in arts[l] for l in labels):
+        fig, ax = plt.subplots(1, 2, figsize=(13.5, 4.4))
+        ax[0].plot(v, ref["dirty_ispec"], color="#bbb", lw=.9)
+        for l in labels:
+            ax[0].plot(v, arts[l]["ispec"], color=col(l), lw=.7, alpha=.65)
+            with np.errstate(divide="ignore", invalid="ignore"):
+                ax[1].plot(v, arts[l]["ispec"] / ref["clean_ispec"], color=col(l), lw=.7, alpha=.65)
+        ax[0].plot(v, ref["clean_ispec"], "k", lw=1.6)
+        ax[1].axhline(1, color="k", lw=1.2)
+        ax[1].set_ylim(0, 2.5)
+        ax[0].set_title("integrated line spectrum (whole-image flux per channel)", fontsize=10)
+        ax[1].set_title("ratio to clean: 1 = flux conserved, <1 = flux lost, >1 = flux invented", fontsize=10)
+        for a in ax: a.set_xlabel("velocity (km/s)")
+        ax[0].legend(handles=legend, fontsize=8)
+        fig.suptitle(f"{case}: does each checkpoint conserve the line flux at every velocity?", fontsize=10)
+        fig.tight_layout(); p = f"{base}_integrated_spectrum.png"; fig.savefig(p, dpi=105); plt.close(fig); out.append(p)
+
+    # ---- calibration: denoised against clean, pixel by pixel, at the systemic channel ----
+    cc = ref["clean_chan"][1].ravel()
+    lo, hi = float(np.percentile(cc, 0.1)), float(np.percentile(cc, 99.95))
+    n = 1 + len(labels)
+    ncols = min(7, n); nrows = int(math.ceil(n / ncols))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(ncols * 2.15, nrows * 2.45 + 0.6), squeeze=False)
+    for a in axes.ravel(): a.axis("off")
+    tiles = [("DIRTY", ref["dirty_chan"][1].ravel(), "#777")] + [(f"{short(l)}", arts[l]["chan"][1].ravel(), col(l)) for l in labels]
+    for a, (t, y, c) in zip(axes.ravel(), tiles):
+        a.axis("on")
+        a.hist2d(cc, y, bins=70, range=[[lo, hi], [lo, hi]], norm=LogNorm(), cmap="viridis")
+        a.plot([lo, hi], [lo, hi], color="w", lw=.8)
+        sl_ = float(np.polyfit(cc, y, 1)[0])
+        a.set_title(f"{t}\nslope {sl_:.2f}", fontsize=6.4); a.tick_params(labelsize=5)
+    fig.suptitle(f"{case}{_amp_note(ref)}: calibration at the systemic channel, denoised (y) against clean (x). On the white line = exact; below it = "
+                 f"peaks shrunk (smoothing); a wide cloud = noise or invented structure. slope < 1 = amplitude compressed.", fontsize=8.5)
+    fig.tight_layout(rect=(0, 0, 1, 0.96)); p = f"{base}_calibration.png"; fig.savefig(p, dpi=105); plt.close(fig); out.append(p)
+
+    # ---- error histograms at the systemic channel ----
+    fig, ax = plt.subplots(1, 2, figsize=(13.5, 4.6))
+    span = float(np.percentile(np.abs(ref["clean_chan"][1]), 99.9))
+    bins = np.linspace(-0.6 * span, 0.6 * span, 161)
+    bg = np.abs(ref["clean_chan"][1]) < 0.05 * span
+    for j, (nm, sel) in enumerate((("all pixels", np.ones_like(bg)), ("background pixels (clean below 5% of peak)", bg))):
+        h, _ = np.histogram((ref["dirty_chan"][1] - ref["clean_chan"][1])[sel], bins=bins)
+        ax[j].step(bins[:-1], h + 1, color="#bbb", lw=1.4, label="dirty")
+        for l in labels:
+            h, _ = np.histogram((arts[l]["chan"][1] - ref["clean_chan"][1])[sel], bins=bins)
+            ax[j].step(bins[:-1], h + 1, color=col(l), lw=.7, alpha=.7)
+        ax[j].set_yscale("log"); ax[j].axvline(0, color="k", lw=.8)
+        ax[j].set_title(f"error (denoised - clean), {nm}", fontsize=9.5); ax[j].set_xlabel("error (Jy/beam)")
+    ax[0].legend(handles=legend[1:], fontsize=8)
+    fig.suptitle(f"{case}: error distribution at the systemic channel. Narrow and centred on 0 is good; a heavy tail is invented or "
+                 f"lost structure; an offset is bias.", fontsize=10)
+    fig.tight_layout(); p = f"{base}_error_hist.png"; fig.savefig(p, dpi=105); plt.close(fig); out.append(p)
+
+    # ---- ensemble and disagreement ----
+    mask = ref["mask"].astype(bool)
+    fig, ax = plt.subplots(2, 5, figsize=(14.5, 6.4), squeeze=False)
+    cm = plt.get_cmap("RdBu_r").copy(); cm.set_bad("#111111")
+    for r_, (nm, key, scale, cmap, clean_) in enumerate((("M0", "m0", 1.0, "inferno", ref["clean_m0"]), ("M1 (km/s)", "m1", 1000.0, "RdBu_r", ref["clean_m1"] / 1000.0))):
+        stack = np.stack([arts[l][key] / scale for l in labels])
+        mean, std = stack.mean(0), stack.std(0)
+        best = arts[labels[0]][key] / scale
+        vs_ = float(np.nanmedian(clean_[mask])); L = _p(np.abs(clean_ - vs_), mask, 99) if r_ else _p(clean_, mask, 99.5)
+        e_lim = _p(np.abs(mean - clean_), mask, 95) or 1.0
+        panels = [("clean", clean_, cmap, (vs_ - L, vs_ + L) if r_ else (0, L)), ("ensemble mean of all checkpoints", mean, cmap, (vs_ - L, vs_ + L) if r_ else (0, L)),
+                  ("DISAGREEMENT (std across checkpoints)", std, "magma", (0, _p(std, mask, 99))),
+                  (f"ensemble error  mean |err| {float(np.nanmean(np.abs(mean - clean_)[mask])):.3g}", mean - clean_, "RdBu_r", (-e_lim, e_lim)),
+                  (f"best single ({short(labels[0])}) error  {float(np.nanmean(np.abs(best - clean_)[mask])):.3g}", best - clean_, "RdBu_r", (-e_lim, e_lim))]
+        for j, (t, a, cmp_, vl) in enumerate(panels):
+            c = plt.get_cmap(cmp_).copy(); c.set_bad("#111111")
+            im = ax[r_, j].imshow(np.where(mk, np.array(a[sl], np.float64), np.nan), origin="lower", cmap=c, vmin=vl[0], vmax=vl[1], interpolation="nearest")
+            ax[r_, j].set_title(f"{nm}: {t}" if j == 0 else t, fontsize=7.6); ax[r_, j].set_xticks([]); ax[r_, j].set_yticks([])
+            fig.colorbar(im, ax=ax[r_, j], fraction=0.046, pad=0.02)
+    fig.suptitle(f"{case}: where the checkpoints agree and disagree. Bright disagreement = a feature no single checkpoint should be "
+                 f"trusted on; the ensemble error shows whether averaging them helps.", fontsize=9.5)
+    fig.tight_layout(rect=(0, 0, 1, 0.95)); p = f"{base}_ensemble.png"; fig.savefig(p, dpi=105); plt.close(fig); out.append(p)
     return out
 
 

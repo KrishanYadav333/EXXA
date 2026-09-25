@@ -9,6 +9,30 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-25 | bug | notebook 16's amplitude checks were meaningless on the SG v2 cube: clean and dirty are on different scales
+
+Found by looking at the first SG v2 calibration plot (denoised against clean, pixel by pixel): slopes of ~300 and empty tiles. The
+SG v2 cube's dirty is ~336x its clean at the systemic channel (~136x at the M0 peak), which this project already knew (PROGRESS.md
+notes "dirty ~110x"; `kinematic_data_v2_amplitude_check.png`) but the harness did not account for. A model returns values in its INPUT's
+units, so every amplitude comparison against an unscaled clean measured the data's units: PSNR (16.5 dB on that cube), M0 improvement,
+channel and M0 error maps, calibration, invented structure, overshoot. Velocity quantities (M1, wiggle, M1 sharpness) are scale-free and
+were never affected. The line-emission cubes are at 1.01 and are unaffected.
+
+**Fixed.** `match_amplitude` puts clean in the input's units with the least-squares factor of dirty on clean, but only outside
+0.8 to 1.25, so a cube whose halves already agree is left exactly as it was and the validated line-emission numbers (M0 +31.3 / M1 +77.2 /
+M2 +84.6) cannot move. The factor is in every row (`amp_scale`) and on every amplitude figure's title. The correction is an assumption
+(a single linear factor between the two cubes) and any SG v2 amplitude number should say it was rescaled.
+**Published numbers it touches:** none. No published SG v2 result uses amplitude; they are all wiggle (velocity).
+
+**What does and does not reproduce on SG v2.** The classic wiggle figure reproduces the earlier one to two decimals: residual RMS
+clean 0.23 / dirty 0.21 / U-Net 0.22, and the smoothing is visible (the concentric ring and blotches in clean's residual are gone from
+the models'). The wiggle CORRELATIONS are close but not identical to the published ones (dirty 0.873 against 0.862; `winner_aug_seed43`
+0.790 against 0.760, and `sg_k3_fresh` and `winner_beam_seed42` swap order), so this is not a reproduction of that table. Notebook 16
+continuum-subtracts every cube and starts the fit from the emission's shape; the older script did neither. The finding they support,
+that every model loses to dirty on the wiggle here, holds: the new error ratio is 1.29 to 1.47 (all above 1).
+
+---
+
 ## 2026-09-25 | bug | the line-emission wiggle geometry was degenerate on 2 of 5 cubes; the published nb08 wiggle numbers include them
 
 **What was wrong.** `score_08_kinematic.py` (and most `experiments/` wiggle scripts) call `fit_keplerian(m1, mask, au_per_px)`
