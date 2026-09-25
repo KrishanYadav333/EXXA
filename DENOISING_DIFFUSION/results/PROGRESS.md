@@ -9,6 +9,17 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-25 | fix | notebook 16's contact sheets tiled all 34 checkpoints in one figure; now 8 per page
+
+**What was wrong.** Every M0/M1/M2, error, channel, wiggle, sharpness and invented-structure sheet put clean, dirty and ALL checkpoints on one figure at 7 columns, so each disk was about
+1/8 of an 11 inch page and the fine structure (the thing the sheets exist to show) was not legible. **How it was caught.** The user looked at the sheets from the first Kaggle run against the
+one-checkpoint-per-figure images from the older notebooks. **Fix.** `contact_sheet` pages: 8 checkpoints per page, 4 columns, 3 inch tiles, the reference tiles (clean, dirty, or the error to beat)
+repeated at the top of every page, one shared colour scale across pages (`..._p01.png` ...; a sheet that fits keeps its old name). The notebook display cell shows page 1 of each and the classic wiggle
+pages 1 and 2; every page is in the Output. A test builds 34 panels and asserts 5 pages. **Published numbers it touches:** none (figures only). The first run's Output still has the old
+unpaged sheets; the next run, or a local rebuild from the downloaded `nb16_maps/*.npz` with `cf.build_all`, produces the paged ones.
+
+---
+
 ## 2026-09-25 | run | notebook 16 first Kaggle run (quick): 34 checkpoints, 3 cases, 102 rows in 49 min; 320 px is NOT inherently bad, 600 px does not help
 
 Archived as `results/16-checkpoint-evaluation/v_pending_2026-09-25_quick_6e4e139/` (Kaggle version number unknown). Line-emission means are over **2 cubes** (`rt_00`, `rt_01`), sd across cubes:

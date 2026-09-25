@@ -97,13 +97,13 @@ def _rows_for(df, case: str) -> Dict[str, dict]:
 # ------------------------------------------------------------------------------------------------ #
 # Contact sheet                                                                                     #
 # ------------------------------------------------------------------------------------------------ #
-def contact_sheet(panels, *, title, path, cmap, vlim, cbar_label, ncols=7, tile=2.1, fs=6.2, blank=None, suptitle_fs=9):
-    """`panels`: [(title, 2D array)]. One shared colour scale, `blank` masks off-source pixels."""
+def _sheet_page(panels, *, title, path, cmap, vlim, cbar_label, ncols=7, tile=2.1, fs=6.2, blank=None, suptitle_fs=9):
+    """One page. `panels`: [(title, 2D array)]. One shared colour scale, `blank` masks off-source pixels."""
     plt = _plt()
     n = len(panels)
     ncols = min(ncols, max(1, n))
     nrows = int(math.ceil(n / ncols))
-    fig, axes = plt.subplots(nrows, ncols, figsize=(max(11.0, ncols * tile), nrows * (tile + 0.34) + 0.7), squeeze=False)   # >= 11 in so a title always fits
+    fig, axes = plt.subplots(nrows, ncols, figsize=(max(11.0, ncols * tile), nrows * (tile + 0.62) + 0.7), squeeze=False)   # >= 11 in so a title always fits
     cm = plt.get_cmap(cmap).copy()
     cm.set_bad("#111111")
     for ax in axes.ravel():
@@ -117,7 +117,7 @@ def contact_sheet(panels, *, title, path, cmap, vlim, cbar_label, ncols=7, tile=
         ax.set_title(t, fontsize=fs, linespacing=1.15)
     fh = fig.get_figheight()
     fig.suptitle(title, fontsize=suptitle_fs, y=0.995)
-    fig.tight_layout(rect=(0, 0.75 / fh, 1, 0.975))
+    fig.tight_layout(rect=(0, 0.75 / fh, 1, 0.975), h_pad=1.6)
     cax = fig.add_axes([0.25, 0.42 / fh, 0.5, 0.11 / fh])          # inches, so the tick labels always fit below the bar
     fig.colorbar(im, cax=cax, orientation="horizontal").set_label(cbar_label, fontsize=7)
     cax.tick_params(labelsize=6.5)
@@ -135,6 +135,28 @@ def _p(a, mask, q):
 # ------------------------------------------------------------------------------------------------ #
 # Sheets from saved maps                                                                            #
 # ------------------------------------------------------------------------------------------------ #
+
+
+PER_PAGE = 8      # checkpoints per page. 34 tiles in one figure left each disk ~1/8 of the page width and unreadable.
+
+
+def contact_sheet(panels, *, title, path, cmap, vlim, cbar_label, n_ref=1, per_page=PER_PAGE, ncols=4, tile=3.0, fs=8.0, blank=None, suptitle_fs=10):
+    """
+    Paged contact sheet. The first `n_ref` panels (clean, dirty, or the error to beat) are repeated at the top of EVERY page, followed by
+    `per_page` checkpoints, on one shared colour scale, so any page can be read alone. Returns the list of page paths
+    (`..._p01.png`, ...; a single page keeps `path` unchanged).
+    """
+    refs, rest = list(panels[:n_ref]), list(panels[n_ref:])
+    chunks = [rest[i:i + per_page] for i in range(0, len(rest), per_page)] or [[]]
+    out = []
+    for k, chunk in enumerate(chunks):
+        pth = path if len(chunks) == 1 else path[:-4] + f"_p{k + 1:02d}.png"
+        ttl = title if len(chunks) == 1 else f"{title}   [page {k + 1}/{len(chunks)}]"
+        out.append(_sheet_page(refs + chunk, title=ttl, path=pth, cmap=cmap, vlim=vlim, cbar_label=cbar_label, ncols=ncols,
+                               tile=tile, fs=fs, blank=blank, suptitle_fs=suptitle_fs))
+    return out
+
+
 def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) -> List[str]:
     out: List[str] = []
     labels = _order(list(arts), rows)
@@ -166,7 +188,7 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
             tiles(lambda: ref[f"clean_{key}"] / scale, lambda: ref[f"dirty_{key}"] / scale, lambda a: a[key] / scale,
                   lambda l: f"{short(l)}\n{name} {r(l, name, '{:+.0f}')}%"),
             title=f"{case}: {name}, every checkpoint on one scale (sorted by M0 improvement, best first). {unit}{note if name != 'M1' else ''}",
-            path=f"{base}_{name}.png", cmap=cm, vlim=vl, cbar_label=unit, blank=mk))
+            n_ref=2, path=f"{base}_{name}.png", cmap=cm, vlim=vl, cbar_label=unit, blank=mk))
 
     # ---- errors, scaled by dirty's own error ----
     for name, key, scale in (("M0", "m0", 1.0), ("M1", "m1", 1000.0)):
@@ -179,7 +201,7 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
             t.append((f"{short(l)}\nmean |err| {mae:.3g}", e[sl]))
         out.append(contact_sheet(t, title=f"{case}: {name} error (denoised - clean), symmetric, scaled by dirty's own error. "
                                           f"Red/blue = wrong; pale = right.",
-                                 path=f"{base}_err_{name}.png", cmap="RdBu_r", vlim=(-lim, lim),
+                                 n_ref=1, path=f"{base}_err_{name}.png", cmap="RdBu_r", vlim=(-lim, lim),
                                  cbar_label=f"{name} error", blank=mk))
 
     # ---- wiggle residual ----
@@ -190,7 +212,7 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
               lambda l: f"{short(l)}\nresid r {r(l, 'resid_r', '{:.3f}')}"),
         title=(f"{case}: the GI wiggle, M1 minus the fitted Keplerian (km/s), same geometry for every tile. r = correlation with clean's."
                + ("" if bool(ref.get("geom_ok", True)) else "   !! GEOMETRY FIT FAILED on this cube: residuals are not a wiggle, r is blanked")),
-        path=f"{base}_wiggle.png", cmap="RdBu_r", vlim=(-lim, lim), cbar_label="M1 residual (km/s)", blank=mk))
+        n_ref=2, path=f"{base}_wiggle.png", cmap="RdBu_r", vlim=(-lim, lim), cbar_label="M1 residual (km/s)", blank=mk))
 
     # ---- the classic wiggle figure: M1 above, its Keplerian residual below, RMS in every title ----
     out += _wiggle_classic(case, ref, arts, labels, rows, base, sl, mk)
@@ -202,7 +224,7 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
         L = _p(np.abs(cc), np.ones_like(cc, bool), 99.7)
         out.append(contact_sheet(
             [("CLEAN", cc[sl]), ("DIRTY", ref["dirty_chan"][i][sl])] + [(short(l), arts[l]["chan"][i][sl]) for l in labels],
-            title=f"{case}{_amp_note(ref)}: channel {int(ref['chan_idx'][i])}, {names[i]}", path=f"{base}_chan{i}.png",
+            title=f"{case}{_amp_note(ref)}: channel {int(ref['chan_idx'][i])}, {names[i]}", n_ref=2, path=f"{base}_chan{i}.png",
             cmap="RdBu_r", vlim=(-L, L), cbar_label="Jy/beam (continuum-subtracted)"))
     cc = ref["clean_chan"][1]
     L = _p(np.abs(ref["dirty_chan"][1] - cc), np.ones_like(cc, bool), 97)
@@ -210,7 +232,7 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
         [("DIRTY - CLEAN\n(the error to beat)", (ref["dirty_chan"][1] - cc)[sl])] +
         [(f"{short(l)}\nrms {float(np.sqrt(np.mean((arts[l]['chan'][1] - cc) ** 2))):.3g}", (arts[l]["chan"][1] - cc)[sl]) for l in labels],
         title=f"{case}: error at the systemic channel {int(ref['chan_idx'][1])} (denoised - clean)",
-        path=f"{base}_chan_err.png", cmap="RdBu_r", vlim=(-L, L), cbar_label="channel error"))
+        n_ref=1, path=f"{base}_chan_err.png", cmap="RdBu_r", vlim=(-L, L), cbar_label="channel error"))
 
     # ---- sharpness ----
     def grad(m):
@@ -223,14 +245,14 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
               lambda l: f"{short(l)}\ngradE/clean {r(l, 'gradE_ratio', '{:.2f}')}"),
         title=f"{case}: M1 gradient magnitude (fine velocity structure). A model that fades toward black is smoothing; "
               f"dirty is bright because noise looks sharp.",
-        path=f"{base}_sharpness.png", cmap="magma", vlim=(0, G), cbar_label="|grad M1| (km/s per px)", blank=mk))
+        n_ref=2, path=f"{base}_sharpness.png", cmap="magma", vlim=(0, G), cbar_label="|grad M1| (km/s per px)", blank=mk))
 
     # ---- invented structure ----
     out.append(contact_sheet(
         [("DIRTY input", ref["dirty_invented"][sl].astype(np.float32))] +
         [(f"{short(l)}\nblobs/ch {r(l, 'invented_blobs', '{:.1f}')}", arts[l]["invented"][sl].astype(np.float32)) for l in labels],
         title=f"{case}: invented structure, the fraction of channels in which a checkpoint asserts signal where clean has none",
-        path=f"{base}_invented.png", cmap="magma", vlim=(0, 0.25), cbar_label="fraction of channels"))
+        n_ref=1, path=f"{base}_invented.png", cmap="magma", vlim=(0, 0.25), cbar_label="fraction of channels"))
 
     # ---- spectra ----
     plt = _plt()
@@ -252,7 +274,7 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
     out.append(_radial_and_power(case, ref, arts, labels, rows, base))
     out += _extra_views(case, ref, arts, labels, rows, base, sl, mk)
     out.append(_topk(case, ref, arts, labels, rows, base, sl, mk))
-    return out
+    return [q for o in out for q in (o if isinstance(o, list) else [o])]   # contact_sheet returns a list of pages
 
 
 def _wiggle_classic(case, ref, arts, labels, rows, base, sl, mk, per_page=5):

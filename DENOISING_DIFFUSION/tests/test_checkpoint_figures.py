@@ -91,5 +91,14 @@ with tempfile.TemporaryDirectory() as d:
     none = df.copy(); none["checkpoint"] = "kin_gamma0"
     check("loss x source matrix skipped, not crashed, when no arm name matches", cf.fig_loss_source(none, os.path.join(d, "n.png")) is None)
 
+    # 34 checkpoints on one sheet left each disk unreadable; the sheet now pages, with the reference tiles repeated on every page
+    yy, xx = np.mgrid[-1:1:96j, -1:1:96j]
+    disk = np.where(xx ** 2 + yy ** 2 < 0.8, xx, np.nan)
+    panels = [("CLEAN", disk), ("DIRTY", disk)] + [(f"ck{i}", disk * (1 + i / 40)) for i in range(34)]
+    pages = cf.contact_sheet(panels, title="paging", path=os.path.join(d, "pg.png"), cmap="RdBu_r", vlim=(-1, 1), cbar_label="x", n_ref=2)
+    check("34 checkpoints page into 5 sheets of at most 8", len(pages) == 5 and all(os.path.getsize(q) > 5000 for q in pages) and pages[0].endswith("pg_p01.png"))
+    one = cf.contact_sheet(panels[:6], title="one", path=os.path.join(d, "one.png"), cmap="RdBu_r", vlim=(-1, 1), cbar_label="x", n_ref=2)
+    check("a small sheet stays one page under its own name", one == [os.path.join(d, "one.png")])
+
 print("\nPASSED" if not fails else f"\nFAILED: {fails}")
 sys.exit(1 if fails else 0)
