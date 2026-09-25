@@ -9,6 +9,70 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-25 | bug | the line-emission wiggle geometry was degenerate on 2 of 5 cubes; the published nb08 wiggle numbers include them
+
+**What was wrong.** `score_08_kinematic.py` (and most `experiments/` wiggle scripts) call `fit_keplerian(m1, mask, au_per_px)`
+without `m0=`, so the fit starts from the MASK's shape, which `fit_keplerian`'s own docstring calls "the degenerate end of the
+mass-inclination valley". **How it was caught.** Building the first real figures for notebook 16: the M0 radial profile was zero out
+to 200 px and then rose, which meant the disk centre I had passed was wrong. The stored geometry had `cy = 600.0`, the image edge.
+Refitting the same cube with `m0=` moved the centre to (299.9, 300.5), mass from 18.7 to 1.46 Msun (truth 1.0), residual rms from
+9.4 to 4.4 km/s, and the fit cost to a third. Then the same refit on every case (about 45 s, no models needed):
+
+| cube | as published (no m0) | with m0 |
+|---|---|---|
+| `run_0002_00560_rt_00` | centre (374, **600**), incl 73.0, mstar 18.7 | centre (300, 300), incl 48.9, mstar 1.46 |
+| `run_0002_00560_rt_04` | centre (378, **600**), incl 74.2, mstar 0.80 | centre right, but incl 1.8, mstar **50.0 at the bound** (true incl 11.7: the documented mass-inclination degeneracy) |
+| `rt_01`, `run_0025`, `run_0026`, and `sg_v2` | fine | identical |
+
+So it is not a general failure: 3 of 5 line-emission cubes and the SG v2 cube were unaffected, and SG v2's dirty 0.87 (the anchor
+of "doing nothing beats the model") stands. `nb08_kinematic_wiggle.json` stores exactly this: cubes `rt_00` and `rt_04` have `cy = 600.0`.
+
+**Published numbers it touches.** The `nb08` kinematic wiggle table for those two cubes, and every mean over all five: kin_gamma0
+**0.8155 against dirty 0.4284** (PROGRESS.md 2026-09-11 onward, the Phase J summary, and the line-emission points of
+`headroom_scatter.png`, two of whose five points come from these fits, including the one at dirty 0.996). Not touched: SG v2, the SG
+LOO folds and the SG holdout (inclination fixed at the true value, or fits identical either way).
+**What still holds.** On the 3 cubes with valid free fits, kin_gamma0 (gamma 0) scores 0.7198 / 0.4993 / 0.8643 (mean **0.694**)
+against dirty's 0.1182 / 0.2746 / 0.2062 (mean **0.200**): the win is intact and the gap is larger. What is no longer supported is the
+pair of headline means, and the two high-dirty points used as evidence that models lose when dirty is already good.
+**Read from stored geometry and refits, not from re-running any model**, so kin_gamma0's score on `rt_00` and `rt_04` under a valid
+geometry is not yet known; notebook 16 will produce it.
+
+**A second, separate limit found on the way.** Even with a valid geometry, `run_0002_00560_rt_00` (incl 63.7 deg) has dirty at 0.9966:
+its residual against the flat Keplerian model is 4.4 km/s rms, dominated by the disk's flaring, and that shared error correlates
+between clean and dirty whatever the denoiser does. The wiggle correlation is uninformative on that cube (no gain or loss can be read
+from it). Notebook 16 now records `ref_resid_rms` so this is visible.
+
+**Fixed in notebook 16, not in the old scripts.** `checkpoint_eval.prepare` starts the fit from the emission's shape and, for the
+line-emission cubes, holds the inclination at the true `.para` value (what `fit_keplerian` prescribes when it is known independently).
+Under that protocol all 5 cubes fit sensibly (centre within 4.2 px, mass 1.2 to 1.75, none at a bound) and dirty's wiggle correlation
+is 0.9966 / 0.1161 / **0.0435** / 0.2806 / 0.2165 (mean 0.331, against 0.428): `rt_04` is a heavily degraded cube, not the middling one
+the degenerate fit made it. A `geom_ok` flag (fit converged, mass not pinned, centre within a tenth of the disk's extent of the M0
+centroid) blanks the wiggle numbers when a fit fails instead of averaging them in (RULES.md #8). A related silent failure found and fixed
+in the same pass: the `.para` lookup used `ho["folder"]`, which is a NAME, so the distance had fallen back to 140 pc for every cube and
+the inclination was never fixed. The old scripts are left as the record; they are not edited.
+
+---
+
+## 2026-09-25 | added | notebook 16 now compares every checkpoint as images, not only numbers
+
+The first version of 16 produced a results table, five aggregate figures and one stand-alone moment panel per checkpoint on
+two cubes: to compare 40 checkpoints by eye you had to open 40 files, and the wiggle, the error and the channel views were
+numbers or absent. Now scoring keeps each checkpoint's maps, blue/systemic/red channels, line profiles at three pixels and an
+invented-structure map (small: a few MB per checkpoint per case), and `src/evaluation/checkpoint_figures.py` builds, for every
+case, side-by-side sheets of ALL checkpoints next to clean and dirty on one colour scale taken from clean, never from a checkpoint:
+M0, M1 and M2; error maps (denoised minus clean, scaled by dirty's own error, so "better than doing nothing" is visible); the
+Keplerian residual of M1, the wiggle itself; the three channels and the systemic-channel error; an M1 gradient-magnitude
+sharpness sheet; an invented-structure sheet; line profiles; the M0 radial profile and the M1 power spectrum against clean's;
+and a large detail figure for the best checkpoints by M0. Across the run: the score tables as heat-coloured images, a scoreboard
+of every metric (PSNR, SSIM, M0/M1/M2, wiggle, sharpness, invented blobs) with spread across cubes, the loss x source matrix
+(Jason's asks 1 and 3), and a checkpoint x cube heatmap. About 20 figures per case, for all 7 cases by default.
+Resume restores earlier sessions' maps; a scored row whose maps are missing is redone once so no checkpoint is a hole in a sheet.
+
+Tested with `tests/test_checkpoint_figures.py` (all 19 per-case figure types plus the tables and matrices, from synthetic
+artifacts, in seconds) and by building the real figures from three checkpoints on one full cube. Still not run on Kaggle.
+
+---
+
 ## 2026-09-25 | bug | 05 scored the 320/480px arms at 256px: ask 2 (less downsampling) is still unanswered
 
 **What was wrong.** Cell 18's `denoise_cube` did `F.interpolate(t, (TARGET_SIZE, TARGET_SIZE))` for every arm, so
