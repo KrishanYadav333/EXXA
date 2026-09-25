@@ -36,8 +36,7 @@ Read from the 12 `rt_00` sheets and the full CSV (`results/16-checkpoint-evaluat
 - **Failures are visible, not just numbers:** `aug_res320` s43 tilts the whole velocity field (red left, blue right) and brightens all of M0: a scale failure of that training run. `kin_gamma0_mae_fresh` and `sg_k3_fresh`
   are broken on line emission. The 600 px arms leak noise at the disk edge (`aug_600` gradE 5.7).
 - **Ensemble.** Averaging all 34 gives M1 mean |err| 0.069, worse than the best single models (0.055 to 0.058), so an ensemble of everything is not a shortcut.
-**Suspect (RULES.md #8):** `invented_frac` is exactly 0 for all 34 checkpoints on `rt_00` and `sg_v2` but 0.01 to 0.28 on `rt_01`. Check the detector's background denominator on those cubes before quoting
-any invented-structure number.
+**Suspect (RULES.md #8), CORRECTED 2026-09-25:** `invented_frac` is NOT exactly 0 (that was the log's 2-decimal rounding). From `nb16_eval_rows.csv`: at most 0.022 on `rt_00`, at most 0.0013 on `sg_v2`, but up to 0.28 on `rt_01`. A tenfold gap between cubes, so the detector's background definition still needs checking before any invented-structure number is quoted.
 **Figure bug found while reading:** tile labels dropped the seed, so the four sweep-winner seeds were all drawn "winner" and the aug/p10 seeds likewise; the two `best_models` byte copies took extra tiles. Fixed (`short`
 keeps `sNN`, `_drop_copies`).
 
