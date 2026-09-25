@@ -43,5 +43,15 @@ if os.path.isdir(root):
 else:
     print("  SKIP  discovery (models/best_models not present)")
 
+# the .para lookup must use the cube's DIRECTORY: ho["folder"] is a name, and a lookup there silently returned None
+# (so the inclination was never fixed and the distance fell back to 140 pc)
+ledir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "Line Emission Data", "run_0002_00560_rt_00")
+if os.path.isdir(ledir):
+    check("para lookup finds the true inclination", abs((ce._para_value(ledir, "RT: imin") or 0) - 63.709) < 1e-3)
+    check("para lookup finds the distance", abs((ce._para_value(ledir, "distance (pc)") or 0) - 100.247) < 1e-3)
+    check("para lookup by folder NAME finds nothing (the bug)", ce._para_value("run_0002_00560_rt_00", "RT: imin") is None)
+else:
+    print("  SKIP  para lookup (Line Emission Data not present)")
+
 print("\nPASSED" if not fails else f"\nFAILED: {fails}")
 sys.exit(1 if fails else 0)

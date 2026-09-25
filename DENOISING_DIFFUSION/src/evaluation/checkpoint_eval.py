@@ -48,7 +48,7 @@ ROW_FIELDS = [
     "checkpoint", "source", "family", "case", "domain", "n_channels",
     "psnr", "psnr_dirty", "ssim", "ssim_dirty",
     "M0", "M1", "M2", "M0_all", "M1_all", "M2_all", "n_px",
-    "resid_r", "dirty_resid_r", "wiggle_gain", "resid_rms_ratio", "mstar_at_bound",
+    "resid_r", "dirty_resid_r", "wiggle_gain", "resid_rms_ratio", "mstar_at_bound", "geom_ok", "geom_offset_px", "geom_mstar", "ref_resid_rms",
     "gradE_ratio", "gradE_ratio_dirty", "lapvar_ratio", "lapvar_ratio_dirty",
     "invented_frac", "invented_blobs", "overshoot", "floor_leak",
     "wall_s", "note",
@@ -294,8 +294,16 @@ def _para_value(folder: str, needle: str) -> Optional[float]:
     return None
 
 
-def line_emission_cases(data_dir: str, limit: Optional[int] = None, channels: Optional[slice] = None) -> Iterable[Case]:
-    """The 5 held-out line-emission cubes (RunIDs 0002 x3, 0025, 0026), the set notebooks 05 and 08 score on."""
+def line_emission_cases(data_dir: str, limit: Optional[int] = None, channels: Optional[slice] = None,
+                        fix_incl: bool = True) -> Iterable[Case]:
+    """
+    The 5 held-out line-emission cubes (RunIDs 0002 x3, 0025, 0026), the set notebooks 05 and 08 score on.
+
+    `fix_incl`: hold the Keplerian fit's inclination at the true value from the cube's `.para` file. That is what
+    `fit_keplerian`'s own docstring prescribes whenever inclination is known independently, because mass and
+    inclination are nearly degenerate. The free fit used by `score_08_kinematic.py` was degenerate on two of these
+    five cubes (PROGRESS.md 2026-09-25); False reproduces it.
+    """
     from src.data.cube_split import split_cubes
     from src.data.fits_cube_dataset import beam_features_of
     _, _, holdout = split_cubes(data_dir=data_dir, n_holdout=3, val_fraction=0.2, seed=42)
@@ -308,10 +316,14 @@ def line_emission_cases(data_dir: str, limit: Optional[int] = None, channels: Op
         cc = clean_full - _csub(clean_full)[None]
         dd = dirty_full - _csub(dirty_full)[None]
         velax = (hdr["CRVAL3"] + (np.arange(clean_full.shape[0]) + 1 - hdr["CRPIX3"]) * hdr["CDELT3"]) * 1000.0
-        dist = _para_value(ho["folder"], "distance (pc)") or float(hdr.get("DIST_PC", 140.0))
+        # `ho["folder"]` is the folder NAME, not a path: looking the .para up there finds nothing and the distance
+        # silently falls back to 140 pc. The cube file's own directory is the path.
+        pdir = os.path.dirname(ho["clean"])
+        dist = _para_value(pdir, "distance (pc)") or float(hdr.get("DIST_PC", 140.0))
+        true_incl = _para_value(pdir, "RT: imin")
         yield Case(os.path.basename(ho["folder"]), "line_emission", cc[sl], dd[sl], velax[sl],
                    abs(hdr["CDELT1"]) * 3600.0 * dist, beam_features_of(hdr),
-                   None, {"distance_pc": dist, "true_incl": _para_value(ho["folder"], "RT: imin")})
+                   true_incl if fix_incl else None, {"distance_pc": dist, "true_incl": true_incl})
         hc.close(); hd.close()
 
 
@@ -407,6 +419,12 @@ class Prepared:
     gradE_dirty: float
     lapvar_dirty: float
     mstar_at_bound: bool
+    geom_ok: bool = True             # fit converged, mass not pinned, centre on the disk (see prepare)
+    geom_offset_px: float = 0.0      # fitted centre minus the M0-weighted centroid
+    m1_dirty: np.ndarray = None      # quadratic M1, km/s
+    resid_dirty: np.ndarray = None
+    chan_idx: np.ndarray = None      # 3 channels: 20% / 50% / 80% of the cumulative clean flux (blue side, systemic, red side)
+    px: np.ndarray = None            # 3 (y, x) pixels for spectra: disk peak, disk edge, off source
 
 
 def prepare(case: Case) -> Prepared:
@@ -418,14 +436,35 @@ def prepare(case: Case) -> Prepared:
     m_dirty = generate_moment_maps("", data_velax=(dirty, case.velax))
     mask = signal_mask(m_clean[0], frac=FRAC)
     m1c = quadratic_moment1(clean, case.velax)[0] / 1000.0
-    geom = fit_keplerian(m1c, mask, case.au_per_px, fix_incl_deg=case.fixed_incl)
+    m0c = np.nan_to_num(m_clean[0])
+    # `m0=` starts the fit from the EMISSION's shape. Without it the fit starts from the mask's shape, the degenerate end
+    # of the mass-inclination valley, and on two line-emission cubes it ran the centre to the image edge (cy = 600.0).
+    geom = fit_keplerian(m1c, mask, case.au_per_px, m0=m0c, fix_incl_deg=case.fixed_incl)
+    wy, wx = np.mgrid[0:m0c.shape[0], 0:m0c.shape[1]]
+    wgt = np.where(mask, np.abs(m0c), 0.0)
+    cen = (float((wgt * wx).sum() / wgt.sum()), float((wgt * wy).sum() / wgt.sum())) if wgt.sum() > 0 else (geom["cx"], geom["cy"])
+    offset = float(np.hypot(geom["cx"] - cen[0], geom["cy"] - cen[1]))
+    extent = float(np.hypot(*(np.argwhere(mask) - np.array([cen[1], cen[0]])).T).max()) if mask.any() else 1.0
+    # A pinned mass, a non-converged fit, or a centre far from the emission is a failed fit, not a measurement (RULES.md #8).
+    geom_ok = bool(geom.get("success", True)) and not geom.get("mstar_at_bound", False) and offset < 0.1 * extent
     ref_resid = wiggle_residual(m1c, geom)
     m1d = quadratic_moment1(dirty, case.velax)[0] / 1000.0
     p, s = _pixel_metrics(case.clean, case.dirty, case.dirty)      # dirty scored as if it were the prediction
+    resid_d = wiggle_residual(m1d, geom)
+    flux = np.abs(case.clean).sum(axis=(1, 2)).astype(np.float64)
+    cum = np.cumsum(flux) / max(flux.sum(), 1e-30)
+    chan_idx = np.array([int(np.searchsorted(cum, q)) for q in (0.20, 0.50, 0.80)]).clip(0, case.clean.shape[0] - 1)
+    m0 = np.nan_to_num(m_clean[0])
+    H, W = m0.shape
+    pk = np.unravel_index(int(np.argmax(m0)), m0.shape)
+    inside = np.argwhere(mask & (m0 < 0.25 * m0.max()) & (m0 > 0.05 * m0.max()))
+    edge = tuple(inside[len(inside) // 2]) if len(inside) else pk
+    px = np.array([pk, edge, (H // 10, W // 10)])
     return Prepared(case, m_clean, m_dirty, mask, geom, ref_resid, m1c,
                     _grad_energy(m1c, mask), _lap_var(m1c),
-                    _corr(ref_resid, wiggle_residual(m1d, geom), mask), p, s,
-                    _grad_energy(m1d, mask), _lap_var(m1d), bool(geom.get("mstar_at_bound", False)))
+                    _corr(ref_resid, resid_d, mask), p, s,
+                    _grad_energy(m1d, mask), _lap_var(m1d), bool(geom.get("mstar_at_bound", False)),
+                    geom_ok, offset, m1d, resid_d, chan_idx, px)
 
 
 def _artifacts(clean, dirty, pred):
@@ -451,6 +490,61 @@ def _artifacts(clean, dirty, pred):
     return m(fr), m(bl), m(ov), m(fl)
 
 
+def invented_map(clean, dirty, pred, floor_frac=0.10, invent_frac=0.20) -> np.ndarray:
+    """
+    Per pixel, the fraction of channels in which the prediction asserts signal where clean has none: the same
+    definition as `channel_artifacts.invented_frac` (background = clean within `floor_frac` of its span above its
+    1st percentile; invented = prediction above `invent_frac` of that span), kept as a MAP so it can be looked at.
+    """
+    C, H, W = clean.shape
+    lo = dirty.reshape(C, -1).min(axis=1)
+    hi = dirty.reshape(C, -1).max(axis=1)
+    span_d = np.where(hi > lo, hi - lo, 1.0)
+    acc = np.zeros((H, W), np.float32)
+    n = 0
+    for c in range(C):
+        cn = (clean[c] - lo[c]) / span_d[c]
+        pn = (pred[c] - lo[c]) / span_d[c]
+        floor = float(np.percentile(cn, 1))
+        span = float(cn.max()) - floor
+        if not np.isfinite(span) or span <= 0:
+            continue
+        acc += ((cn < floor + floor_frac * span) & (pn > floor + invent_frac * span)).astype(np.float32)
+        n += 1
+    return acc / max(n, 1)
+
+
+def artifact_dict(prep: Prepared, pred: np.ndarray, m_den, m1q: np.ndarray, resid: np.ndarray) -> dict:
+    """Everything the visual comparison needs from one denoised cube, small enough to keep for every checkpoint."""
+    case = prep.case
+    return dict(
+        m0=np.asarray(m_den[0], np.float32), m1=np.asarray(m_den[1], np.float32), m2=np.asarray(m_den[2], np.float32),
+        m1q=np.asarray(m1q, np.float32), resid=np.asarray(resid, np.float32),
+        chan=pred[prep.chan_idx].astype(np.float32),
+        spec=np.stack([pred[:, y, x] for y, x in prep.px]).astype(np.float32),
+        invented=invented_map(case.clean, case.dirty, pred).astype(np.float16))
+
+
+def reference_dict(prep: Prepared) -> dict:
+    """Clean and dirty in the same form, plus the geometry, mask and axes every sheet shares."""
+    case = prep.case
+    d = {}
+    for tag, maps, m1q, resid, cube in (("clean", prep.m_clean, prep.m1_clean, prep.ref_resid, case.clean),
+                                        ("dirty", prep.m_dirty, prep.m1_dirty, prep.resid_dirty, case.dirty)):
+        d.update({f"{tag}_m0": np.asarray(maps[0], np.float32), f"{tag}_m1": np.asarray(maps[1], np.float32),
+                  f"{tag}_m2": np.asarray(maps[2], np.float32), f"{tag}_m1q": np.asarray(m1q, np.float32),
+                  f"{tag}_resid": np.asarray(resid, np.float32), f"{tag}_chan": cube[prep.chan_idx].astype(np.float32),
+                  f"{tag}_spec": np.stack([cube[:, y, x] for y, x in prep.px]).astype(np.float32)})
+    d["dirty_invented"] = invented_map(case.clean, case.dirty, case.dirty).astype(np.float16)
+    m0c = np.nan_to_num(prep.m_clean[0])
+    yy, xx = np.mgrid[0:m0c.shape[0], 0:m0c.shape[1]]
+    w = np.where(prep.mask, np.abs(m0c), 0.0)
+    d.update(mask=prep.mask, velax=case.velax, chan_idx=prep.chan_idx, px=prep.px,
+             cx=float((w * xx).sum() / max(w.sum(), 1e-30)), cy=float((w * yy).sum() / max(w.sum(), 1e-30)),   # M0 centroid, not the fit
+             geom_ok=np.array(prep.geom_ok), case=np.array(case.name))
+    return d
+
+
 def score(prep: Prepared, pred: np.ndarray) -> dict:
     """Every numeric check for one denoised cube against one prepared case."""
     from src.evaluation.moment_maps import generate_moment_maps, moment_improvement
@@ -465,19 +559,25 @@ def score(prep: Prepared, pred: np.ndarray) -> dict:
     r = _corr(prep.ref_resid, resid, prep.mask)
     rms = lambda a: float(np.sqrt(np.nanmean(a[prep.mask] ** 2)))
     inv_frac, inv_blobs, over, leak = _artifacts(case.clean, case.dirty, pred)
+    extras = dict(m1q=m1, resid=resid)
+    wig = lambda v: v if prep.geom_ok else float("nan")       # a failed fit is not a measurement: keep it out of every mean
     return dict(
         psnr=psnr, psnr_dirty=prep.psnr_dirty, ssim=ssim, ssim_dirty=prep.ssim_dirty,
         M0=imp["M0"], M1=imp["M1"], M2=imp["M2"], M0_all=imp["M0_all"], M1_all=imp["M1_all"],
         M2_all=imp["M2_all"], n_px=imp["n_px"],
-        resid_r=r, dirty_resid_r=prep.dirty_resid_r, wiggle_gain=r - prep.dirty_resid_r,
-        resid_rms_ratio=rms(resid) / rms(prep.ref_resid) if rms(prep.ref_resid) > 0 else float("nan"),
-        mstar_at_bound=prep.mstar_at_bound,
+        resid_r=wig(r), dirty_resid_r=wig(prep.dirty_resid_r), wiggle_gain=wig(r - prep.dirty_resid_r),
+        resid_rms_ratio=wig(rms(resid) / rms(prep.ref_resid)) if rms(prep.ref_resid) > 0 else float("nan"),
+        mstar_at_bound=prep.mstar_at_bound, geom_ok=prep.geom_ok, geom_offset_px=round(prep.geom_offset_px, 1),
+        geom_mstar=round(float(prep.geom["mstar_msun"]), 3),
+        # clean's own residual against the fitted Keplerian, km/s. Large means the flat-disk model, not a wiggle, dominates
+        # the residual, so clean and dirty correlate whatever the denoiser does (run_0002_00560_rt_00: dirty resid_r 0.997)
+        ref_resid_rms=round(rms(prep.ref_resid), 3),
         gradE_ratio=_grad_energy(m1, prep.mask) / prep.gradE_clean,
         gradE_ratio_dirty=prep.gradE_dirty / prep.gradE_clean,
         lapvar_ratio=_lap_var(m1) / prep.lapvar_clean,
         lapvar_ratio_dirty=prep.lapvar_dirty / prep.lapvar_clean,
         invented_frac=inv_frac, invented_blobs=inv_blobs, overshoot=over, floor_leak=leak,
-    ), m_den
+    ), m_den, extras
 
 
 def save_moment_figure(prep: Prepared, m_den, path: str, tag: str) -> None:
@@ -504,7 +604,8 @@ def compatible(spec: Spec, case: Case, diffusion_cases: Sequence[str]) -> Option
 
 
 def evaluate_case(case: Case, specs: Sequence[Spec], device: str, done: set, on_row, *,
-                  figure_dir: Optional[str] = None, figure_cases: Sequence[str] = (),
+                  figure_dir: Optional[str] = None, panel_cases: Sequence[str] = (),
+                  figure_cases: Optional[Sequence[str]] = None, map_dir: Optional[str] = None,
                   diffusion_cases: Sequence[str] = (), sampling_steps: int = 25, n_avg: int = 1,
                   deadline: Optional[float] = None, batch: int = 8, log=print) -> int:
     """
@@ -518,10 +619,18 @@ def evaluate_case(case: Case, specs: Sequence[Spec], device: str, done: set, on_
     log(f"\n{'=' * 78}\n{case.name}  [{case.domain}, {case.clean.shape[0]} ch]  {len(todo)} checkpoint(s) to score\n{'=' * 78}")
     t0 = time.time()
     prep = prepare(case)
-    flag = "  !! mstar pinned at bound: wiggle numbers on this case are not a measurement" if prep.mstar_at_bound else ""
+    flag = ("" if prep.geom_ok else f"  !! GEOMETRY FIT FAILED (centre {prep.geom_offset_px:.0f} px off the disk, mstar "
+            f"{prep.geom['mstar_msun']:.2f}{', pinned at bound' if prep.mstar_at_bound else ''}): wiggle numbers on this case are blanked")
     log(f"  references ready in {time.time() - t0:.0f}s | dirty: resid_r {prep.dirty_resid_r:.4f}, "
         f"PSNR {prep.psnr_dirty:.2f}, gradE/clean {prep.gradE_dirty / prep.gradE_clean:.3f}{flag}")
     n = 0
+    # maps for the visual sheets: every case unless `figure_cases` names a subset (None = all)
+    keep_maps = bool(map_dir) and (figure_cases is None or case.name in figure_cases)
+    if keep_maps:
+        os.makedirs(map_dir, exist_ok=True)
+        ref_path = os.path.join(map_dir, f"{case.name}__REF.npz")
+        if not os.path.exists(ref_path):
+            np.savez_compressed(ref_path, **reference_dict(prep))
     for spec in todo:
         if deadline and time.time() > deadline:
             log(f"  time budget reached, {len(todo) - n} checkpoint(s) deferred on {case.name}")
@@ -534,7 +643,7 @@ def evaluate_case(case: Case, specs: Sequence[Spec], device: str, done: set, on_
         try:
             den = Denoiser(spec, device, sampling_steps=sampling_steps, n_avg=n_avg)
             pred = den(case.dirty, case.beam_vec, batch=batch)
-            res, m_den = score(prep, pred)
+            res, m_den, extras = score(prep, pred)
         except Exception as e:                       # one bad checkpoint must not end the session
             log(f"  --- {spec.label}: FAILED {type(e).__name__}: {str(e)[:160]}")
             on_row({"checkpoint": spec.label, "source": spec.source, "family": spec.family, "case": case.name,
@@ -542,13 +651,16 @@ def evaluate_case(case: Case, specs: Sequence[Spec], device: str, done: set, on_
             continue
         row = {"checkpoint": spec.label, "source": spec.source, "family": spec.family, "case": case.name,
                "domain": case.domain, "n_channels": case.clean.shape[0], **res,
-               "wall_s": round(time.time() - t1, 1), "note": "pinned" if prep.mstar_at_bound else ""}
+               "wall_s": round(time.time() - t1, 1), "note": "" if prep.geom_ok else "geom_failed: wiggle blanked"}
         on_row(row)
         n += 1
         log(f"  {spec.label:38s} PSNR {res['psnr']:6.2f} ({res['psnr'] - res['psnr_dirty']:+.2f})  "
             f"M0 {res['M0']:+7.1f} M1 {res['M1']:+7.1f} M2 {res['M2']:+7.1f}  resid_r {res['resid_r']:.3f} "
             f"gradE {res['gradE_ratio']:.2f}  blobs {res['invented_blobs']:.1f}  ({time.time() - t1:.0f}s)")
-        if figure_dir and case.name in figure_cases:
+        if keep_maps:
+            np.savez_compressed(os.path.join(map_dir, f"{case.name}__{spec.label}.npz"),
+                                **artifact_dict(prep, pred, m_den, extras["m1q"], extras["resid"]))
+        if figure_dir and case.name in panel_cases:
             save_moment_figure(prep, m_den, os.path.join(figure_dir, f"{case.name}__{spec.label}.png"),
                                f"{spec.label} on {case.name}")
         del den, pred
