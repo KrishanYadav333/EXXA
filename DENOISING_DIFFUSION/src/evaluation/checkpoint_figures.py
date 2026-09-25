@@ -45,9 +45,24 @@ def _plt():
 
 
 def short(label: str) -> str:
+    """Tile label. Keeps the seed (as s42): dropping it drew sweep_winner seeds 42/43/44/49 all as "winner", indistinguishable."""
+    m = re.search(r"_seed(\d+)$", label)
     s = re.sub(r"_seed\d+$", "", label)
-    s = re.sub(r"^(winner_|sweep_)", "", s)
-    return s
+    s = re.sub(r"^sweep_winner", "sw", s)
+    s = re.sub(r"^winner_", "", s)
+    return s + (f" s{m.group(1)}" if m else "")
+
+
+def _drop_copies(arts: dict, rows: dict) -> dict:
+    """best_models holds byte copies of two nb05 checkpoints (winner_aug_seed43 = sweep_winner_aug_seed43, ...); one tile each is enough."""
+    seen, keep = set(), {}
+    for l in sorted(arts, key=lambda x: (x.startswith("winner_aug_seed") or x.startswith("winner_p10_seed"), x)):
+        r = rows.get(l, {})
+        key = tuple(round(float(r.get(k, float("nan"))), 6) for k in ("psnr", "M0", "M1", "M2")) if r else (l,)
+        if key in seen and all(v == v for v in key):
+            continue
+        seen.add(key); keep[l] = arts[l]
+    return keep
 
 
 # ------------------------------------------------------------------------------------------------ #
@@ -176,6 +191,7 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str, 
     wiggle pages are built (about 44 images per case for 34 checkpoints, instead of ~75).
     """
     out: List[str] = []
+    arts = _drop_copies(arts, rows)
     labels_all = _order(list(arts), rows)
     labels = labels_all[:top_k] if top_k else labels_all
 

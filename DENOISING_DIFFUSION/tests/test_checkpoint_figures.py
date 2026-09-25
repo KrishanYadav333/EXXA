@@ -105,5 +105,10 @@ with tempfile.TemporaryDirectory() as d:
     one = cf.contact_sheet(panels[:6], title="one", path=os.path.join(d, "one.png"), cmap="RdBu_r", vlim=(-1, 1), cbar_label="x", n_ref=2)
     check("a small sheet stays one page under its own name", one == [os.path.join(d, "one.png")])
 
+check("tile labels keep the seed", cf.short("sweep_winner_seed42") != cf.short("sweep_winner_seed43") and cf.short("winner_starlet_p10_ft_seed42") == "starlet_p10_ft s42")
+dup = cf._drop_copies({"sweep_winner_aug_seed43": 1, "winner_aug_seed43": 1, "kin_gamma0": 1},
+                      {"sweep_winner_aug_seed43": dict(psnr=1, M0=2, M1=3, M2=4), "winner_aug_seed43": dict(psnr=1, M0=2, M1=3, M2=4), "kin_gamma0": dict(psnr=5, M0=2, M1=3, M2=4)})
+check("byte-copy checkpoints drawn once", sorted(dup) == ["kin_gamma0", "sweep_winner_aug_seed43"])
+
 print("\nPASSED" if not fails else f"\nFAILED: {fails}")
 sys.exit(1 if fails else 0)

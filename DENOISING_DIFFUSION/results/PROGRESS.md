@@ -9,6 +9,36 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-25 | analysis | notebook 16 quick run read as IMAGES: the kinematic-input models are the closest to clean; pick for the 5-cube run
+
+Read from the 12 `rt_00` sheets and the full CSV (`results/16-checkpoint-evaluation/v_pending_2026-09-25_quick_6e4e139/`). One cube for the images, two for the numbers, one seed per arm: **a shortlist, not a result.**
+
+**What the pictures show that the tables did not.**
+- **Sharpness (M1 gradient).** Clean is a smooth radial fan with a few fine rays. Every single-channel U-Net draws a web of closed contour lines across the disk (gradE/clean 1.8 to 2.6): M1 comes out
+  terraced, so on line emission the U-Nets ADD velocity structure rather than smoothing it (the opposite of SG v2, where gradE/clean is 0.4 to 0.8). Only the `kin_gamma0` family (31-channel input) looks like clean
+  (`kin_gamma0_starlet_ft` 0.83, `kin_gamma0_mae_ft` 0.81, `kin_gamma0` 0.95).
+- **Calibration at the systemic channel.** `kin_gamma0_starlet_ft` (slope 0.92) and `kin_gamma0_mae_ft` (0.94) are a thin line on the diagonal. Most U-Nets are wide, and many show a break at clean ~0.006 Jy/beam
+  (a lower branch of pixels whose bright emission was cut), visible in `starlet_p10_ft`, `mae_p10_ft`, `hybrid_p10_ft`, `wavelet_p10_ft`, `gradient_p10_ft`, the p10 seeds, `res320`. The aug seed 43 and `res480` are the
+  best U-Nets here (0.99, 0.97), close to the line.
+- **Channel error at the systemic channel (rms).** `kin_gamma0_mae_ft` 1.49e-4 and `kin_gamma0_starlet_ft` 1.61e-4, then `aug_res480` 2.05e-4, `kin_gamma0_starlet_fresh` 2.17e-4; the U-Net loss arms 2.5 to 3.7e-4.
+- **M1 error map.** Every model carries the same dipole at the disk centre (unresolved inner Keplerian rise). The **p10-sourced fine-tunes all share a red wedge below the centre**, inherited from
+  `sweep_winner_p10`: the loss did not remove it. Lowest mean |err|: aug seed 44 0.0545, aug seed 43 0.0564, `kin_gamma0_starlet_ft` 0.0579, `res480` 0.0608; `starlet_p10_ft` is 0.0848.
+- **Wiggle error ratio** (below 1 beats dirty): the `kin_gamma0` family is best on both cubes (0.88 on `rt_00`, 0.10 on `rt_01`), `res480` next (0.92). `starlet_p10_ft`, 5-cube M0 leader in 05, is 1.14 on `rt_00`:
+  **worse than dirty on the wiggle**.
+- **Failures are visible, not just numbers:** `aug_res320` s43 tilts the whole velocity field (red left, blue right) and brightens all of M0: a scale failure of that training run. `kin_gamma0_mae_fresh` and `sg_k3_fresh`
+  are broken on line emission. The 600 px arms leak noise at the disk edge (`aug_600` gradE 5.7).
+- **Ensemble.** Averaging all 34 gives M1 mean |err| 0.069, worse than the best single models (0.055 to 0.058), so an ensemble of everything is not a shortcut.
+**Suspect (RULES.md #8):** `invented_frac` is exactly 0 for all 34 checkpoints on `rt_00` and `sg_v2` but 0.01 to 0.28 on `rt_01`. Check the detector's background denominator on those cubes before quoting
+any invented-structure number.
+**Figure bug found while reading:** tile labels dropped the seed, so the four sweep-winner seeds were all drawn "winner" and the aug/p10 seeds likewise; the two `best_models` byte copies took extra tiles. Fixed (`short`
+keeps `sNN`, `_drop_copies`).
+
+**Decision.** Candidates for the 2 to 3 ALMA models: `kin_gamma0_starlet_ft`, `kin_gamma0_mae_ft`, and the plain U-Net reference `sweep_winner_aug_seed43` / `winner_aug_res480_seed43`. `winner_starlet_p10_ft` is NOT
+carried despite its 5-cube M0, because of its wiggle ratio above 1, the calibration break and the inherited wedge. **None of the kin family has ever been scored on 5 cubes**, and `tools/alma_infer.py` only accepts
+1-channel models (`in_channels == 1` assert), so a kin model needs a 31-channel stack path there before it can run on MWC 758. Next run: the shortlist on all 5 line-emission cubes and both SG cases.
+
+---
+
 ## 2026-09-25 | fix | notebook 16 figures: every checkpoint, 8 disks per page at 150 dpi, tight non-square crop
 
 Requested layout: clean + dirty + 6 checkpoints = **8 disks per page**, each large. `DISKS_PER_PAGE = 8`, 4 x 2, 150 dpi, tiles 4.2 in wide (each disk ~630 px); the error and invented-structure sheets
