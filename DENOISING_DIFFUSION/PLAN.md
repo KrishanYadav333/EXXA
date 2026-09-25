@@ -54,13 +54,12 @@ run; this file gets the decisions.
 
 | # | Ask | Status |
 |---|---|---|
-| 1 | MAE | **Done.** `winner_mae_ft` PSNR 39.78, M0 **+26.3%**, below the `sweep_winner_aug` baseline (+29.2%). MAE alone did not help M0; M1/M2 rose. |
-| 3 | wavelet / starlet | **Done.** `winner_starlet_ft` 40.32 dB, M0 +42.6 / M1 +80.5 / M2 +81.1; `winner_wavelet_ft` 40.13, +38.8 / +76.1 / +70.0. One seed, spread across the 5 holdout cubes (v30). |
-| 3 | pix2pix-style gradient | Trained (`winner_gradient_ft` 40.14), moments not yet in the v30 table. |
+| 1 | MAE | **Done (05 v42).** M0 not lifted (aug source 26.3 vs 29.2, p10 source 43.5 vs 33.5, both within about one seed spread); M1 +3 to +9 pp, M2 +15 to +52 pp. Helps the velocity moments, not M0. |
+| 3 | wavelet / starlet / gradient | **Done.** All four raise M2; on the clean from-scratch control they beat the hybrid loss on M1 and M2. No loss clearly beats the others (M0 26 to 45 across the four, inside single-seed noise). Best M0: `starlet_p10_ft` +44.5, `mae_p10_ft` +43.5. |
 | 3 | NLL | Not tried. |
-| 2 | 480 / 320 | **Trained**, winner_aug's recipe from scratch (seed 43): `winner_aug_res480` 40.18, `res320` 37.36. **Moments not scored**, and PSNR does not compare across resolutions, so ask 2 has no answer yet. |
-| 4 | best 2-3 models | aug done; the p10 and beam loss arms (8) remain in notebook 05, ~4 Kaggle sessions. |
-| 5 | exoALMA inference | Notebook 15 (`15-alma-real-cube-inference.ipynb`, branch `alma-validation`) built, smoke-tested only. |
+| 2 | 480 / 320 | **Trained but NOT answered.** 05 scored both at 256 px instead of their own size (PROGRESS.md 2026-09-25); fixed, re-scores next session. Batch size also changed with resolution, so even the clean number will not isolate resolution. |
+| 4 | best 2-3 models | 05 has `winner_k2` and two control arms left (one session). Current candidates by M0: `starlet_p10_ft`, `mae_p10_ft`, `starlet_ft`. The `_ft` gains need the hybrid controls before they are attributed to the loss. |
+| 5 | exoALMA inference | Notebook 15 (`alma-validation`) built, smoke-tested only. |
 
 Done but not asked for: notebook 13 (loss sweep on `kin_gamma0`, `sg_k3_fresh`, `ddpm_seed42`, `ddrm_prior`, 28/28
 arms). Built but not asked for: notebook 14 (native 600px, 56 arms), `tools/alma_simobserve.py`.

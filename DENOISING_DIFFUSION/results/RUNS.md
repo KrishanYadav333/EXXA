@@ -41,6 +41,9 @@ Full lineage, recovered from every branch (`line-emission`, `midterm-prep`, `wee
 | 34 | 2026-09-20 | `c7083fb` | — | 40.14 (`winner_gradient_ft`) | — | [`v34_.../`](05-unet-line-emission/v34_2026-09-20_crashed/) — **CRASHED**, same cause as v33, `persistent_workers` fix landed after |
 | 36 | 2026-09-24 | `1832c54` (stale — see README) | — | 39.93/40.18/40.14 (`winner_{mae,wavelet,starlet}_ft`, reconfirmed) | — | [`v36_.../`](05-unet-line-emission/v36_2026-09-24_stale-cells/) — **CRASHED**, `KeyError: 'M0'`, Kaggle ran cells frozen 3 fix-generations behind HEAD; not a code bug, see README |
 | 38 | 2026-09-24 | `9856f17` | — | 40.18 (`winner_aug_res480`), 37.36 (`winner_aug_res320`) | — | [`v38_.../`](05-unet-line-emission/v38_2026-09-24_crashed/) — **CRASHED**, host RAM at epoch 19 of the third arm; first winner_aug-recipe res arms, PSNR not comparable across resolutions; RAM leak NOT fixed by `persistent_workers`, see PROGRESS.md |
+| 40 | 2026-09-24 | `90f2390` | — | 40.41 (`winner_wavelet_p10_ft`) | best M0 +44.5 (`winner_starlet_p10_ft`) in v42's table | [`v40_.../`](05-unet-line-emission/v40_2026-09-24_90f2390/) — clean, 3 new arms: `mae`/`wavelet`/`starlet`_`p10_ft` |
+| 41 | 2026-09-25 | `d923d28` | — | 40.12 (`winner_gradient_p10_ft`) | — | [`v41_.../`](05-unet-line-emission/v41_2026-09-25_d923d28/) — clean, 3 new arms: `gradient_p10_ft`, `mae_beam_ft`, `wavelet_beam_ft` |
+| 42 | 2026-09-25 | `ad600d2` | — | 42.59 (`winner_k1`) | **moment table for 25 arms**; res320/res480 rows INVALID (scored at 256 px) | [`v42_.../`](05-unet-line-emission/v42_2026-09-25_ad600d2/) — clean, 3 new arms: `starlet_beam_ft`, `gradient_beam_ft`, `winner_k1`. Only `winner_k2` left, plus two control arms added afterwards |
 
 **v18 is the best 05 run to date, and the first with every moment positive on every cube.**
 M0 +81.2% ±12.6, M1 +31.5% ±9.2, M2 +19.9% ±18.8, 5/5 cubes positive on all three, against

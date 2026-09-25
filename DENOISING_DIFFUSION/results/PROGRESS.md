@@ -9,6 +9,65 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-25 | bug | 05 scored the 320/480px arms at 256px: ask 2 (less downsampling) is still unanswered
+
+**What was wrong.** Cell 18's `denoise_cube` did `F.interpolate(t, (TARGET_SIZE, TARGET_SIZE))` for every arm, so
+`winner_aug_res320` and `winner_aug_res480`, trained at 320 and 480 px, were fed 256 px inputs when their moment maps
+were computed. Their moment rows in v42 (M0 -12.3 / +9.7, M1 +50.0 / +66.1, M2 -4.4 / +54.5) are therefore not a test of
+resolution. **How it was caught.** Reading `denoise_cube` while checking how the table treated resolution, before writing
+up Jason's ask 2. The PSNR path was already right: `train_unet` and the resume path score on the arm's own view
+(`VIEWS[view]()[1]`), so 37.36 and 40.18 dB stand, but PSNR does not compare across resolutions anyway.
+**Published numbers it touches:** those two moment rows, in the v42 log and in anything quoting them. It does **not**
+touch any 256px arm: their scoring size was correct. `winner_aug_native600` is gated off and has no row.
+
+**Fixed.** `denoise_cube(..., size=)` with `_arm_size(name)` (320 / 480 / 600 for the resolution views, else 256), passed
+from both callers. The res arms are added to `STALE_MOMENT_ARMS`, the mechanism built for the same class of bug when
+`winner_beam` was scored without its beam vector, so their stored rows are dropped and re-scored at the right size on the next
+run (checkpoints are in the recovered v38 dataset). Resolution changes and batch size changes together (16 at 256, 8 at 320, 6
+at 480, forced by T4 memory, lr unchanged), so even a clean re-score will not isolate resolution; that confound is to be stated.
+`checkpoint_eval.py` (notebook 16) takes each arm's size from its label, so it scores them correctly.
+
+---
+
+## 2026-09-25 | run | 05 v40, v41, v42: the loss sweep is done except one arm; MAE helps M2 and M1 more than M0
+
+Three clean sessions, three new arms each (the session cap), archived under `results/05-unet-line-emission/v40_..`,
+`v41_..`, `v42_..`. v42's moment table (5 holdout cubes, one seed per arm, clipped + signal-masked, mean across cubes)
+gives Jason's asks 1 and 3 their first real answers. **Every number below is a mean over the 5 cubes, from one seed, against
+a baseline whose spread is across 3 seeds (RULES.md #6); differences smaller than that spread are not established.**
+
+| arm | PSNR | M0 | M1 | M2 |
+|---|---|---|---|---|
+| `sweep_winner_aug` baseline (3 seeds) | 39.30 | 29.2 +/-7.2 | 74.0 +/-2.0 | 55.0 +/-13.9 |
+| `sweep_winner_p10` baseline (3 seeds) | 39.27 | 33.5 +/-9.6 | 70.7 +/-6.7 | 31.8 +/-11.1 |
+| `sweep_winner` non-aug baseline (4 seeds) | 37.52 | 11.4 +/-27.4 | 55.6 +/-9.0 | 6.0 +/-35.1 |
+| mae / wavelet / starlet / gradient, fine-tuned from aug | 39.78 / 40.13 / 40.32 / 40.14 | 26.3 / 38.8 / 42.6 / 32.1 | 77.4 / 76.1 / 80.5 / 78.7 | 70.5 / 70.0 / 81.1 / 77.3 |
+| same four, fine-tuned from p10 | 40.34 / 40.41 / 40.20 / 40.12 | 43.5 / 41.4 / 44.5 / 41.7 | 79.6 / 78.1 / 77.1 / 80.3 | 83.8 / 73.1 / 79.6 / 70.5 |
+| same four, fresh (no aug) | 39.96 / 40.03 / 39.90 / 39.73 | 36.0 / 20.4 / 38.1 / 33.9 | 75.2 / 66.1 / 77.8 / 75.6 | 69.1 / 60.9 / 75.6 / 56.4 |
+| beam-sourced (mae / wavelet / starlet / gradient) | 39.99 / 40.12 / 39.62 / 40.22 | 36.4 / 29.3 / 31.5 / 31.2 | 76.9 / 71.6 / 72.4 / 74.1 | 66.4 / 70.9 / 66.2 / 42.9 |
+| `winner_k1` (one spectral neighbour) | **42.59** | 33.3 | 75.6 | 40.5 |
+
+**Ask 1, MAE.** It did not lift M0: fine-tuned from aug it is 26.3 against 29.2 (inside the seed spread), from p10 43.5
+against 33.5 (about one spread). It lifts M1 (+3.4 and +8.9 pp) and M2 (+15.5 and +52 pp) more clearly. So the simple loss helped,
+but on the velocity moments, not on M0.
+**Ask 3, the other losses.** All four raise M2 above their source, and the fresh (from-scratch) arms, which have a clean
+control in `sweep_winner` (same recipe, same view, only the loss differs), beat it on M1 by +10 to +22 pp (its spread is 9)
+and on M2 by +50 to +70 pp. **No loss clearly beats the others**: the M0 range across the four (26 to 45) is inside single-seed noise.
+Best M0 is `winner_starlet_p10_ft` (+44.5) and `winner_mae_p10_ft` (+43.5), indistinguishable.
+**Unresolved confound.** Every `_ft` arm changes the loss AND continues a converged model for 30+ epochs at 0.1x lr, so part of
+its gain may be the extra training. The fresh arms have a clean control; the `_ft` arms did not. Two control arms are now in 05
+(`winner_hybrid_ft`, `winner_hybrid_p10_ft`: same source, same budget, original hybrid loss). Until they run, "the loss helped" is
+established for the fresh arms and only suggested for the `_ft` ones.
+**PSNR again does not rank.** `winner_k1` is far ahead on PSNR (42.59, +2.3 dB) and behind on M2 (40.5 against 55 to 84 for
+the loss arms); the notebook's own line says ranking by PSNR would have picked it. That matches 2026-08-21: spectral context is a
+pixel win, not a moment win. Beam-conditioned arms show no gain.
+
+**Left in 05:** `winner_k2`, plus the two control arms, exactly one session at the cap of 3. `winner_aug_native600` stays gated.
+The RAM leak was mild at 256px (27.7 to 24.7 GB free over 30 epochs, ~0.1 GB/epoch) and cost nothing; the per-epoch
+`main/workers/cache` diagnostic is not live on Kaggle because that commit is unpushed.
+
+---
+
 ## 2026-09-25 | added | 16-checkpoint-evaluation.ipynb: one protocol for every checkpoint, validated against v20
 
 Until now every checkpoint family had its own scoring script and preprocessing (`score_08_kinematic.py`,
