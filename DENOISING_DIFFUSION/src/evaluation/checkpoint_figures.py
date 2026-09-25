@@ -163,9 +163,21 @@ def contact_sheet(panels, *, title, path, cmap, vlim, cbar_label, n_ref=1, per_p
     return out
 
 
-def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) -> List[str]:
+CORE_SHEETS = ("M0", "M1", "M2", "err_M1")     # the disk sheets kept by default; the rest are opt-in (extra=True)
+
+
+def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str, top_k: Optional[int] = 16, extra: bool = False) -> List[str]:
+    """
+    Paged sheets show only the `top_k` checkpoints by M0 (all of them are in the tables and single-image figures); with `extra=False`
+    only CORE_SHEETS plus the classic wiggle pages are built, so a quick run writes ~20 images per case instead of ~75.
+    """
     out: List[str] = []
-    labels = _order(list(arts), rows)
+    labels_all = _order(list(arts), rows)
+    labels = labels_all[:top_k] if top_k else labels_all
+
+    def _cs(*a, **k):
+        kind = os.path.basename(k["path"])[:-4].split(f"{case}_", 1)[-1]
+        return contact_sheet(*a, **k) if (extra or kind in CORE_SHEETS) else []
     amp = float(ref["amp_scale"]) if "amp_scale" in ref else 1.0
     note = f"  [CLEAN rescaled x{amp:.3g} to the input's units]" if amp != 1.0 else ""
     mask = ref["mask"].astype(bool)
@@ -190,7 +202,7 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
              ("M1", "m1", (vs - L1, vs + L1), "RdBu_r", 1000.0, "velocity (km/s)"),
              ("M2", "m2", (0, _p(m2c, mask, 99)), "viridis", 1000.0, "velocity dispersion (km/s)")]
     for name, key, vl, cm, scale, unit in specs:
-        out.append(contact_sheet(
+        out.append(_cs(
             tiles(lambda: ref[f"clean_{key}"] / scale, lambda: ref[f"dirty_{key}"] / scale, lambda a: a[key] / scale,
                   lambda l: f"{short(l)}\n{name} {r(l, name, '{:+.0f}')}%"),
             title=f"{case}: {name}, every checkpoint on one scale (sorted by M0 improvement, best first). {unit}{note if name != 'M1' else ''}",
@@ -207,7 +219,7 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
             e = arts[l][key] / scale - cl
             mae = float(np.nanmean(np.abs(e[mask])))
             t.append((f"{short(l)}\nmean |err| {mae:.3g}", e[sl]))
-        out.append(contact_sheet(t, title=f"{case}: {name} error (denoised - clean), symmetric, scaled by dirty's own error. "
+        out.append(_cs(t, title=f"{case}: {name} error (denoised - clean), symmetric, scaled by dirty's own error. "
                                           f"Red/blue = wrong; pale = right.",
                                  n_ref=3, path=f"{base}_err_{name}.png", cmap="RdBu_r", vlim=(-lim, lim),
                                  cbar_label=f"{name} error", blank=mk))
@@ -215,7 +227,7 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
     # ---- wiggle residual ----
     rc = ref["clean_resid"]
     lim = max(3.0 * float(np.sqrt(np.nanmean(rc[mask] ** 2))), 1e-6)
-    out.append(contact_sheet(
+    out.append(_cs(
         tiles(lambda: ref["clean_resid"], lambda: ref["dirty_resid"], lambda a: a["resid"],
               lambda l: f"{short(l)}\nresid r {r(l, 'resid_r', '{:.3f}')}"),
         title=(f"{case}: the GI wiggle, M1 minus the fitted Keplerian (km/s), same geometry for every tile. r = correlation with clean's."
@@ -230,13 +242,13 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
     for i in range(3):
         cc = ref["clean_chan"][i]
         L = _p(np.abs(cc), np.ones_like(cc, bool), 99.7)
-        out.append(contact_sheet(
+        out.append(_cs(
             [("CLEAN", cc[sl]), ("DIRTY", ref["dirty_chan"][i][sl])] + [(short(l), arts[l]["chan"][i][sl]) for l in labels],
             title=f"{case}{_amp_note(ref)}: channel {int(ref['chan_idx'][i])}, {names[i]}", n_ref=2, path=f"{base}_chan{i}.png",
             cmap="RdBu_r", vlim=(-L, L), cbar_label="Jy/beam (continuum-subtracted)"))
     cc = ref["clean_chan"][1]
     L = _p(np.abs(ref["dirty_chan"][1] - cc), np.ones_like(cc, bool), 97)
-    out.append(contact_sheet(
+    out.append(_cs(
         [("CLEAN (truth)", cc[sl], "RdBu_r", (-_p(np.abs(cc), np.ones_like(cc, bool), 99.7), _p(np.abs(cc), np.ones_like(cc, bool), 99.7))),
          ("DIRTY (input)", ref["dirty_chan"][1][sl], "RdBu_r", (-_p(np.abs(cc), np.ones_like(cc, bool), 99.7), _p(np.abs(cc), np.ones_like(cc, bool), 99.7))),
          ("DIRTY - CLEAN\n(the error to beat)", (ref["dirty_chan"][1] - cc)[sl])] +
@@ -250,7 +262,7 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
         return np.hypot(gx, gy)
     gm = grad(ref["clean_m1q"])
     G = _p(gm, mask, 99) * 1.3
-    out.append(contact_sheet(
+    out.append(_cs(
         tiles(lambda: gm, lambda: grad(ref["dirty_m1q"]), lambda a: grad(a["m1q"]),
               lambda l: f"{short(l)}\ngradE/clean {r(l, 'gradE_ratio', '{:.2f}')}"),
         title=f"{case}: M1 gradient magnitude (fine velocity structure). A model that fades toward black is smoothing; "
@@ -258,7 +270,7 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
         n_ref=2, path=f"{base}_sharpness.png", cmap="magma", vlim=(0, G), cbar_label="|grad M1| (km/s per px)", blank=mk))
 
     # ---- invented structure ----
-    out.append(contact_sheet(
+    out.append(_cs(
         [("CLEAN systemic channel", ref["clean_chan"][1][sl], "RdBu_r", (-_p(np.abs(ref["clean_chan"][1]), np.ones_like(ref["clean_chan"][1], bool), 99.7), _p(np.abs(ref["clean_chan"][1]), np.ones_like(ref["clean_chan"][1], bool), 99.7))),
          ("DIRTY systemic channel", ref["dirty_chan"][1][sl], "RdBu_r", (-_p(np.abs(ref["clean_chan"][1]), np.ones_like(ref["clean_chan"][1], bool), 99.7), _p(np.abs(ref["clean_chan"][1]), np.ones_like(ref["clean_chan"][1], bool), 99.7))),
          ("DIRTY input", ref["dirty_invented"][sl].astype(np.float32))] +
@@ -272,7 +284,7 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
     v = ref["velax"] / 1000.0
     for j, nm in enumerate(["disk peak", "disk edge", "off source"]):
         ax[j].plot(v, ref["dirty_spec"][j], color="#bbb", lw=.9, label="dirty")
-        for l in labels:
+        for l in labels_all:
             fam = rows.get(l, {}).get("family", "unet")
             ax[j].plot(v, arts[l]["spec"][j], color=FAM.get(fam, "#888"), lw=.7, alpha=.65)
         ax[j].plot(v, ref["clean_spec"][j], color="k", lw=1.6, label="clean")
@@ -283,9 +295,9 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str) 
     fig.tight_layout(); p = f"{base}_spectra.png"; fig.savefig(p, dpi=105); plt.close(fig); out.append(p)
 
     # ---- radial profile and power spectrum ----
-    out.append(_radial_and_power(case, ref, arts, labels, rows, base))
-    out += _extra_views(case, ref, arts, labels, rows, base, sl, mk)
-    out.append(_topk(case, ref, arts, labels, rows, base, sl, mk))
+    out.append(_radial_and_power(case, ref, arts, labels_all, rows, base))
+    out += _extra_views(case, ref, arts, labels_all, rows, base, sl, mk)
+    out.append(_topk(case, ref, arts, labels_all, rows, base, sl, mk))
     return [q for o in out for q in (o if isinstance(o, list) else [o])]   # contact_sheet returns a list of pages
 
 
@@ -672,7 +684,7 @@ def fig_cube_heatmaps(ok, path, domain="line_emission"):
 
 
 # ------------------------------------------------------------------------------------------------ #
-def build_all(map_dir: str, ok, out_dir: str, figure_cases: Optional[Sequence[str]] = None, log=print) -> List[str]:
+def build_all(map_dir: str, ok, out_dir: str, figure_cases: Optional[Sequence[str]] = None, log=print, top_k: Optional[int] = 16, extra: bool = False) -> List[str]:
     """Every figure, written to `out_dir`. `ok` is the scored-rows DataFrame. Returns the paths."""
     os.makedirs(out_dir, exist_ok=True)
     paths: List[str] = []
@@ -694,7 +706,7 @@ def build_all(map_dir: str, ok, out_dir: str, figure_cases: Optional[Sequence[st
             log(f"  no saved maps for {case}: skipped")
             continue
         rows = _rows_for(ok, case)
-        got = sheets_for_case(case, ref, arts, rows, out_dir)
+        got = sheets_for_case(case, ref, arts, rows, out_dir, top_k=top_k, extra=extra)
         log(f"  {case}: {len(arts)} checkpoint(s) -> {len(got)} figure(s)")
         paths += got
     return paths

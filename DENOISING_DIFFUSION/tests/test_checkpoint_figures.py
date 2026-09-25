@@ -61,7 +61,12 @@ with tempfile.TemporaryDirectory() as d:
                              gradE_ratio=0.6 + 0.1 * i, lapvar_ratio=1, invented_blobs=0.3 * i, overshoot=1.0, dirty_resid_r=0.7))
     df = pd.DataFrame(rows)
     out = os.path.join(d, "out")
-    paths = cf.build_all(md, df, out, figure_cases=None, log=lambda *a: None)
+    paths = cf.build_all(md, df, out, figure_cases=None, log=lambda *a: None, extra=True)   # every figure kind
+    lean = cf.build_all(md, df, out + '_lean', figure_cases=None, log=lambda *a: None)   # the default, lean set
+    kinds = {os.path.basename(q) for q in lean}
+    check('default build is the lean set: no chan / sharpness / invented / err_M0 sheets, but the core disk sheets are there',
+          not any(k in n for n in kinds for k in ('_chan', '_sharpness', '_invented', '_err_M0')) and any('_M1' in n for n in kinds) and any('_err_M1' in n for n in kinds)
+          and any('wiggle_classic' in n for n in kinds) and len(lean) < len(paths))
     names = sorted(os.path.basename(p) for p in paths)
     for need in ("nb16_table_line_emission.png", "nb16_scoreboard_line_emission.png", "nb16_table_sg.png", "nb16_per_cube.png",
                  "nb16_sheet_synthetic_case_M0.png", "nb16_sheet_synthetic_case_M1.png", "nb16_sheet_synthetic_case_M2.png",
