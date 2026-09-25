@@ -1,0 +1,47 @@
+"""
+Plain script: PYTHONPATH=. python3 tests/test_checkpoint_eval.py
+
+Fast checks on src/evaluation/checkpoint_eval.py that need no GPU and no data cubes: naming, discovery, and that
+`describe` reads architecture from a checkpoint's own metadata. The full-cube validation (winner_aug_seed43 on
+run_0002_00560_rt_00 reproducing the published v20 M0 +31.3 / M1 +77.2 / M2 +84.6) takes ~4 minutes on CPU and is
+recorded in PROGRESS.md 2026-09-25 rather than run here.
+"""
+import os, sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from src.evaluation import checkpoint_eval as ce
+
+fails = []
+def check(name, cond):
+    print(("  OK    " if cond else "  FAIL  ") + name)
+    if not cond: fails.append(name)
+
+# labels keep the seed (it is identity) and drop only the notebook prefix and extension
+check("label nb05 pth", ce.label_of("/x/nb05_winner_starlet_ft_seed42.pth") == "winner_starlet_ft_seed42")
+check("label nb13 pth.tar", ce.label_of("nb13_ddpm_l1_ft.pth.tar") == "ddpm_l1_ft")
+check("label best_models ckpt", ce.label_of("winner_aug_seed43.ckpt") == "winner_aug_seed43")
+check("source nb05", ce.source_of("nb05_x.pth") == "nb05")
+check("source best_models", ce.source_of("winner_aug_seed43.pth") == "best_models")
+check("train size from label", [ce._train_size(l) for l in ("winner_aug_res320_seed43", "winner_aug_res480_seed43", "winner_aug_native600_seed43", "winner_mae_ft_seed42")] == [320, 480, 600, 256])
+
+root = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models", "best_models")
+if os.path.isdir(root):
+    found = ce.discover([root])
+    check("discover finds the best_models", {"winner_aug_seed43", "kin_gamma0", "sg_k3_fresh", "ddpm_seed42", "ddrm_prior"} <= set(found))
+    try:
+        import torch  # noqa: F401
+        want = {"winner_aug_seed43": ("unet", "unet", 1, 1), "kin_gamma0": ("unet", "stack_kin", 31, 31),
+                "sg_k3_fresh": ("unet", "stack_sg", 7, 1), "ddpm_seed42": ("diffusion", "ddpm", 1, 1),
+                "ddrm_prior": ("diffusion", "ddrm", 1, 1)}
+        for label, (kind, fam, i, o) in want.items():
+            s = ce.describe(found[label])
+            check(f"describe {label}: {kind}/{fam} {i}->{o}", (s.kind, s.family, s.in_channels, s.out_channels) == (kind, fam, i, o))
+        check("ddrm is not scored, with a reason", not ce.describe(found["ddrm_prior"]).supported and ce.describe(found["ddrm_prior"]).why_not)
+        check("K from in_channels", ce.describe(found["kin_gamma0"]).K == 15 and ce.describe(found["sg_k3_fresh"]).K == 3)
+    except ImportError:
+        print("  SKIP  describe (torch not installed)")
+else:
+    print("  SKIP  discovery (models/best_models not present)")
+
+print("\nPASSED" if not fails else f"\nFAILED: {fails}")
+sys.exit(1 if fails else 0)

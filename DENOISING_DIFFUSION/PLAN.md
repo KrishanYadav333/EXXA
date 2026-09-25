@@ -82,6 +82,8 @@ Friday meetings: Sep 25, Oct 2, Oct 9, Oct 16, Oct 23, Oct 30.
 
 ### Oct 1 to 7: answer asks 2 and 4
 
+Notebook 16 (`16-checkpoint-evaluation.ipynb`) does the scoring: every checkpoint, the same checks, the same cubes.
+
 - Score moments for `winner_aug_res480` and `res320` on the 5 holdout cubes, same metric as every other row.
   That is the real answer to ask 2.
 - Moments for `winner_gradient_ft`, and for the p10 / beam loss arms as they finish.

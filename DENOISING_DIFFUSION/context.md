@@ -77,6 +77,10 @@ submitted; final submission window ahead).
     resolution arms. Those were restored to winner_aug_seed43's recipe (D4 aug, seed 43,
     from scratch) on 09-24 after `1832c54` had silently reverted it; the v30-v34
     `winner_res*` numbers are the old recipe.
+  - `16-checkpoint-evaluation.ipynb` (added 2026-09-25, not yet run on Kaggle): one protocol for every checkpoint,
+    `src/evaluation/checkpoint_eval.py`. Pixel, moments, wiggle, sharpness, artifacts, figures, cross-domain, headroom,
+    on the 5 line-emission holdouts plus two SG cases. Validated: `winner_aug_seed43` on `run_0002_00560_rt_00` gives
+    M0 +31.3 / M1 +77.2 / M2 +84.6, identical to v20. DDRM not scored. See PROGRESS.md 2026-09-25.
   - `14-native600-loss-sweep.ipynb`: **branch `native600-loss-sweep` only**, isolated from
     `midterm-prep` on purpose. Every 05 and 13 scenario retrained at native 600x600 (DDPM at
     608, the nearest size its 5-level U-Net can halve cleanly). Not yet run.

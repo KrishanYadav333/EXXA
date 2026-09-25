@@ -9,6 +9,42 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-25 | added | 16-checkpoint-evaluation.ipynb: one protocol for every checkpoint, validated against v20
+
+Until now every checkpoint family had its own scoring script and preprocessing (`score_08_kinematic.py`,
+`wiggle_domain_split.py`, `score_sg_wiggle.py`, `m1_rendering_audit.py`), so no two checkpoints had ever been
+put through the same checks on the same cubes, and none of the loss-sweep arms had been scored beyond PSNR (13's)
+or beyond moments (05's). `src/evaluation/checkpoint_eval.py` gives every checkpoint one interface (single channel,
+31-channel stack, 7-channel stack, beam-conditioned U-Net, conditional DDPM) and runs the same battery, composing only
+functions that already have published numbers: pixel PSNR/SSIM, `moment_improvement` (M0/M1/M2), the quadratic-M1
+Keplerian wiggle against one shared geometry per cube, gradient-energy and Laplacian sharpness of raw M1 as a ratio to
+clean, `channel_artifacts` (invented blobs, overshoot, floor leak), the moment-map panel, and the (dirty resid_r, gain)
+pair for the headroom scatter. Cross-domain transfer needs no separate code: a line-emission checkpoint on an SG case, and
+the reverse, is the same call. Cases: the 5 line-emission holdouts, the SG v2 cube (channels 240-360), and the SG holdout
+`run_9074_00025_rt_00` (inclination fixed at 20 deg). Resumable, row persisted the moment it exists.
+
+**Validated before trusting it.** On `run_0002_00560_rt_00`, full 201 channels, `winner_aug_seed43` scores **M0 +31.3,
+M1 +77.2, M2 +84.6**, identical to v20's published per-cube numbers for `sweep_winner_aug` seed 43 on that cube. (A first run
+on a 60-channel slice gave M0 -60.8 / M1 -76.0: it cut the line. A slice is not a smoke test for moments.)
+
+**Not yet run on Kaggle.** Local smoke test only: four families (aug43, kin_gamma0, sg_k3_fresh, winner_beam) on 60 channels of
+one cube, plus the full-cube validation above (~3.5 min CPU for one checkpoint on one cube). Timing on a T4 is unmeasured.
+Estimate, to be replaced by the first session's printed timings: inference is seconds per cube, but moment maps and artifact
+counting are CPU-side, so roughly a minute or two per (checkpoint, cube) and several hours for the full ~40 checkpoints x 7
+cases, across sessions.
+
+**Limits, all stated in the notebook.** DDRM is not scored (it restores through the beam operator, not wired into this
+protocol) and is listed with that reason; DDPM runs on one cube only (sampling is ~100x a U-Net forward), 25 steps, one draw.
+Every case is continuum-subtracted, so the SG-trained family (trained without it) sees the closest available input on
+line-emission cubes. PSNR here is per channel on the dirty-scale normalisation over the holdout cubes, not the 256px validation
+set behind the PSNR in 05's tables, so the two are not comparable. SSIM is on every 2nd channel. `val_loss` is never compared
+(RULES.md #4). Tables give spread across cubes, not seeds (RULES.md #6).
+
+One thing already visible on the validation cube: dirty's own wiggle correlation is 0.996 there, so no model can gain on it,
+the headroom effect again. `tests/test_checkpoint_eval.py` covers naming, discovery and architecture detection.
+
+---
+
 ## 2026-09-25 | plan | PLAN.md rewritten around what Jason asked for, plus the ML4SCI org deadlines
 
 The 2026-09-10 plan was built on our own reading of what mattered, and by 2026-09-24 its Block 2 had become a
