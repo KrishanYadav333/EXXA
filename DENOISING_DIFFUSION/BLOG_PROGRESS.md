@@ -26,11 +26,18 @@ All arms start from the same best U-Net recipe (base 48, augmented views). "Fine
 - **Fresh arms are unaffected** (they have a clean control): from scratch they still beat the plain baseline on M1 by 10 to 22 points and on M2 by 50 to 70.
 - **PSNR does not rank.** The arm fed one neighbouring spectral channel has the best PSNR (42.59) and the worst M2 (40.5); two neighbours (42.81) are no better.
 
-## 2. Less downsampling (ask 2): partly answered
+## 2. Less downsampling (ask 2)
 
-Scored at its own 320 px, the 320 model is poor: M0 is strongly negative on 2 of 5 cubes (-114, -114) and its validation PSNR (37.36) is the lowest of any arm, so 320 px did
-not help (one seed). The 480 px model is trained but its scoring ran out of GPU memory at that resolution; that is fixed and it re-scores next. Earlier 320/480 rows scored at
-256 px were invalid and are not quoted.
+Each resolution model scored at its own size, one seed each, against the 256 px baseline (3 seeds; M0 29.2 ± 7.2, M1 74.0 ± 2.0, M2 55.0 ± 13.9):
+
+| model | PSNR (dB) | M0 | M1 | M2 |
+|---|---|---|---|---|
+| 320 px | 37.36 | -17.8 | 48.0 | -3.9 |
+| 480 px | 40.18 | 39.7 | 73.5 | 67.3 |
+
+320 px is worse, and fails on 2 of 5 cubes. 480 px matches 256 (M1 the same, M0 and M2 higher by less than one seed spread), so **less downsampling did not give an established gain.**
+The 320 result being worse than 256 while 480 is not is not monotonic, so a second seed is needed before concluding anything about resolution itself. Full 600 px models exist (notebook 14) and are
+being scored next.
 
 ## 3. A correction to earlier wiggle numbers
 

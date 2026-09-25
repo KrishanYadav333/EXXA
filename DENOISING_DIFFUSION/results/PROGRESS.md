@@ -9,6 +9,27 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-09-25 | run | 05 v47: 320 and 480 px scored at their own size; ask 2 answered for the aug recipe, one seed each
+
+Clean scoring-only session (no training, 38 checkpoints restored, fixes live at `499030b`). Means over 5 holdout cubes, clipped + signal-masked, one seed per resolution arm
+against a 256 px baseline whose spread is across 3 seeds:
+
+| arm | PSNR | M0 | M1 | M2 |
+|---|---|---|---|---|
+| aug at 256 (3 seeds) | 39.30 | 29.2 +/-7.2 | 74.0 +/-2.0 | 55.0 +/-13.9 |
+| aug at 320 | 37.36 | -17.8 | 48.0 | -3.9 |
+| aug at 480 | 40.18 | 39.7 | 73.5 | 67.3 |
+
+**Reading.** 320 is clearly worse: M1 26 points and M2 59 points under the baseline, and 2 of 5 cubes fail outright (M0 -114 and -114). 480 is level with 256: M1 the same,
+M0 +10 and M2 +12, both inside one seed spread of the baseline (7.2 and 13.9), so **no established gain from less downsampling at 480**. The 320 failure being worse than 256
+while 480 is not is not monotonic in resolution, which points at this one seed (or the 320 recipe) rather than at resolution itself; a second seed would settle it. Native 600 px
+is not in 05 (gated, never trained); the only 600 px models are notebook 14's three, scored in notebook 16.
+**Published numbers it touches:** the 2026-09-25 rows for `winner_aug_res320`/`res480` (scored at 256 in v42/v43) are superseded; BLOG_PROGRESS.md section 2 updated. Notebook 16 had a
+second version of the same defect for 14's arms (label `sweep_winner_600` read as 256); fixed in `_train_size`.
+**Archived:** `results/05-unet-line-emission/v47_2026-09-25_773b0ce/`. Versions 45 and 46 are not in git.
+
+---
+
 ## 2026-09-25 | added | notebook 16 set to a QUICK first run: 3 cases, ~25 checkpoints
 
 Full inventory (~65 scoreable checkpoints) x 7 cases is ~455 rows; the only timing is the local CPU preview (230 to 275 s per row), so a full run is a guess of 15 to 30 h

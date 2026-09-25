@@ -77,8 +77,8 @@ submitted; final submission window ahead).
     resolution arms. Those were restored to winner_aug_seed43's recipe (D4 aug, seed 43,
     from scratch) on 09-24 after `1832c54` had silently reverted it; the v30-v34
     `winner_res*` numbers are the old recipe.
-    **05 status as of v44 (2026-09-25, failed at scoring):** 28 arms trained (both control arms done, checkpoints only in v44's failed Output); only the res480/native600 scoring
-    remains (OOM fixed). The v42 res320/res480 moment rows are INVALID (scored at 256 px); res320 is now valid, res480 still needs a run. See PROGRESS.md 2026-09-25.
+    **05 status as of v47 (2026-09-25):** all 38 arms trained and scored; nothing left to train in 05 (`winner_aug_native600` stays gated). res320/res480 now scored at their own size
+    (v47: 320 worse, 480 level with 256, one seed each). The v42/v43 res rows are superseded. See PROGRESS.md 2026-09-25.
   - `16-checkpoint-evaluation.ipynb` (added 2026-09-25, not yet run on Kaggle): one protocol for every checkpoint,
     `src/evaluation/checkpoint_eval.py`. Pixel, moments, wiggle, sharpness, artifacts, figures, cross-domain, headroom,
     on the 5 line-emission holdouts plus two SG cases; every comparison also as images (`checkpoint_figures.py`: ~20 side-by-side
