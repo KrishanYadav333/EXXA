@@ -103,7 +103,7 @@ def contact_sheet(panels, *, title, path, cmap, vlim, cbar_label, ncols=7, tile=
     n = len(panels)
     ncols = min(ncols, max(1, n))
     nrows = int(math.ceil(n / ncols))
-    fig, axes = plt.subplots(nrows, ncols, figsize=(ncols * tile, nrows * (tile + 0.34) + 0.7), squeeze=False)
+    fig, axes = plt.subplots(nrows, ncols, figsize=(max(11.0, ncols * tile), nrows * (tile + 0.34) + 0.7), squeeze=False)   # >= 11 in so a title always fits
     cm = plt.get_cmap(cmap).copy()
     cm.set_bad("#111111")
     for ax in axes.ravel():
@@ -341,7 +341,7 @@ def _extra_views(case, ref, arts, labels, rows, base, sl, mk):
     lo, hi = float(np.percentile(cc, 0.1)), float(np.percentile(cc, 99.95))
     n = 1 + len(labels)
     ncols = min(7, n); nrows = int(math.ceil(n / ncols))
-    fig, axes = plt.subplots(nrows, ncols, figsize=(ncols * 2.15, nrows * 2.45 + 0.6), squeeze=False)
+    fig, axes = plt.subplots(nrows, ncols, figsize=(max(11.0, ncols * 2.15), nrows * 2.45 + 0.6), squeeze=False)
     for a in axes.ravel(): a.axis("off")
     tiles = [("DIRTY", ref["dirty_chan"][1].ravel(), "#777")] + [(f"{short(l)}", arts[l]["chan"][1].ravel(), col(l)) for l in labels]
     for a, (t, y, c) in zip(axes.ravel(), tiles):
@@ -350,8 +350,8 @@ def _extra_views(case, ref, arts, labels, rows, base, sl, mk):
         a.plot([lo, hi], [lo, hi], color="w", lw=.8)
         sl_ = float(np.polyfit(cc, y, 1)[0])
         a.set_title(f"{t}\nslope {sl_:.2f}", fontsize=6.4); a.tick_params(labelsize=5)
-    fig.suptitle(f"{case}{_amp_note(ref)}: calibration at the systemic channel, denoised (y) against clean (x). On the white line = exact; below it = "
-                 f"peaks shrunk (smoothing); a wide cloud = noise or invented structure. slope < 1 = amplitude compressed.", fontsize=8.5)
+    fig.suptitle(f"{case}{_amp_note(ref)}: calibration at the systemic channel, denoised (y) vs clean (x). On the line = exact; below = peaks "
+                 f"shrunk (smoothing); wide = noise.", fontsize=8.5)
     fig.tight_layout(rect=(0, 0, 1, 0.96)); p = f"{base}_calibration.png"; fig.savefig(p, dpi=105); plt.close(fig); out.append(p)
 
     # ---- error histograms at the systemic channel ----
