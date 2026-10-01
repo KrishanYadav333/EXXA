@@ -24,6 +24,7 @@ import platform
 import shutil
 import subprocess
 import time
+import zipfile
 from typing import Dict, Iterable, List, Optional, Sequence
 
 # Where a notebook's files might be found. Kaggle notebooks write some artifacts to the
@@ -109,6 +110,7 @@ def collect_outputs(
     version: Optional[int] = None,
     move: bool = False,
     verbose: bool = True,
+    zip_patterns: Sequence[str] = (),
 ) -> str:
     """
     Copy this notebook's artifacts into a versioned run folder and write a manifest.
@@ -122,6 +124,15 @@ def collect_outputs(
         root: destination root. Defaults to /kaggle/working/outputs on Kaggle (top level,
             so the bundle is unambiguously part of the notebook Output and is not buried
             in the 5000-file git clone) and ../results locally.
+        zip_patterns: extra glob patterns (typically checkpoints, e.g. 'nb05_*.pth') to
+            fold into the run's zip on top of everything `patterns` collected. `run_dir`
+            itself is always zipped, regardless of this argument, so the whole run is one
+            click to download even with zip_patterns left empty. These extra files are
+            NOT copied into `run_dir` (they already sit individually in /kaggle/working,
+            which is why `patterns` usually excludes them -- copying would just duplicate
+            large checkpoints inside the same Output); they are only added into the zip.
+            On Kaggle the zip is written at the top level of /kaggle/working as
+            `<notebook_id>_outputs.zip`. Locally it is written next to `run_dir`.
         roots: directories to search for the artifacts.
         extra: anything else worth recording -- key config, headline metrics.
         version: Kaggle version number, if known. Prefixes the run folder with 'v<N>_'.
@@ -201,4 +212,25 @@ def collect_outputs(
             print(f"   {v['bytes'] / 2**20:8.2f} MiB  {n}")
         if missing:
             print(f"   NOT FOUND (not written this run?): {missing}")
+
+    ckpts = _resolve(zip_patterns, roots) if zip_patterns else {}
+    zip_dir = os.path.dirname(root) if on_kaggle else os.path.dirname(run_dir)
+    zip_path = os.path.join(zip_dir, f"{notebook_id}_outputs.zip")
+    zip_bytes = 0
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+        for name, info in files.items():
+            zf.write(os.path.join(run_dir, name), arcname=name)
+            zip_bytes += info["bytes"]
+        zf.write(os.path.join(run_dir, "manifest.json"), arcname="manifest.json")
+        for name, src in sorted(ckpts.items()):
+            zf.write(src, arcname=name)
+            zip_bytes += os.path.getsize(src)
+    if verbose:
+        missing_ckpts = [p for p in zip_patterns
+                          if not any(_glob.fnmatch.fnmatch(n, p) or n == p for n in ckpts)]
+        print(f"zipped {len(files) + len(ckpts) + 1} file(s), "
+              f"{zip_bytes / 2**20:.1f} MiB -> {zip_path}")
+        if missing_ckpts:
+            print(f"   NOT FOUND for zip (not written this run?): {missing_ckpts}")
+
     return run_dir

@@ -9,6 +9,20 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-10-02 | added | collect_outputs() now zips each run for one-click download
+
+`zip_patterns` kwarg added to `collect_outputs()`: `run_dir` is always zipped
+(`<notebook_id>_outputs.zip` at the top of `/kaggle/working`), and an optional
+extra glob (checkpoints, which `patterns` deliberately excludes to avoid
+duplicating them loose in Output) is folded into the same zip without being
+copied into `run_dir`. Wired into notebooks 05 (`zip_patterns=['nb05_*.pth']`)
+and 13 (`zip_patterns=['nb13_*.pth']`) on this branch, and 14
+(`zip_patterns=['nb14_*.pth']`) on `native600-loss-sweep`. Notebook 16 needed
+no notebook-side change — it already only writes CSVs/PNGs via `patterns`, so
+the always-zip behavior covers it from the shared helper alone.
+
+---
+
 ## 2026-09-25 | plan | notebook 16 runs 2 and 3
 
 **Run 2 (next):** the 9 image-chosen checkpoints plus every resolution arm (`winner_aug_res320` s43, `winner_res320` s42, `winner_aug_res480` s43, `sweep_winner_600`, `sweep_winner_aug_600`,
