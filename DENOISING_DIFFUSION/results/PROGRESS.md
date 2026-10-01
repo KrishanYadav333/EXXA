@@ -9,6 +9,15 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-10-02 | added | collect_outputs() now zips each run for one-click download
+
+Cherry-picked from `midterm-prep` (commit `5b04466`): `zip_patterns` kwarg on
+`collect_outputs()` folds checkpoints into the run's zip without duplicating
+them loose in Output, and `run_dir` is now always zipped regardless. Wired
+into notebook 14 (`zip_patterns=['nb14_*.pth']`).
+
+---
+
 ## 2026-09-25 | run | 14 native-600px sweep: 3 of 56 arms done in three sessions, about 3 h each
 
 Kaggle ran notebook 14 three times on this branch (Versions 2, 4, 6, archived under `results/14-native600-loss-sweep/`), each
