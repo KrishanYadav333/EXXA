@@ -9,6 +9,47 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-10-08 | bug + fix | 14 v7 died of host RAM at epoch 15 of `winner_patch_600`; watchdog, allocator tuning, pinned memory off
+
+**What went wrong (archived: `results/14-native600-loss-sweep/v7_2026-10-02_failed_host_ram/`).** v7 restored 5 arms, started
+`winner_patch_600`, and lost 1.9 to 2.0 GB of available host RAM every epoch (26.2 GB free after epoch 1, 1.0 GB after epoch 14, epoch
+time flat at ~205 s). The kernel was killed at epoch 15, then sat dead until Kaggle ended the session 4.5 h later. Nothing from the arm
+was saved. ~4.8 GPU hours for zero arms. The earlier sessions (v2/v4/v6, 0.2 to 0.3 GB/epoch on the non-patch views) only survived
+because the cap of one arm per session kept each arm under the cliff.
+
+**What is known about the cause, and what is not.** 05 v38 (PROGRESS.md 2026-09-24, midterm-prep) measured it in the MAIN process
+(workers flat), proportional to image size, never returned between arms; `persistent_workers` was refuted as the fix. That
+pattern is allocator behaviour: glibc raises its mmap threshold dynamically after the first large free, so later batch buffers come
+from heap arenas that are never given back, and the pin-memory thread gets arenas of its own. **This is a hypothesis, not a
+measurement**: it cannot be reproduced off Linux. This branch's `sweep.py` also predates the `main/workers/cache` split that
+midterm-prep has, so v7's log cannot say which column grew; the split is merged in now, so the next run will.
+
+**Changes (`src/training/sweep.py`, `14-native600-loss-sweep.ipynb`; no change to what any arm computes):**
+1. `_malloc_tune()` before the DataLoaders fork: `mallopt(M_MMAP_THRESHOLD, 1 MiB)` (fixed, which disables the dynamic raise) and
+   `M_ARENA_MAX=2`. `_malloc_trim()` at every epoch end. Linux only; no-op elsewhere.
+2. **RAM watchdog**, `train_unet(min_free_ram_gb=1.5)`: at each epoch end, if free RAM minus 1.5x the last epoch's loss would fall below
+   the limit, stop, keep the best epoch's weights, save the checkpoint, and record `ram_guard` (stopped epoch, free GB, GB/epoch) in the
+   checkpoint, the returned dict and the CSV. The arm is UNDER-TRAINED and must not be ranked against arms that ran to patience.
+   Tested off-Kaggle with faked RAM readings (`tests/test_ram_guard.py`: stops a leaking run at epoch 4, healthy run unaffected,
+   guard off and no-/proc are no-ops).
+3. `EXXA_NO_PIN=1` in the notebook: pinned memory off (a 6 to 8 image batch is ~15 MB, nothing to gain).
+4. CSVs gain a `ram_guard` column; `_migrate_csv` rewrites the restored `nb14_loss_sweep.csv`, `nb14_kin_loss_sweep.csv` and
+   `nb14_sg_loss_sweep.csv` headers so old and new rows share one. The diffusion sections (5, 6) use a different trainer and have
+   no guard; they have never run.
+
+**What would show the fix worked.** The next epoch lines print `main / workers / cache`; `main` should be flat to ~0.1 GB/epoch.
+If it still climbs ~2 GB/epoch the allocator hypothesis is wrong, the guard will still end the arm cleanly at ~13 epochs, and the
+column that grows says where to look. The arm cap stays at 1 until a session shows a flat `main`.
+
+**Other things this entry corrects.** The notebook header says 56 arms; the code defines 60 (8 core + 24 U-Net loss arms + 8 kin + 8 sg
++ 8 ddpm + 4 ddrm). 5 are done (`sweep_winner_600`, `sweep_winner_aug_600`, `sweep_winner_p10_600`, `v12_cfg_600`, `winner_beam_600`).
+At ~3 h an arm the 2026-09-25 estimate (about 170 GPU hours) still stands; the wiggle ceiling from native 600 is +0.029
+(context.md, Phase J), so this notebook remains optional.
+
+*Published numbers this touches:* none.
+
+---
+
 ## 2026-10-02 | added | collect_outputs() now zips each run for one-click download
 
 Cherry-picked from `midterm-prep` (commit `5b04466`): `zip_patterns` kwarg on

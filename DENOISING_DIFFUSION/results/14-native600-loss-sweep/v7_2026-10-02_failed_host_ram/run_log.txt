@@ -1,0 +1,33 @@
+# Kaggle Version 7 of 14-native600-loss-sweep, pushed 2026-10-02 from code ba69ebe.
+# Trimmed from the Kaggle log: git-clone progress lines ("Updating files: N%") removed, nothing else edited.
+# The executed notebook itself is NOT archived: Kaggle's API returns source only, and the version died before saving outputs
+# (RULES.md #10: what survived is this log and the error).
+
+91.4s   HEAD is now at ba69ebe feat: collect_outputs() zips each run for one-click download
+108.1s  [nb14 prior] restored 5 checkpoint(s) and 1 CSV(s) from a prior Output
+108.1s  device: cuda | GPUs: 2 | native size: 600 | losses: ['mae', 'wavelet', 'starlet', 'gradient']
+112.6s  600px line-emission: train 700 | val 200
+112.6s    aug: 700 (8 orientations) | patch: 44,800 | k1: 700 | k2: 700
+112.6s  --- sweep_winner_600: SKIPPED, already done ---
+112.6s  --- sweep_winner_aug_600: SKIPPED, already done ---
+112.6s  --- sweep_winner_p10_600: SKIPPED, already done ---
+112.6s  --- v12_cfg_600: SKIPPED, already done ---
+112.6s  --- winner_beam_600: SKIPPED, already done ---
+112.6s  === winner_patch_600
+328.4s    ep   1 | train 0.0148 | val 0.0078 | lr 8.2e-04 (210s) | RAM free 26.2/31.3 GB *best
+532.9s    ep   2 | train 0.0133 | val 0.0661 | lr 8.2e-04 (205s) | RAM free 24.3/31.3 GB
+737.0s    ep   3 | train 0.0194 | val 0.0097 | lr 8.2e-04 (204s) | RAM free 22.4/31.3 GB
+943.7s    ep   4 | train 0.0152 | val 0.0064 | lr 8.2e-04 (207s) | RAM free 20.4/31.3 GB *best
+1148.7s   ep   5 | train 0.0146 | val 0.0096 | lr 8.2e-04 (205s) | RAM free 18.5/31.3 GB
+1351.1s   ep   6 | train 0.0139 | val 0.0074 | lr 8.2e-04 (202s) | RAM free 16.5/31.3 GB
+1553.7s   ep   7 | train 0.0130 | val 0.0089 | lr 8.2e-04 (203s) | RAM free 14.6/31.3 GB
+1754.2s   ep   8 | train 0.0121 | val 0.0064 | lr 8.2e-04 (201s) | RAM free 12.7/31.3 GB *best
+1958.4s   ep   9 | train 0.0113 | val 0.0098 | lr 8.2e-04 (204s) | RAM free 10.7/31.3 GB
+2161.3s   ep  10 | train 0.0110 | val 0.0060 | lr 8.2e-04 (203s) | RAM free 8.7/31.3 GB *best
+2364.4s   ep  11 | train 0.0106 | val 0.0078 | lr 8.2e-04 (203s) | RAM free 6.8/31.3 GB
+2566.3s   ep  12 | train 0.0102 | val 0.0093 | lr 8.2e-04 (202s) | RAM free 4.8/31.3 GB
+2769.9s   ep  13 | train 0.0096 | val 0.0061 | lr 8.2e-04 (204s) | RAM free 2.9/31.3 GB
+2976.1s   ep  14 | train 0.0096 | val 0.0078 | lr 8.2e-04 (206s) | RAM free 1.0/31.3 GB
+16248.7s Kernel died while waiting for execute reply.
+16249.8s nbclient.exceptions.DeadKernelError: Kernel died
+16257.0s [NbConvertApp] Writing 476241 bytes to __results__.html

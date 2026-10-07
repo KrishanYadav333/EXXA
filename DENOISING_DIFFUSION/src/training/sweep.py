@@ -44,14 +44,107 @@ LOSS_REGISTRY = {
 }
 
 
+def _libc():
+    try:
+        import ctypes
+        return ctypes.CDLL("libc.so.6")
+    except (OSError, ImportError):
+        return None
+
+
+_MALLOC_TUNED = False
+
+
+def _malloc_tune() -> None:
+    """Stop glibc from fragmenting the heap on image-sized allocations (Linux/Kaggle only).
+
+    Host RAM fell about 0.1 GB/epoch at 256 px and 1.95 GB/epoch at 600 px, in the MAIN
+    process only (workers flat), never came back between arms, and scaled with image size.
+    That is allocator behaviour, not a Python leak: glibc raises its mmap threshold
+    dynamically after the first big free, so later batch buffers come from heap arenas that
+    are never returned to the OS, and the pin-memory thread gets arenas of its own. A fixed
+    1 MiB threshold keeps every image-sized buffer on mmap (returned on free), and
+    M_ARENA_MAX caps the arenas. Must run before the DataLoader forks its workers.
+    """
+    global _MALLOC_TUNED
+    if _MALLOC_TUNED:
+        return
+    _MALLOC_TUNED = True
+    libc = _libc()
+    if libc is not None:
+        try:
+            libc.mallopt(-3, 1 << 20)   # M_MMAP_THRESHOLD
+            libc.mallopt(-8, 2)         # M_ARENA_MAX
+        except Exception:
+            pass
+
+
+def _malloc_trim() -> None:
+    libc = _libc()
+    if libc is not None:
+        try:
+            libc.malloc_trim(0)
+        except Exception:
+            pass
+
+
+def _free_ram_gb():
+    """MemAvailable in GB from /proc/meminfo, or None off Linux."""
+    try:
+        with open("/proc/meminfo") as f:
+            for line in f:
+                if line.startswith("MemAvailable:"):
+                    return int(line.split()[1]) / 1048576
+    except (OSError, ValueError, IndexError):
+        pass
+    return None
+
+
+def _rss_gb(pid) -> float:
+    """VmRSS of one process in GB, 0.0 if it vanished or /proc is unavailable."""
+    try:
+        with open(f"/proc/{pid}/status") as f:
+            for line in f:
+                if line.startswith("VmRSS:"):
+                    return int(line.split()[1]) / 1048576
+    except (OSError, ValueError, IndexError):
+        pass
+    return 0.0
+
+
 def _host_ram_note() -> str:
-    """' | RAM free X/Y GB' from /proc/meminfo (Linux/Kaggle); empty string elsewhere."""
+    """' | RAM free X/Y GB | main A workers B cache C' from /proc (Linux/Kaggle); '' elsewhere.
+
+    05 v38 (2026-09-24) leaked 0.11-0.29 GB per epoch with persistent_workers already on,
+    the same slope as before it, and never gave the memory back between arms. `free` alone
+    cannot say who holds it, so this splits it: `main` is this process, `workers` the sum of
+    its child processes (DataLoader workers), `cache` the kernel page cache. Whichever grows
+    with the epoch number is the leak. `cache` is reclaimable and should not be fatal; `main`
+    or `workers` growing is.
+    """
     try:
         with open("/proc/meminfo") as f:
             kb = {line.split(":")[0]: int(line.split()[1]) for line in f}
-        return f" | RAM free {kb['MemAvailable'] / 1048576:.1f}/{kb['MemTotal'] / 1048576:.1f} GB"
+        note = f" | RAM free {kb['MemAvailable'] / 1048576:.1f}/{kb['MemTotal'] / 1048576:.1f} GB"
     except (OSError, KeyError, ValueError, IndexError):
         return ""
+    try:
+        me = os.getpid()
+        kids = 0.0
+        for entry in os.listdir("/proc"):
+            if not entry.isdigit():
+                continue
+            try:
+                with open(f"/proc/{entry}/stat") as f:
+                    ppid = int(f.read().rsplit(")", 1)[1].split()[1])
+            except (OSError, ValueError, IndexError):
+                continue
+            if ppid == me:
+                kids += _rss_gb(entry)
+        note += f" | main {_rss_gb(me):.1f} workers {kids:.1f} cache {kb['Cached'] / 1048576:.1f}"
+    except (OSError, KeyError):
+        pass
+    return note
 
 
 def _unwrap(m):
@@ -120,6 +213,7 @@ def train_unet(
     latent_dim: int = 128,
     kl_weight: float = 0.0,
     verbose: bool = True,
+    min_free_ram_gb: float = 1.5,
 ):
     """
     Train one config with early stopping; return fixed metrics + history.
@@ -141,6 +235,13 @@ def train_unet(
             in_channels to match. Mismatched values fail on the first batch. 0 (default)
             leaves every existing config unchanged.
         latent_dim: VAE only -- channels in the latent map.
+        min_free_ram_gb: host-RAM watchdog (Linux only; 0 disables). At each epoch end, if
+            MemAvailable minus 1.5x the last epoch's loss would fall below this, stop the
+            arm, keep the best-epoch weights, and record `ram_guard` in the checkpoint and the
+            result. A kernel that dies from RAM exhaustion can sit dead for hours before
+            Kaggle gives up (nb14 v7: 4.5 h), and loses the arm; this loses only the epochs
+            it could not afford. An arm stopped this way is under-trained and is NOT
+            comparable to one that ran to its patience.
         kl_weight: VAE only -- weight on the KL term. Ignored by architectures
             with no extra loss, so a single sweep driver can pass it blindly.
 
@@ -201,7 +302,8 @@ def train_unet(
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode="min", factor=0.5, patience=sched_patience)
 
-    pin = n_gpu > 0
+    _malloc_tune()
+    pin = n_gpu > 0 and os.environ.get("EXXA_NO_PIN", "0") != "1"
     # persistent_workers: without it (the default), DataLoader tears down and respawns
     # every worker process at the end of EVERY epoch's iteration, for both loaders. Two
     # Kaggle sessions (2026-09-20) died of host RAM exhaustion mid-arm with a steady,
@@ -241,6 +343,7 @@ def train_unet(
     best_val, best_epoch, best_state = float("inf"), -1, None
     epochs_no_improve = 0
     tr_hist, va_hist = [], []
+    ram_guard, prev_free = None, None
     t_start = time.time()
 
     for ep in range(1, max_epochs + 1):
@@ -267,6 +370,20 @@ def train_unet(
             print(f"  ep {ep:>3} | train {tr:.4f} | val {va:.4f} | "
                   f"lr {optimizer.param_groups[0]['lr']:.1e} ({time.time()-t0:.0f}s)"
                   f"{_host_ram_note()}{mark}", flush=True)
+
+        _malloc_trim()
+        free = _free_ram_gb()
+        if free is not None and min_free_ram_gb > 0:
+            grew = max(0.0, prev_free - free) if prev_free is not None else 0.0
+            prev_free = free
+            if free - 1.5 * grew < min_free_ram_gb:
+                ram_guard = {"stopped_epoch": ep, "free_gb": round(free, 2),
+                             "growth_gb_per_epoch": round(grew, 2)}
+                if verbose:
+                    print(f"  RAM GUARD: {free:.1f} GB free, losing {grew:.2f} GB/epoch -> "
+                          f"stopping at epoch {ep}, keeping best epoch {best_epoch}. UNDER-TRAINED, "
+                          f"not comparable to arms that ran to patience.", flush=True)
+                break
 
         if ep >= min_epochs and epochs_no_improve >= patience:
             if verbose:
@@ -296,7 +413,8 @@ def train_unet(
                         "out_channels": out_channels,
                         "kinematic_gamma": kinematic_gamma,
                         "beam_dim": 4 if use_beam else 0,
-                        "latent_dim": latent_dim, "kl_weight": kl_weight},
+                        "latent_dim": latent_dim, "kl_weight": kl_weight,
+                        "ram_guard": ram_guard},
                        ckpt_path)
 
     metrics = val_metrics(model, val_loader, device, use_beam=use_beam, arch=arch)
@@ -308,6 +426,7 @@ def train_unet(
         "train_losses": tr_hist,
         "val_losses": va_hist,
         "wall_time_s": time.time() - t_start,
+        "ram_guard": ram_guard,
         **metrics,
     }
 
