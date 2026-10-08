@@ -44,8 +44,12 @@ obvious suspect); the fix does not need it.
 3. Removed again: glibc `mallopt`/`malloc_trim` and `EXXA_NO_PIN` (added in `af13d05`, shown not to matter).
 4. The `main/workers/cache` split in `_host_ram_note()` was merged from midterm-prep and stays.
 
-**Not yet verified:** that a rerun of `winner_patch_600` on one GPU is flat on Kaggle (the probe says it will: single-GPU slope +0 MB per
-1,000 iterations over 6,000), and that single-GPU speed is acceptable for 64 px tiles.
+**Verified on Kaggle, Version 12 (`results/14-native600-loss-sweep/v12_2026-10-08_a0422fa/`):** `winner_patch_600` on one GPU ran 25 epochs to
+its own early stop with free RAM 28.6 -> 28.5 GB and main RSS flat at 1.6 GB (Version 11, DataParallel on: 26.3 -> 3.0 GB over 13 epochs), at
+147 s/epoch against 205 to 250 s with DataParallel, status COMPLETE. Result PSNR 30.1802, SSIM 0.9886 on the 600 px validation images
+(the weakest 600 px arm, as the patch view was in 05). Validation loss jumps from epoch 20 (0.0029 -> 0.04 to 0.06) while training loss keeps
+falling; early stopping kept epoch 17, so the checkpoint is fine, but the patch arm is unstable at lr 8.2e-4 on a 64 px-train, 600 px-validate
+setup. 6 of 60 arms done. Full-image arms are unchanged (DataParallel on, ~0.25 GB/epoch, bounded).
 
 **Also corrected here.** The notebook header says 56 arms; the code defines 60 (8 core + 24 U-Net loss arms + 8 kin + 8 sg + 8 ddpm
 + 4 ddrm). 5 are done; `winner_patch_600` was the 6th and its v11 checkpoint came from an ERROR version, so it is not restorable.

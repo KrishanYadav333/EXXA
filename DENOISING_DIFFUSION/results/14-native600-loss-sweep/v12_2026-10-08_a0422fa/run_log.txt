@@ -1,0 +1,46 @@
+# Kaggle Version 12 of 14-native600-loss-sweep (code a0422fa), trimmed: cell-id warnings and DEFERRED lines removed.
+    86.9s HEAD is now at a0422fa fix(nb14): the host-RAM leak is nn.DataParallel; train small images on one GPU
+    86.9s HEAD is now at a0422fa fix(nb14): the host-RAM leak is nn.DataParallel; train small images on one GPU
+   116.7s [nb14 prior] restored 5 checkpoint(s) and 1 CSV(s) from a prior Output
+   116.7s [csv] nb14_loss_sweep.csv: added columns ['ram_guard']
+   127.5s --- sweep_winner_600: SKIPPED, already done ---
+   127.5s --- sweep_winner_aug_600: SKIPPED, already done ---
+   127.5s --- sweep_winner_p10_600: SKIPPED, already done ---
+   127.5s --- v12_cfg_600: SKIPPED, already done ---
+   127.5s --- winner_beam_600: SKIPPED, already done ---
+   127.5s === winner_patch_600
+   128.2s   [dp] DataParallel OFF (host-RAM leak, small images)
+   312.6s   ep   1 | train 0.0151 | val 0.0076 | lr 8.2e-04 (178s) | RAM free 28.6/31.3 GB | main 1.6 workers 3.9 cache 13.2 *best
+   459.5s   ep   2 | train 0.0097 | val 0.0037 | lr 8.2e-04 (147s) | RAM free 28.6/31.3 GB | main 1.6 workers 3.9 cache 13.2 *best
+   605.2s   ep   3 | train 0.0193 | val 0.0091 | lr 8.2e-04 (146s) | RAM free 28.6/31.3 GB | main 1.6 workers 3.9 cache 13.2
+   751.4s   ep   4 | train 0.0145 | val 0.0070 | lr 8.2e-04 (146s) | RAM free 28.6/31.3 GB | main 1.6 workers 3.9 cache 13.2
+   898.3s   ep   5 | train 0.0112 | val 0.0031 | lr 8.2e-04 (147s) | RAM free 28.6/31.3 GB | main 1.6 workers 3.9 cache 13.2 *best
+  1045.8s   ep   6 | train 0.0102 | val 0.0044 | lr 8.2e-04 (147s) | RAM free 28.6/31.3 GB | main 1.6 workers 3.9 cache 13.2
+  1192.6s   ep   7 | train 0.0103 | val 0.0036 | lr 8.2e-04 (147s) | RAM free 28.4/31.3 GB | main 1.6 workers 3.9 cache 13.2
+  1338.9s   ep   8 | train 0.0095 | val 0.0039 | lr 8.2e-04 (146s) | RAM free 28.4/31.3 GB | main 1.6 workers 3.9 cache 13.2
+  1484.9s   ep   9 | train 0.0091 | val 0.0039 | lr 8.2e-04 (146s) | RAM free 28.4/31.3 GB | main 1.6 workers 3.9 cache 13.2
+  1630.3s   ep  10 | train 0.0096 | val 0.0038 | lr 8.2e-04 (145s) | RAM free 28.4/31.3 GB | main 1.6 workers 3.9 cache 13.2
+  1776.6s   ep  11 | train 0.0088 | val 0.0031 | lr 8.2e-04 (146s) | RAM free 28.4/31.3 GB | main 1.6 workers 3.9 cache 13.2 *best
+  1922.8s   ep  12 | train 0.0093 | val 0.0039 | lr 8.2e-04 (146s) | RAM free 28.4/31.3 GB | main 1.6 workers 3.9 cache 13.2
+  2069.9s   ep  13 | train 0.0084 | val 0.0047 | lr 8.2e-04 (147s) | RAM free 28.5/31.3 GB | main 1.6 workers 3.9 cache 13.2
+  2217.4s   ep  14 | train 0.0086 | val 0.0039 | lr 8.2e-04 (148s) | RAM free 28.4/31.3 GB | main 1.6 workers 3.9 cache 13.2
+  2364.3s   ep  15 | train 0.0084 | val 0.0027 | lr 8.2e-04 (147s) | RAM free 28.5/31.3 GB | main 1.6 workers 3.9 cache 13.2 *best
+  2510.7s   ep  16 | train 0.0083 | val 0.0033 | lr 8.2e-04 (146s) | RAM free 28.5/31.3 GB | main 1.6 workers 3.9 cache 13.2
+  2657.3s   ep  17 | train 0.0082 | val 0.0026 | lr 8.2e-04 (147s) | RAM free 28.5/31.3 GB | main 1.6 workers 3.9 cache 13.2 *best
+  2804.5s   ep  18 | train 0.0081 | val 0.0029 | lr 8.2e-04 (147s) | RAM free 28.5/31.3 GB | main 1.6 workers 3.9 cache 13.2
+  2951.7s   ep  19 | train 0.0082 | val 0.0064 | lr 8.2e-04 (147s) | RAM free 28.5/31.3 GB | main 1.6 workers 3.9 cache 13.2
+  3095.3s   ep  20 | train 0.0080 | val 0.0398 | lr 8.2e-04 (144s) | RAM free 28.5/31.3 GB | main 1.6 workers 3.9 cache 13.2
+  3242.2s   ep  21 | train 0.0078 | val 0.0350 | lr 8.2e-04 (147s) | RAM free 28.5/31.3 GB | main 1.6 workers 3.9 cache 13.2
+  3386.1s   ep  22 | train 0.0077 | val 0.0597 | lr 8.2e-04 (144s) | RAM free 28.5/31.3 GB | main 1.6 workers 3.9 cache 13.2
+  3532.6s   ep  23 | train 0.0078 | val 0.0459 | lr 8.2e-04 (146s) | RAM free 28.5/31.3 GB | main 1.6 workers 3.9 cache 13.2
+  3678.8s   ep  24 | train 0.0075 | val 0.0547 | lr 8.2e-04 (146s) | RAM free 28.5/31.3 GB | main 1.6 workers 3.9 cache 13.2
+  3826.4s   ep  25 | train 0.0079 | val 0.0448 | lr 8.2e-04 (148s) | RAM free 28.5/31.3 GB | main 1.6 workers 3.9 cache 13.2
+  3826.6s   early stop at epoch 25 (no improvement for 6 epochs)
+  3880.3s     [persisted] nb14_winner_patch_600.pth (116 MB) -- winner_patch_600
+  3880.4s   winner_patch_600: PSNR 30.1802 | SSIM 0.9886
+  3903.8s collected 1 file(s), 0.0 MiB -> /kaggle/working/outputs/14-native600-loss-sweep/2026-10-08T074400_a0422fa
+  3938.0s zipped 8 file(s), 567.8 MiB -> /kaggle/working/14-native600-loss-sweep_outputs.zip
+  3945.5s [NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+  3945.9s [NbConvertApp] Writing 87014 bytes to __notebook__.ipynb
+  3948.9s [NbConvertApp] Converting notebook __notebook__.ipynb to html
+  3950.1s [NbConvertApp] Writing 497363 bytes to __results__.html

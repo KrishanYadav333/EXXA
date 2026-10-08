@@ -14,6 +14,25 @@ and wrote their CSVs to the kernel Output tab, which was never downloaded.
 
 ---
 
+## 14-native600-loss-sweep: every U-Net-family arm at native 600 px (branch `native600-loss-sweep` only)
+
+60 arms defined (the notebook header says 56); 6 done. One new arm per session (`MAX_NEW_ARMS_PER_SESSION = 1`). Kaggle versions 8 to 10 are
+not accounted for here. PSNR is on 600 px images and does not compare with 256 px arms.
+
+| Ver | Date | code | outcome | Artifacts |
+|----:|---|---|---|---|
+| 2 | 2026-09-24 | `926d671` | `sweep_winner_600` PSNR 37.19, 25 epochs | [`v2_.../`](14-native600-loss-sweep/v2_2026-09-24_ac41eb9/) |
+| 4 | 2026-09-24 | | `sweep_winner_aug_600` PSNR 35.17, 35 epochs | [`v4_.../`](14-native600-loss-sweep/v4_2026-09-24_8779624/) |
+| 6 | 2026-09-25 | | `sweep_winner_p10_600` PSNR 37.21, 31 epochs | [`v6_.../`](14-native600-loss-sweep/v6_2026-09-25_c7e268b/) |
+| 7 | 2026-10-02 | `ba69ebe` | **FAILED**: host RAM, killed at epoch 15 of `winner_patch_600`, 4.5 h dead, nothing saved | [`v7_.../`](14-native600-loss-sweep/v7_2026-10-02_failed_host_ram/) |
+| 11 | 2026-10-08 | `af13d05` | RAM watchdog stopped `winner_patch_600` at epoch 13 (PSNR 27.40, under-trained); status ERROR from null cell ids, not restorable | [`v11_.../`](14-native600-loss-sweep/v11_2026-10-08_error_cell_ids/) |
+| 12 | 2026-10-08 | `a0422fa` | **`winner_patch_600` PSNR 30.18 SSIM 0.9886**, 25 epochs, RAM flat; the DataParallel fix | [`v12_.../`](14-native600-loss-sweep/v12_2026-10-08_a0422fa/) |
+
+`v12_.../` holds the log and README, not the executed notebook: Kaggle's API returns source only. The leak and its cause:
+`14-native600-loss-sweep/ram_leak_probe_2026-10-08/`. `v12`'s zip is in its Kaggle Output.
+
+---
+
 ## 05 — U-Net line emission (`05_unet_line_emission`)
 
 Full lineage, recovered from every branch (`line-emission`, `midterm-prep`, `week-4`).
