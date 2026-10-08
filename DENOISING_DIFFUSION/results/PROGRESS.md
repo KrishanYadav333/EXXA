@@ -9,42 +9,48 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
-## 2026-10-08 | bug + fix | 14 v7 died of host RAM at epoch 15 of `winner_patch_600`; watchdog, allocator tuning, pinned memory off
+## 2026-10-08 | bug + fix | 14: host-RAM leak is nn.DataParallel (~1.4 MB per iteration); small images now train on one GPU, plus a RAM watchdog
 
-**What went wrong (archived: `results/14-native600-loss-sweep/v7_2026-10-02_failed_host_ram/`).** v7 restored 5 arms, started
-`winner_patch_600`, and lost 1.9 to 2.0 GB of available host RAM every epoch (26.2 GB free after epoch 1, 1.0 GB after epoch 14, epoch
-time flat at ~205 s). The kernel was killed at epoch 15, then sat dead until Kaggle ended the session 4.5 h later. Nothing from the arm
-was saved. ~4.8 GPU hours for zero arms. The earlier sessions (v2/v4/v6, 0.2 to 0.3 GB/epoch on the non-patch views) only survived
-because the cap of one arm per session kept each arm under the cliff.
+**v7 failed (archived: `results/14-native600-loss-sweep/v7_2026-10-02_failed_host_ram/`).** Restored 5 arms, started
+`winner_patch_600`, lost 1.9 to 2.0 GB of host RAM per epoch, the kernel was killed at epoch 15 and sat dead for 4.5 h with nothing
+saved (~4.8 GPU hours, zero arms).
 
-**What is known about the cause, and what is not.** 05 v38 (PROGRESS.md 2026-09-24, midterm-prep) measured it in the MAIN process
-(workers flat), proportional to image size, never returned between arms; `persistent_workers` was refuted as the fix. That
-pattern is allocator behaviour: glibc raises its mmap threshold dynamically after the first large free, so later batch buffers come
-from heap arenas that are never given back, and the pin-memory thread gets arenas of its own. **This is a hypothesis, not a
-measurement**: it cannot be reproduced off Linux. This branch's `sweep.py` also predates the `main/workers/cache` split that
-midterm-prep has, so v7's log cannot say which column grew; the split is merged in now, so the next run will.
+**v11 (fix attempt 1, wrong): allocator tuning + pinned memory off + a RAM watchdog.** The first two were a glibc-fragmentation
+hypothesis from the 05 v38 pattern (main process, workers flat, scales with image size). v11 refuted it: same slope, 1.93 vs
+1.95 GB/epoch. What v11 did establish: its new `main/workers/cache` columns put the leak in the MAIN process (main 3.9 -> 26.7 GB over
+12 epochs, workers flat at 8.1 GB); and the watchdog worked as designed, stopping `winner_patch_600` at epoch 13 with 3.0 GB free,
+keeping the best epoch, persisting the 116 MB checkpoint (PSNR 27.40, SSIM 0.9861 on the 64 px patch view, **under-trained, not
+comparable**) and letting the session carry on instead of dying. The version still ended ERROR, for an unrelated reason: 7 cells in the
+repo notebook had `"id": null` (cells 9, 17 to 22) and Kaggle's post-run nbconvert validation rejects that. Now assigned unique ids.
+
+**Cause found by `tools/ram_leak_probe.py`** (2 Kaggle runs, `results/14-native600-loss-sweep/ram_leak_probe_2026-10-08/`): synthetic
+64 px tiles through the real U-Net, one factor at a time. Main-process growth per 1,000 iterations: loader only +0 MB; single GPU with
+plain MSE +0; single GPU with the real hybrid loss +0; SSIM term alone +0; **DataParallel with the hybrid loss +1,442 MB; DataParallel
+with plain MSE +1,442 MB.** So it is `nn.DataParallel`, about 1.4 MB per iteration, independent of the loss, the loader, shared
+memory and image size. It explains every earlier reading: the patch arm is 5,600 items = 1,400 iterations/epoch (the notebook printed
+"44,800" because it multiplied `len(train_ds_patch)` by `N_PATCHES` a second time; fixed), and 1,400 x 1.4 MB = 1.9 GB/epoch; full-image
+arms run ~175 iterations/epoch, so ~0.25 GB/epoch, which is why v2, v4 and v6 finished (0.2 to 0.3 GB/epoch observed). 05 v38's
+0.11 to 0.29 GB/epoch at 256 to 480 px is the same leak. *Why* DataParallel leaks is not established (per-forward thread creation is the
+obvious suspect); the fix does not need it.
 
 **Changes (`src/training/sweep.py`, `14-native600-loss-sweep.ipynb`; no change to what any arm computes):**
-1. `_malloc_tune()` before the DataLoaders fork: `mallopt(M_MMAP_THRESHOLD, 1 MiB)` (fixed, which disables the dynamic raise) and
-   `M_ARENA_MAX=2`. `_malloc_trim()` at every epoch end. Linux only; no-op elsewhere.
-2. **RAM watchdog**, `train_unet(min_free_ram_gb=1.5)`: at each epoch end, if free RAM minus 1.5x the last epoch's loss would fall below
-   the limit, stop, keep the best epoch's weights, save the checkpoint, and record `ram_guard` (stopped epoch, free GB, GB/epoch) in the
-   checkpoint, the returned dict and the CSV. The arm is UNDER-TRAINED and must not be ranked against arms that ran to patience.
-   Tested off-Kaggle with faked RAM readings (`tests/test_ram_guard.py`: stops a leaking run at epoch 4, healthy run unaffected,
-   guard off and no-/proc are no-ops).
-3. `EXXA_NO_PIN=1` in the notebook: pinned memory off (a 6 to 8 image batch is ~15 MB, nothing to gain).
-4. CSVs gain a `ram_guard` column; `_migrate_csv` rewrites the restored `nb14_loss_sweep.csv`, `nb14_kin_loss_sweep.csv` and
-   `nb14_sg_loss_sweep.csv` headers so old and new rows share one. The diffusion sections (5, 6) use a different trainer and have
-   no guard; they have never run.
+1. `_use_data_parallel(n_gpu, side)`: DataParallel only for images of 256 px and up, where two GPUs help and there are few iterations.
+   64 px patch arms train on one GPU (two GPUs buy nothing on 64 px tiles). `train_unet(data_parallel=...)` or `EXXA_DP=0/1` forces
+   either way. Full-image arms are unchanged and still leak ~0.25 GB/epoch (bounded, they finish), so `MAX_NEW_ARMS_PER_SESSION` stays 1.
+2. RAM watchdog, `train_unet(min_free_ram_gb=1.5)`, kept: at each epoch end, if free RAM minus 1.5x the last epoch's loss would fall
+   below the limit, stop, keep the best weights, save the checkpoint, record `ram_guard` in the checkpoint, the returned dict and a new
+   CSV column (`_migrate_csv` adds it to the restored CSVs). An arm stopped this way is under-trained. `tests/test_ram_guard.py`
+   covers both rules with faked RAM readings and the DataParallel rule.
+3. Removed again: glibc `mallopt`/`malloc_trim` and `EXXA_NO_PIN` (added in `af13d05`, shown not to matter).
+4. The `main/workers/cache` split in `_host_ram_note()` was merged from midterm-prep and stays.
 
-**What would show the fix worked.** The next epoch lines print `main / workers / cache`; `main` should be flat to ~0.1 GB/epoch.
-If it still climbs ~2 GB/epoch the allocator hypothesis is wrong, the guard will still end the arm cleanly at ~13 epochs, and the
-column that grows says where to look. The arm cap stays at 1 until a session shows a flat `main`.
+**Not yet verified:** that a rerun of `winner_patch_600` on one GPU is flat on Kaggle (the probe says it will: single-GPU slope +0 MB per
+1,000 iterations over 6,000), and that single-GPU speed is acceptable for 64 px tiles.
 
-**Other things this entry corrects.** The notebook header says 56 arms; the code defines 60 (8 core + 24 U-Net loss arms + 8 kin + 8 sg
-+ 8 ddpm + 4 ddrm). 5 are done (`sweep_winner_600`, `sweep_winner_aug_600`, `sweep_winner_p10_600`, `v12_cfg_600`, `winner_beam_600`).
-At ~3 h an arm the 2026-09-25 estimate (about 170 GPU hours) still stands; the wiggle ceiling from native 600 is +0.029
-(context.md, Phase J), so this notebook remains optional.
+**Also corrected here.** The notebook header says 56 arms; the code defines 60 (8 core + 24 U-Net loss arms + 8 kin + 8 sg + 8 ddpm
++ 4 ddrm). 5 are done; `winner_patch_600` was the 6th and its v11 checkpoint came from an ERROR version, so it is not restorable.
+At ~3 h an arm the 2026-09-25 estimate (about 170 GPU hours) stands; the wiggle ceiling from native 600 is +0.029 (context.md, Phase J),
+so this notebook stays optional.
 
 *Published numbers this touches:* none.
 

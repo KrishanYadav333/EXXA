@@ -1,0 +1,68 @@
+# v1: A, B, C, E crashed on missing pytorch_msssim; D and F ran
+   66.0s ModuleNotFoundError: No module named 'pytorch_msssim'
+   72.8s ModuleNotFoundError: No module named 'pytorch_msssim'
+   76.7s ModuleNotFoundError: No module named 'pytorch_msssim'
+   79.1s [D] workers=2 dp=False (gpus=2) model=False strategy=None loss=None
+   81.2s [D] it   1000 | free 29.74 | main  0.66 | workers  0.70 | shmem  0.01 |     2s
+   82.7s [D] it   2000 | free 29.70 | main  0.66 | workers  0.70 | shmem  0.01 |     4s
+   84.2s [D] it   3000 | free 29.69 | main  0.66 | workers  0.70 | shmem  0.01 |     5s
+   85.8s [D] it   4000 | free 29.74 | main  0.66 | workers  0.70 | shmem  0.01 |     7s
+   87.2s [D] it   5000 | free 29.77 | main  0.66 | workers  0.70 | shmem  0.01 |     8s
+   88.7s [D] it   6000 | free 29.78 | main  0.66 | workers  0.70 | shmem  0.01 |    10s
+   90.2s [D] it   7000 | free 29.74 | main  0.66 | workers  0.70 | shmem  0.01 |    11s
+   91.8s [D] it   8000 | free 29.73 | main  0.66 | workers  0.70 | shmem  0.01 |    13s
+   93.3s [D] it   9000 | free 29.80 | main  0.66 | workers  0.70 | shmem  0.01 |    14s
+   94.9s [D] it  10000 | free 29.81 | main  0.66 | workers  0.70 | shmem  0.01 |    16s
+   96.4s [D] it  11000 | free 29.79 | main  0.66 | workers  0.70 | shmem  0.01 |    17s
+   97.9s [D] it  12000 | free 29.79 | main  0.66 | workers  0.70 | shmem  0.01 |    19s
+   97.9s [D] RESULT per 1000 iters: main +0 MB | workers +0 MB | shmem -0 MB | free +8 MB   (nb14: 11,200 iters/epoch at 1.93 GB = ~170 MB per 1000)
+  101.8s ModuleNotFoundError: No module named 'pytorch_msssim'
+  105.7s [F] workers=2 dp=False (gpus=2) model=True strategy=None loss=mse
+  163.4s [F] it   1000 | free 29.34 | main  1.33 | workers  1.00 | shmem  0.02 |    58s
+  221.4s [F] it   2000 | free 29.34 | main  1.33 | workers  1.00 | shmem  0.02 |   116s
+  279.1s [F] it   3000 | free 29.34 | main  1.33 | workers  1.00 | shmem  0.02 |   173s
+  337.0s [F] it   4000 | free 29.36 | main  1.33 | workers  1.00 | shmem  0.02 |   231s
+  395.9s [F] it   5000 | free 29.36 | main  1.33 | workers  1.00 | shmem  0.02 |   290s
+  455.0s [F] it   6000 | free 29.36 | main  1.33 | workers  1.00 | shmem  0.02 |   349s
+  514.0s [F] it   7000 | free 29.36 | main  1.33 | workers  1.00 | shmem  0.02 |   408s
+  572.9s [F] it   8000 | free 29.34 | main  1.33 | workers  1.00 | shmem  0.02 |   467s
+  631.6s [F] it   9000 | free 29.35 | main  1.33 | workers  1.00 | shmem  0.02 |   526s
+  690.3s [F] it  10000 | free 29.35 | main  1.33 | workers  1.00 | shmem  0.02 |   585s
+  748.8s [F] it  11000 | free 29.36 | main  1.33 | workers  1.00 | shmem  0.02 |   643s
+  807.1s [F] it  12000 | free 29.36 | main  1.33 | workers  1.00 | shmem  0.02 |   701s
+  807.1s [F] RESULT per 1000 iters: main +0 MB | workers +0 MB | shmem +0 MB | free +2 MB   (nb14: 11,200 iters/epoch at 1.93 GB = ~170 MB per 1000)
+  808.4s PROBE DONE
+# v2: pytorch_msssim installed; A, B, G, H
+   62.6s [A] workers=2 dp=False (gpus=2) model=True strategy=None loss=hybrid
+  123.9s [A] it   1000 | free 29.20 | main  1.44 | workers  1.05 | shmem  0.02 |    61s
+  186.1s [A] it   2000 | free 29.21 | main  1.44 | workers  1.05 | shmem  0.02 |   124s
+  248.8s [A] it   3000 | free 29.25 | main  1.44 | workers  1.05 | shmem  0.02 |   186s
+  311.8s [A] it   4000 | free 29.25 | main  1.44 | workers  1.05 | shmem  0.02 |   249s
+  374.7s [A] it   5000 | free 29.24 | main  1.44 | workers  1.05 | shmem  0.02 |   312s
+  437.4s [A] it   6000 | free 29.24 | main  1.44 | workers  1.05 | shmem  0.02 |   375s
+  437.4s [A] RESULT per 1000 iters: main +0 MB | workers +0 MB | shmem +0 MB | free +9 MB   (nb14: 11,200 iters/epoch at 1.93 GB = ~170 MB per 1000)
+  443.9s [B] workers=2 dp=True (gpus=2) model=True strategy=None loss=hybrid
+  547.0s [B] it   1000 | free 27.48 | main  3.36 | workers  1.01 | shmem  0.07 |   103s
+  647.9s [B] it   2000 | free 26.14 | main  4.80 | workers  1.01 | shmem  0.07 |   204s
+  751.1s [B] it   3000 | free 24.78 | main  6.24 | workers  1.01 | shmem  0.07 |   307s
+  855.2s [B] it   4000 | free 23.45 | main  7.69 | workers  1.01 | shmem  0.07 |   411s
+  960.7s [B] it   5000 | free 22.10 | main  9.13 | workers  1.01 | shmem  0.07 |   517s
+ 1064.2s [B] it   6000 | free 20.76 | main 10.57 | workers  1.01 | shmem  0.07 |   620s
+ 1064.2s [B] RESULT per 1000 iters: main +1442 MB | workers +0 MB | shmem +0 MB | free -1346 MB   (nb14: 11,200 iters/epoch at 1.93 GB = ~170 MB per 1000)
+ 1068.9s [G] workers=2 dp=True (gpus=2) model=True strategy=None loss=mse
+ 1171.3s [G] it   1000 | free 27.55 | main  3.28 | workers  1.01 | shmem  0.07 |   102s
+ 1272.0s [G] it   2000 | free 26.21 | main  4.72 | workers  1.01 | shmem  0.07 |   203s
+ 1376.6s [G] it   3000 | free 24.87 | main  6.16 | workers  1.01 | shmem  0.07 |   308s
+ 1482.4s [G] it   4000 | free 23.52 | main  7.60 | workers  1.01 | shmem  0.07 |   414s
+ 1584.2s [G] it   5000 | free 22.18 | main  9.04 | workers  1.01 | shmem  0.07 |   515s
+ 1683.6s [G] it   6000 | free 20.83 | main 10.49 | workers  1.01 | shmem  0.07 |   615s
+ 1683.6s [G] RESULT per 1000 iters: main +1442 MB | workers +0 MB | shmem +0 MB | free -1345 MB   (nb14: 11,200 iters/epoch at 1.93 GB = ~170 MB per 1000)
+ 1688.2s [H] workers=2 dp=False (gpus=2) model=True strategy=None loss=ssim
+ 1752.4s [H] it   1000 | free 29.32 | main  1.39 | workers  1.01 | shmem  0.02 |    64s
+ 1815.5s [H] it   2000 | free 29.33 | main  1.39 | workers  1.01 | shmem  0.02 |   127s
+ 1878.6s [H] it   3000 | free 29.33 | main  1.39 | workers  1.01 | shmem  0.02 |   190s
+ 1941.6s [H] it   4000 | free 29.32 | main  1.39 | workers  1.01 | shmem  0.02 |   253s
+ 2004.5s [H] it   5000 | free 29.34 | main  1.39 | workers  1.01 | shmem  0.02 |   316s
+ 2067.6s [H] it   6000 | free 29.32 | main  1.39 | workers  1.01 | shmem  0.02 |   379s
+ 2067.6s [H] RESULT per 1000 iters: main +0 MB | workers +0 MB | shmem +0 MB | free -1 MB   (nb14: 11,200 iters/epoch at 1.93 GB = ~170 MB per 1000)
+ 2068.5s PROBE DONE

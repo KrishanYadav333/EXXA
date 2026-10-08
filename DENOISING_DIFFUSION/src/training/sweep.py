@@ -44,50 +44,6 @@ LOSS_REGISTRY = {
 }
 
 
-def _libc():
-    try:
-        import ctypes
-        return ctypes.CDLL("libc.so.6")
-    except (OSError, ImportError):
-        return None
-
-
-_MALLOC_TUNED = False
-
-
-def _malloc_tune() -> None:
-    """Stop glibc from fragmenting the heap on image-sized allocations (Linux/Kaggle only).
-
-    Host RAM fell about 0.1 GB/epoch at 256 px and 1.95 GB/epoch at 600 px, in the MAIN
-    process only (workers flat), never came back between arms, and scaled with image size.
-    That is allocator behaviour, not a Python leak: glibc raises its mmap threshold
-    dynamically after the first big free, so later batch buffers come from heap arenas that
-    are never returned to the OS, and the pin-memory thread gets arenas of its own. A fixed
-    1 MiB threshold keeps every image-sized buffer on mmap (returned on free), and
-    M_ARENA_MAX caps the arenas. Must run before the DataLoader forks its workers.
-    """
-    global _MALLOC_TUNED
-    if _MALLOC_TUNED:
-        return
-    _MALLOC_TUNED = True
-    libc = _libc()
-    if libc is not None:
-        try:
-            libc.mallopt(-3, 1 << 20)   # M_MMAP_THRESHOLD
-            libc.mallopt(-8, 2)         # M_ARENA_MAX
-        except Exception:
-            pass
-
-
-def _malloc_trim() -> None:
-    libc = _libc()
-    if libc is not None:
-        try:
-            libc.malloc_trim(0)
-        except Exception:
-            pass
-
-
 def _free_ram_gb():
     """MemAvailable in GB from /proc/meminfo, or None off Linux."""
     try:
@@ -145,6 +101,35 @@ def _host_ram_note() -> str:
     except (OSError, KeyError):
         pass
     return note
+
+
+def _sample_side(ds):
+    """Side length of one training sample's image, or None if it cannot be read cheaply."""
+    try:
+        return int(ds[0][0].shape[-1])
+    except Exception:
+        return None
+
+
+def _use_data_parallel(n_gpu: int, side, override=None) -> bool:
+    """Whether to wrap the model in DataParallel.
+
+    nn.DataParallel leaks ~1.4 MB of host RAM per training iteration in the main process, whatever
+    the loss, loader or image size (tools/ram_leak_probe.py, 2026-10-08: +1,442 MB per 1,000
+    iterations with it, +0 without, on the real hybrid loss and on plain MSE alike). Full-image arms
+    run ~175 iterations/epoch, so they leak ~0.25 GB/epoch and finish; a 64 px patch arm runs
+    ~1,400 iterations/epoch, leaks ~1.9 GB/epoch and kills the kernel in 14 epochs. Two GPUs buy
+    nothing on 64 px tiles anyway, so below 256 px a single GPU is used. `override` (True/False) or
+    the EXXA_DP environment variable ("0"/"1") forces either choice.
+    """
+    if n_gpu <= 1:
+        return False
+    env = os.environ.get("EXXA_DP")
+    if env in ("0", "1"):
+        return env == "1"
+    if override is not None:
+        return bool(override)
+    return side is None or side >= 256
 
 
 def _unwrap(m):
@@ -214,6 +199,7 @@ def train_unet(
     kl_weight: float = 0.0,
     verbose: bool = True,
     min_free_ram_gb: float = 1.5,
+    data_parallel=None,
 ):
     """
     Train one config with early stopping; return fixed metrics + history.
@@ -235,6 +221,8 @@ def train_unet(
             in_channels to match. Mismatched values fail on the first batch. 0 (default)
             leaves every existing config unchanged.
         latent_dim: VAE only -- channels in the latent map.
+        data_parallel: None = automatic (see _use_data_parallel: off below 256 px, where
+            DataParallel leaks ~1.4 MB/iteration and gains nothing), True/False to force.
         min_free_ram_gb: host-RAM watchdog (Linux only; 0 disables). At each epoch end, if
             MemAvailable minus 1.5x the last epoch's loss would fall below this, stop the
             arm, keep the best-epoch weights, and record `ram_guard` in the checkpoint and the
@@ -276,7 +264,10 @@ def train_unet(
 
     fwd = forward_fn(arch)
     extra = extra_loss_fn(arch)
-    model = torch.nn.DataParallel(net) if n_gpu > 1 else net
+    use_dp = _use_data_parallel(n_gpu, _sample_side(train_ds), data_parallel)
+    if verbose and n_gpu > 1:
+        print(f"  [dp] DataParallel {'on' if use_dp else 'OFF (host-RAM leak, small images)'}", flush=True)
+    model = torch.nn.DataParallel(net) if use_dp else net
 
     # A velocity-aware objective when asked for. The U-Net was measured on 2026-08-28 to
     # improve pixel metrics while DEGRADING the GI wiggle (residual correlation 0.804 against
@@ -302,8 +293,7 @@ def train_unet(
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode="min", factor=0.5, patience=sched_patience)
 
-    _malloc_tune()
-    pin = n_gpu > 0 and os.environ.get("EXXA_NO_PIN", "0") != "1"
+    pin = n_gpu > 0
     # persistent_workers: without it (the default), DataLoader tears down and respawns
     # every worker process at the end of EVERY epoch's iteration, for both loaders. Two
     # Kaggle sessions (2026-09-20) died of host RAM exhaustion mid-arm with a steady,
@@ -371,7 +361,6 @@ def train_unet(
                   f"lr {optimizer.param_groups[0]['lr']:.1e} ({time.time()-t0:.0f}s)"
                   f"{_host_ram_note()}{mark}", flush=True)
 
-        _malloc_trim()
         free = _free_ram_gb()
         if free is not None and min_free_ram_gb > 0:
             grew = max(0.0, prev_free - free) if prev_free is not None else 0.0

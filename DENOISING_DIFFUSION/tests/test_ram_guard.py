@@ -63,3 +63,18 @@ res = sw.train_unet(Toy(), Toy(), "cpu", base_channels=8, channel_multipliers=(1
 assert res["ram_guard"] is None and res["epochs_run"] == 3
 print("no /proc      : guard is a no-op")
 print("PASS")
+
+
+# --- DataParallel rule (the actual cause of the nb14 leak; tools/ram_leak_probe.py) -------------
+os.environ.pop("EXXA_DP", None)
+assert sw._use_data_parallel(0, 600) is False and sw._use_data_parallel(1, 600) is False   # no GPUs / one GPU
+assert sw._use_data_parallel(2, 600) is True and sw._use_data_parallel(2, 256) is True      # full images: as before
+assert sw._use_data_parallel(2, 64) is False                                                # 64 px patches: single GPU
+assert sw._use_data_parallel(2, None) is True                                               # unknown size: as before
+assert sw._use_data_parallel(2, 64, override=True) is True and sw._use_data_parallel(2, 600, override=False) is False
+os.environ["EXXA_DP"] = "0"; assert sw._use_data_parallel(2, 600) is False
+os.environ["EXXA_DP"] = "1"; assert sw._use_data_parallel(2, 64) is True
+os.environ.pop("EXXA_DP")
+assert sw._sample_side(Toy(size=32)) == 32 and sw._sample_side([]) is None
+print("DataParallel rule: off below 256 px, on for full images, env/arg override works")
+print("PASS (dp)")

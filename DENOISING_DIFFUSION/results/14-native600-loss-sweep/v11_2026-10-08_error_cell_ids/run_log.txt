@@ -1,0 +1,41 @@
+# Kaggle Version 11 of 14-native600-loss-sweep (code af13d05), trimmed: cell-id warnings and DEFERRED lines removed.
+   104.2s [nb14 prior] restored 5 checkpoint(s) and 1 CSV(s) from a prior Output
+   104.2s [csv] nb14_loss_sweep.csv: added columns ['ram_guard']
+   113.4s --- sweep_winner_600: SKIPPED, already done ---
+   113.4s --- sweep_winner_aug_600: SKIPPED, already done ---
+   113.4s --- sweep_winner_p10_600: SKIPPED, already done ---
+   113.4s --- v12_cfg_600: SKIPPED, already done ---
+   113.4s --- winner_beam_600: SKIPPED, already done ---
+   113.4s === winner_patch_600
+   370.7s   ep   1 | train 0.0151 | val 0.0078 | lr 8.2e-04 (250s) | RAM free 26.3/31.3 GB | main 3.9 workers 8.1 cache 13.2 *best
+   611.4s   ep   2 | train 0.0097 | val 0.0039 | lr 8.2e-04 (241s) | RAM free 24.4/31.3 GB | main 5.8 workers 8.1 cache 13.2 *best
+   853.0s   ep   3 | train 0.0189 | val 0.0084 | lr 8.2e-04 (242s) | RAM free 22.4/31.3 GB | main 7.7 workers 8.1 cache 13.2
+  1092.5s   ep   4 | train 0.0151 | val 0.0058 | lr 8.2e-04 (240s) | RAM free 20.5/31.3 GB | main 9.7 workers 8.1 cache 13.2
+  1333.3s   ep   5 | train 0.0144 | val 0.0067 | lr 8.2e-04 (241s) | RAM free 18.6/31.3 GB | main 11.6 workers 8.1 cache 13.2
+  1575.7s   ep   6 | train 0.0140 | val 0.0066 | lr 8.2e-04 (242s) | RAM free 16.6/31.3 GB | main 13.5 workers 8.1 cache 13.2
+  1817.8s   ep   7 | train 0.0132 | val 0.0079 | lr 8.2e-04 (242s) | RAM free 14.7/31.3 GB | main 15.5 workers 8.1 cache 13.2
+  2059.3s   ep   8 | train 0.0121 | val 0.0052 | lr 8.2e-04 (242s) | RAM free 12.8/31.3 GB | main 17.4 workers 8.1 cache 11.4
+  2303.0s   ep   9 | train 0.0115 | val 0.0080 | lr 8.2e-04 (244s) | RAM free 10.8/31.3 GB | main 19.3 workers 8.1 cache 9.4
+  2542.0s   ep  10 | train 0.0104 | val 0.0047 | lr 8.2e-04 (239s) | RAM free 8.8/31.3 GB | main 21.3 workers 8.1 cache 7.5
+  2783.3s   ep  11 | train 0.0098 | val 0.0054 | lr 4.1e-04 (241s) | RAM free 6.9/31.3 GB | main 23.2 workers 8.1 cache 5.7
+  3023.0s   ep  12 | train 0.0082 | val 0.0054 | lr 4.1e-04 (240s) | RAM free 4.9/31.3 GB | main 25.0 workers 8.0 cache 4.0
+  3264.9s   ep  13 | train 0.0081 | val 0.0039 | lr 4.1e-04 (242s) | RAM free 3.0/31.3 GB | main 26.7 workers 8.0 cache 2.6 *best
+  3264.9s   RAM GUARD: 3.0 GB free, losing 1.93 GB/epoch -> stopping at epoch 13, keeping best epoch 13. UNDER-TRAINED, not comparable to arms that ran to patience.
+  3294.3s     [persisted] nb14_winner_patch_600.pth (116 MB) -- winner_patch_600
+  3294.5s   winner_patch_600: PSNR 27.3972 | SSIM 0.9861
+  3382.6s Failed validating 'type' in code_cell['properties']['id']:
+  3382.6s On instance['cells'][9]['id']:
+  3382.6s None
+  3382.7s Traceback (most recent call last):
+  3382.7s nbformat.validator.NotebookValidationError: None is not of type 'string'
+  3382.7s Failed validating 'type' in code_cell['properties']['id']:
+  3382.7s On instance['cells'][9]['id']:
+  3382.7s None
+  3385.8s Failed validating 'type' in code_cell['properties']['id']:
+  3385.8s On instance['cells'][9]['id']:
+  3385.8s None
+  3385.8s Traceback (most recent call last):
+  3385.8s nbformat.validator.NotebookValidationError: None is not of type 'string'
+  3385.8s Failed validating 'type' in code_cell['properties']['id']:
+  3385.8s On instance['cells'][9]['id']:
+  3385.8s None
