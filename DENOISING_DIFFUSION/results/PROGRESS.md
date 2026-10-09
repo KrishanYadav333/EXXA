@@ -28,7 +28,7 @@ Pushed by Kaggle as `c8c634c` (v14, 2026-10-09 08:26 IST) and `c8dac66` (v15, 15
 Branch `native600-loss-sweep` only. Not yet run on Kaggle: the next session is the first with these changes (RUNS.md row to follow with its version number).
 
 **Why.** Notebook 16 ranked the checkpoints (PROGRESS.md on `midterm-prep`, 2026-10-10): `kin_gamma0_mae_ft`, `kin_gamma0_starlet_ft`, `winner_aug_res480_seed43` lead,
-`sg_k3_fresh` is the best wiggle model; notebook 14's own from-scratch 600 px arms ranked 8th, 9th and 13th of 14 there, so native 600 has to be tested on the best
+`sg_k3_fresh` is the best wiggle model; notebook 14's own from-scratch 600 px arms ranked 10th (`sweep_winner_p10_600`), 12th (`sweep_winner_600`) and 14th (`sweep_winner_aug_600`) of 14 there by mean rank over 8 metrics (corrected 2026-10-10; this line first said 8th, 9th and 13th, the mean-rank VALUES mistaken for positions), so native 600 has to be tested on the best
 checkpoints, not assumed. Arms take hours and a Kaggle session ends at 12 h, so an arm must be able to continue in the next session.
 
 **What changed.**
