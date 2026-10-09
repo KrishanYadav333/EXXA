@@ -9,6 +9,44 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-10-10 | added | 14: resume across sessions, priority waves, mixed native-600 data (line emission + hydro GI + analytic GI, noise-only and deconvolution tasks)
+
+Branch `native600-loss-sweep` only. Not yet run on Kaggle: the next session is the first with these changes (RUNS.md row to follow with its version number).
+
+**Why.** Notebook 16 ranked the checkpoints (PROGRESS.md on `midterm-prep`, 2026-10-10): `kin_gamma0_mae_ft`, `kin_gamma0_starlet_ft`, `winner_aug_res480_seed43` lead,
+`sg_k3_fresh` is the best wiggle model; notebook 14's own from-scratch 600 px arms ranked 8th, 9th and 13th of 14 there, so native 600 has to be tested on the best
+checkpoints, not assumed. Arms take hours and a Kaggle session ends at 12 h, so an arm must be able to continue in the next session.
+
+**What changed.**
+1. *Resume.* `train_unet(resume_path=, deadline=, epoch_callback=)` (`src/training/sweep.py`) saves the full state (model, optimizer, scheduler, best weights, histories) atomically
+   after every epoch and stops cleanly after the last epoch that fits before `deadline`, returning `interrupted=True` (no checkpoint, no score, never a CSV row). A state written under
+   a different configuration (loss, lr, architecture, epoch budget, dataset size) is discarded, as is an unreadable file. `tests/test_resume.py` covers interrupt, resume,
+   fingerprint mismatch and a corrupt file. The notebook wrapper `train_arm` copies the state to `/kaggle/working` each epoch (RULES.md #1) and deletes it when the arm finishes;
+   `_import_prior_nb14` restores `nb14_*.resume` from the previous Output. To continue a cut arm, attach this notebook's own previous Output as an input and run again.
+2. *Session control.* `SESSION_BUDGET_H = 11`; a new arm needs >= 1.5 h left, a resumed one >= 0.5 h; the one-arm-per-session cap is now 4. An interrupted arm defers everything after it.
+3. *Waves.* `WAVE = 1` runs `kin_gamma0_mae_ft_600`, `kin_gamma0_starlet_ft_600`, `sg_k3_mae_ft_600` (arms run in notebook order, which matches that priority); wave 2 adds
+   `kin_gamma0_wavelet_ft_600`, `sg_k3_starlet_ft_600`, `winner_mae_aug_ft_600`, `winner_starlet_aug_ft_600`; wave 3 is everything.
+4. *Mixed data* (`MIXED`): the loss-sweep, `kin_gamma0` and `sg_k3` arms train on line emission (9 train/val cubes, `split_cubes` seed 42) plus simulations through the new
+   `SimChannelDataset` (`src/data/sim_channel_dataset.py`): hydro 9015, 9019, 9032, and analytic disks a601-a612 generated at 600 px (SG v2 geometry, randomised parameters, fixed seeds,
+   `experiments/make_analytic_gi_cubes.py --native600`, ~7 GB written to `/kaggle/temp`, not the Output). Validation: line val cubes + hydro 9025 + a613. Never trained on: the 5 line holdouts,
+   hydro 9074, SG v2, a614, a615. Fresh noise per access, drawn from each cube's own measured noise spectrum; each simulation is served as the deconvolution task (dirty = beam (*) clean + noise)
+   or, with probability `P_AI` = 0.5, the noise-only task a real ALMA CLEAN image poses (dirty = clean + noise). Window spans are in km/s (0.033 km/s cubes use a 3-channel step).
+5. *Corrections to this notebook's own claims.* The header said the SG cubes are "native 601x600x600"; only 9019 and SG v2 are. 9015, 9025, 9032 and 9074 are 301 px, so the
+   600 px SG training in the old section 4 was a 2x bilinear upsample. In the mixed set those three disks are still upsampled and are labelled so. Their noise is drawn at 301 px and then
+   upsampled, so it is smoother than native-600 noise (documented limitation).
+6. *RAM.* Datasets read one plane at a time (memmap). The watchdog and the single-GPU rule for small images are unchanged. Measured locally: a 31-channel simulated item loads in 0.3-0.6 s;
+   transient host memory is ~0.8 GB per worker for that item. Cell 6 prints free RAM at start; every epoch line carries it.
+
+**Verification (local, Apple CPU).** `tests/test_resume.py`, `tests/test_sim_channel_dataset.py` (shapes, fresh vs fixed noise, noise level within 15% of the pair's, the two tasks differ exactly by the beam,
+2x upsample), `tests/test_notebook_cell_order.py` all pass; the real notebook cells 2, 4, 6, 8, 12 ran end to end against the actual cubes (15 analytic 600 px disks generated, mixed datasets built,
+items from the line and simulated parts finite and the right shape), and the wave filter defers arms outside the wave. Not yet verified: a full arm on a T4 (memory of the 31-channel arm at batch 1 is the open risk
+the notebook header already names), and whether mixed-data arms beat their 256 px twins.
+
+**Scoring.** Done outside the notebook with the nb16 protocol plus the wiggle scorecard at 256/300/320/480/600 px:
+`experiments/train_unified.py --eval-only --init <nb14_*.pth>` (on `midterm-prep`).
+
+---
+
 ## 2026-10-08 | bug + fix | 14: host-RAM leak is nn.DataParallel (~1.4 MB per iteration); small images now train on one GPU, plus a RAM watchdog
 
 **v7 failed (archived: `results/14-native600-loss-sweep/v7_2026-10-02_failed_host_ram/`).** Restored 5 arms, started

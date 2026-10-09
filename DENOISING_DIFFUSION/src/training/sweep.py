@@ -200,6 +200,9 @@ def train_unet(
     verbose: bool = True,
     min_free_ram_gb: float = 1.5,
     data_parallel=None,
+    resume_path: Optional[str] = None,
+    deadline: Optional[float] = None,
+    epoch_callback=None,
 ):
     """
     Train one config with early stopping; return fixed metrics + history.
@@ -230,6 +233,16 @@ def train_unet(
             Kaggle gives up (nb14 v7: 4.5 h), and loses the arm; this loses only the epochs
             it could not afford. An arm stopped this way is under-trained and is NOT
             comparable to one that ran to its patience.
+        resume_path: file the FULL training state is written to after every epoch (model, optimizer,
+            scheduler, best weights, histories, counters), atomically. If it exists at start and was
+            written by the same configuration, training continues from the epoch after it. This is
+            what lets an arm that outlives one 12 h Kaggle session finish in the next one.
+        deadline: absolute time.time() value. After an epoch, if another epoch of the same length
+            would not finish before it, the state is saved and train_unet returns early with
+            `interrupted=True` (no checkpoint, no final metrics: the arm is NOT done). Callers must
+            treat an interrupted result as "resume next session", never as a score.
+        epoch_callback: called as epoch_callback(resume_path) after each state save, so a notebook
+            can copy it to /kaggle/working at once (RULES.md #1).
         kl_weight: VAE only -- weight on the KL term. Ignored by architectures
             with no extra loss, so a single sweep driver can pass it blindly.
 
@@ -335,8 +348,39 @@ def train_unet(
     tr_hist, va_hist = [], []
     ram_guard, prev_free = None, None
     t_start = time.time()
+    interrupted = False
+    start_ep = 1
+    # Same run only: a state written under a different loss, lr, architecture or epoch budget would
+    # silently continue the wrong experiment, so anything that differs is discarded, not adopted.
+    fingerprint = {"loss_name": loss_name, "lr": float(lr), "base_channels": int(base_channels),
+                   "channel_multipliers": list(channel_multipliers), "n_neighbors": int(n_neighbors),
+                   "out_channels": int(out_channels), "max_epochs": int(max_epochs), "min_epochs": int(min_epochs),
+                   "patience": int(patience), "seed": int(seed), "batch_size": int(batch_size),
+                   "n_train": len(train_ds), "n_val": len(val_ds), "init": init_state_dict is not None}
+    if resume_path and os.path.exists(resume_path):
+        try:
+            st = torch.load(resume_path, map_location=device, weights_only=False)
+            if st.get("fingerprint") == fingerprint:
+                _unwrap(model).load_state_dict(st["model"])
+                optimizer.load_state_dict(st["optimizer"])
+                scheduler.load_state_dict(st["scheduler"])
+                best_val, best_epoch = st["best_val"], st["best_epoch"]
+                best_state = {k: v.to(device) for k, v in st["best_state"].items()} if st["best_state"] is not None else None
+                epochs_no_improve, tr_hist, va_hist = st["epochs_no_improve"], st["tr_hist"], st["va_hist"]
+                start_ep = st["epoch"] + 1
+                t_start -= st.get("elapsed_s", 0.0)
+                if verbose:
+                    print(f"  [resume] continuing from epoch {st['epoch']} (best {best_epoch}, val {best_val:.4f}) "
+                          f"<- {resume_path}", flush=True)
+            else:
+                diff = {k: (st.get("fingerprint", {}).get(k), v) for k, v in fingerprint.items()
+                        if st.get("fingerprint", {}).get(k) != v}
+                print(f"  [resume] {resume_path} belongs to a different configuration ({diff}); starting fresh", flush=True)
+            del st
+        except Exception as e:                       # a truncated file from a killed session must not kill this one
+            print(f"  [resume] could not read {resume_path} ({type(e).__name__}: {e}); starting fresh", flush=True)
 
-    for ep in range(1, max_epochs + 1):
+    for ep in range(start_ep, max_epochs + 1):
         t0 = time.time()
         tr = run_epoch(train_loader, True)
         va = run_epoch(val_loader, False)
@@ -374,10 +418,32 @@ def train_unet(
                           f"not comparable to arms that ran to patience.", flush=True)
                 break
 
-        if ep >= min_epochs and epochs_no_improve >= patience:
+        done = ep >= min_epochs and epochs_no_improve >= patience
+        if resume_path:
+            tmp = resume_path + ".tmp"
+            os.makedirs(os.path.dirname(resume_path) or ".", exist_ok=True)
+            torch.save({"fingerprint": fingerprint, "epoch": ep, "model": _unwrap(model).state_dict(),
+                        "optimizer": optimizer.state_dict(), "scheduler": scheduler.state_dict(),
+                        "best_val": best_val, "best_epoch": best_epoch, "best_state": best_state,
+                        "epochs_no_improve": epochs_no_improve, "tr_hist": tr_hist, "va_hist": va_hist,
+                        "elapsed_s": time.time() - t_start}, tmp)
+            os.replace(tmp, resume_path)            # atomic: a kill mid-write leaves the previous epoch's state intact
+            if epoch_callback is not None:
+                epoch_callback(resume_path)
+        if done:
             if verbose:
                 print(f"  early stop at epoch {ep} (no improvement for {patience} epochs)")
             break
+        if deadline is not None and ep < max_epochs and time.time() + 1.15 * (time.time() - t0) > deadline:
+            interrupted = True
+            if verbose:
+                print(f"  [deadline] stopping after epoch {ep}: the next epoch would not finish in this session; "
+                      f"state saved, the arm resumes next session", flush=True)
+            break
+
+    if interrupted:
+        return {"interrupted": True, "epochs_run": len(tr_hist), "best_epoch": best_epoch, "best_val_loss": best_val,
+                "wall_time_s": time.time() - t_start, "ram_guard": ram_guard}
 
     if best_state is not None:
         _unwrap(model).load_state_dict(best_state)
