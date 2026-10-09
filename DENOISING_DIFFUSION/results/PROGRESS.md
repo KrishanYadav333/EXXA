@@ -9,6 +9,20 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-10-10 | run | 14 Kaggle Versions 14 and 15 arrive: the last two core arms, and a measured RAM leak at 600 px
+
+Pushed by Kaggle as `c8c634c` (v14, 2026-10-09 08:26 IST) and `c8dac66` (v15, 15:45 IST); archived (notebook as run, log, README) in
+`results/14-native600-loss-sweep/v14_2026-10-09_21902a8/` and `v15_2026-10-09_c8c634c/`. Their cells are identical, cell by cell, to the committed notebook, so nothing was reverted (RULES.md #2).
+- v14: `winner_k1_600` (3-channel spectral window, k = 1), PSNR 40.4042, SSIM 0.9977, 35 epochs. v15: `winner_k2_600` (k = 2), PSNR 40.3790, SSIM 0.9971, early stop at 25.
+  All eight core arms are now done. At 600 px the spectral-context arms sit about 3 dB above the single-channel ones (`sweep_winner_600` 37.19, `sweep_winner_p10_600` 37.21); PSNR is on 600 px images
+  and does not compare with 256 px arms.
+- **RAM check (requested 2026-10-09).** Free host RAM fell 27.7 to 18.1 GB over the 35 epochs of v14 (0.27 GB/epoch) and 27.7 to 20.9 over 25 epochs of v15, `main` RSS growing 2.4 to 12.0 GB while the
+  dataloader workers stayed at 4.8 GB: the nn.DataParallel leak (~1.4 MB per iteration x ~175 iterations per epoch) is also present for full 600 px images; the 2026-10-08 fix only turned DataParallel off
+  below 256 px. Harmless at 25-35 epochs, but `kin_gamma0` (batch 1, DataParallel cannot split it) and `sg_k3` (batch 2) run 2-3 times more iterations per epoch and would reach the watchdog; they now train on one
+  GPU (`train_arm`, 2026-10-10 entry above). Epochs take ~345 s for 700 line-emission items at batch 4 on 2 x T4, so the 1-channel arms are ~3.4 h each.
+
+---
+
 ## 2026-10-10 | added | 14: resume across sessions, priority waves, mixed native-600 data (line emission + hydro GI + analytic GI, noise-only and deconvolution tasks)
 
 Branch `native600-loss-sweep` only. Not yet run on Kaggle: the next session is the first with these changes (RUNS.md row to follow with its version number).
