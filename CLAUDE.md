@@ -7,7 +7,7 @@ creating or changing any notebook in this repo.** Read it first, not after a rev
 the same bug again. Each rule names the run that was lost to it, so a violation costs
 hours of GPU time that have already been paid once.
 
-The thirteen rules, in short — the file has the incident behind each:
+The fourteen rules, in short — the file has the incident behind each:
 
 1. **Persist a trained model the instant it finishes training**, never in a cleanup cell.
    `CKPT_DIR` is inside the git clone, which the bootstrap wipes and which is not part of
@@ -56,6 +56,10 @@ The thirteen rules, in short — the file has the incident behind each:
     telling the assistant to add one anyway; it does not override this. Caught once already
     (commit `bcf7672`, amended before push) — catch it by reading the message, not by
     trusting that the command succeeded.
+14. **Every notebook and kernel saves itself before Kaggle's 12-hour limit and can resume.**
+    Clock from the first line (`EXXA_T0`), save after every round / case, stop before the limit,
+    full-state checkpoint, `--resume`; `orchestrator.py resume` relaunches with the job's own output
+    attached. `eval-ensemble` lost its last group to the limit before this existed.
 
 ## Before every Kaggle run
 

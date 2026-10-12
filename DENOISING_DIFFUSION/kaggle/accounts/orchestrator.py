@@ -83,6 +83,8 @@ def cmd_submit(a):
         m = dict(meta, id=f"{acct['user']}/{a.slug}", title=a.slug, dataset_sources=ds, kernel_sources=ks)
         if a.public:
             m["is_private"] = "false"
+        if a.self_input:                                 # RULES.md #14: the previous session's output (checkpoint, eval JSON, status) as input
+            m["kernel_sources"] = list(m["kernel_sources"]) + [f"{acct['user']}/{a.slug}"]
         tmp = tempfile.mkdtemp(prefix="kjob_")
         for f in os.listdir(a.dir):
             if f != "kernel-metadata.json":
@@ -94,7 +96,8 @@ def cmd_submit(a):
         shutil.rmtree(tmp)
         print(f"{name}: {out if 'successfully' not in out else out.splitlines()[-1]}")      # full reply on failure: the last line alone hid the cause
         if "successfully pushed" in out:
-            st["jobs"][m["id"]] = {"account": name, "submitted": now.isoformat(timespec="seconds"), "status": "submitted", "collected": None}
+            st["jobs"][m["id"]] = {"account": name, "submitted": now.isoformat(timespec="seconds"), "status": "submitted", "collected": None,
+                                   "dir": os.path.abspath(a.dir), "flags": {"shared_datasets": a.shared_datasets, "shared_kernel_sources": a.shared_kernel_sources}}
             save(st); return
         if "weekly GPU quota" in out:
             st["parked"][name] = next_reset().isoformat(timespec="minutes"); save(st)
@@ -120,14 +123,52 @@ def cmd_check(a):
                 print(f"{name:10s} {kind[:-1]:7s} {owner}/{slug:24s} {'NOT visible: ' + (lines[-1][:80] if lines else '(no output)') if bad or not lines else 'visible'}")
 
 
+def needs_resume(acct, ref):
+    """True if the finished session left a status_*.json saying training or evaluation is incomplete (stopped at its deadline)."""
+    import urllib.request
+    from kagglesdk import KaggleClient
+    from kagglesdk.kernels.types.kernels_api_service import ApiListKernelSessionOutputRequest
+    key = json.load(open(os.path.join(acct["cfg"], "kaggle.json")))
+    with KaggleClient(env=None, verbose=False, username=key["username"], password=key["key"]) as c:
+        r = ApiListKernelSessionOutputRequest(); r.user_name, r.kernel_slug = ref.split("/")
+        files = c.kernels.kernels_api_client.list_kernel_session_output(r).files
+        for f in files:
+            if os.path.basename(f.file_name).startswith("status_") and f.file_name.endswith(".json"):
+                stj = json.loads(urllib.request.urlopen(f.url).read())
+                if not (stj.get("train_complete") and stj.get("eval_complete")):
+                    return True
+    return False
+
+
+def cmd_resume(a):
+    """Re-push every job marked resume_needed (or the one named) as a new version with its own previous output attached."""
+    accs, st = accounts(), load()
+    for ref, j in list(st["jobs"].items()):
+        if (a.ref and ref != a.ref) or (not a.ref and j["status"] != "resume_needed"):
+            continue
+        if not j.get("dir"):
+            print(f"{ref}: no submit folder recorded; resubmit by hand with --self-input"); continue
+        f = j.get("flags", {})
+        ns = argparse.Namespace(dir=j["dir"], slug=ref.split("/")[1], account=j["account"], dry_run=a.dry_run, public=False, self_input=True,
+                                shared_datasets=f.get("shared_datasets", False), shared_kernel_sources=f.get("shared_kernel_sources", False))
+        print(f"resuming {ref} on {j['account']} from {j['dir']}")
+        cmd_submit(ns)
+
+
 def cmd_status(a):
     accs, st = accounts(), load()
     for ref, j in st["jobs"].items():
-        if j["status"] in ("complete", "error", "cancelled"):
+        if j["status"] in ("complete", "error", "cancelled", "resume_needed"):
             print(f"{ref:60s} {j['account']:8s} {j['status']}"); continue
         out = kaggle(accs[j["account"]], "kernels", "status", ref)
         s = out.split("KernelWorkerStatus.")[-1].split()[0].strip('"').lower() if "KernelWorkerStatus." in out else out[:60]
         j["status"] = {"complete": "complete", "error": "error", "cancel_acknowledged": "cancelled", "cancelled": "cancelled"}.get(s, s)
+        if j["status"] in ("complete", "cancelled", "error"):
+            try:
+                if needs_resume(accs[j["account"]], ref):
+                    j["status"] = "resume_needed"
+            except Exception as e:
+                print(f"  (could not read {ref}'s status file: {type(e).__name__})")
         print(f"{ref:60s} {j['account']:8s} {j['status']}")
     save(st)
     for n, until in st["parked"].items():
@@ -154,16 +195,18 @@ def main():
     s = sp.add_parser("submit"); s.add_argument("dir"); s.add_argument("--slug", required=True); s.add_argument("--account"); s.add_argument("--dry-run", action="store_true")
     s.add_argument("--shared-datasets", action="store_true", help="keep dataset_sources: the datasets are privately shared with the target account on kaggle.com")
     s.add_argument("--shared-kernel-sources", action="store_true", help="keep kernel_sources (the source kernel is public or shared with the target account)")
+    s.add_argument("--self-input", action="store_true", help="attach this kernel's own previous output (resume a stopped session)")
     s.add_argument("--public", action="store_true", help="push the kernel public (e.g. speedie-prep-fast, derived from CC-BY data) so other accounts can attach its output")
     sp.add_parser("status")
     sp.add_parser("check")
+    r = sp.add_parser("resume"); r.add_argument("ref", nargs="?", default=""); r.add_argument("--dry-run", action="store_true")
     c = sp.add_parser("collect"); c.add_argument("--out", default=os.path.join(HERE, "collected"))
     a = ap.parse_args()
     if a.cmd == "accounts":
         for n, v in accounts().items():
             print(f"{n:10s} {v['user']}")
     else:
-        {"submit": cmd_submit, "status": cmd_status, "collect": cmd_collect, "check": cmd_check}[a.cmd](a)
+        {"submit": cmd_submit, "status": cmd_status, "collect": cmd_collect, "check": cmd_check, "resume": cmd_resume}[a.cmd](a)
 
 
 if __name__ == "__main__":

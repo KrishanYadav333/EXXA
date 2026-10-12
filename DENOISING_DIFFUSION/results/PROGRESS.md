@@ -9,6 +9,61 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-10-12 | code | RULES.md #14: every run saves before the 12 h limit and resumes (Krishan's standing rule)
+
+`train_unified.py`: `--budget-h` (default 11 h from `EXXA_T0`, set by the kernel at its first line), `--eval-reserve-h` (default 1.5 h); training stops before a round that would not fit
+and writes `status_<tag>.json` + a FULL-state checkpoint every round (weights, optimizer, LR schedule, loss scaler, numpy / torch / CUDA random state; atomic write); `--resume` continues from
+its round (older weights-only checkpoints resume with a fresh optimizer and a fast-forwarded schedule). Evaluation stops before the deadline when the next case would not fit and continues on
+rerun (cases already in the JSON are skipped). Kernels (`kernel_unified.py`, `kernel_eval_ensemble.py`, `kernel_eval_ladder.py`) set the clock and copy their own previous session's files
+for their own tags only, then resume. `orchestrator.py status` marks a finished job `resume_needed` from its status file; `orchestrator.py resume` re-pushes it with its own output attached
+(`--self-input`). Tested locally: a smoke run stopped by a 0.004 h budget after round 1, resumed to round 2 and evaluated; an evaluation stopped before its first case under a short budget and
+the rerun scored all 9 cases. Not yet exercised on Kaggle (the self-input attach of a kernel's own output is Krishan's nb14 procedure, automated). Note: a resumed run restores the optimizer,
+schedule and random state but redraws every training cube's noise at the first resumed round, so it is not bit-identical to an uninterrupted run.
+
+## 2026-10-12 | run | R5 (Young GI data) does NOT help the Speedie wiggle at low SNR; R4n-long (robust norm, 2x training) is the best model so far
+
+R5 seeds 0 and 1 (R4 recipe + robust normalisation + 14 Young GI training cubes) and R4n-long (R4 + robust normalisation, 24000 steps, seed 3, no Young data): all 0 non-finite steps, 0 failed
+cases. Archived `results/unified/r5-k15-s{0,1}_v1_2026-10-12/`, `r4n-k15-long_v1_2026-10-12/`.
+
+| case | R4 s0 / s1 / s2 | R4n-long | R5 s0 / s1 |
+|---|---|---|---|
+| Speedie GI r0.5 wiggle (SNR ~36) | 0.80 / 0.78 / 0.85 | **0.87** | 0.84 / 0.85 |
+| Speedie GI r0.5 M0/M1/M2 % | 9/72/45, 29/80/82, 21/78/76 | 8/83/87 | 26/82/85, 40/82/80 |
+| twin r0.5 spurious m/s | -1.3 / -1.5 / -1.6 | -3.1 | +7 / +7 |
+| ladder SNR 24 wiggle | 0.76 / 0.74 / 0.80 | **0.81** | 0.76 / 0.76 |
+| ladder SNR 12 wiggle | 0.61 / 0.62 / 0.50 | 0.60 | **0.29 / 0.49** |
+| twin SNR 6 spurious m/s | +47 / +233 / +519 | +82 | +232 / +192 |
+| Speedie r1.5 M0/M1/M2 % | -253/-190/-919, -91/12/-41, -105/29/-60 | -20/31/-280 | -57/20/-295, -101/45/-33 |
+| 9074 @600 wiggle | 0.31 / 0.31 / 0.32 | 0.34 | 0.41 / 0.31 |
+| line emission @600 PSNR, M0/M1/M2 | 47.3-47.8, 40-45/86-87/82-84 | **49.30, 55/87/89** | 47.98, 43/83/87; 49.65, 51/87/89 |
+
+Held-out Young simulations (R5, 600 px): wiggle rc_r 0.71-0.72, 0.85-0.87, 0.65 where dirty is 0.49-0.66, and 0.14-0.22 where dirty is 0.03-0.14; PSNR 48-53 dB vs dirty 21-23.
+Reads. (1) The Young data trains a model that recovers the held-out Young discs, but it LOWERS the Speedie wiggle at SNR 12 (0.29 / 0.49 vs 0.50-0.62 for R4, both seeds) and adds a small
+invented wiggle on the Keplerian twin (+7 m/s vs -1 to -3). Likely cause: the Young discs are young, massive and chaotic (clean residual ~190 m/s rms, against ~70 m/s for Speedie) and the
+converter is validated only above ~50 au, so the model learns a prior of large, coarse velocity residuals that does not fit Speedie's subtle wiggle. Not proven: one cause among several, and
+the Young data stays out of the final recipe unless a later run shows a gain. R5 seed 2 (added 18:55): Speedie r0.5 0.83, SNR 24 0.75, SNR 12 0.56, 9074 0.35, line 47.15 dB 48/86/83; across the three R5 seeds SNR 12 = 0.29 / 0.49 / 0.56 (mean 0.45) against R4's 0.50 / 0.61 / 0.62 (mean 0.58): the R5 deficit survives three seeds. Only one of this round's jobs hit the 12 h session limit (`eval-ensemble`, partial results kept); every training run completed. (2) R4n-long (robust normalisation + 2x steps) is the best single model on most rows: Speedie r0.5 0.87 (equal
+to R3b), SNR 24 0.81, the best line emission yet (49.3 dB, M0 55, M2 89), the least M0 damage at r1.5 (-20). One seed; a second (seed 11) is running on account aditi. (3) PLAN.md target
+(wiggle >= 0.85 at SNR >= 13): met at SNR ~36 (0.87), close at 24 (0.81), not at 12 (0.60). Final-model recipe candidate: R4n-long, several seeds averaged.
+
+## 2026-10-12 | run | Ensembles do not lift the wiggle: the SNR 12-24 gap is bias, not seed variance; TTA dropped; R4 seed 2 in
+
+`eval-ensemble` (main, stopped at the 12 h limit; (a) and (b) complete, (c) partial) and R4 seed 2. Archived `results/unified/eval-ensemble_v1_2026-10-12/`, `r4-k15-s2_v1_2026-10-12/`.
+Same cases, one simulated disc for Speedie (no spread across discs; the three seeds give the spread across training runs):
+
+| case | R3b | R4 s0 / s1 / s2 | mean of s0 + s1 | + flips | + R3b, flips |
+|---|---|---|---|---|---|
+| Speedie GI r0.5 wiggle rc_r | 0.87 | 0.80 / 0.78 / 0.85 | 0.80 | 0.80 | 0.84 |
+| Speedie GI r0.5 M0 / M1 / M2 % | 18 / 83 / 88 | 9/72/45, 29/80/82, 21/78/76 | 24 / 77 / 60 | 24 / 75 / 47 | 35 / 80 / 63 |
+| ladder SNR 24 wiggle | - | 0.76 / 0.74 / 0.80 | 0.76 | 0.76 | - |
+| ladder SNR 12 wiggle | 0.38 (eval-ladder) | 0.61 / 0.62 / 0.50 | 0.63 | 0.63 | - |
+| twin spurious at SNR 6 (m/s) | +784 | +47 / +233 / +519 | +57 | +58 | - |
+| line emission 600 px PSNR, M0/M1/M2 | 48.4, 41/86/88 | 47.3-47.8, 40-45/86-87/82-84 | 48.1, 46/87/83 | - | - |
+
+Reads. (1) Averaging two seeds gives the wiggle of the BETTER seed (SNR 12: 0.63 vs 0.61 / 0.62), not more: the residual wiggle error is mostly bias shared by all seeds (what the model cannot
+infer from the data), not seed noise. (2) Averaging does remove the worst cases: invented wiggle on the twin at SNR 6 +57 m/s vs +233 / +519 for single seeds, and line PSNR / M0 rise ~0.5 dB / ~3 points.
+(3) Flip averaging (TTA) adds nothing and costs 4x: dropped. (4) Seed spread on the SNR-12 wiggle is 0.50-0.62 (3 seeds): one seed is not enough to rank recipes on it. (5) Consequence for the
+final models: an average of seeds is worth shipping for stability, but the wiggle gap at SNR 12-24 has to be closed by the data / training (R5, running), not by averaging.
+
 ## 2026-10-12 | code | First push of this month's work; Kaggle auto-commits checked
 
 Pulled 4 Kaggle auto-commits on midterm-prep before committing (RULES.md #2): 05 Versions 48 and 49 and 13 Version 18 change outputs only (cell sources identical to

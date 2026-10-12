@@ -5,11 +5,30 @@ Inputs: speedie-prep-fast Output (cubes), and the Outputs of unified-wiener (v1)
 Add a model by naming its checkpoint in MODELS; each takes ~20-30 min on a T4 (8 native-pixel cases).
 """
 import os, sys, glob, json, shutil, subprocess, hashlib, time
+os.environ.setdefault("EXXA_T0", str(time.time()))     # RULES.md #14
 
 REPO, BRANCH = "/tmp/EXXA", "midterm-prep"
 PKG = f"{REPO}/DENOISING_DIFFUSION"
 OUT = "/kaggle/working/eval_ladder"
 LADDER = "3,6,12,24"
+
+def resume_inputs(tags, out):
+    """RULES.md #14: if a previous session of THIS run is attached as input (its own kernel output), copy its checkpoint / eval JSON / status
+    for these tags into `out` and return {tag: checkpoint path or None}. Only files named for our own tags are taken, never another run's."""
+    found = {}
+    for tag in tags:
+        st = [p for p in glob.glob(f"/kaggle/input/**/status_{tag}.json", recursive=True)]
+        if not st:
+            continue
+        src = os.path.dirname(st[0])
+        os.makedirs(out, exist_ok=True)
+        for name in (f"status_{tag}.json", f"eval_{tag}.json", f"unified_{tag}.pth"):
+            if os.path.exists(f"{src}/{name}"):
+                shutil.copy(f"{src}/{name}", f"{out}/{name}")
+        found[tag] = f"{out}/unified_{tag}.pth" if os.path.exists(f"{out}/unified_{tag}.pth") else None
+        print(f"RESUME {tag}: previous session found in {src}: {json.load(open(st[0]))}", flush=True)
+    return found
+
 
 def sh(cmd, **kw):
     print("+", " ".join(cmd), flush=True)
@@ -40,7 +59,12 @@ print("speedie ->", SPD, "| models:", {m: a[1] for m, a in models}, flush=True)
 
 os.chdir(PKG)
 env = dict(os.environ, PYTHONPATH=PKG, EXXA_ROOT=PKG, LE_DIR=LE_DIR, PYTHONWARNINGS="ignore")
+prev = resume_inputs([n for n, _ in models], OUT)
 for name, a in models:
+    stf = f"{OUT}/status_{name}.json"
+    if os.path.exists(stf) and json.load(open(stf)).get("eval_complete"):
+        print(f"MODEL {name}: already complete in a previous session, skipped", flush=True)
+        continue
     if a[1] is None:
         print(f"MODEL {name}: checkpoint NOT FOUND, skipped", flush=True)
         continue

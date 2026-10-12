@@ -7,6 +7,7 @@ Code provenance: tracked files from a clone of `midterm-prep`; the new files rid
 (MANIFEST.json, sha256). Output goes straight to /kaggle/working/unified_<ARM> (RULES.md #1: checkpoint written every round).
 """
 import os, sys, glob, json, shutil, subprocess, hashlib, time
+os.environ.setdefault("EXXA_T0", str(time.time()))     # RULES.md #14: the session clock starts here, before clone and setup
 
 ARM = "wiener"
 K = 3                  # spectral window half-width (channels at 0.1 km/s): 3 = +-0.3 km/s, 15 = +-1.5 km/s like kin_gamma0
@@ -16,6 +17,24 @@ BRANCH = "midterm-prep"
 REPO = "/tmp/EXXA"     # not /kaggle/working: the clone must not land in the notebook Output
 PKG = f"{REPO}/DENOISING_DIFFUSION"
 OUT = f"/kaggle/working/unified_{ARM}_k{K}"
+
+def resume_inputs(tags, out):
+    """RULES.md #14: if a previous session of THIS run is attached as input (its own kernel output), copy its checkpoint / eval JSON / status
+    for these tags into `out` and return {tag: checkpoint path or None}. Only files named for our own tags are taken, never another run's."""
+    found = {}
+    for tag in tags:
+        st = [p for p in glob.glob(f"/kaggle/input/**/status_{tag}.json", recursive=True)]
+        if not st:
+            continue
+        src = os.path.dirname(st[0])
+        os.makedirs(out, exist_ok=True)
+        for name in (f"status_{tag}.json", f"eval_{tag}.json", f"unified_{tag}.pth"):
+            if os.path.exists(f"{src}/{name}"):
+                shutil.copy(f"{src}/{name}", f"{out}/{name}")
+        found[tag] = f"{out}/unified_{tag}.pth" if os.path.exists(f"{out}/unified_{tag}.pth") else None
+        print(f"RESUME {tag}: previous session found in {src}: {json.load(open(st[0]))}", flush=True)
+    return found
+
 
 def sh(cmd, **kw):
     print("+", " ".join(cmd), flush=True)
@@ -55,6 +74,10 @@ sh([sys.executable, "experiments/make_analytic_gi_cubes.py"], env=env)
 
 os.makedirs(OUT, exist_ok=True)
 args = ["--arm", ARM, "--k", str(K), "--out", OUT] + EXTRA
+TAG = EXTRA[EXTRA.index("--tag") + 1] if "--tag" in EXTRA else f"{ARM}_k{K}"
+prev = resume_inputs([TAG], OUT)
+if prev.get(TAG):
+    args += ["--resume", prev[TAG]]
 sph = glob.glob("/kaggle/input/**/run_young_*/view.json", recursive=True)
 if sph:                # rendered GI discs attached (kernel source sph-cubes): train on the train split, score the held-out simulations
     args += ["--sph-dir", os.path.dirname(os.path.dirname(sph[0])), "--eval-sph"]

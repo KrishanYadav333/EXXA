@@ -1,0 +1,546 @@
+[{"stream_name":"stdout","time":0.962216417,"data":"+ git clone --branch midterm-prep --depth 1 https://github.com/KrishanYadav333/EXXA.git /tmp/EXXA\n"}
+,{"stream_name":"stderr","time":1.015242195,"data":"Cloning into '/tmp/EXXA'...\n"}
+,{"stream_name":"stderr","time":59.06237964,"data":"Updating files:   1% (99/5584)\rUpdating files:   2% (112/5584)\rUpdating files:   3% (168/5584)\rUpdating files:   4% (224/5584)\rUpdating files:   4% (240/5584)\rUpdating files:   5% (280/5584)\rUpdating files:   6% (336/5584)\rUpdating files:   7% (391/5584)\rUpdating files:   8% (447/5584)\rUpdating files:   9% (503/5584)\rUpdating files:  10% (559/5584)\rUpdating files:  11% (615/5584)\rUpdating files:  12% (671/5584)\rUpdating files:  13% (726/5584)\rUpdating files:  14% (782/5584)\rUpdating files:  15% (838/5584)\rUpdating files:  16% (894/5584)\rUpdating files:  17% (950/5584)\rUpdating files:  18% (1006/5584)\rUpdating files:  19% (1061/5584)\rUpdating files:  20% (1117/5584)\rUpdating files:  21% (1173/5584)\rUpdating files:  22% (1229/5584)\rUpdating files:  23% (1285/5584)\rUpdating files:  24% (1341/5584)\rUpdating files:  25% (1396/5584)\rUpdating files:  26% (1452/5584)\rUpdating files:  27% (1508/5584)\rUpdating files:  28% (1564/5584)\rUpdating files:  29% (1620/5584)\rUpdating files:  30% (1676/5584)\rUpdating files:  31% (1732/5584)\rUpdating files:  32% (1787/5584)\rUpdating files:  33% (1843/5584)\rUpdating files:  34% (1899/5584)\rUpdating files:  35% (1955/5584)\rUpdating files:  36% (2011/5584)\rUpdating files:  37% (2067/5584)\rUpdating files:  38% (2122/5584)\rUpdating files:  39% (2178/5584)\rUpdating files:  40% (2234/5584)\rUpdating files:  41% (2290/5584)\rUpdating files:  42% (2346/5584)\rUpdating files:  43% (2402/5584)\rUpdating files:  44% (2457/5584)\rUpdating files:  45% (2513/5584)\rUpdating files:  46% (2569/5584)\rUpdating files:  46% (2611/5584)\rUpdating files:  47% (2625/5584)\rUpdating files:  48% (2681/5584)\rUpdating files:  49% (2737/5584)\rUpdating files:  50% (2792/5584)\rUpdating files:  51% (2848/5584)\rUpdating files:  52% (2904/5584)\rUpdating files:  53% (2960/5584)\rUpdating files:  54% (3016/5584)\rUpdating files:  55% (3072/5584)\rUpdating files:  56% (3128/5584)\rUpdating files:  57% (3183/5584)\rUpdating files:  58% (3239/5584)\rUpdating files:  59% (3295/5584)\rUpdating files:  60% (3351/5584)\rUpdating files:  61% (3407/5584)\rUpdating files:  62% (3463/5584)\rUpdating files:  63% (3518/5584)\rUpdating files:  64% (3574/5584)\rUpdating files:  65% (3630/5584)\rUpdating files:  66% (3686/5584)\rUpdating files:  67% (3742/5584)\rUpdating files:  68% (3798/5584)\rUpdating files:  69% (3853/5584)\rUpdating files:  70% (3909/5584)\rUpdating files:  71% (3965/5584)\rUpdating files:  72% (4021/5584)\rUpdating files:  73% (4077/5584)\rUpdating files:  74% (4133/5584)\rUpdating files:  75% (4188/5584)\rUpdating files:  76% (4244/5584)\rUpdating files:  77% (4300/5584)\rUpdating files:  78% (4356/5584)\rUpdating files:  79% (4412/5584)\rUpdating files:  80% (4468/5584)\rUpdating files:  81% (4524/5584)\rUpdating files:  82% (4579/5584)\rUpdating files:  83% (4635/5584)\rUpdating files:  84% (4691/5584)\rUpdating files:  85% (4747/5584)\rUpdating files:  86% (4803/5584)\rUpdating files:  87% (4859/5584)\rUpdating files:  88% (4914/5584)\rUpdating files:  89% (4970/5584)\rUpdating files:  90% (5026/5584)\rUpdating files:  90% (5061/5584)\rUpdating files:  91% (5082/5584)\rUpdating files:  92% (5138/5584)\rUpdating files:  93% (5194/5584)\rUpdating files:  94% (5249/5584)\rUpdating files:  95% (5305/5584)\rUpdating files:  95% (5323/5584)\rUpdating files:  96% (5361/5584)\rUpdating files:  97% (5417/5584)\rUpdating files:  98% (5473/5584)\rUpdating files:  98% (5476/5584)\rUpdating files:  98% (5487/5584)\rUpdating files:  99% (5529/5584)\rUpdating files:  99% (5569/5584)\rUpdating files: 100% (5584/5584)\rUpdating files: 100% (5584/5584), done.\n"}
+,{"stream_name":"stdout","time":59.104674143,"data":"+ /usr/bin/python3 -m pip install -q --no-deps pytorch-msssim bettermoments\n"}
+,{"stream_name":"stdout","time":64.52675603,"data":"ba34368 Kaggle Notebook | 14-native600-loss-sweep | Version 8\n"}
+,{"stream_name":"stdout","time":64.526789122,"data":"\n"}
+,{"stream_name":"stdout","time":64.67209024900001,"data":"overlaid ['src/data/analytic_gi.py', 'experiments/wiggle_scorecard.py', 'experiments/make_analytic_gi_cubes.py', 'experiments/train_wiggle_correction.py', 'experiments/train_unified.py', 'experiments/speedie_prep.py', 'src/data/sph_cube.py', 'experiments/validate_sph_speedie.py'] | staged from 5b04466 (+ the uncommitted files listed)\n"}
+,{"stream_name":"stdout","time":64.760911097,"data":"sg_synth -\u003e /kaggle/input/datasets/krishanyadav333/exxa-sg-synth-pairs/kaggle-sg-training-dataset | v2 -\u003e /kaggle/input/datasets/krishanyadav333/self-gravitating-v2/kinematic_data_v2 | line emission -\u003e /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data (14 cubes)\n"}
+,{"stream_name":"stdout","time":64.761139983,"data":"+ /usr/bin/python3 experiments/make_analytic_gi_cubes.py\n"}
+,{"stream_name":"stdout","time":75.425296634,"data":"an01 md=0.15 m=2 beta=5.0 pitch=13 i=20: rmsdiff/rms = 0.501 (sg_synth 0.41-0.57)\n"}
+,{"stream_name":"stdout","time":82.198088407,"data":"an02 md=0.35 m=2 beta=5.0 pitch=13 i=30: rmsdiff/rms = 0.510 (sg_synth 0.41-0.57)\n"}
+,{"stream_name":"stdout","time":88.956597851,"data":"an03 md=0.6 m=2 beta=5.0 pitch=13 i=20: rmsdiff/rms = 0.500 (sg_synth 0.41-0.57)\n"}
+,{"stream_name":"stdout","time":95.662656761,"data":"an04 md=0.35 m=3 beta=5.0 pitch=18 i=20: rmsdiff/rms = 0.467 (sg_synth 0.41-0.57)\n"}
+,{"stream_name":"stdout","time":102.780354452,"data":"an05 md=0.35 m=2 beta=3.0 pitch=13 i=30: rmsdiff/rms = 0.495 (sg_synth 0.41-0.57)\n"}
+,{"stream_name":"stdout","time":109.647926705,"data":"an06 md=0.6 m=2 beta=3.0 pitch=20 i=20: rmsdiff/rms = 0.449 (sg_synth 0.41-0.57)\n"}
+,{"stream_name":"stdout","time":116.487088822,"data":"an07 md=0.45 m=2 beta=4.0 pitch=15 i=25: rmsdiff/rms = 0.546 (sg_synth 0.41-0.57)\n"}
+,{"stream_name":"stdout","time":123.369168945,"data":"an08 md=0.25 m=3 beta=3.0 pitch=18 i=30: rmsdiff/rms = 0.501 (sg_synth 0.41-0.57)\n"}
+,{"stream_name":"stdout","time":123.499563281,"data":"+ /usr/bin/python3 -u experiments/train_unified.py --arm wiener --k 15 --out /kaggle/working/unified_wiener_k15 --snr 3,150 --chan-corr 0.5 --beam-max 1.6 --lr 1.5e-4 --clip-in 10 --fp32-stream --norm robust --seed 3 --rounds 80 --eval-ladder 3,6,12,24 --tag r4n_k15_long --speedie-dir /kaggle/input/notebooks/krishanyadav333/speedie-prep-fast/speedie --eval-speedie GI_r0.5,Kep_r0.5,GI_r1.5,Kep_r1.5\n"}
+,{"stream_name":"stdout","time":132.423978046,"data":"device cuda  {'arm': 'wiener', 'init': '', 'fresh': False, 'eval_only': False, 'eval_ckpt': '', 'tag': 'r4n_k15_long', 'k': 15, 'rounds': 80, 'steps': 300, 'batch': 12, 'crop': 128, 'base': 48, 'lr': 0.00015, 'sizes': '256,300,320,480,600', 'hydro': '9015,9019,9025,9032', 'analytic': 'an01,an02,an03,an04,an05,an06', 'p_ai': 0.5, 'n_line': 0, 'n_line_eval': 0, 'eval_sg': '9074,sgv2,an07,an08', 'eval_ai': True, 'speedie_dir': '/kaggle/input/notebooks/krishanyadav333/speedie-prep-fast/speedie', 'eval_speedie': 'GI_r0.5,Kep_r0.5,GI_r1.5,Kep_r1.5', 'before': False, 'before_cases': 'run_0002_00560_rt_00,run_0026_00005_rt_04,9074,9074_ai,an07,an07_ai,sgv2', 'before_sizes': '300,600', 'refresh': 3, 'seed': 3, 'out': '/kaggle/working/unified_wiener_k15', 'smoke': False, 'snr': '3,150', 'chan_corr': 0.5, 'fp32_stream': True, 'norm': 'robust', 'tta': False, 'eval_ladder': '3,6,12,24', 'ladder_base': 'GI_r0.5,Kep_r0.5', 'train_sgv2': False, 'clip_in': 10.0, 'beam_max': 1.6}\n"}
+,{"stream_name":"stdout","time":133.109202258,"data":"======================================================================\n"}
+,{"stream_name":"stdout","time":133.109233416,"data":"CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)\n"}
+,{"stream_name":"stdout","time":133.109252904,"data":"======================================================================\n"}
+,{"stream_name":"stdout","time":133.109257193,"data":"  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data\n"}
+,{"stream_name":"stdout","time":133.109261148,"data":"  total cubes       : 14  across 11 distinct RunIDs\n"}
+,{"stream_name":"stdout","time":133.109264966,"data":"  seed=42  n_holdout=3  val_fraction=0.2\n"}
+,{"stream_name":"stdout","time":133.109268728,"data":"----------------------------------------------------------------------\n"}
+,{"stream_name":"stdout","time":133.109272551,"data":"  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']\n"}
+,{"stream_name":"stdout","time":133.10927654,"data":"  VAL     :  2 cubes | RunIDs ['0016', '0036']\n"}
+,{"stream_name":"stdout","time":133.10928046,"data":"  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  \u003c-- inference only, NEVER trained/validated\n"}
+,{"stream_name":"stdout","time":133.109284733,"data":"----------------------------------------------------------------------\n"}
+,{"stream_name":"stdout","time":133.109288629,"data":"  HOLDOUT cube folders (reserved for moment-map evaluation):\n"}
+,{"stream_name":"stdout","time":133.109292653,"data":"    - run_0002_00560_rt_00\n"}
+,{"stream_name":"stdout","time":133.109296722,"data":"    - run_0002_00560_rt_01\n"}
+,{"stream_name":"stdout","time":133.109300825,"data":"    - run_0002_00560_rt_04\n"}
+,{"stream_name":"stdout","time":133.109318155,"data":"    - run_0025_01000_rt_04\n"}
+,{"stream_name":"stdout","time":133.109322395,"data":"    - run_0026_00005_rt_04\n"}
+,{"stream_name":"stdout","time":133.109326529,"data":"======================================================================\n"}
+,{"stream_name":"stdout","time":141.74607358,"data":"  line  run_0006_00170_rt_00  (201, 600, 600)\n"}
+,{"stream_name":"stdout","time":148.623330357,"data":"  line  run_0010_00125_rt_01  (201, 600, 600)\n"}
+,{"stream_name":"stdout","time":156.357834043,"data":"  line  run_0010_00125_rt_02  (201, 600, 600)\n"}
+,{"stream_name":"stdout","time":163.888886216,"data":"  line  run_0020_01000_rt_02  (201, 600, 600)\n"}
+,{"stream_name":"stdout","time":171.69967865,"data":"  line  run_0022_00155_rt_03  (201, 600, 600)\n"}
+,{"stream_name":"stdout","time":178.602355831,"data":"  line  run_0030_00015_rt_00  (201, 600, 600)\n"}
+,{"stream_name":"stdout","time":185.431845081,"data":"  line  run_0035_00025_rt_01  (201, 600, 600)\n"}
+,{"stream_name":"stdout","time":192.430111291,"data":"  line  run_0016_00550_rt_01  (201, 600, 600)\n"}
+,{"stream_name":"stdout","time":199.060875156,"data":"  line  run_0036_00350_rt_03  (201, 600, 600)\n"}
+,{"stream_name":"stdout","time":200.956038761,"data":"  hydro    9015  (172, 301, 301)\n"}
+,{"stream_name":"stdout","time":221.889513753,"data":"  hydro    9019  (512, 600, 600)\n"}
+,{"stream_name":"stdout","time":223.932140555,"data":"  hydro    9025  (172, 301, 301)\n"}
+,{"stream_name":"stdout","time":225.908509908,"data":"  hydro    9032  (157, 301, 301)\n"}
+,{"stream_name":"stdout","time":227.357256419,"data":"  analytic an01  (161, 301, 301)\n"}
+,{"stream_name":"stdout","time":227.969777015,"data":"  analytic an02  (161, 301, 301)\n"}
+,{"stream_name":"stdout","time":229.286642571,"data":"  analytic an03  (161, 301, 301)\n"}
+,{"stream_name":"stdout","time":230.746588166,"data":"  analytic an04  (161, 301, 301)\n"}
+,{"stream_name":"stdout","time":231.352888717,"data":"  analytic an05  (161, 301, 301)\n"}
+,{"stream_name":"stdout","time":232.330283797,"data":"  analytic an06  (161, 301, 301)\n"}
+,{"stream_name":"stdout","time":232.33268519,"data":"19 training cubes (analytic: 6, hydro: 4, line: 9), loaded in 99s\n"}
+,{"stream_name":"stdout","time":400.570787039,"data":"step 1: L1 0.02716 vs base 0.02716 (equal: zero-init identity)\n"}
+,{"stream_name":"stdout","time":794.31979972,"data":"round 1/80 step 300  L1 0.02972  d1 0.02892  d2 0.02963  redraw 160s  sizes [256, 300, 320, 480, 600]  11.0 min\n"}
+,{"stream_name":"stdout","time":1210.458605316,"data":"round 2/80 step 600  L1 0.02144  d1 0.01816  d2 0.01458  redraw 24s  sizes [256, 300, 320, 480, 600]  18.0 min\n"}
+,{"stream_name":"stdout","time":1639.900369744,"data":"round 3/80 step 900  L1 0.01618  d1 0.01308  d2 0.01143  redraw 37s  sizes [256, 300, 320, 480, 600]  25.1 min\n"}
+,{"stream_name":"stdout","time":2047.895246791,"data":"round 4/80 step 1200  L1 0.01497  d1 0.01106  d2 0.00958  redraw 9s  sizes [256, 300, 320, 480, 600]  31.9 min\n"}
+,{"stream_name":"stdout","time":2459.387569675,"data":"round 5/80 step 1500  L1 0.01583  d1 0.00977  d2 0.00660  redraw 18s  sizes [256, 300, 320, 480, 600]  38.8 min\n"}
+,{"stream_name":"stdout","time":2884.433791379,"data":"round 6/80 step 1800  L1 0.01367  d1 0.00877  d2 0.00578  redraw 38s  sizes [256, 300, 320, 480, 600]  45.9 min\n"}
+,{"stream_name":"stdout","time":3317.418237167,"data":"round 7/80 step 2100  L1 0.01362  d1 0.00849  d2 0.00528  redraw 33s  sizes [256, 300, 320, 480, 600]  53.1 min\n"}
+,{"stream_name":"stdout","time":3737.551312674,"data":"round 8/80 step 2400  L1 0.01708  d1 0.01154  d2 0.00764  redraw 32s  sizes [256, 300, 320, 480, 600]  60.1 min\n"}
+,{"stream_name":"stdout","time":4138.984882177,"data":"round 9/80 step 2700  L1 0.01463  d1 0.00945  d2 0.00645  redraw 18s  sizes [256, 300, 320, 480, 600]  66.8 min\n"}
+,{"stream_name":"stdout","time":4549.667687445,"data":"round 10/80 step 3000  L1 0.01242  d1 0.00822  d2 0.00562  redraw 23s  sizes [256, 300, 320, 480, 600]  73.6 min\n"}
+,{"stream_name":"stdout","time":4961.733715052,"data":"round 11/80 step 3300  L1 0.01332  d1 0.00795  d2 0.00442  redraw 23s  sizes [256, 300, 320, 480, 600]  80.5 min\n"}
+,{"stream_name":"stdout","time":5362.723443258,"data":"round 12/80 step 3600  L1 0.01335  d1 0.00783  d2 0.00433  redraw 31s  sizes [256, 300, 320, 480, 600]  87.2 min\n"}
+,{"stream_name":"stdout","time":5764.812959474,"data":"round 13/80 step 3900  L1 0.01083  d1 0.00691  d2 0.00397  redraw 22s  sizes [256, 300, 320, 480, 600]  93.9 min\n"}
+,{"stream_name":"stdout","time":6167.31568794,"data":"round 14/80 step 4200  L1 0.01208  d1 0.00752  d2 0.00445  redraw 22s  sizes [256, 300, 320, 480, 600]  100.6 min\n"}
+,{"stream_name":"stdout","time":6581.337697092,"data":"round 15/80 step 4500  L1 0.01127  d1 0.00709  d2 0.00418  redraw 28s  sizes [256, 300, 320, 480, 600]  107.5 min\n"}
+,{"stream_name":"stdout","time":6984.631152492,"data":"round 16/80 step 4800  L1 0.01342  d1 0.00788  d2 0.00490  redraw 32s  sizes [256, 300, 320, 480, 600]  114.2 min\n"}
+,{"stream_name":"stdout","time":7395.547029306,"data":"round 17/80 step 5100  L1 0.01068  d1 0.00690  d2 0.00499  redraw 32s  sizes [256, 300, 320, 480, 600]  121.0 min\n"}
+,{"stream_name":"stdout","time":7804.723339694,"data":"round 18/80 step 5400  L1 0.01158  d1 0.00747  d2 0.00502  redraw 40s  sizes [256, 300, 320, 480, 600]  127.9 min\n"}
+,{"stream_name":"stdout","time":8207.224323634,"data":"round 19/80 step 5700  L1 0.01116  d1 0.00687  d2 0.00406  redraw 29s  sizes [256, 300, 320, 480, 600]  134.6 min\n"}
+,{"stream_name":"stdout","time":8586.21115044,"data":"round 20/80 step 6000  L1 0.01099  d1 0.00678  d2 0.00382  redraw 13s  sizes [256, 300, 320, 480, 600]  140.9 min\n"}
+,{"stream_name":"stdout","time":8958.776673068,"data":"round 21/80 step 6300  L1 0.00966  d1 0.00565  d2 0.00312  redraw 8s  sizes [256, 300, 320, 480, 600]  147.1 min\n"}
+,{"stream_name":"stdout","time":9324.704629124,"data":"round 22/80 step 6600  L1 0.00819  d1 0.00642  d2 0.00533  redraw 8s  sizes [256, 300, 320, 480, 600]  153.2 min\n"}
+,{"stream_name":"stdout","time":9708.940497382,"data":"round 23/80 step 6900  L1 0.00754  d1 0.00510  d2 0.00373  redraw 27s  sizes [256, 300, 320, 480, 600]  159.6 min\n"}
+,{"stream_name":"stdout","time":10130.824057059,"data":"round 24/80 step 7200  L1 0.00813  d1 0.00553  d2 0.00347  redraw 52s  sizes [256, 300, 320, 480, 600]  166.6 min\n"}
+,{"stream_name":"stdout","time":10542.274485366,"data":"round 25/80 step 7500  L1 0.00828  d1 0.00560  d2 0.00361  redraw 40s  sizes [256, 300, 320, 480, 600]  173.5 min\n"}
+,{"stream_name":"stdout","time":10926.831917942,"data":"round 26/80 step 7800  L1 0.00885  d1 0.00606  d2 0.00391  redraw 21s  sizes [256, 300, 320, 480, 600]  179.9 min\n"}
+,{"stream_name":"stdout","time":11319.930343552,"data":"round 27/80 step 8100  L1 0.00887  d1 0.00549  d2 0.00326  redraw 23s  sizes [256, 300, 320, 480, 600]  186.4 min\n"}
+,{"stream_name":"stdout","time":11725.973128229,"data":"round 28/80 step 8400  L1 0.00902  d1 0.00554  d2 0.00316  redraw 28s  sizes [256, 300, 320, 480, 600]  193.2 min\n"}
+,{"stream_name":"stdout","time":12133.291568634,"data":"round 29/80 step 8700  L1 0.00900  d1 0.00539  d2 0.00298  redraw 20s  sizes [256, 300, 320, 480, 600]  200.0 min\n"}
+,{"stream_name":"stdout","time":12528.343174213,"data":"round 30/80 step 9000  L1 0.00976  d1 0.00598  d2 0.00321  redraw 16s  sizes [256, 300, 320, 480, 600]  206.6 min\n"}
+,{"stream_name":"stdout","time":12928.784551155,"data":"round 31/80 step 9300  L1 0.00838  d1 0.00523  d2 0.00290  redraw 21s  sizes [256, 300, 320, 480, 600]  213.3 min\n"}
+,{"stream_name":"stdout","time":13315.500996761,"data":"round 32/80 step 9600  L1 0.00806  d1 0.00508  d2 0.00279  redraw 25s  sizes [256, 300, 320, 480, 600]  219.7 min\n"}
+,{"stream_name":"stdout","time":13689.535094327,"data":"round 33/80 step 9900  L1 0.00817  d1 0.00491  d2 0.00256  redraw 26s  sizes [256, 300, 320, 480, 600]  225.9 min\n"}
+,{"stream_name":"stdout","time":14055.608546741,"data":"round 34/80 step 10200  L1 0.00780  d1 0.00491  d2 0.00263  redraw 18s  sizes [256, 300, 320, 480, 600]  232.0 min\n"}
+,{"stream_name":"stdout","time":14420.42152319,"data":"round 35/80 step 10500  L1 0.00718  d1 0.00485  d2 0.00300  redraw 22s  sizes [256, 300, 320, 480]  238.1 min\n"}
+,{"stream_name":"stdout","time":14785.52949733,"data":"round 36/80 step 10800  L1 0.00707  d1 0.00503  d2 0.00360  redraw 21s  sizes [256, 300, 320, 480]  244.2 min\n"}
+,{"stream_name":"stdout","time":15154.83376995,"data":"round 37/80 step 11100  L1 0.00688  d1 0.00471  d2 0.00308  redraw 20s  sizes [256, 300, 320, 480, 600]  250.4 min\n"}
+,{"stream_name":"stdout","time":15516.488572264,"data":"round 38/80 step 11400  L1 0.00675  d1 0.00475  d2 0.00306  redraw 15s  sizes [256, 300, 320, 480, 600]  256.4 min\n"}
+,{"stream_name":"stdout","time":15907.57493708,"data":"round 39/80 step 11700  L1 0.00610  d1 0.00430  d2 0.00290  redraw 41s  sizes [256, 300, 320, 480, 600]  262.9 min\n"}
+,{"stream_name":"stdout","time":16276.117400611,"data":"round 40/80 step 12000  L1 0.00650  d1 0.00464  d2 0.00301  redraw 18s  sizes [256, 300, 320, 480, 600]  269.1 min\n"}
+,{"stream_name":"stdout","time":16649.807972526,"data":"round 41/80 step 12300  L1 0.00714  d1 0.00484  d2 0.00296  redraw 16s  sizes [256, 300, 320, 480, 600]  275.3 min\n"}
+,{"stream_name":"stdout","time":17048.360095403,"data":"round 42/80 step 12600  L1 0.00655  d1 0.00463  d2 0.00274  redraw 34s  sizes [256, 300, 320, 480, 600]  281.9 min\n"}
+,{"stream_name":"stdout","time":17415.404289818,"data":"round 43/80 step 12900  L1 0.00556  d1 0.00411  d2 0.00306  redraw 15s  sizes [256, 300, 320, 480, 600]  288.0 min\n"}
+,{"stream_name":"stdout","time":17789.94361975,"data":"round 44/80 step 13200  L1 0.00573  d1 0.00442  d2 0.00341  redraw 16s  sizes [256, 300, 320, 480, 600]  294.3 min\n"}
+,{"stream_name":"stdout","time":18158.646537689,"data":"round 45/80 step 13500  L1 0.00490  d1 0.00391  d2 0.00311  redraw 16s  sizes [256, 300, 320, 480, 600]  300.4 min\n"}
+,{"stream_name":"stdout","time":18534.900574493,"data":"round 46/80 step 13800  L1 0.00508  d1 0.00369  d2 0.00255  redraw 21s  sizes [256, 300, 320, 480, 600]  306.7 min\n"}
+,{"stream_name":"stdout","time":18925.350629587,"data":"round 47/80 step 14100  L1 0.00469  d1 0.00358  d2 0.00279  redraw 26s  sizes [256, 300, 320, 480, 600]  313.2 min\n"}
+,{"stream_name":"stdout","time":19327.650931072,"data":"round 48/80 step 14400  L1 0.00437  d1 0.00328  d2 0.00255  redraw 36s  sizes [256, 300, 320, 480, 600]  319.9 min\n"}
+,{"stream_name":"stdout","time":19723.248960197,"data":"round 49/80 step 14700  L1 0.00434  d1 0.00334  d2 0.00242  redraw 27s  sizes [256, 300, 320, 480, 600]  326.5 min\n"}
+,{"stream_name":"stdout","time":20109.534947824,"data":"round 50/80 step 15000  L1 0.00466  d1 0.00355  d2 0.00252  redraw 20s  sizes [256, 300, 320, 480, 600]  332.9 min\n"}
+,{"stream_name":"stdout","time":20509.796715165,"data":"round 51/80 step 15300  L1 0.00459  d1 0.00361  d2 0.00259  redraw 31s  sizes [256, 300, 320, 480, 600]  339.6 min\n"}
+,{"stream_name":"stdout","time":20894.730226893,"data":"round 52/80 step 15600  L1 0.00451  d1 0.00340  d2 0.00229  redraw 15s  sizes [256, 300, 320, 480, 600]  346.0 min\n"}
+,{"stream_name":"stdout","time":21303.828401401,"data":"round 53/80 step 15900  L1 0.00484  d1 0.00382  d2 0.00292  redraw 30s  sizes [256, 300, 320, 480, 600]  352.8 min\n"}
+,{"stream_name":"stdout","time":21720.160353036,"data":"round 54/80 step 16200  L1 0.00443  d1 0.00353  d2 0.00279  redraw 50s  sizes [256, 300, 320, 480, 600]  359.8 min\n"}
+,{"stream_name":"stdout","time":22106.828968104,"data":"round 55/80 step 16500  L1 0.00517  d1 0.00367  d2 0.00266  redraw 21s  sizes [256, 300, 320, 480, 600]  366.2 min\n"}
+,{"stream_name":"stdout","time":22471.425571389,"data":"round 56/80 step 16800  L1 0.00487  d1 0.00361  d2 0.00260  redraw 16s  sizes [256, 300, 320, 480, 600]  372.3 min\n"}
+,{"stream_name":"stdout","time":22863.022431249,"data":"round 57/80 step 17100  L1 0.00457  d1 0.00339  d2 0.00244  redraw 38s  sizes [256, 300, 320, 480, 600]  378.8 min\n"}
+,{"stream_name":"stdout","time":23242.165800331,"data":"round 58/80 step 17400  L1 0.00500  d1 0.00367  d2 0.00273  redraw 24s  sizes [256, 300, 320, 480, 600]  385.2 min\n"}
+,{"stream_name":"stdout","time":23629.097564411,"data":"round 59/80 step 17700  L1 0.00469  d1 0.00343  d2 0.00255  redraw 27s  sizes [256, 300, 320, 480, 600]  391.6 min\n"}
+,{"stream_name":"stdout","time":23998.504516533,"data":"round 60/80 step 18000  L1 0.00552  d1 0.00397  d2 0.00250  redraw 9s  sizes [256, 300, 320, 480, 600]  397.8 min\n"}
+,{"stream_name":"stdout","time":24420.650209634,"data":"round 61/80 step 18300  L1 0.00561  d1 0.00427  d2 0.00285  redraw 51s  sizes [256, 300, 320, 480, 600]  404.8 min\n"}
+,{"stream_name":"stdout","time":24816.915358722,"data":"round 62/80 step 18600  L1 0.00485  d1 0.00364  d2 0.00254  redraw 31s  sizes [256, 300, 320, 480, 600]  411.4 min\n"}
+,{"stream_name":"stdout","time":25203.836930817,"data":"round 63/80 step 18900  L1 0.00440  d1 0.00330  d2 0.00226  redraw 26s  sizes [256, 300, 320, 480, 600]  417.8 min\n"}
+,{"stream_name":"stdout","time":25598.344442999,"data":"round 64/80 step 19200  L1 0.00434  d1 0.00330  d2 0.00223  redraw 32s  sizes [256, 300, 320, 480, 600]  424.4 min\n"}
+,{"stream_name":"stdout","time":25985.568659806,"data":"round 65/80 step 19500  L1 0.00427  d1 0.00322  d2 0.00215  redraw 27s  sizes [256, 300, 320, 480, 600]  430.9 min\n"}
+,{"stream_name":"stdout","time":26378.313131242,"data":"round 66/80 step 19800  L1 0.00490  d1 0.00378  d2 0.00239  redraw 29s  sizes [256, 300, 320, 480, 600]  437.4 min\n"}
+,{"stream_name":"stdout","time":26765.672478596,"data":"round 67/80 step 20100  L1 0.00489  d1 0.00387  d2 0.00247  redraw 22s  sizes [256, 300, 320, 480, 600]  443.9 min\n"}
+,{"stream_name":"stdout","time":27146.687275293,"data":"round 68/80 step 20400  L1 0.00647  d1 0.00450  d2 0.00255  redraw 18s  sizes [256, 300, 320, 480, 600]  450.2 min\n"}
+,{"stream_name":"stdout","time":27547.486079188,"data":"round 69/80 step 20700  L1 0.00595  d1 0.00398  d2 0.00216  redraw 42s  sizes [256, 300, 320, 480, 600]  456.9 min\n"}
+,{"stream_name":"stdout","time":27934.971861292,"data":"round 70/80 step 21000  L1 0.00615  d1 0.00420  d2 0.00222  redraw 25s  sizes [256, 300, 320, 480, 600]  463.4 min\n"}
+,{"stream_name":"stdout","time":28310.925242949,"data":"round 71/80 step 21300  L1 0.00646  d1 0.00448  d2 0.00234  redraw 21s  sizes [256, 300, 320, 480, 600]  469.6 min\n"}
+,{"stream_name":"stdout","time":28705.582402109,"data":"round 72/80 step 21600  L1 0.00677  d1 0.00462  d2 0.00241  redraw 28s  sizes [256, 300, 480, 600]  476.2 min\n"}
+,{"stream_name":"stdout","time":29102.344939769,"data":"round 73/80 step 21900  L1 0.00627  d1 0.00452  d2 0.00249  redraw 28s  sizes [256, 300, 320, 480, 600]  482.8 min\n"}
+,{"stream_name":"stdout","time":29495.526783953,"data":"round 74/80 step 22200  L1 0.00663  d1 0.00437  d2 0.00233  redraw 21s  sizes [256, 300, 320, 480, 600]  489.4 min\n"}
+,{"stream_name":"stdout","time":29900.916442927,"data":"round 75/80 step 22500  L1 0.00694  d1 0.00471  d2 0.00246  redraw 40s  sizes [256, 300, 320, 480, 600]  496.1 min\n"}
+,{"stream_name":"stdout","time":30270.561682176,"data":"round 76/80 step 22800  L1 0.00632  d1 0.00436  d2 0.00232  redraw 10s  sizes [256, 300, 320, 480, 600]  502.3 min\n"}
+,{"stream_name":"stdout","time":30658.94626147,"data":"round 77/80 step 23100  L1 0.00605  d1 0.00424  d2 0.00236  redraw 28s  sizes [256, 300, 320, 480, 600]  508.8 min\n"}
+,{"stream_name":"stdout","time":31028.356680593,"data":"round 78/80 step 23400  L1 0.00736  d1 0.00483  d2 0.00239  redraw 13s  sizes [256, 300, 320, 480, 600]  514.9 min\n"}
+,{"stream_name":"stdout","time":31408.719670407,"data":"round 79/80 step 23700  L1 0.00658  d1 0.00470  d2 0.00266  redraw 20s  sizes [256, 300, 320, 480, 600]  521.3 min\n"}
+,{"stream_name":"stdout","time":31790.45237773,"data":"round 80/80 step 24000  L1 0.00847  d1 0.00535  d2 0.00263  redraw 17s  sizes [256, 300, 320, 480, 600]  527.6 min\n"}
+,{"stream_name":"stdout","time":31790.647097244,"data":"TRAINED 24000 steps in 527.6 min -\u003e /kaggle/working/unified_wiener_k15/unified_r4n_k15_long.pth\n"}
+,{"stream_name":"stdout","time":31790.735951093,"data":"======================================================================\n"}
+,{"stream_name":"stdout","time":31790.73597757,"data":"CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)\n"}
+,{"stream_name":"stdout","time":31790.735985322,"data":"======================================================================\n"}
+,{"stream_name":"stdout","time":31790.735992217,"data":"  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data\n"}
+,{"stream_name":"stdout","time":31790.735999524,"data":"  total cubes       : 14  across 11 distinct RunIDs\n"}
+,{"stream_name":"stdout","time":31790.73600623,"data":"  seed=42  n_holdout=3  val_fraction=0.2\n"}
+,{"stream_name":"stdout","time":31790.736013017,"data":"----------------------------------------------------------------------\n"}
+,{"stream_name":"stdout","time":31790.736021934,"data":"  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']\n"}
+,{"stream_name":"stdout","time":31790.736027044,"data":"  VAL     :  2 cubes | RunIDs ['0016', '0036']\n"}
+,{"stream_name":"stdout","time":31790.736046739,"data":"  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  \u003c-- inference only, NEVER trained/validated\n"}
+,{"stream_name":"stdout","time":31790.736052732,"data":"----------------------------------------------------------------------\n"}
+,{"stream_name":"stdout","time":31790.736057094,"data":"  HOLDOUT cube folders (reserved for moment-map evaluation):\n"}
+,{"stream_name":"stdout","time":31790.736061389,"data":"    - run_0002_00560_rt_00\n"}
+,{"stream_name":"stdout","time":31790.736065953,"data":"    - run_0002_00560_rt_01\n"}
+,{"stream_name":"stdout","time":31790.73607039,"data":"    - run_0002_00560_rt_04\n"}
+,{"stream_name":"stdout","time":31790.736075279,"data":"    - run_0025_01000_rt_04\n"}
+,{"stream_name":"stdout","time":31790.736079933,"data":"    - run_0026_00005_rt_04\n"}
+,{"stream_name":"stdout","time":31790.736084465,"data":"======================================================================\n"}
+,{"stream_name":"stdout","time":31823.825382551,"data":"  run_0002_00560_rt_00_256: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":31823.825423002,"data":"  run_0002_00560_rt_00_256: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":31823.825428852,"data":"  run_0002_00560_rt_00_256: model built [0s]\n"}
+,{"stream_name":"stdout","time":31827.349405236,"data":"  run_0002_00560_rt_00_256: scored [4s]\n"}
+,{"stream_name":"stdout","time":31827.350393028,"data":"run_0002_00560_rt_00@256       PSNR dirty 22.55 wiener 32.46 MODEL 44.74 | M0/M1/M2 % wiener 16/31/21 MODEL 37/70/82 | rc_r dirty 0.749 wiener 0.697 MODEL 0.889 | dv_med 112/135/54 m/s | 26s\n"}
+,{"stream_name":"stdout","time":31855.358899027,"data":"  run_0002_00560_rt_00_300: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":31855.358936171,"data":"  run_0002_00560_rt_00_300: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":31855.358940529,"data":"  run_0002_00560_rt_00_300: model built [0s]\n"}
+,{"stream_name":"stdout","time":31857.984155017,"data":"  run_0002_00560_rt_00_300: scored [3s]\n"}
+,{"stream_name":"stdout","time":31857.98545996,"data":"run_0002_00560_rt_00@300       PSNR dirty 22.55 wiener 32.47 MODEL 45.43 | M0/M1/M2 % wiener 17/32/22 MODEL 39/72/86 | rc_r dirty 0.779 wiener 0.697 MODEL 0.909 | dv_med 112/135/51 m/s | 31s\n"}
+,{"stream_name":"stdout","time":31890.076705027,"data":"  run_0002_00560_rt_00_320: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":31890.076751972,"data":"  run_0002_00560_rt_00_320: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":31890.076771787,"data":"  run_0002_00560_rt_00_320: model built [0s]\n"}
+,{"stream_name":"stdout","time":31892.89284687,"data":"  run_0002_00560_rt_00_320: scored [3s]\n"}
+,{"stream_name":"stdout","time":31892.895611699,"data":"run_0002_00560_rt_00@320       PSNR dirty 22.56 wiener 32.47 MODEL 45.67 | M0/M1/M2 % wiener 17/32/22 MODEL 39/72/87 | rc_r dirty 0.761 wiener 0.699 MODEL 0.908 | dv_med 112/135/50 m/s | 35s\n"}
+,{"stream_name":"stdout","time":31963.690378104,"data":"  run_0002_00560_rt_00_480: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":31963.690422701,"data":"  run_0002_00560_rt_00_480: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":31963.690428629,"data":"  run_0002_00560_rt_00_480: model built [0s]\n"}
+,{"stream_name":"stdout","time":31968.075935399,"data":"  run_0002_00560_rt_00_480: scored [4s]\n"}
+,{"stream_name":"stdout","time":31968.105183087,"data":"run_0002_00560_rt_00@480       PSNR dirty 22.56 wiener 32.48 MODEL 46.38 | M0/M1/M2 % wiener 17/32/23 MODEL 43/72/88 | rc_r dirty 0.772 wiener 0.693 MODEL 0.902 | dv_med 112/136/48 m/s | 75s\n"}
+,{"stream_name":"stdout","time":32080.568894797,"data":"  run_0002_00560_rt_00_600: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":32080.568959305,"data":"  run_0002_00560_rt_00_600: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":32080.568963379,"data":"  run_0002_00560_rt_00_600: model built [0s]\n"}
+,{"stream_name":"stdout","time":32087.415326388,"data":"  run_0002_00560_rt_00_600: scored [7s]\n"}
+,{"stream_name":"stdout","time":32087.419905996,"data":"run_0002_00560_rt_00@600       PSNR dirty 22.57 wiener 32.49 MODEL 46.54 | M0/M1/M2 % wiener 17/33/23 MODEL 43/70/87 | rc_r dirty 0.764 wiener 0.691 MODEL 0.892 | dv_med 112/136/47 m/s | 119s\n"}
+,{"stream_name":"stdout","time":32119.80975222,"data":"  run_0002_00560_rt_01_256: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":32119.809801169,"data":"  run_0002_00560_rt_01_256: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":32119.809808227,"data":"  run_0002_00560_rt_01_256: model built [0s]\n"}
+,{"stream_name":"stdout","time":32122.254934588,"data":"  run_0002_00560_rt_01_256: scored [2s]\n"}
+,{"stream_name":"stdout","time":32122.257357176,"data":"run_0002_00560_rt_01@256       PSNR dirty 19.19 wiener 30.19 MODEL 49.70 | M0/M1/M2 % wiener 21/66/64 MODEL 59/93/91 | rc_r dirty 0.047 wiener 0.155 MODEL 0.792 | dv_med 62/40/17 m/s | 25s\n"}
+,{"stream_name":"stdout","time":32149.836400442,"data":"  run_0002_00560_rt_01_300: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":32149.836441183,"data":"  run_0002_00560_rt_01_300: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":32149.836458492,"data":"  run_0002_00560_rt_01_300: model built [0s]\n"}
+,{"stream_name":"stdout","time":32152.080433153,"data":"  run_0002_00560_rt_01_300: scored [2s]\n"}
+,{"stream_name":"stdout","time":32152.083297272,"data":"run_0002_00560_rt_01@300       PSNR dirty 19.20 wiener 30.21 MODEL 50.77 | M0/M1/M2 % wiener 21/67/65 MODEL 61/94/93 | rc_r dirty 0.045 wiener 0.157 MODEL 0.813 | dv_med 62/40/16 m/s | 30s\n"}
+,{"stream_name":"stdout","time":32183.681310768,"data":"  run_0002_00560_rt_01_320: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":32183.681379768,"data":"  run_0002_00560_rt_01_320: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":32183.681387282,"data":"  run_0002_00560_rt_01_320: model built [0s]\n"}
+,{"stream_name":"stdout","time":32186.224527979,"data":"  run_0002_00560_rt_01_320: scored [3s]\n"}
+,{"stream_name":"stdout","time":32186.228637156,"data":"run_0002_00560_rt_01@320       PSNR dirty 19.20 wiener 30.20 MODEL 50.92 | M0/M1/M2 % wiener 21/67/64 MODEL 62/94/94 | rc_r dirty 0.046 wiener 0.160 MODEL 0.817 | dv_med 62/40/16 m/s | 34s\n"}
+,{"stream_name":"stdout","time":32256.9040654,"data":"  run_0002_00560_rt_01_480: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":32256.904118797,"data":"  run_0002_00560_rt_01_480: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":32256.904127905,"data":"  run_0002_00560_rt_01_480: model built [0s]\n"}
+,{"stream_name":"stdout","time":32260.683296997,"data":"  run_0002_00560_rt_01_480: scored [4s]\n"}
+,{"stream_name":"stdout","time":32260.713374456,"data":"run_0002_00560_rt_01@480       PSNR dirty 19.21 wiener 30.22 MODEL 50.88 | M0/M1/M2 % wiener 21/67/65 MODEL 65/94/94 | rc_r dirty 0.041 wiener 0.070 MODEL 0.726 | dv_med 62/40/17 m/s | 74s\n"}
+,{"stream_name":"stdout","time":32370.74901839,"data":"  run_0002_00560_rt_01_600: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":32370.749090037,"data":"  run_0002_00560_rt_01_600: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":32370.749107306,"data":"  run_0002_00560_rt_01_600: model built [0s]\n"}
+,{"stream_name":"stdout","time":32376.03842645,"data":"  run_0002_00560_rt_01_600: scored [5s]\n"}
+,{"stream_name":"stdout","time":32376.045030668,"data":"run_0002_00560_rt_01@600       PSNR dirty 19.22 wiener 30.23 MODEL 50.76 | M0/M1/M2 % wiener 22/67/65 MODEL 64/94/93 | rc_r dirty 0.042 wiener 0.082 MODEL 0.675 | dv_med 62/40/20 m/s | 115s\n"}
+,{"stream_name":"stdout","time":32407.213540505,"data":"  run_0002_00560_rt_04_256: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":32407.213586788,"data":"  run_0002_00560_rt_04_256: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":32407.213646185,"data":"  run_0002_00560_rt_04_256: model built [0s]\n"}
+,{"stream_name":"stdout","time":32409.242104867,"data":"  run_0002_00560_rt_04_256: scored [2s]\n"}
+,{"stream_name":"stdout","time":32409.246128105,"data":"run_0002_00560_rt_04@256       PSNR dirty 18.95 wiener 30.38 MODEL 50.98 | M0/M1/M2 % wiener 11/75/66 MODEL 56/95/86 | rc_r dirty 0.232 wiener 0.948 MODEL 0.986 | dv_med 44/28/12 m/s | 24s\n"}
+,{"stream_name":"stdout","time":32436.523457336,"data":"  run_0002_00560_rt_04_300: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":32436.523524798,"data":"  run_0002_00560_rt_04_300: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":32436.523531739,"data":"  run_0002_00560_rt_04_300: model built [0s]\n"}
+,{"stream_name":"stdout","time":32438.879036496,"data":"  run_0002_00560_rt_04_300: scored [2s]\n"}
+,{"stream_name":"stdout","time":32438.883495737,"data":"run_0002_00560_rt_04@300       PSNR dirty 18.96 wiener 30.40 MODEL 52.42 | M0/M1/M2 % wiener 11/75/66 MODEL 59/96/88 | rc_r dirty 0.223 wiener 0.947 MODEL 0.994 | dv_med 45/28/12 m/s | 30s\n"}
+,{"stream_name":"stdout","time":32469.774077691,"data":"  run_0002_00560_rt_04_320: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":32469.774128813,"data":"  run_0002_00560_rt_04_320: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":32469.774135358,"data":"  run_0002_00560_rt_04_320: model built [0s]\n"}
+,{"stream_name":"stdout","time":32472.625402397,"data":"  run_0002_00560_rt_04_320: scored [3s]\n"}
+,{"stream_name":"stdout","time":32472.629803789,"data":"run_0002_00560_rt_04@320       PSNR dirty 18.96 wiener 30.39 MODEL 52.75 | M0/M1/M2 % wiener 11/75/66 MODEL 60/96/90 | rc_r dirty 0.026 wiener 0.067 MODEL 0.592 | dv_med 45/28/13 m/s | 34s\n"}
+,{"stream_name":"stdout","time":32546.288032906,"data":"  run_0002_00560_rt_04_480: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":32546.288086804,"data":"  run_0002_00560_rt_04_480: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":32546.288095276,"data":"  run_0002_00560_rt_04_480: model built [0s]\n"}
+,{"stream_name":"stdout","time":32550.858070946,"data":"  run_0002_00560_rt_04_480: scored [5s]\n"}
+,{"stream_name":"stdout","time":32550.879783485,"data":"run_0002_00560_rt_04@480       PSNR dirty 18.97 wiener 30.41 MODEL 53.65 | M0/M1/M2 % wiener 11/75/66 MODEL 62/96/95 | rc_r dirty 0.036 wiener 0.021 MODEL 0.382 | dv_med 45/28/14 m/s | 78s\n"}
+,{"stream_name":"stdout","time":32663.622052246,"data":"  run_0002_00560_rt_04_600: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":32663.622126067,"data":"  run_0002_00560_rt_04_600: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":32663.622133495,"data":"  run_0002_00560_rt_04_600: model built [0s]\n"}
+,{"stream_name":"stdout","time":32671.092058699,"data":"  run_0002_00560_rt_04_600: scored [7s]\n"}
+,{"stream_name":"stdout","time":32671.100173322,"data":"run_0002_00560_rt_04@600       PSNR dirty 18.98 wiener 30.43 MODEL 54.21 | M0/M1/M2 % wiener 11/75/66 MODEL 62/96/95 | rc_r dirty 0.031 wiener 0.071 MODEL 0.462 | dv_med 45/28/13 m/s | 120s\n"}
+,{"stream_name":"stdout","time":32706.830950931,"data":"  run_0025_01000_rt_04_256: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":32706.830996469,"data":"  run_0025_01000_rt_04_256: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":32706.831000821,"data":"  run_0025_01000_rt_04_256: model built [0s]\n"}
+,{"stream_name":"stdout","time":32712.198101973,"data":"  run_0025_01000_rt_04_256: scored [5s]\n"}
+,{"stream_name":"stdout","time":32712.204098516,"data":"run_0025_01000_rt_04@256       PSNR dirty 20.17 wiener 29.15 MODEL 49.24 | M0/M1/M2 % wiener -11/52/40 MODEL 58/92/87 | rc_r dirty 0.097 wiener 0.329 MODEL 0.794 | dv_med 35/19/10 m/s | 31s\n"}
+,{"stream_name":"stdout","time":32742.690492472,"data":"  run_0025_01000_rt_04_300: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":32742.690537543,"data":"  run_0025_01000_rt_04_300: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":32742.690544196,"data":"  run_0025_01000_rt_04_300: model built [0s]\n"}
+,{"stream_name":"stdout","time":32747.179036766,"data":"  run_0025_01000_rt_04_300: scored [4s]\n"}
+,{"stream_name":"stdout","time":32747.185040962,"data":"run_0025_01000_rt_04@300       PSNR dirty 20.18 wiener 29.18 MODEL 50.46 | M0/M1/M2 % wiener -11/52/40 MODEL 59/92/88 | rc_r dirty 0.079 wiener 0.227 MODEL 0.709 | dv_med 35/19/10 m/s | 35s\n"}
+,{"stream_name":"stdout","time":32780.78642776,"data":"  run_0025_01000_rt_04_320: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":32780.786468914,"data":"  run_0025_01000_rt_04_320: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":32780.786473135,"data":"  run_0025_01000_rt_04_320: model built [0s]\n"}
+,{"stream_name":"stdout","time":32787.688813406,"data":"  run_0025_01000_rt_04_320: scored [7s]\n"}
+,{"stream_name":"stdout","time":32787.695217211,"data":"run_0025_01000_rt_04@320       PSNR dirty 20.18 wiener 29.17 MODEL 50.50 | M0/M1/M2 % wiener -11/52/40 MODEL 59/92/88 | rc_r dirty 0.067 wiener 0.241 MODEL 0.723 | dv_med 35/19/10 m/s | 41s\n"}
+,{"stream_name":"stdout","time":32865.610445344,"data":"  run_0025_01000_rt_04_480: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":32865.610498466,"data":"  run_0025_01000_rt_04_480: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":32865.610505968,"data":"  run_0025_01000_rt_04_480: model built [0s]\n"}
+,{"stream_name":"stdout","time":32875.713816333,"data":"  run_0025_01000_rt_04_480: scored [10s]\n"}
+,{"stream_name":"stdout","time":32875.735136053,"data":"run_0025_01000_rt_04@480       PSNR dirty 20.19 wiener 29.19 MODEL 50.89 | M0/M1/M2 % wiener -11/52/40 MODEL 61/92/91 | rc_r dirty 0.084 wiener 0.275 MODEL 0.716 | dv_med 35/19/11 m/s | 88s\n"}
+,{"stream_name":"stdout","time":32992.327653071,"data":"  run_0025_01000_rt_04_600: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":32992.327727459,"data":"  run_0025_01000_rt_04_600: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":32992.327736705,"data":"  run_0025_01000_rt_04_600: model built [0s]\n"}
+,{"stream_name":"stdout","time":33004.829926742,"data":"  run_0025_01000_rt_04_600: scored [13s]\n"}
+,{"stream_name":"stdout","time":33004.838362241,"data":"run_0025_01000_rt_04@600       PSNR dirty 20.19 wiener 29.20 MODEL 51.05 | M0/M1/M2 % wiener -11/52/40 MODEL 60/93/92 | rc_r dirty 0.083 wiener 0.256 MODEL 0.680 | dv_med 35/19/11 m/s | 129s\n"}
+,{"stream_name":"stdout","time":33035.807608252,"data":"  run_0026_00005_rt_04_256: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":33035.807649999,"data":"  run_0026_00005_rt_04_256: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":33035.807654328,"data":"  run_0026_00005_rt_04_256: model built [0s]\n"}
+,{"stream_name":"stdout","time":33038.23668231,"data":"  run_0026_00005_rt_04_256: scored [2s]\n"}
+,{"stream_name":"stdout","time":33038.243579982,"data":"run_0026_00005_rt_04@256       PSNR dirty 19.38 wiener 30.51 MODEL 44.28 | M0/M1/M2 % wiener 48/68/61 MODEL 54/85/74 | rc_r dirty 0.144 wiener 0.846 MODEL 0.877 | dv_med 194/130/70 m/s | 25s\n"}
+,{"stream_name":"stdout","time":33065.2590619,"data":"  run_0026_00005_rt_04_300: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":33065.259101228,"data":"  run_0026_00005_rt_04_300: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":33065.259124396,"data":"  run_0026_00005_rt_04_300: model built [0s]\n"}
+,{"stream_name":"stdout","time":33067.63619306,"data":"  run_0026_00005_rt_04_300: scored [2s]\n"}
+,{"stream_name":"stdout","time":33067.643570688,"data":"run_0026_00005_rt_04@300       PSNR dirty 19.38 wiener 30.52 MODEL 44.57 | M0/M1/M2 % wiener 48/69/61 MODEL 54/85/75 | rc_r dirty 0.146 wiener 0.845 MODEL 0.869 | dv_med 195/131/69 m/s | 29s\n"}
+,{"stream_name":"stdout","time":33098.226365178,"data":"  run_0026_00005_rt_04_320: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":33098.226412251,"data":"  run_0026_00005_rt_04_320: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":33098.226418817,"data":"  run_0026_00005_rt_04_320: model built [0s]\n"}
+,{"stream_name":"stdout","time":33101.33833457,"data":"  run_0026_00005_rt_04_320: scored [3s]\n"}
+,{"stream_name":"stdout","time":33101.345571934,"data":"run_0026_00005_rt_04@320       PSNR dirty 19.39 wiener 30.52 MODEL 44.57 | M0/M1/M2 % wiener 48/68/60 MODEL 54/85/76 | rc_r dirty 0.148 wiener 0.845 MODEL 0.854 | dv_med 195/130/69 m/s | 34s\n"}
+,{"stream_name":"stdout","time":33173.835066312,"data":"  run_0026_00005_rt_04_480: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":33173.835117527,"data":"  run_0026_00005_rt_04_480: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":33173.835122501,"data":"  run_0026_00005_rt_04_480: model built [0s]\n"}
+,{"stream_name":"stdout","time":33179.407038651,"data":"  run_0026_00005_rt_04_480: scored [6s]\n"}
+,{"stream_name":"stdout","time":33179.430065703,"data":"run_0026_00005_rt_04@480       PSNR dirty 19.39 wiener 30.53 MODEL 44.22 | M0/M1/M2 % wiener 48/69/61 MODEL 51/84/78 | rc_r dirty 0.155 wiener 0.845 MODEL 0.694 | dv_med 195/130/67 m/s | 78s\n"}
+,{"stream_name":"stdout","time":33290.620844222,"data":"  run_0026_00005_rt_04_600: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":33290.620924214,"data":"  run_0026_00005_rt_04_600: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":33290.620928811,"data":"  run_0026_00005_rt_04_600: model built [0s]\n"}
+,{"stream_name":"stdout","time":33298.173007533,"data":"  run_0026_00005_rt_04_600: scored [8s]\n"}
+,{"stream_name":"stdout","time":33298.182974798,"data":"run_0026_00005_rt_04@600       PSNR dirty 19.40 wiener 30.54 MODEL 43.95 | M0/M1/M2 % wiener 48/69/61 MODEL 49/84/79 | rc_r dirty 0.149 wiener 0.845 MODEL 0.656 | dv_med 195/131/71 m/s | 119s\n"}
+,{"stream_name":"stdout","time":33673.227101368,"data":"  speedie_GI_r0.5_1024: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":33673.227152076,"data":"  speedie_GI_r0.5_1024: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":33673.227158188,"data":"  speedie_GI_r0.5_1024: model built [0s]\n"}
+,{"stream_name":"stdout","time":33693.262540034,"data":"  speedie_GI_r0.5_1024: scored [20s]\n"}
+,{"stream_name":"stdout","time":33693.27550277,"data":"speedie_GI_r0.5@1024           PSNR dirty 24.30 wiener 34.68 MODEL 52.69 | M0/M1/M2 % wiener 23/55/49 MODEL 8/83/87 | rc_r dirty 0.361 wiener 0.588 MODEL 0.867 | dv_med 37/38/25 m/s | 368s\n"}
+,{"stream_name":"stdout","time":34062.463633641,"data":"  speedie_Kep_r0.5_1024: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":34062.463706582,"data":"  speedie_Kep_r0.5_1024: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":34062.463714638,"data":"  speedie_Kep_r0.5_1024: model built [0s]\n"}
+,{"stream_name":"stdout","time":34083.338782822,"data":"  speedie_Kep_r0.5_1024: scored [21s]\n"}
+,{"stream_name":"stdout","time":34083.352136308,"data":"speedie_Kep_r0.5@1024          PSNR dirty 24.65 wiener 34.83 MODEL 52.36 | M0/M1/M2 % wiener 21/67/51 MODEL -14/88/87 | rc_r dirty 0.218 wiener 0.121 MODEL 0.615 | dv_med 30/13/9 m/s | 365s\n"}
+,{"stream_name":"stdout","time":34450.379176388,"data":"  speedie_GI_r1.5_1024: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":34450.379262563,"data":"  speedie_GI_r1.5_1024: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":34450.379268079,"data":"  speedie_GI_r1.5_1024: model built [0s]\n"}
+,{"stream_name":"stdout","time":34471.764616354,"data":"  speedie_GI_r1.5_1024: scored [21s]\n"}
+,{"stream_name":"stdout","time":34471.778730797,"data":"speedie_GI_r1.5@1024           PSNR dirty 28.29 wiener 32.35 MODEL 45.41 | M0/M1/M2 % wiener -4/25/40 MODEL -20/31/-280 | rc_r dirty 0.935 wiener 0.882 MODEL 0.919 | dv_med 13/22/19 m/s | 364s\n"}
+,{"stream_name":"stdout","time":34841.013834714,"data":"  speedie_Kep_r1.5_1024: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":34841.013927654,"data":"  speedie_Kep_r1.5_1024: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":34841.01393247,"data":"  speedie_Kep_r1.5_1024: model built [0s]\n"}
+,{"stream_name":"stdout","time":34862.237780053,"data":"  speedie_Kep_r1.5_1024: scored [21s]\n"}
+,{"stream_name":"stdout","time":34862.251335715,"data":"speedie_Kep_r1.5@1024          PSNR dirty 28.77 wiener 32.77 MODEL 46.32 | M0/M1/M2 % wiener -9/30/27 MODEL -28/52/-169 | rc_r dirty 0.748 wiener 0.645 MODEL 0.753 | dv_med 10/9/8 m/s | 364s\n"}
+,{"stream_name":"stdout","time":35206.853575206,"data":"  speedie_ladder_GI_r0.5_snr3_1024: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":35206.853634479,"data":"  speedie_ladder_GI_r0.5_snr3_1024: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":35206.853641145,"data":"  speedie_ladder_GI_r0.5_snr3_1024: model built [0s]\n"}
+,{"stream_name":"stdout","time":35227.590082924,"data":"  speedie_ladder_GI_r0.5_snr3_1024: scored [21s]\n"}
+,{"stream_name":"stdout","time":35227.606544476,"data":"speedie_ladder_GI_r0.5_snr3@1024 PSNR dirty 18.98 wiener 44.21 MODEL 51.47 | M0/M1/M2 % wiener 46/89/24 MODEL 28/74/72 | rc_r dirty -0.024 wiener -0.002 MODEL -0.002 | dv_med 1555/71/105 m/s | 363s\n"}
+,{"stream_name":"stdout","time":35570.754531122,"data":"  speedie_ladder_GI_r0.5_snr6_1024: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":35570.754611249,"data":"  speedie_ladder_GI_r0.5_snr6_1024: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":35570.754618208,"data":"  speedie_ladder_GI_r0.5_snr6_1024: model built [0s]\n"}
+,{"stream_name":"stdout","time":35591.288456647,"data":"  speedie_ladder_GI_r0.5_snr6_1024: scored [21s]\n"}
+,{"stream_name":"stdout","time":35591.303170219,"data":"speedie_ladder_GI_r0.5_snr6@1024 PSNR dirty 19.62 wiener 39.77 MODEL 51.53 | M0/M1/M2 % wiener 76/89/29 MODEL 62/96/84 | rc_r dirty -0.018 wiener 0.072 MODEL 0.113 | dv_med 215/58/47 m/s | 363s\n"}
+,{"stream_name":"stdout","time":35932.260246412,"data":"  speedie_ladder_GI_r0.5_snr12_1024: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":35932.260284762,"data":"  speedie_ladder_GI_r0.5_snr12_1024: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":35932.260311102,"data":"  speedie_ladder_GI_r0.5_snr12_1024: model built [0s]\n"}
+,{"stream_name":"stdout","time":35953.181897338,"data":"  speedie_ladder_GI_r0.5_snr12_1024: scored [21s]\n"}
+,{"stream_name":"stdout","time":35953.198111879,"data":"speedie_ladder_GI_r0.5_snr12@1024 PSNR dirty 20.98 wiener 37.28 MODEL 51.15 | M0/M1/M2 % wiener 72/83/38 MODEL 63/94/92 | rc_r dirty 0.012 wiener 0.181 MODEL 0.604 | dv_med 79/49/36 m/s | 361s\n"}
+,{"stream_name":"stdout","time":36297.544347935,"data":"  speedie_ladder_GI_r0.5_snr24_1024: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":36297.544397146,"data":"  speedie_ladder_GI_r0.5_snr24_1024: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":36297.544416571,"data":"  speedie_ladder_GI_r0.5_snr24_1024: model built [0s]\n"}
+,{"stream_name":"stdout","time":36318.009452205,"data":"  speedie_ladder_GI_r0.5_snr24_1024: scored [20s]\n"}
+,{"stream_name":"stdout","time":36318.024769633,"data":"speedie_ladder_GI_r0.5_snr24@1024 PSNR dirty 22.92 wiener 35.37 MODEL 53.35 | M0/M1/M2 % wiener 41/66/42 MODEL 33/88/91 | rc_r dirty 0.137 wiener 0.431 MODEL 0.806 | dv_med 48/42/28 m/s | 364s\n"}
+,{"stream_name":"stdout","time":36663.224176994,"data":"  speedie_ladder_Kep_r0.5_snr3_1024: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":36663.224222138,"data":"  speedie_ladder_Kep_r0.5_snr3_1024: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":36663.224228783,"data":"  speedie_ladder_Kep_r0.5_snr3_1024: model built [0s]\n"}
+,{"stream_name":"stdout","time":36687.181103591,"data":"  speedie_ladder_Kep_r0.5_snr3_1024: scored [24s]\n"}
+,{"stream_name":"stdout","time":36687.19902471,"data":"speedie_ladder_Kep_r0.5_snr3@1024 PSNR dirty 19.12 wiener 44.92 MODEL 51.03 | M0/M1/M2 % wiener 39/90/31 MODEL 15/66/77 | rc_r dirty 0.005 wiener 0.003 MODEL 0.021 | dv_med 1570/55/176 m/s | 367s\n"}
+,{"stream_name":"stdout","time":37031.952425686,"data":"  speedie_ladder_Kep_r0.5_snr6_1024: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":37031.952479063,"data":"  speedie_ladder_Kep_r0.5_snr6_1024: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":37031.952485774,"data":"  speedie_ladder_Kep_r0.5_snr6_1024: model built [0s]\n"}
+,{"stream_name":"stdout","time":37053.260810276,"data":"  speedie_ladder_Kep_r0.5_snr6_1024: scored [21s]\n"}
+,{"stream_name":"stdout","time":37053.276114345,"data":"speedie_ladder_Kep_r0.5_snr6@1024 PSNR dirty 19.81 wiener 39.74 MODEL 51.10 | M0/M1/M2 % wiener 73/92/45 MODEL 59/96/86 | rc_r dirty -0.005 wiener -0.017 MODEL 0.061 | dv_med 180/24/22 m/s | 365s\n"}
+,{"stream_name":"stdout","time":37395.91869316,"data":"  speedie_ladder_Kep_r0.5_snr12_1024: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":37395.918758987,"data":"  speedie_ladder_Kep_r0.5_snr12_1024: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":37395.918766878,"data":"  speedie_ladder_Kep_r0.5_snr12_1024: model built [0s]\n"}
+,{"stream_name":"stdout","time":37417.246422076,"data":"  speedie_ladder_Kep_r0.5_snr12_1024: scored [21s]\n"}
+,{"stream_name":"stdout","time":37417.262598312,"data":"speedie_ladder_Kep_r0.5_snr12@1024 PSNR dirty 21.23 wiener 37.21 MODEL 50.55 | M0/M1/M2 % wiener 68/86/43 MODEL 57/95/93 | rc_r dirty -0.008 wiener -0.023 MODEL 0.305 | dv_med 63/16/14 m/s | 363s\n"}
+,{"stream_name":"stdout","time":37761.042680571,"data":"  speedie_ladder_Kep_r0.5_snr24_1024: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":37761.042738265,"data":"  speedie_ladder_Kep_r0.5_snr24_1024: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":37761.042745226,"data":"  speedie_ladder_Kep_r0.5_snr24_1024: model built [0s]\n"}
+,{"stream_name":"stdout","time":37781.776009211,"data":"  speedie_ladder_Kep_r0.5_snr24_1024: scored [21s]\n"}
+,{"stream_name":"stdout","time":37781.792227607,"data":"speedie_ladder_Kep_r0.5_snr24@1024 PSNR dirty 23.27 wiener 35.40 MODEL 52.56 | M0/M1/M2 % wiener 37/73/48 MODEL 16/91/93 | rc_r dirty 0.040 wiener 0.046 MODEL 0.515 | dv_med 38/14/10 m/s | 363s\n"}
+,{"stream_name":"stdout","time":37806.728938578,"data":"  9074_256: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":37806.728974638,"data":"  9074_256: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":37806.728978391,"data":"  9074_256: model built [0s]\n"}
+,{"stream_name":"stdout","time":37806.781447072,"data":"  9074_256: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":37809.865783539,"data":"  9074_256: scored [3s]\n"}
+,{"stream_name":"stdout","time":37809.883459922,"data":"9074@256                       PSNR dirty 21.15 wiener 33.97 MODEL 33.95 | M0/M1/M2 % wiener 38/9/51 MODEL 32/46/59 | rc_r dirty 0.131 wiener 0.071 MODEL 0.258 | dv_med 308/304/233 m/s | 25s\n"}
+,{"stream_name":"stdout","time":37837.598434193,"data":"  9074_300: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":37837.598480155,"data":"  9074_300: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":37837.598484264,"data":"  9074_300: model built [0s]\n"}
+,{"stream_name":"stdout","time":37837.642121935,"data":"  9074_300: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":37840.987104375,"data":"  9074_300: scored [3s]\n"}
+,{"stream_name":"stdout","time":37841.007363678,"data":"9074@300                       PSNR dirty 21.15 wiener 33.95 MODEL 33.99 | M0/M1/M2 % wiener 35/7/49 MODEL 32/45/59 | rc_r dirty 0.134 wiener 0.074 MODEL 0.296 | dv_med 308/304/230 m/s | 31s\n"}
+,{"stream_name":"stdout","time":37871.828751566,"data":"  9074_320: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":37871.828795775,"data":"  9074_320: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":37871.828800176,"data":"  9074_320: model built [0s]\n"}
+,{"stream_name":"stdout","time":37871.897655423,"data":"  9074_320: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":37876.062611985,"data":"  9074_320: scored [4s]\n"}
+,{"stream_name":"stdout","time":37876.083237236,"data":"9074@320                       PSNR dirty 21.15 wiener 33.89 MODEL 34.00 | M0/M1/M2 % wiener 34/8/49 MODEL 32/47/59 | rc_r dirty 0.132 wiener 0.076 MODEL 0.299 | dv_med 308/303/229 m/s | 35s\n"}
+,{"stream_name":"stdout","time":37945.887780263,"data":"  9074_480: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":37945.887833401,"data":"  9074_480: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":37945.88783856,"data":"  9074_480: model built [0s]\n"}
+,{"stream_name":"stdout","time":37946.014425437,"data":"  9074_480: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":37953.594143899,"data":"  9074_480: scored [8s]\n"}
+,{"stream_name":"stdout","time":37953.647070235,"data":"9074@480                       PSNR dirty 21.16 wiener 33.90 MODEL 33.80 | M0/M1/M2 % wiener 35/7/49 MODEL 36/50/63 | rc_r dirty 0.129 wiener 0.074 MODEL 0.332 | dv_med 307/303/224 m/s | 78s\n"}
+,{"stream_name":"stdout","time":38064.148498688,"data":"  9074_600: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":38064.148562706,"data":"  9074_600: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":38064.148567971,"data":"  9074_600: model built [0s]\n"}
+,{"stream_name":"stdout","time":38064.33488886,"data":"  9074_600: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":38078.627569287,"data":"  9074_600: scored [14s]\n"}
+,{"stream_name":"stdout","time":38078.708920483,"data":"9074@600                       PSNR dirty 21.16 wiener 33.90 MODEL 33.53 | M0/M1/M2 % wiener 35/8/49 MODEL 36/52/65 | rc_r dirty 0.133 wiener 0.077 MODEL 0.341 | dv_med 308/303/223 m/s | 125s\n"}
+,{"stream_name":"stdout","time":38101.021748761,"data":"  9074_ai_256: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":38101.021796462,"data":"  9074_ai_256: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":38101.021802992,"data":"  9074_ai_256: model built [0s]\n"}
+,{"stream_name":"stdout","time":38103.561877369,"data":"  9074_ai_256: scored [3s]\n"}
+,{"stream_name":"stdout","time":38103.576466022,"data":"9074_ai@256                    PSNR dirty 22.97 wiener 37.73 MODEL 37.96 | M0/M1/M2 % wiener 47/-17/67 MODEL 59/57/80 | rc_r dirty 0.310 wiener 0.127 MODEL 0.337 | dv_med 259/299/227 m/s | 24s\n"}
+,{"stream_name":"stdout","time":38131.479909615,"data":"  9074_ai_300: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":38131.479957145,"data":"  9074_ai_300: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":38131.479961853,"data":"  9074_ai_300: model built [0s]\n"}
+,{"stream_name":"stdout","time":38134.178987269,"data":"  9074_ai_300: scored [3s]\n"}
+,{"stream_name":"stdout","time":38134.205770055,"data":"9074_ai@300                    PSNR dirty 22.97 wiener 37.73 MODEL 37.86 | M0/M1/M2 % wiener 44/-19/66 MODEL 61/57/80 | rc_r dirty 0.311 wiener 0.131 MODEL 0.357 | dv_med 258/300/223 m/s | 31s\n"}
+,{"stream_name":"stdout","time":38165.449751158,"data":"  9074_ai_320: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":38165.449791467,"data":"  9074_ai_320: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":38165.449797458,"data":"  9074_ai_320: model built [0s]\n"}
+,{"stream_name":"stdout","time":38168.718586223,"data":"  9074_ai_320: scored [3s]\n"}
+,{"stream_name":"stdout","time":38168.746815103,"data":"9074_ai@320                    PSNR dirty 22.97 wiener 37.74 MODEL 37.82 | M0/M1/M2 % wiener 42/-18/65 MODEL 62/57/82 | rc_r dirty 0.309 wiener 0.129 MODEL 0.358 | dv_med 258/300/222 m/s | 35s\n"}
+,{"stream_name":"stdout","time":38239.790600349,"data":"  9074_ai_480: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":38239.79067119,"data":"  9074_ai_480: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":38239.790677762,"data":"  9074_ai_480: model built [0s]\n"}
+,{"stream_name":"stdout","time":38247.618943567,"data":"  9074_ai_480: scored [8s]\n"}
+,{"stream_name":"stdout","time":38247.66397312,"data":"9074_ai@480                    PSNR dirty 22.97 wiener 37.75 MODEL 37.44 | M0/M1/M2 % wiener 43/-19/65 MODEL 63/57/80 | rc_r dirty 0.312 wiener 0.126 MODEL 0.388 | dv_med 257/300/210 m/s | 79s\n"}
+,{"stream_name":"stdout","time":38357.819705404,"data":"  9074_ai_600: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":38357.819742394,"data":"  9074_ai_600: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":38357.819748677,"data":"  9074_ai_600: model built [0s]\n"}
+,{"stream_name":"stdout","time":38370.377682727,"data":"  9074_ai_600: scored [13s]\n"}
+,{"stream_name":"stdout","time":38370.434362553,"data":"9074_ai@600                    PSNR dirty 22.97 wiener 37.75 MODEL 37.12 | M0/M1/M2 % wiener 43/-19/65 MODEL 60/57/79 | rc_r dirty 0.314 wiener 0.131 MODEL 0.397 | dv_med 257/300/204 m/s | 123s\n"}
+,{"stream_name":"stdout","time":38422.367205805,"data":"  sgv2_256: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":38422.367280444,"data":"  sgv2_256: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":38422.367294432,"data":"  sgv2_256: model built [0s]\n"}
+,{"stream_name":"stdout","time":38422.470136619,"data":"  sgv2_256: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":38427.428505734,"data":"  sgv2_256: scored [5s]\n"}
+,{"stream_name":"stdout","time":38427.443810758,"data":"sgv2@256                       PSNR dirty 28.38 wiener 24.54 MODEL 28.84 | M0/M1/M2 % wiener 15/-17/-10 MODEL -20/3/11 | rc_r dirty 0.884 wiener 0.773 MODEL 0.894 | dv_med 43/66/42 m/s | 33s\n"}
+,{"stream_name":"stdout","time":38455.668197468,"data":"  sgv2_300: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":38455.668239332,"data":"  sgv2_300: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":38455.668245246,"data":"  sgv2_300: model built [0s]\n"}
+,{"stream_name":"stdout","time":38455.776880499,"data":"  sgv2_300: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":38461.64602893,"data":"  sgv2_300: scored [6s]\n"}
+,{"stream_name":"stdout","time":38461.67183884,"data":"sgv2@300                       PSNR dirty 27.74 wiener 24.04 MODEL 28.11 | M0/M1/M2 % wiener 9/-12/-8 MODEL -19/8/16 | rc_r dirty 0.849 wiener 0.718 MODEL 0.866 | dv_med 51/77/49 m/s | 34s\n"}
+,{"stream_name":"stdout","time":38492.901297839,"data":"  sgv2_320: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":38492.901338027,"data":"  sgv2_320: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":38492.901342929,"data":"  sgv2_320: model built [0s]\n"}
+,{"stream_name":"stdout","time":38493.04142674,"data":"  sgv2_320: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":38499.126615498,"data":"  sgv2_320: scored [6s]\n"}
+,{"stream_name":"stdout","time":38499.157426455,"data":"sgv2@320                       PSNR dirty 28.05 wiener 24.29 MODEL 28.52 | M0/M1/M2 % wiener 10/-13/-10 MODEL -20/9/17 | rc_r dirty 0.872 wiener 0.757 MODEL 0.886 | dv_med 49/73/46 m/s | 37s\n"}
+,{"stream_name":"stdout","time":38571.626278016,"data":"  sgv2_480: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":38571.626348112,"data":"  sgv2_480: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":38571.626356762,"data":"  sgv2_480: model built [0s]\n"}
+,{"stream_name":"stdout","time":38571.844261921,"data":"  sgv2_480: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":38583.5336286,"data":"  sgv2_480: scored [12s]\n"}
+,{"stream_name":"stdout","time":38583.598390783,"data":"sgv2@480                       PSNR dirty 27.83 wiener 24.08 MODEL 28.38 | M0/M1/M2 % wiener 6/-11/-10 MODEL -20/14/21 | rc_r dirty 0.846 wiener 0.710 MODEL 0.865 | dv_med 55/81/50 m/s | 84s\n"}
+,{"stream_name":"stdout","time":38693.91750032,"data":"  sgv2_600: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":38693.917549654,"data":"  sgv2_600: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":38693.917554268,"data":"  sgv2_600: model built [0s]\n"}
+,{"stream_name":"stdout","time":38693.917557722,"data":"  sgv2_600: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":38708.701123012,"data":"  sgv2_600: scored [15s]\n"}
+,{"stream_name":"stdout","time":38708.72026465,"data":"sgv2@600                       PSNR dirty 27.32 wiener 23.76 MODEL 27.75 | M0/M1/M2 % wiener 6/-7/-7 MODEL -19/13/19 | rc_r dirty 0.846 wiener 0.716 MODEL 0.864 | dv_med 59/87/53 m/s | 125s\n"}
+,{"stream_name":"stdout","time":38726.344121943,"data":"  an07_256: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":38726.344181557,"data":"  an07_256: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":38726.344186048,"data":"  an07_256: model built [0s]\n"}
+,{"stream_name":"stdout","time":38726.373511448,"data":"  an07_256: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":38729.260494278,"data":"  an07_256: scored [3s]\n"}
+,{"stream_name":"stdout","time":38729.27998084,"data":"an07@256                       PSNR dirty 19.13 wiener 27.77 MODEL 43.12 | M0/M1/M2 % wiener 32/43/51 MODEL 58/71/81 | rc_r dirty 0.593 wiener 0.588 MODEL 0.876 | dv_med 58/43/23 m/s | 20s\n"}
+,{"stream_name":"stdout","time":38752.76943967,"data":"  an07_300: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":38752.769486098,"data":"  an07_300: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":38752.769492589,"data":"  an07_300: model built [0s]\n"}
+,{"stream_name":"stdout","time":38752.810413278,"data":"  an07_300: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":38756.024274995,"data":"  an07_300: scored [3s]\n"}
+,{"stream_name":"stdout","time":38756.044274965,"data":"an07@300                       PSNR dirty 19.13 wiener 27.76 MODEL 43.39 | M0/M1/M2 % wiener 32/43/51 MODEL 59/71/80 | rc_r dirty 0.593 wiener 0.586 MODEL 0.881 | dv_med 59/43/22 m/s | 27s\n"}
+,{"stream_name":"stdout","time":38781.529560501,"data":"  an07_320: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":38781.529606135,"data":"  an07_320: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":38781.529611928,"data":"  an07_320: model built [0s]\n"}
+,{"stream_name":"stdout","time":38781.570783873,"data":"  an07_320: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":38785.169624806,"data":"  an07_320: scored [4s]\n"}
+,{"stream_name":"stdout","time":38785.189085945,"data":"an07@320                       PSNR dirty 19.13 wiener 27.78 MODEL 43.34 | M0/M1/M2 % wiener 32/43/51 MODEL 59/71/80 | rc_r dirty 0.594 wiener 0.588 MODEL 0.881 | dv_med 59/43/22 m/s | 29s\n"}
+,{"stream_name":"stdout","time":38842.221033128,"data":"  an07_480: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":38842.221077218,"data":"  an07_480: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":38842.221081195,"data":"  an07_480: model built [0s]\n"}
+,{"stream_name":"stdout","time":38842.325313185,"data":"  an07_480: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":38849.696772375,"data":"  an07_480: scored [7s]\n"}
+,{"stream_name":"stdout","time":38849.74565255,"data":"an07@480                       PSNR dirty 19.14 wiener 27.79 MODEL 42.54 | M0/M1/M2 % wiener 32/43/51 MODEL 54/69/81 | rc_r dirty 0.591 wiener 0.588 MODEL 0.876 | dv_med 59/43/23 m/s | 65s\n"}
+,{"stream_name":"stdout","time":38941.722791941,"data":"  an07_600: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":38941.722836972,"data":"  an07_600: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":38941.722842438,"data":"  an07_600: model built [0s]\n"}
+,{"stream_name":"stdout","time":38941.881969752,"data":"  an07_600: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":38948.52897243,"data":"  an07_600: scored [7s]\n"}
+,{"stream_name":"stdout","time":38948.596849512,"data":"an07@600                       PSNR dirty 19.14 wiener 27.79 MODEL 42.37 | M0/M1/M2 % wiener 32/43/51 MODEL 49/70/82 | rc_r dirty 0.592 wiener 0.587 MODEL 0.879 | dv_med 59/43/22 m/s | 99s\n"}
+,{"stream_name":"stdout","time":38965.987576858,"data":"  an07_ai_256: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":38965.987635241,"data":"  an07_ai_256: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":38965.987641885,"data":"  an07_ai_256: model built [0s]\n"}
+,{"stream_name":"stdout","time":38968.314656234,"data":"  an07_ai_256: scored [2s]\n"}
+,{"stream_name":"stdout","time":38968.333796926,"data":"an07_ai@256                    PSNR dirty 21.02 wiener 29.98 MODEL 50.43 | M0/M1/M2 % wiener 45/43/53 MODEL 70/75/90 | rc_r dirty 0.617 wiener 0.837 MODEL 0.892 | dv_med 49/24/19 m/s | 19s\n"}
+,{"stream_name":"stdout","time":38990.930537853,"data":"  an07_ai_300: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":38990.930603692,"data":"  an07_ai_300: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":38990.93060894,"data":"  an07_ai_300: model built [0s]\n"}
+,{"stream_name":"stdout","time":38993.300149864,"data":"  an07_ai_300: scored [2s]\n"}
+,{"stream_name":"stdout","time":38993.321022849,"data":"an07_ai@300                    PSNR dirty 21.02 wiener 29.98 MODEL 50.57 | M0/M1/M2 % wiener 45/43/52 MODEL 71/74/90 | rc_r dirty 0.617 wiener 0.837 MODEL 0.906 | dv_med 49/24/17 m/s | 25s\n"}
+,{"stream_name":"stdout","time":39019.030279027,"data":"  an07_ai_320: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":39019.030333443,"data":"  an07_ai_320: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":39019.030339134,"data":"  an07_ai_320: model built [0s]\n"}
+,{"stream_name":"stdout","time":39022.11490412,"data":"  an07_ai_320: scored [3s]\n"}
+,{"stream_name":"stdout","time":39022.140944335,"data":"an07_ai@320                    PSNR dirty 21.02 wiener 29.99 MODEL 50.67 | M0/M1/M2 % wiener 45/43/52 MODEL 72/74/90 | rc_r dirty 0.619 wiener 0.837 MODEL 0.909 | dv_med 49/24/17 m/s | 29s\n"}
+,{"stream_name":"stdout","time":39080.176439806,"data":"  an07_ai_480: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":39080.176485361,"data":"  an07_ai_480: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":39080.176492277,"data":"  an07_ai_480: model built [0s]\n"}
+,{"stream_name":"stdout","time":39086.251676903,"data":"  an07_ai_480: scored [6s]\n"}
+,{"stream_name":"stdout","time":39086.295595453,"data":"an07_ai@480                    PSNR dirty 21.03 wiener 30.00 MODEL 50.87 | M0/M1/M2 % wiener 45/43/53 MODEL 68/74/89 | rc_r dirty 0.616 wiener 0.837 MODEL 0.914 | dv_med 49/24/16 m/s | 64s\n"}
+,{"stream_name":"stdout","time":39176.108711318,"data":"  an07_ai_600: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":39176.10876637,"data":"  an07_ai_600: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":39176.108773705,"data":"  an07_ai_600: model built [0s]\n"}
+,{"stream_name":"stdout","time":39181.781178643,"data":"  an07_ai_600: scored [6s]\n"}
+,{"stream_name":"stdout","time":39181.834675828,"data":"an07_ai@600                    PSNR dirty 21.03 wiener 30.00 MODEL 50.17 | M0/M1/M2 % wiener 45/43/53 MODEL 64/74/88 | rc_r dirty 0.617 wiener 0.837 MODEL 0.913 | dv_med 49/24/16 m/s | 96s\n"}
+,{"stream_name":"stdout","time":39199.59807686,"data":"  an08_256: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":39199.598132909,"data":"  an08_256: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":39199.598139502,"data":"  an08_256: model built [0s]\n"}
+,{"stream_name":"stdout","time":39199.627830227,"data":"  an08_256: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":39202.726424993,"data":"  an08_256: scored [3s]\n"}
+,{"stream_name":"stdout","time":39202.746734574,"data":"an08@256                       PSNR dirty 19.59 wiener 27.07 MODEL 40.17 | M0/M1/M2 % wiener 34/35/37 MODEL 54/62/71 | rc_r dirty 0.496 wiener 0.461 MODEL 0.839 | dv_med 54/33/19 m/s | 20s\n"}
+,{"stream_name":"stdout","time":39225.63872219,"data":"  an08_300: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":39225.638768903,"data":"  an08_300: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":39225.638776248,"data":"  an08_300: model built [0s]\n"}
+,{"stream_name":"stdout","time":39225.674021773,"data":"  an08_300: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":39228.138687979,"data":"  an08_300: scored [2s]\n"}
+,{"stream_name":"stdout","time":39228.160635929,"data":"an08@300                       PSNR dirty 19.59 wiener 27.05 MODEL 40.52 | M0/M1/M2 % wiener 34/36/38 MODEL 55/64/71 | rc_r dirty 0.949 wiener 0.945 MODEL 0.966 | dv_med 55/33/18 m/s | 25s\n"}
+,{"stream_name":"stdout","time":39254.180881015,"data":"  an08_320: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":39254.180924427,"data":"  an08_320: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":39254.18093061,"data":"  an08_320: model built [0s]\n"}
+,{"stream_name":"stdout","time":39254.217515583,"data":"  an08_320: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":39256.874288982,"data":"  an08_320: scored [3s]\n"}
+,{"stream_name":"stdout","time":39256.901946341,"data":"an08@320                       PSNR dirty 19.60 wiener 27.07 MODEL 40.55 | M0/M1/M2 % wiener 34/36/38 MODEL 55/64/72 | rc_r dirty 0.949 wiener 0.945 MODEL 0.970 | dv_med 55/33/18 m/s | 29s\n"}
+,{"stream_name":"stdout","time":39319.050056233,"data":"  an08_480: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":39319.050104515,"data":"  an08_480: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":39319.050126358,"data":"  an08_480: model built [0s]\n"}
+,{"stream_name":"stdout","time":39319.152173173,"data":"  an08_480: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":39329.67231035,"data":"  an08_480: scored [11s]\n"}
+,{"stream_name":"stdout","time":39329.718072036,"data":"an08@480                       PSNR dirty 19.60 wiener 27.07 MODEL 40.06 | M0/M1/M2 % wiener 34/36/38 MODEL 48/61/72 | rc_r dirty 0.494 wiener 0.455 MODEL 0.833 | dv_med 55/33/19 m/s | 73s\n"}
+,{"stream_name":"stdout","time":39421.980955363,"data":"  an08_600: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":39421.981002531,"data":"  an08_600: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":39421.981008789,"data":"  an08_600: model built [0s]\n"}
+,{"stream_name":"stdout","time":39422.130878554,"data":"  an08_600: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":39432.295456159,"data":"  an08_600: scored [10s]\n"}
+,{"stream_name":"stdout","time":39432.368837692,"data":"an08@600                       PSNR dirty 19.60 wiener 27.08 MODEL 39.64 | M0/M1/M2 % wiener 34/36/38 MODEL 42/60/73 | rc_r dirty 0.496 wiener 0.464 MODEL 0.822 | dv_med 55/33/20 m/s | 103s\n"}
+,{"stream_name":"stdout","time":39450.402659287,"data":"  an08_ai_256: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":39450.402733425,"data":"  an08_ai_256: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":39450.402739698,"data":"  an08_ai_256: model built [0s]\n"}
+,{"stream_name":"stdout","time":39452.991933428,"data":"  an08_ai_256: scored [3s]\n"}
+,{"stream_name":"stdout","time":39453.014994249,"data":"an08_ai@256                    PSNR dirty 22.08 wiener 30.43 MODEL 48.45 | M0/M1/M2 % wiener 42/33/46 MODEL 66/72/89 | rc_r dirty 0.561 wiener 0.790 MODEL 0.861 | dv_med 47/20/16 m/s | 20s\n"}
+,{"stream_name":"stdout","time":39476.084758825,"data":"  an08_ai_300: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":39476.084799319,"data":"  an08_ai_300: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":39476.084823164,"data":"  an08_ai_300: model built [0s]\n"}
+,{"stream_name":"stdout","time":39478.186621728,"data":"  an08_ai_300: scored [2s]\n"}
+,{"stream_name":"stdout","time":39478.210251073,"data":"an08_ai@300                    PSNR dirty 22.08 wiener 30.42 MODEL 48.58 | M0/M1/M2 % wiener 42/33/46 MODEL 67/72/89 | rc_r dirty 0.984 wiener 0.991 MODEL 0.994 | dv_med 47/20/15 m/s | 25s\n"}
+,{"stream_name":"stdout","time":39504.08497083,"data":"  an08_ai_320: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":39504.08501846,"data":"  an08_ai_320: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":39504.085030701,"data":"  an08_ai_320: model built [0s]\n"}
+,{"stream_name":"stdout","time":39506.300334929,"data":"  an08_ai_320: scored [2s]\n"}
+,{"stream_name":"stdout","time":39506.32204423,"data":"an08_ai@320                    PSNR dirty 22.09 wiener 30.44 MODEL 48.72 | M0/M1/M2 % wiener 42/33/46 MODEL 68/72/89 | rc_r dirty 0.984 wiener 0.991 MODEL 0.993 | dv_med 47/20/15 m/s | 28s\n"}
+,{"stream_name":"stdout","time":39569.979899178,"data":"  an08_ai_480: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":39569.979966829,"data":"  an08_ai_480: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":39569.979974125,"data":"  an08_ai_480: model built [0s]\n"}
+,{"stream_name":"stdout","time":39579.062737708,"data":"  an08_ai_480: scored [9s]\n"}
+,{"stream_name":"stdout","time":39579.103079428,"data":"an08_ai@480                    PSNR dirty 22.10 wiener 30.44 MODEL 49.02 | M0/M1/M2 % wiener 42/34/46 MODEL 62/72/87 | rc_r dirty 0.559 wiener 0.788 MODEL 0.903 | dv_med 47/20/14 m/s | 73s\n"}
+,{"stream_name":"stdout","time":39674.119124501,"data":"  an08_ai_600: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":39674.119175471,"data":"  an08_ai_600: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":39674.119180117,"data":"  an08_ai_600: model built [0s]\n"}
+,{"stream_name":"stdout","time":39684.792303268,"data":"  an08_ai_600: scored [11s]\n"}
+,{"stream_name":"stdout","time":39684.85729576,"data":"an08_ai@600                    PSNR dirty 22.10 wiener 30.44 MODEL 48.57 | M0/M1/M2 % wiener 42/34/46 MODEL 56/72/86 | rc_r dirty 0.562 wiener 0.792 MODEL 0.899 | dv_med 47/20/14 m/s | 106s\n"}
+,{"stream_name":"stdout","time":39684.86337527,"data":"EVAL DONE\n"}
+,{"stream_name":"stdout","time":39690.107136172,"data":"UNIFIED wiener DONE in 659.4 min\n"}
+,{"stream_name":"stderr","time":39692.744445451,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":39692.744505718,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":39693.077267166,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":39693.077303513,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":39693.988431604,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":39695.161276011,"data":"[NbConvertApp] Writing 294541 bytes to __results__.html\n"}
+]

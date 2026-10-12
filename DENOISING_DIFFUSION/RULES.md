@@ -304,3 +304,30 @@ inspection, not assumed correct because the command succeeded. Check the commit 
 before it is pushed, not after. `git commit --amend` is the clean fix if it has not been
 pushed yet; a force-push is the only fix once it has, and that carries its own risk given
 Kaggle kernels clone by branch.
+
+---
+
+## 14. Every run saves itself before the 12-hour limit and can resume
+
+Kaggle stops a GPU session at 12 hours, and whatever was not saved by then is lost. `eval-ensemble`
+(2026-10-12) ran into the limit with its third group half-scored; earlier, notebook 14 needed a resume
+feature for the same reason. Krishan's rule, 2026-10-12: every notebook and kernel must save before
+the limit and be able to resume, so a long job is never a failure, only a job that continues.
+
+How it is built (`experiments/train_unified.py`, `kaggle/*/kernel_*.py`, `kaggle/accounts/orchestrator.py`):
+- The kernel sets `EXXA_T0` at its first line; the job's deadline is `EXXA_T0 + --budget-h` (default 11 h).
+- Training checks before every round whether another round plus `--eval-reserve-h` (default 1.5 h) still
+  fits; if not it stops, and the checkpoint it saved after the last round holds the FULL state (weights,
+  optimizer, LR schedule, loss scaler, random state), written atomically. `--resume <ckpt>` continues
+  from that round.
+- Evaluation writes its JSON after every case and stops before the deadline if the next case would not
+  fit; a rerun skips every case already scored.
+- Every session writes `status_<tag>.json` (train_complete, eval_complete). The kernel looks for its own
+  previous output among its inputs and resumes from it. `orchestrator.py status` marks a finished job
+  `resume_needed` when its status file says so; `orchestrator.py resume` pushes it again with its own
+  output attached (`--self-input`), the way notebook 14 was continued by hand.
+
+A new notebook or kernel is not ready to run until it does the same: a clock started at its first
+line, a save at every unit of work, a stop before the limit, and a resume path that has been tested once
+with a deliberately short budget (as done for this rule: smoke run stopped after round 1, resumed to
+completion; an evaluation stopped and continued).

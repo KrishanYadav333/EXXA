@@ -64,6 +64,7 @@ SG_DIR = os.path.join(ROOT, "self-gravitating cube and dirty cube")
 # peak SNR drawn log-uniform in REAL["snr"], neighbouring-channel noise correlation [a, 1, a] with a ~ U(0, chan_a) (a = 0.5 is
 # Hanning: lag-1 +0.67, lag-2 +0.17; Speedie measured +0.64 / +0.15), beam broadened by r ~ U(1, beam_max) in the A = I tasks.
 REAL = {"snr": None, "chan_a": 0.0, "beam_max": 1.0}
+DEADLINE = float("inf")   # wall-clock time (epoch s) by which this session must have saved everything: EXXA_T0 (kernel start) + --budget-h
 NORM = "wiener"      # --norm: "wiener" = divide by the Wiener cube's peak (all runs to 2026-10-11); "robust" = see scale_of
 CLIP_IN = 0.0        # --clip-in: clamp the network input to +-CLIP_IN (k15 v3: inputs of +-35-40 vs the usual +-4 overflowed fp16 and the run diverged)
 HYDRO_TRAIN = ["9015", "9019", "9025", "9032"]
@@ -661,6 +662,7 @@ def score_case(model, arm, case, S, figdir):
 def run_eval(model, arm, args, sizes, res_path, figdir, only=None):
     os.makedirs(figdir, exist_ok=True)
     allres = json.load(open(res_path)) if os.path.exists(res_path) else {}
+    last = 300.0                                         # seconds the previous case took; first case assumed 5 min
     for case in eval_cases(args):
         if only is not None and case[0] not in only:
             continue
@@ -668,6 +670,9 @@ def run_eval(model, arm, args, sizes, res_path, figdir, only=None):
             key = f"{case[0]}@{S}"
             if key in allres and "failed" not in allres[key]:
                 continue
+            if time.time() + 1.5 * last > DEADLINE:          # RULES.md #14: save and stop before the session limit; the next session resumes here
+                print(f"DEADLINE: evaluation stopped before {key} ({(DEADLINE - time.time()) / 60:.0f} min left); RESUME_NEEDED", flush=True)
+                return None
             te = time.time()
             try:
                 r = score_case(model, arm, case, S, figdir)
@@ -684,6 +689,7 @@ def run_eval(model, arm, args, sizes, res_path, figdir, only=None):
                       f"rc_r dirty {g['dirty']['rc_r']:.3f} wiener {g['wiener']['rc_r']:.3f} MODEL {g['model']['rc_r']:.3f} | "
                       f"dv_med {g['dirty']['dv_med_ms']:.0f}/{g['wiener']['dv_med_ms']:.0f}/{g['model']['dv_med_ms']:.0f} m/s | "
                       f"{time.time() - te:.0f}s", flush=True)
+            last = time.time() - te
         del case
     return allres
 
@@ -723,6 +729,9 @@ def main():
     ap.add_argument("--snr", default="", help="peak-SNR range lo,hi drawn log-uniform per redraw (empty: the measured noise level)")
     ap.add_argument("--chan-corr", type=float, default=0.0, help="max a of the [a,1,a] channel kernel on the training noise (0.5 = Hanning)")
     ap.add_argument("--fp32-stream", action="store_true", help="residual stream and its raw consumers in fp32 (fp16 overflow of the unnormalised stream)")
+    ap.add_argument("--budget-h", type=float, default=11.0, help="session budget in hours from EXXA_T0 (Kaggle stops GPU sessions at 12 h)")
+    ap.add_argument("--eval-reserve-h", type=float, default=1.5, help="time kept free for the evaluation when deciding whether to train another round")
+    ap.add_argument("--resume", default="", help="checkpoint of a previous session of this run (full state): continue from its round")
     ap.add_argument("--sph-dir", default="", help="folder of make_sph_cubes.py output (run_young_*); train split trained on, test split scored with --eval-sph")
     ap.add_argument("--sph-max", type=int, default=0, help="at most this many sph folders (0 = all)")
     ap.add_argument("--eval-sph", action="store_true", help="score the held-out sph simulations")
@@ -738,8 +747,9 @@ def main():
         args.rounds, args.steps, args.batch, args.crop, args.base = 2, 4, 2, 64, 8
         args.sizes, args.hydro, args.analytic, args.n_line, args.n_line_eval = "128,160", "9015", "an01", 1, 1
         args.eval_sg, args.before_sizes, args.before_cases = "an07", "128", "run_0002_00560_rt_00,an07_ai"
-    global K, CLIP_IN, NORM
+    global K, CLIP_IN, NORM, DEADLINE
     K, CLIP_IN, NORM = args.k, args.clip_in, args.norm
+    DEADLINE = float(os.environ.get("EXXA_T0", time.time())) + args.budget_h * 3600
     if args.fp32_stream:
         _enable_fp32_stream()
     REAL.update(snr=tuple(float(v) for v in args.snr.split(",")) if args.snr else None, chan_a=args.chan_corr, beam_max=args.beam_max)
@@ -785,10 +795,14 @@ def main():
                  figdir + "_before", only=set(args.before_cases.split(",")))
         print("BEFORE-EVAL DONE", flush=True)
 
+    status_path = os.path.join(args.out, f"status_{tag}.json")
+    def status(**kw):                                    # what a next session needs to know (kernel_unified.py reads it)
+        json.dump(dict(tag=tag, **kw), open(status_path, "w"), indent=1)
     if args.eval_only:
         assert legacy or args.eval_ckpt, "--eval-only needs --init or --eval-ckpt"
-        run_eval(model, arm, args, sizes, os.path.join(args.out, f"eval_{tag}.json"), figdir)
-        print("EVAL DONE", flush=True)
+        done = run_eval(model, arm, args, sizes, os.path.join(args.out, f"eval_{tag}.json"), figdir) is not None
+        status(train_complete=True, eval_complete=done)
+        print("EVAL DONE" if done else "EVAL INCOMPLETE: RESUME_NEEDED", flush=True)
         return
     t0 = time.time()
     cubes = load_train_cubes(args)
@@ -802,8 +816,32 @@ def main():
     sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=args.lr, total_steps=total, pct_start=0.05, final_div_factor=30)
     scaler = torch.cuda.amp.GradScaler(enabled=dev == "cuda")
     ckpt = os.path.join(args.out, f"unified_{tag}.pth")
-    hist, step, n_bad, bad_run = [], 0, 0, 0
-    for rnd in range(args.rounds):
+    hist, step, n_bad, bad_run, start = [], 0, 0, 0, 0
+    if args.resume:                                      # RULES.md #14: continue exactly where the previous session stopped
+        ck = torch.load(args.resume, map_location="cpu", weights_only=False)
+        net.load_state_dict(ck["model_state_dict"], strict=True)
+        if "opt" in ck:
+            opt.load_state_dict(ck["opt"]); sched.load_state_dict(ck["sched"]); scaler.load_state_dict(ck["scaler"])
+            rng.bit_generator.state = ck["rng_np"]; torch.set_rng_state(ck["rng_torch"])
+            if dev == "cuda" and ck.get("rng_cuda") is not None:
+                torch.cuda.set_rng_state_all(ck["rng_cuda"])
+        else:
+            print("  resume: checkpoint has weights only (older format); optimizer, schedule and random state restart", flush=True)
+            for _ in range(int(ck["steps"])):
+                sched.step()
+        start, step, hist = int(ck["round"]), int(ck["steps"]), list(ck["hist"])
+        print(f"RESUMED {args.resume}: round {start}/{args.rounds}, step {step}", flush=True)
+    stopped = False
+    for rnd in range(start, args.rounds):
+        if rnd > start:                                  # time the next round would need, from the rounds of THIS session
+            per = (time.time() - t_rounds0) / (rnd - start)
+            if time.time() + per + args.eval_reserve_h * 3600 > DEADLINE:
+                print(f"DEADLINE: training stopped after round {rnd}/{args.rounds} ({(DEADLINE - time.time()) / 60:.0f} min left, a round takes "
+                      f"{per / 60:.1f} min, eval reserve {args.eval_reserve_h:.1f} h); checkpoint {ckpt}; RESUME_NEEDED", flush=True)
+                stopped = True
+                break
+        else:
+            t_rounds0 = time.time()
         todo = [c for c in cubes if not c.ready] or list(rng.choice(cubes, size=min(args.refresh, len(cubes)), replace=False))
         tr0 = time.time()
         for c in todo:
@@ -861,12 +899,21 @@ def main():
         torch.save({"model_state_dict": net.state_dict(), "arm": arm, "base": args.base, "K": K, "alpha": ALPHA, "init": args.init,
                     "n_neighbors": kk if legacy else None, "out_channels": oc if legacy else 1, "in_channels": net.in_channels,
                     "base_channels": net.base_channels, "channel_multipliers": list(net.channel_multipliers),
-                    "round": rnd + 1, "steps": step, "hist": hist, "args": vars(args)}, ckpt)    # RULES.md #1: every round
+                    "round": rnd + 1, "steps": step, "hist": hist, "args": vars(args),
+                    "opt": opt.state_dict(), "sched": sched.state_dict(), "scaler": scaler.state_dict(),          # RULES.md #14: full state,
+                    "rng_np": rng.bit_generator.state, "rng_torch": torch.get_rng_state(),                       # so a resume is exact
+                    "rng_cuda": torch.cuda.get_rng_state_all() if dev == "cuda" else None,
+                    "complete": rnd + 1 == args.rounds}, ckpt + ".tmp")
+        os.replace(ckpt + ".tmp", ckpt)                  # RULES.md #1: every round; atomic, a kill mid-write keeps the previous round
     del cubes
+    if stopped:
+        status(train_complete=False, eval_complete=False, round=len(hist), rounds=args.rounds, checkpoint=os.path.basename(ckpt))
+        return
     print(f"TRAINED {step} steps in {(time.time() - t0) / 60:.1f} min -> {ckpt}", flush=True)
 
-    run_eval(model, arm, args, sizes, os.path.join(args.out, f"eval_{tag}.json"), figdir)
-    print("EVAL DONE", flush=True)
+    done = run_eval(model, arm, args, sizes, os.path.join(args.out, f"eval_{tag}.json"), figdir) is not None
+    status(train_complete=True, eval_complete=done, round=args.rounds, rounds=args.rounds, checkpoint=os.path.basename(ckpt))
+    print("EVAL DONE" if done else "EVAL INCOMPLETE: RESUME_NEEDED", flush=True)
 
 
 if __name__ == "__main__":
