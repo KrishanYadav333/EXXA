@@ -1,0 +1,23 @@
+{
+  "id": "krishanyadav333/eval-ensemble",
+  "title": "eval-ensemble",
+  "code_file": "kernel_eval_ensemble.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_internet": "true",
+  "dataset_sources": [
+    "krishanyadav333/line-emission-data",
+    "krishanyadav333/exxa-sg-synth-pairs",
+    "krishanyadav333/self-gravitating-v2",
+    "krishanyadav333/exxa-wiggle-code"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [
+    "krishanyadav333/speedie-prep-fast",
+    "krishanyadav333/unified-wiener-real-k15",
+    "deepsceneloc/unified-r4-k15-s0",
+    "deepsceneloc/unified-r4-k15-s1"
+  ]
+}

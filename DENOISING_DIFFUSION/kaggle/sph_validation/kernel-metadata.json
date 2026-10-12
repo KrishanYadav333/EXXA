@@ -1,0 +1,17 @@
+{
+  "id": "krishanyadav333/sph-validation",
+  "title": "sph-validation",
+  "code_file": "kernel_sph_validation.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": "true",
+  "enable_gpu": "false",
+  "enable_internet": "true",
+  "dataset_sources": [
+    "krishanyadav333/exxa-wiggle-code"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [
+    "krishanyadav333/speedie-prep-fast"
+  ]
+}

@@ -66,7 +66,30 @@ arms). Built but not asked for: notebook 14 (native 600px, 56 arms), `tools/alma
 
 ---
 
-## Timeline
+## Revised timeline (2026-10-11): model and ALMA in parallel, scope ends at exoALMA
+
+Why revised: the Oct 1-20 ALMA block below did not happen; the wiggle work took it (Krishan's call: wiggle first). As of Oct 11 nothing has run on a real
+ALMA cube. Scope now ends at exoALMA inference (Krishan, Oct 11): DSHARP and VLT are out. The model track's bars and rounds are in `results/PLAN.md`;
+the ALMA design (data, checks S1-S7, gates, risks) is unchanged in `ALMA_PLAN.md`. The key change: ALMA work starts NOW with the best current
+checkpoint (R3b, `unified_real_k15.pth`) instead of waiting for the final model, because the pipeline, preprocessing and checks are the long part and
+cost almost no GPU; the frozen model is swapped in at the end.
+
+| dates | model track (GPU) | ALMA track (engineering, ~5 min GPU per cube) | meeting / deadline |
+|---|---|---|---|
+| Oct 11-13 | SNR ladder on Speedie (v1, R3b, R3c); R4 = K=15, training SNR 3-150, fp32 stream; R3d / R3e read | adapt `tools/alma_infer.py` / notebook 15 to the unified model (Wiener + correction, K=15, native grid); MWC 758 13CO; **Gate A** (S1 sane) | |
+| Oct 14-16 | pick R3b vs R4 on the bars (low SNR is the deciding regime); 2 seeds of the winner | S2 invented structure on line-free planes; S5 injection-recovery (held-out clean cubes AND the Speedie GI disc into real exoALMA noise); S6 kinematic residual vs published | Fri Oct 16: R3b Speedie result + first MWC 758 |
+| Oct 17 | **freeze checkpoints**; final synthetic scoring at 256-600 px with wiggle and moment figures | | weekly quota resets |
+| Oct 17-22 | (only if time) converter data run | 2-3 more disks (HD 135344B, HD 143006, LkCa 15 or V4046 Sgr); S3 model agreement; S4 scale robustness; DS9 side by side; **Gate D** (insight) | Fri Oct 23 |
+| Oct 23-27 | | final blog draft to Jason by Oct 27 | |
+| Oct 28-30 | | revisions; ML4SCI PR runnable; archive (RULES.md #10), models/README (#12) | Fri Oct 30 |
+| Oct 31-Nov 2 | | buffer | Nov 3: final submission |
+
+Cut order if behind: converter data first, then seeds (to 1), then disks beyond MWC 758 + one more. Not cut: Gate A, S2, S5, S6, the blog.
+Open risks: (1) the large uncommitted midterm-prep batch (all of this month's code and logs) should be committed and pushed well before Oct 23, after pulling
+Kaggle's auto-commits (RULES.md #2, #13); (2) ML4SCI/EXXA PR status since Sep 29 is unverified; (3) GPU: main ~13 h used this week + R3d/R3e, backup account
+adds 30 h/week (orchestrator in `kaggle/accounts/`).
+
+## Timeline (2026-09-25 version, superseded above; kept for history)
 
 Friday meetings: Sep 25, Oct 2, Oct 9, Oct 16, Oct 23, Oct 30.
 

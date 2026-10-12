@@ -9,6 +9,815 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-10-12 | code | First push of this month's work; Kaggle auto-commits checked
+
+Pulled 4 Kaggle auto-commits on midterm-prep before committing (RULES.md #2): 05 Versions 48 and 49 and 13 Version 18 change outputs only (cell sources identical to
+HEAD, compared cell by cell), so nothing was reverted; 14 Version 8 ADDS `14-native600-loss-sweep.ipynb` to midterm-prep as a stale copy (the current notebook 14 lives
+on `native600-loss-sweep`, with the resume and RAM fixes); kept, flagged in context.md, not used. Not committed: `16-checkpoint-evaluation.ipynb` (52 MB), the exoALMA
+paper PDF, stray downloaded notebook copies (V47 / V17 / "(1)"), speaker-notes PDFs and `nb14_loss_sweep.csv` (provenance not checked).
+
+## 2026-10-12 | code | GI training data from the Young et al. 2026 simulations (`make_sph_cubes.py`, kernel `sph-cubes`) and the `sph` family in the trainer
+
+Why: the wiggle is the gap at SNR 12-24 (0.61-0.75 against the 0.85 target) and the model's prior of what GI spirals look like comes from 4 hydro discs; the Young set is the only public
+mass-ratio sweep (research.md 2026-10-10). `make_sph_cubes.py`: per simulation the LAST dump of its archive (the first is the initial condition), one random view (i 10-60 deg, PA, in-plane
+rotation, spin), 13CO, tau0 log-uniform 3-50, `sph_cube.render(smooth=True)` on 301 px with the disc's R95 filling 80 % of the field, 0.1 km/s channels covering every particle's velocity + 1 km/s
+(the 99.5th-percentile range left 47 % of the peak in the edge channels, which the trainer removes as continuum; now 0.7 %), a Gaussian beam of 5-12 px FWHM (axis ratio <= 1.3), clean = sky (*) beam
+(the CLEAN-product regime), dirty = clean + beam-shaped noise (shape only; the trainer redraws noise). 16 train / 6 held-out WHOLE simulations, chosen across mu 0.2-1.4, M* 0.1-1, R 50-200 au.
+Local check on M0.3_R50_Mu0.6 (mu 0.57): renders in 12 s, 242 x 301 x 301; the clean cube's rotation-curve residual is 191 m/s rms (strong, large-scale GI spirals); dirty at SNR 20 already reaches rc_r 0.78.
+Trainer: `--sph-dir DIR` adds the train split as family `sph` (beam inside clean, like line emission, but sampled as its own family); `--eval-sph` scores the test split at all sizes. Local smoke
+passes (4 families). Running the render on the backup account (CPU). Caveats carried: the converter matches MCFOST only at >~50 au (sph-validation v3); Young's discs are young and massive, so
+they serve as a mass-ratio sweep for the wiggle prior, not as the target population. A direct line-centre (M1) loss was considered and deferred: the model outputs one channel and the
+loss already sees three adjacent ones (first and second velocity differences); a real M1 term needs the whole spectrum per pixel, an architecture change.
+
+## 2026-10-12 | bug | R4-long died in round 1: normalising by the Wiener peak collapses at low SNR (affects every run trained to SNR 3); `--norm robust` added
+
+`unified-r4-k15-long` (R4 recipe, seed 3, 24000 steps) reached L1 1.06 in round 1 (normal ~0.04) with 85 non-finite steps, then 51 in a row at step 575. Measured locally (`TrainCube.redraw`, 3 draws per
+cube, 300 px): with the old normalisation (divide by the Wiener cube's peak) the target |clean/s| reaches 15.9 (line), 2.4 (9015), 6.9 (an01) and the input |dirty/s| 29 / 4 / 12 at peak SNR 3; at
+SNR 10 2.2 / 1.4 / 4.0; at SNR 50 ~1.1. The Wiener filter shrinks a SNR-3 cube to a small fraction of its clean peak, so the scale collapses; the input clamp (+-10) then clips the input but not
+the target. R4 seeds 0 and 1 (same recipe) survived it; seed 3 did not. Fix `--norm robust`: scale = max(Wiener peak, 99.99th percentile of the dirty cube), blind and identical at test time;
+measured |clean/s| 0.73-1.52 and |dirty/s| 1.02-1.37 for SNR 3-150 on the same three cubes. Stored in the checkpoint args, so older checkpoints keep evaluating with the old normalisation; ensemble
+members must share it. Consequence for numbers already logged: R4 seeds 0 / 1 were trained (and are evaluated) with the collapsing scale, so their SNR 3-6 ladder points include inputs clipped at
++-10; their SNR >= 12 points are unaffected (scale ~1-2 there). Relaunched as `unified-r4n-k15-long`. R5 will use `--norm robust`.
+
+## 2026-10-11 | code | Ensemble evaluation (`--eval-ckpt a,b,c`, `--tta`) and two more R4 runs; compute is not the constraint (Krishan)
+
+Krishan: do not hold back compute. Launched on the backup account: R4 seed 2, and R4 with 80 rounds (24000 steps, seed 3; R4's training loss was still falling at 12000). Built:
+`train_unified.py --eval-ckpt a.pth,b.pth[,...]` averages the outputs of several checkpoints (same K / arm / base, asserted) and `--tta` also averages over the 4 sky-plane
+flips; class `Ensemble`. Local check only (plumbing: the same checkpoint twice with flips gives a different, finite result). Kernel `kaggle/eval_ensemble/` scores three groups: R4 s0 + s1
+(all holdouts at 5 sizes, Speedie, ladder), R4 s0 + s1 with flips, and R4 s0 + s1 + R3b with flips (Speedie and ladder). It runs on the main account and needs the backup
+account's R4 kernels shared with the main account (403 until then). All results from both accounts are collected; notebook 14's Oct 9 run was Version 15, already archived.
+
+## 2026-10-11 | run | `eval-ladder` v1 (R3b, R3d) and the figures: training down to SNR 3 is the right recipe; what the maps show at each noise level
+
+Ladder for R3b (K=15, training SNR 10-150) and R3d (K=3), same cases as R4 (archived `results/unified/eval-ladder_v1_2026-10-11/`, `snr_ladder_all.md`). Wiggle rc_r at peak SNR 24 / 12 / 6:
+R4 seeds 0.74-0.76 / 0.61-0.62 / 0.09-0.14; R3b 0.79 / 0.38 / 0.03; R3d 0.75 / 0.21 / 0.06. Twin spurious at SNR 12: R4 +10, R3b +15, R3d +29 m/s; at SNR 6: R4 +47 / +233, R3b +784, R3d +513.
+M2 at SNR 3: R4 +74 / +80, R3b -3, R3d -24. Decision: the R4 recipe (training SNR 3-150) is kept; equal at SNR 24, far better at 6-12 on wiggle, moments and invented wiggle.
+What the figures show (R4 seed 1, `results/unified/figures_2026-10-11/`): (a) Speedie SNR 12: the model's rotation-curve residual shows the spiral as a faint, broken pattern (r 0.62,
+coherence 0.33); dirty is pure noise (r 0.01); the velocity-aware Wiener smooths M0 into a featureless blob and leaves a four-lobe artefact at the centre of its residual (r 0.18). The Terry
+spine follows clean's first two fingers and loses the outer ones. The model's M0 keeps the inner cavity and ring but loses the outer spiral arms in intensity. (b) Speedie SNR 6: the model's
+residual is mostly noise with a faint ring; the spiral is gone. (c) Hydro 9074 (SNR 9.5, deconvolution task): clean's residual is a large-scale kinked pattern; the model's is blotchy at the beam
+scale (r 0.31) while the noise-free beam reference reaches 0.93; Wiener shows a dipole (rotation-curve mismatch). (d) Line-emission holdout run_0026 (SNR 7.9, i 53 deg): the model is close to
+clean (rc_r 0.89 vs dirty 0.15, Wiener 0.85; spine r 0.93) and its M0 keeps the four-lobe morphology that dirty hides. Reading: at the SAME peak SNR the model succeeds on a compact
+line-emission disc and fails on a large GI disc; the GI wiggle sits in the faint outer disc, where the LOCAL SNR is several times below the cube's peak SNR. Peak SNR alone does not
+predict wiggle recovery; the per-radius SNR of the wiggle region should be reported next to it (not yet measured).
+
+## 2026-10-11 | run | R4 (2 seeds), R3d, R3e and the first SNR ladder: wiggle recovery is SNR-limited (0.75 at SNR 24, 0.61 at 12, ~0 at 6); seed spread is as large as the effects we were ranking
+
+All four ran 12000 steps with 0 non-finite steps and 0 failed cases; the fp32 stream fix holds (R3d / R3e / R4 used it). R4 = R3b recipe (K=15, lr 1.5e-4, clip 10) + training SNR
+3-150, run as seeds 0 and 1 on the backup account (first cross-account use of a shared kernel output, the Speedie cubes: works). Archived `results/unified/r4-k15-s{0,1}_v1_2026-10-11/`
+(tables at all 5 sizes, `snr_ladder.md`), `real-k3-fp32_v1_2026-10-11/`, `real-k3-fp32-sgv2_v1_2026-10-11/`.
+
+SNR ladder (Speedie GI r0.5 with its own measured noise rescaled; one simulated disc, so no spread across discs; two seeds of R4 shown as a range):
+
+| peak SNR | wiggle rc_r R4 (dirty / Wiener) | M0 / M1 / M2 % R4 | median line-centre error m/s R4 (dirty / Wiener) | twin spurious m/s R4 (dirty / Wiener) |
+|---|---|---|---|---|
+| 24 | 0.74-0.76 (0.14 / 0.43) | 44-49 / 86-87 / 82-88 | 32-33 (48 / 42) | +1 to +2 (+204 / +5) |
+| 12 | 0.61-0.62 (0.01 / 0.18) | 71-73 / 94 / 88-91 | 36-38 (79 / 49) | +10 (+882 / +30) |
+| 6 | 0.09-0.14 (-0.02 / 0.07) | 47-71 / 96 / 86-89 | 47-52 (215 / 58) | +47 to +233 (+1681 / +59) |
+| 3 | 0.01-0.04 (-0.02 / 0.00) | 20-47 / 89-92 / 74-80 | 83-142 (1555 / 71) | ~+2000 (+2179 / +588) |
+
+Reads. (1) Moments survive to SNR 3 (M1 89-96 %, M2 74-91 %); the WIGGLE does not: 0.75 at 24, 0.61 at 12, gone by 6. exoALMA's fiducial set (13-50) maps to roughly 0.6-0.85; the
+high-resolution set (3-10) to <0.3. The PLAN.md target rc_r >= 0.85 at SNR >= 13 is NOT met (0.61 at 12, 0.75 at 24). (2) At SNR 12-24 the model invents almost no wiggle on the
+Keplerian twin (+1 to +10 m/s against Wiener +5 to +30 and dirty +200 to +880); at SNR 6 one seed already invents +233 m/s; at SNR 3 everything fails. (3) Seed spread is large: at Speedie
+r0.5 R4 seeds give M2 +45 / +82 and M0 +9 / +29; at r1.5 (SNR 135) M2 -919 / -41. R3c and R3e (same recipe, K=3 + SG v2, different numerics) differ by 13 points in line M0. So every
+single-seed difference in this log under ~20 points of M0 / M2 is within noise, including R3b's headline 18 / 83 / 88 (one seed). (4) SG v2 in training (R3e vs R3d, both K=3 fp32): no
+gain on its own wiggle (0.87 vs 0.86) and worse M2 (Speedie r0.5 -145 vs -13, analytic -89 vs +63): SG v2 stays OUT of training. (5) K=15 against K=3 at 42 m/s channels: Speedie r0.5 M2
++45 / +82 (R4 seeds) and +88 (R3b) against -13 (R3d) and -96 / -145 (K=3 + SG v2): K=15 kept. (6) Training SNR floor 3 (R4) vs 10 (R3b): no wiggle gain on 9074 (0.31 vs 0.28), higher
+PSNR / M0 on the hydro holdouts (PSNR 36.2-36.8 vs 34.7 at 600 px), Speedie native wiggle 0.78-0.80 against R3b's 0.87; undecided until R3b's own ladder (kernel `eval-ladder` on main,
+running). (7) High SNR (r1.5) is seed-unstable: the do-no-harm gate (PLAN.md A3) is needed there. Not changed: line-emission PSNR / moments are strong for every K=15 run (600 px: 47.3-48.4 dB,
+M0 40-45, M1 86-87, M2 82-88).
+
+## 2026-10-11 | code | SNR ladder on the Speedie disc (`--eval-ladder`, `ladder_report.py`, kernel `kaggle/eval_ladder/`): PLAN.md phase 1 built, not yet run
+
+`train_unified.py --eval-ladder 3,6,12,24` rescales the Speedie cubes' own measured noise (dirty - clean, so its spatial and Hanning channel correlation are kept) so that
+peak(clean) / rms(noise) hits each target; truth, geometry and beam unchanged; GI disc and Keplerian twin; native pixels. `experiments/ladder_report.py name=eval.json ...` prints the table per SNR
+(PSNR, M0/M1/M2, rc_r with dirty and Wiener, twin spurious rotation-curve rms). Kernel `eval-ladder` scores unified-wiener v1, R3b (K=15) and R3c (K=3 + SG v2) from their kernel Outputs
+(~20-30 min each on a T4; 8 cases each). Plumbing tested locally on a synthetic stand-in only (numbers meaningless). Why: the test cubes sit at peak SNR 8-18 (line emission, hydro) and 20-36
+(analytic, Speedie r0.5), exoALMA's high-resolution set at 3-10, and no cube with a trustworthy wiggle truth exists below 36; the ladder is the missing curve. Note: the "peak SNR" of the ladder
+is peak(clean) / rms(dirty - clean) over the whole cube, the same definition as the `--snr` training draw and as the measured table of 2026-10-10. To run it on the `backup` account the three
+model kernels must be shared with it (`orchestrator.py check` lists them as not visible); on `main` it needs a free GPU slot (R3d / R3e hold them).
+
+## 2026-10-11 | code | Multi-account Kaggle runner (`kaggle/accounts/`), owner-approved accounts only
+
+Krishan asked to spread runs over their backup and two friends' Kaggle accounts (used by hand before). `kaggle_as.sh <name> ...` runs the CLI as an account from
+`~/.kaggle-<name>/kaggle.json` (chmod 600, created by the owner; keys are never pasted into chat or kept in the repo); `orchestrator.py` submits a kernel folder to the first
+account with a free GPU slot and unused weekly quota, polls status and collects outputs and logs; state in `state.json` (git-ignored, no secrets). The Kaggle API has no sharing
+or collaborator endpoint (searched CLI 1.7.4.5 and kagglesdk), so sharing the datasets (`line-emission-data`, `exxa-sg-synth-pairs`, `self-gravitating-v2`, `exxa-wiggle-code`, and a
+Speedie dataset made from the `speedie-prep-fast` output) with each account stays a one-time manual step; `kernel_sources` do not cross accounts, so jobs for other accounts must not
+use them. Quota left is not readable through the API; it is inferred from push replies. Tested: account discovery (main only so far), a `--dry-run` submit, reset-time logic.
+Added `sync_account.py` (2026-10-11): with an account's own key, it uploads that account's OWN copies of the datasets (11.8 GB, cloned locally, `--dir-mode zip` keeps the layout) and rebuilds `exxa-wiggle-code` from the repo, so no website sharing is needed; `orchestrator.py submit` rewrites dataset / kernel source owners to the target account, and speedie-prep-fast is run per account on CPU. Account `backup` (deepsceneloc, Krishan's own backup) is configured (key moved out of the repo tree to `~/.kaggle-backup/kaggle.json`, chmod 600); `orchestrator.py check` shows all five shared items visible to it; a smoke job (`unified-smoke-backup`) was submitted through the orchestrator at ~02:00 IST to test mounting and the GPU slot. Two friends' accounts not yet configured. A key file had been left inside the repo working tree and was moved out before it could be committed. 2026-10-12: account `aditi` (aditisah11) configured the same way (key moved from the repo tree to `~/.kaggle-aditi/`; it was also pasted into the chat, so it should be rotated); it sees only `line-emission-data` so far, so the R5 launcher is restricted to `backup` until the other shares are in place. Caveat recorded: Kaggle's terms restrict multiple accounts and credential sharing; a suspension would fall on the account holders. Nothing has been run on another account yet.
+
+## 2026-10-10 | finding | Every test cube placed on one SNR axis: the wiggle is solved at SNR >~ 20 and NOT at ~8-10; two of my claims corrected
+
+Peak SNR = peak of the noise-free sky (beam (*) clean for the simulations, continuum-subtracted clean for line emission) over the rms of (dirty - sky), same definition as the
+`--snr` training draw: hydro 9015 7.6, 9025 7.7, 9074 9.5; analytic an07 19.7, an08 21.5; SG v2 63.3; line-emission holdouts 7.9 / 11.0 / 12.4 / 15.5 / 18.1; Speedie r0.5 ~36,
+r1.5 ~135 (speedie_prep). Corrections: (a) I said today that nothing below SNR 36 is tested; wrong, the line holdouts (8-18) and the hydro discs (8-10) are all inside exoALMA's
+high-resolution range (3-10) or just above it; (b) "line emission peak SNR ~29" (an older figure) does not hold by this definition (8-18). Consequences: R3/R3b/R3c drew training
+SNR from 10-150, so the hydro training discs were never shown at their own native SNR (7.6-9.5); this may be part of why R3b's 9074 wiggle (0.28) is below v1's (0.37), whose training
+used the native noise. The wiggle results line up with SNR: 9074 (9.5) 0.28-0.43 against a noise-free reference of 0.88; an07/an08 (20-22) 0.78-0.86; Speedie r0.5 (36) 0.87; SG v2 (63)
+and Speedie r1.5 (135) level with dirty, which is already good there. Line-emission moments are strong at SNR 8-18 (no GI wiggle in those cubes). The open regime is the GI wiggle at
+SNR <~ 15.
+
+## 2026-10-10 | run | R3b `unified-wiener-real-k15` and R3c `unified-wiener-real-sgv2`: the realistic-noise recipe fixes Speedie at the exoALMA-like noise level; K=15 is the better window; SG v2 teaches nothing visible
+
+Both ran 12000 steps with ZERO skipped steps and no scoring failures (R3b 247 min, R3c 179 min); neither used `--fp32-stream`. R3 (same recipe as R3c without SG v2, K=3, lr 3e-4) overflowed at step 2013, so the
+overflow is path-dependent, not a fixed step. Archived `results/unified/real-k15_v1_2026-10-10/` and `real-k3-sgv2_v1_2026-10-10/` (JSONs, logs, kernel scripts, tables at 600 and 256 px, figures).
+IMPORTANT CAVEAT on references: the "wiener" row of `compare_models` tables is v1's channel-independent Wiener; the new runs' own JSONs hold the VELOCITY-AWARE Wiener, which scores differently
+(Speedie GI r0.5: PSNR 34.7 vs 32.4, M0/M1/M2 23 / 55 / 49 vs 44 / 60 / 61, rc_r 0.59 vs 0.85). The velocity-aware Wiener is therefore worse on the wiggle than the old one on this disc (the Hanning
+correlation puts noise power at low velocity frequency, where the line signal also lives, and alpha = 2 over-shrinks it): a regression in the non-learned baseline to carry into every later table.
+Moments are signal-masked, noise-clipped improvements over dirty (RULES.md #6); Speedie = one simulation at two noise levels, so no spread; line = mean over the 5 holdouts.
+
+| 600 px, line emission (5 holdouts) | PSNR | M0 | M1 | M2 | rc_r | dv m/s |
+|---|---|---|---|---|---|---|
+| unified-wiener v1 (K=3) | 46.25 | 33 | 85 | 83 | 0.70 | 49 |
+| R3c K=3 + SG v2 | 48.53 | 45 | 87 | 68 | 0.64 | 43 |
+| R3b K=15 | 48.38 | 41 | 86 | 88 | 0.56 | 41 |
+
+| Speedie GI (held out, never trained) | model | PSNR (dirty 24.3 / 28.3) | M0 | M1 | M2 | rc_r (dirty) | invented |
+|---|---|---|---|---|---|---|---|
+| r0.5, exoALMA-like (SNR 36) | v1 | 41.0 | -36 | 71 | 58 | 0.84 (0.36) | 0.13 |
+| | R3c K=3 | 50.6 | 21 | 66 | -96 | 0.81 | 0.00 |
+| | **R3b K=15** | **51.7** | **18** | **83** | **88** | **0.87** | **0.03** |
+| r1.5 (SNR 135, beam x1.65) | v1 | 32.7 | -167 | -165 | -952 | 0.91 (0.93) | 0.20 |
+| | R3c K=3 | 42.5 | -53 | -69 | -628 | 0.89 | 0.00 |
+| | R3b K=15 | 47.8 | -70 | 40 | 32 | 0.93 | 0.01 |
+
+Keplerian twin, spurious rotation-curve rms (m/s, 0 = invents nothing; dirty +22.9): v1 +7.0, R3c +2.8, R3b -2.4. 9074 at 600 px (the only unseen hydro disc): rc_r dirty 0.13, v1 0.37, R3c 0.43, R3b 0.28 (K=3 models
+ahead of K=15 here; PSNR 33.4 / 29.1 / 33.0). SG v2 at 600 px: rc_r dirty 0.85, v1 0.83, R3c 0.82 (TRAINED on it, so seen), R3b 0.85. Analytic an07 / an08: rc_r 0.83-0.86 / 0.78-0.83 against dirty 0.59 / 0.50.
+Reads. (1) At the exoALMA-like noise (r0.5) R3b passes PLAN.md's Speedie bars: all three moments above dirty (18 / 83 / 88), wiggle 0.87 against dirty 0.36 and the old Wiener 0.85, twin spurious -2.4 m/s, invented
+fraction 0.03 (v1 0.13). The figure (`..._speedie_GI_r0.5_1024.png`, bottom row) shows the spiral velocity residual recovered where dirty is noise and Wiener smooths it away (r 0.87 against 0.59, coherence 0.67
+against 0.11). (2) It does NOT pass at r1.5: M0 -70 % there (M1 40, M2 32), wiggle only level with dirty (0.93): the high-SNR, wide-beam, low-noise regime still damages M0. The SNR draw (10-150) and the beam
+broadening (to 1.6x) were meant to cover it; they did not. (3) K=15 against K=3 on Speedie: M2 +88 / +32 against -96 / -628. At 42 m/s channels the K=3 window is +-0.25 km/s; it cannot see the line width. K=15
+is also best on line-emission M2 (88 vs 83 v1, 68 K=3 + SG v2). On the 9074 wiggle K=3 is ahead (0.37 / 0.43 vs 0.28). Confounded: R3b differs from R3c in K, lr, clamp AND SG v2. (4) SG v2 in training: its own rc_r
+did not rise above dirty (0.82), so no evidence it helps; R3d (K=3, no SG v2, fp32 stream) against R3c isolates it (running). (5) Line-emission rc_r fell 0.70 to 0.56-0.64 while PSNR and M0-M2 rose: the
+rotation-curve residual correlation on cubes with no GI is dominated by noise-level velocity structure; not yet understood, flagged. Gates: Gate 1 (Speedie all moments above dirty) is met at r0.5 and failed on M0 at r1.5.
+Not yet met: SG v2 bar (below Wiener / at dirty), 9074 vs the models' best, r1.5. Checkpoints kept (RULES.md #12).
+
+## 2026-10-10 | run | `sph-validation` v3 (SPH-kernel smoothing): gate as written still not met; the metric was too harsh across codes, and the converter matches the large-scale velocity structure
+
+Smoothing changed almost nothing at full resolution (twin residual 52-63 m/s against MCFOST's 17.5; rc_r -0.05 to +0.09 over tau0 1-100): shot noise was not the main cause, and the v2 entry's
+reading is withdrawn. Why the gate metric fails: `rc_r` subtracts MCFOST's own fitted rotation curve, so any small axisymmetric difference between two radiative-transfer codes (M1 slope
+1.014-1.023 on the GI disc, 1.07-1.08 on the twin, i.e. 1.5-8 % of a +-1.1 km/s field) is a 50-60 m/s residual of its own, as large as the ~70 m/s wiggle. A direct comparison of the saved M1
+maps (v2 render, no smoothing; high-pass at three scales, r 25-330 px): GI 0.25 at 25 au, 0.64 at 50 au, 0.89 at 100 au (rms 12.9 / 30.3 / 76.8 m/s ours against 10.4 / 30.1 / 78.0 MCFOST,
+so amplitudes agree); Keplerian twin 0.79 / 0.96 / 0.99 (smooth rotation, not wiggle). Reads: the spiral velocity structure is reproduced at amplitude parity and correlation ~0.9 at 100 au,
+~0.6 at 50 au and not below the beam (37 au). The orientation scan's high-pass correlation at the chosen PA is 0.97 on the coarse grid. Conclusion for use: as TRAINING TRUTH the render
+needs to be a physically derived, self-consistent clean cube, not a pixel match to MCFOST; what it cannot yet be trusted for is anything finer than ~50 au. Caveat to carry: a model
+trained on it may learn the structure of OUR emission surface; the MCFOST cubes (Speedie GI and twin) stay test-only for exactly this reason. Not decided: whether to relax gate B2 to
+"amplitude parity and high-pass corr >= 0.85 at 100 au" and proceed to the Young download; waiting on Krishan. A rotation-curve-free metric (each cube against its OWN fitted curve) is the
+better B2 gate and is not yet implemented in `validate_sph_speedie.py`.
+
+## 2026-10-10 | bug | R3 `unified-wiener-real` v1 died at round 7: the U-Net's residual stream overflows fp16 (root cause of the k15 failures too, most likely)
+
+Rounds 1-6 healthy (L1 0.0139 at round 6, better than unified-wiener v1's 0.018-0.025 on the older, easier noise), then non-finite losses from step 2013 on ORDINARY inputs (-1..2.8), 70 of
+300 steps in round 7, 51 in a row, abort at step 2242. The saved weights are finite; a forward pass of the round-7 checkpoint on real batches (fp32) gives an output of at most 0.67 but
+reaches 1.27e5 and 9.9e4 in `dec_blocks.2.0.shortcut` / `dec_blocks.3.0.shortcut` (fp16 max 65504). The residual stream is not normalised (`out = h + shortcut(x)`), so it grows
+with training and overflows whichever fp16 conv reads it raw. This replaces the k15 v3 reading (input outliers at the peak learning rate): the +-35 inputs there were real but not the cause,
+and R3 failed with inputs of +-3. Fix (`--fp32-stream`, new runs only): shortcut convs, strided / transposed convs and the residual add in fp32; verified identical to the original blocks (max
+difference 0.0, same keys), so old checkpoints evaluate unchanged. Smoke on MPS reproduces the previous numbers exactly. Queued: R3d `unified-wiener-real-fp32` (R3 + fix, the control) and
+R3e `unified-wiener-real-fp32-sgv2` (R3d + SG v2); R3c (`-sgv2`, launched on the unfixed code at 15:32) and R3b (`-real-k15`, lr 1.5e-4 + input clamp, still unfixed) were expected to fail the
+same way; at 16:59 both were still running (R3c 87 min in, past where R3 aborted), so the overflow is not deterministic at a fixed step and the "stop R3c" advice is withdrawn;
+their logs, with the skipped-step counts, arrive when they end. Speed cost of the fp32 pieces on a T4 not yet measured. No published number touched. Archived
+`results/unified/unified-wiener-real_v1_2026-10-10_failed/` with the probe.
+
+## 2026-10-10 | run | `sph-validation` v2: bulk velocity matches MCFOST (M1 corr 0.996), wiggle does not yet: particle shot noise, SPH-kernel smoothing added (v3)
+
+With the PA fitted continuously (best rotation -146 / +31 deg depending on the spin / mirror combination; handedness chosen on the high-pass M1: 0.85 against 0.35 for the wrong sense)
+the GI render's M1 correlates 0.996 with MCFOST's with slope 1.015 (v1: 0.92 / 0.95). Wiggle: rc_r 0.04-0.06 for tau0 1-100, residual rms 55-58 m/s against clean's 68.8, so the AMPLITUDE
+matches but the pattern does not; the Keplerian twin shows 57-63 m/s against MCFOST's 17.5 and rc_r ~0. Reading: the same 55-60 m/s appears on both discs, so it is not the GI wiggle: it is
+noise from binning ~10 particles per pixel, as large as the signal (~70 m/s). `render(smooth=True)` now spreads each particle over its smoothing length (Gaussian sigma 0.6 h in
+the sky plane, grouped in log2 bins; h from the dump). On the coarse test grid (12.5 au/px) the small-scale M1 scatter of the render falls 71 to 47 m/s; the effect is larger on the real
+3.1 au/px grid where 0.6 h is about 1 px. Gate unchanged (PLAN.md B2): the converter is not used for training until the twin residual approaches MCFOST's and rc_r is well above dirty's
+0.65. v3 launched (CPU). tau0 still does not matter (rc_r varies by 0.01 across 1-100 at fixed noise). Archived `results/sph-validation/v2_2026-10-10_pa_fixed_no_smoothing/`.
+
+## 2026-10-10 | code | SG v2 as a training cube (`--train-sgv2`), and what was measured about it first (R3c queued)
+
+Question (Krishan): should SG v2 be trained on to reach ALMA-ready results? Measured before deciding. SG v2: dirty peak SNR 69 per pixel and channel (0.033 km/s; inside R3's 10-150 range;
+a first estimate of 0.6 was a units error, clean is per pixel and dirty per beam); noise is half a static pattern (static / dynamic variance 1.15) with channel-independent dynamic
+noise (lag-1 -0.013, unlike Speedie's +0.64); M0 peak SNR ~500. Clean and dirty are in different units: in the bright channels dirty = g * (beam (*) clean), g ~ 344 (355 from the top
+20 channels), no extra blur (best extra blur 0 px in every channel tested); clean carries a continuum floor (~0.43 summed per plane) that the dirty cube lacks, removed with its own
+edge mean as the eval already does. `load_sgv2_pair` applies exactly that (one scalar gain for the whole cube, not per channel). Why it was held out until now: one disc, q = 0.75
+(Speedie 0.29, real discs lower), our only cube with this beam / pixel scale / channel width, and every learned model falls below dirty on it, which training on it would hide. Reasons to
+train on it that held up: it is the only cube where that failure is specific and nothing else pushes against it; its static pattern is real-data-like. Decision: an experiment, not an
+assumption. R3c = R3 exactly (same recipe, K=3, SNR 10-150, chan-corr 0.5, beam-max 1.6, no clamp) + SG v2 in training; compare Speedie GI wiggle / moments and 9074 against R3. If Speedie
+improves it goes into the final model (selection frozen first, its own test numbers reported from the model without it); if not, it only memorises. R3c's own SG v2 numbers are
+seen-data scores and must not be quoted as held-out. Note also: R3/R3b draw peak SNR 10-150 while exoALMA's high-resolution set is 3-10 (research.md 2026-10-08); R4 should reach ~3.
+Local MPS smoke with `--train-sgv2` runs end to end (4 cubes; SG v2 loaded in 8 s).
+
+## 2026-10-10 | bug | Round 2 (`unified-wiener-k15`) v3: not a single bad step but a divergence at step 1532; K=15 is unstable at lr 3e-4
+
+v3 (OOM handler and skip logic in place) got past step 1532, which is what showed the real picture. Rounds 1-5 healthy (L1 0.046 to 0.030). At step 1532 the first non-finite loss; round 6 L1
+jumped to 0.052 and the run NEVER recovered (0.045-0.054 for rounds 6-12; v1's K=3 run was at 0.018-0.025 on the same data); skips grew to 23 per round, then at step ~5000 every step was
+non-finite or out of memory (51 in a row) and it aborted at round 13 of 40. Input ranges in the bad batches: most -3..+5 (normal) but a group at -30..+40, ~10x the usual,
+which overflows fp16 in the 63-channel input of the K=15 model. Reading: the first event was an input outlier at the peak learning rate; the weights then moved to a worse region and the
+network stayed marginal. The three earlier diagnoses (fp16 overflow, allocator fragmentation, graph held by the skip path) were each partial: the graph-hold was a real bug
+(fixed) and the OOMs of the last rounds are its consequence, but the cause is the unstable run. The kernel's saved checkpoint is the degraded round-13 model, not round 5 (every
+round overwrites it); noted for next time. Fix in `train_unified.py`: `--clip-in` clamps the network input (training batches and `denoise`; read back from the checkpoint at
+evaluation), lr 1.5e-4 for K=15. K=3 (v1) did not show this at 3e-4. Relaunched as R3b `unified-wiener-real-k15`: the K=15 comparison now runs under the realistic-noise recipe of R3,
+which is the comparison PLAN.md needs. Archived `results/unified/unified-wiener-k15_v3_2026-10-10_failed/`. No published number touched.
+
+## 2026-10-10 | run | `sph-validation` v1: converter reproduces MCFOST's bulk rotation but not the wiggle, because of a sky-PA offset (found, v2 launched)
+
+Speedie dump rendered on MCFOST's grid, beam and geometry (r0.5, GI and Keplerian twin, tau0 1-100). Archived `results/sph-validation/v1_2026-10-10_first_run/`.
+As run: M1 correlation 0.92, M1 slope 0.95 (GI) / 1.00 (twin), velocity range +-1.12 vs +-1.13 km/s, so the physics and the length-scale / velocity scaling are right; the
+spiral morphology of M0 is visibly similar. But rc_r against MCFOST's rotation-curve residual is -0.05 (GI) and ~0 (twin), and the residual rms is 230 m/s (twin 227) against clean's 69
+(18) m/s: a large-scale dipole, not missing wiggle. tau0 from 1 to 100 changes nothing. Gate (PLAN.md B2, rc_r well above dirty's 0.65) failed as run.
+Cause: the sky PA. Rotating the saved M1 map by -24 deg lifts the M1 correlation 0.91 to 0.995 and cuts the rms difference to MCFOST from 0.242 to 0.061 km/s (inside r < 330 px,
+~1000 au). The discrete PA set I scanned (+-236.7, +180) did not contain it. A second flaw found while testing the fix on a planted offset: bulk M1 correlation cannot tell the four
+(spin flip, mirror) combinations apart (all 0.99) but their spiral handedness differs and the wiggle correlation of the wrong one is ~0.03 against 0.93 for the right one, so the
+combination must be chosen on the high-pass M1. Both fixed in `validate_sph_speedie.py` (continuous rotation scan per combination, then render-confirmed and refined to 1 deg) and
+launched as v2. This is the sky-orientation CONVENTION, not a fit of physics: PA, spin and mirror are discrete or one-angle choices made once on the GI disc and reused for the twin.
+No published number touched. The converter is not used for training until v2 passes.
+
+## 2026-10-10 | code | SPH-to-cube converter (`src/data/sph_cube.py`, PLAN.md B1) and its validation against Speedie's MCFOST cube launched
+
+Turns a Phantom dump into a line cube with radiative transfer along each line of sight: I(v) = sum_p T_p (1 - exp(-dtau_p)) exp(-tau_front), particles ordered
+nearest-first per pixel, dtau from a Gaussian thermal profile (13CO mass) scaled to a target optical depth tau0 (median peak tau over the disc). An optically thick line therefore
+shows the velocity of the layer facing the observer. Geometry knobs: inclination, PA, in-plane rotation, spin flip; `rescale` for scale-free (beta-cooled) runs. Leaves out:
+SPH kernel smoothing inside a pixel, dust, freeze-out, non-LTE; MCFOST computes its own temperature by radiative equilibrium while we take the SPH temperature (Young dumps
+carry `temperature`; Speedie and Longarini carry `u`). `tests/test_sph_cube.py` (PASS): on a synthetic Keplerian particle disc the M1 map is within 0.2 % (median) of the analytic
+projected field, intensity never exceeds the hottest particle's T, the beam keeps flux, and a flipped / rotated render keeps flux to 5 %.
+Validation (`experiments/validate_sph_speedie.py`, Kaggle CPU kernel `sph-validation`): render the Speedie dump with MCFOST's own settings (length scale 1.5, from the
+parameter file's command line; 155.9 pc, i = 23.2 deg, PA 236.7 deg) on the clean cube's grid and beam, choose the sky-orientation convention (8 combinations of PA sense, mirror,
+spin) by M1 correlation, then score our render's rotation-curve residual against MCFOST's (rc_r) for tau0 1, 3, 10, 30, 100, for the GI disc and its Keplerian twin (radial and
+vertical velocity removed, as MCFOST -no_vr -no_vz). Local plumbing check on a self-rendered reference: the scan recovers the planted orientation (M1 corr 0.997) and the twin's rc
+residual drops from 61 to 37 m/s. Gate (PLAN.md B2): rc_r well above dirty's 0.65 on Speedie; if not, the converter is not used for training.
+
+## 2026-10-10 | code | Plan adopted (`results/PLAN.md`); workstream A (realistic noise) built and launched as R3 `unified-wiener-real`
+
+The Speedie result below made the gate explicit: no new data until the learned stage survives a realistic noise regime. `results/PLAN.md` holds the pass bars, workstreams,
+rounds and gates (Krishan approved 2026-10-10). Workstream A in `train_unified.py`, all behind flags that default off so earlier runs reproduce:
+`--snr lo,hi` (peak SNR per redraw, log-uniform), `--chan-corr a_max` (training noise convolved along velocity with [a, 1, a], variance-preserving, a ~ U(0, a_max); a = 0.5 is
+Hanning, lag-1 +0.67 / lag-2 +0.17, against Speedie's measured +0.64 / +0.15), `--beam-max` (circular Gaussian broadening of clean AND of the noise spectrum by r ~ U(1, beam_max) in the
+noise-only tasks, the CLEAN-product regime). The Wiener step now always estimates the lag-1/lag-2 noise correlation blind (`velocity_corr`, off-source pixels picked on a map
+smoothed to n/20 px) and uses the matching noise power along velocity frequency (`wiggle_scorecard.wiener3d`, optional `vspec`); on channel-independent noise it estimates ~0 and
+reduces to the old filter. `tests/test_noise_realism.py` (PASS): estimator +0.660 / +0.151 for a true +0.667 / +0.167 and +0.000 / -0.006 for independent noise; the velocity-aware
+Wiener has 31 % lower rms error than the channel-independent one on Hanning noise (0.0282 vs 0.0410, synthetic disk); a requested SNR of 40 comes out at 40.0. A first version ranked
+pixels by their own noise and read lag-2 0.10 for a true 0.17 (selection bias), fixed before use. Not built: the do-no-harm gate (PLAN.md A3), deferred because the SNR draw
+attacks the same failure; it is added if R3 still falls below Wiener at high SNR. Local MPS smoke with all three flags: runs end to end, zero-init identity holds.
+R3 (`unified-wiener-real` v1): K=3 (direct comparison with `unified-wiener` v1), snr 10-150, chan-corr 0.5, beam-max 1.6, 12000 steps, then all holdouts at 5 sizes plus Speedie GI/Kep
+r0.5/r1.5 at native pixels. Gate 1: Speedie M0/M1/M2 all above dirty. Speedie stays test-only. Note: the Wiener change also alters the Wiener input any OLD checkpoint sees at eval
+if re-scored with this code; on the line-emission cubes (channel-independent noise) the estimate should be ~0 and the change negligible, not yet measured.
+
+## 2026-10-10 | run | `eval-speedie` v1: on the realistic Speedie disk every learned model is WORSE than dirty on M0/M2 at low noise, and plain Wiener has the best wiggle
+
+First real-physics, held-out, non-exoALMA test (Speedie et al. 2024 GI disk and its Keplerian twin, native 1024 px crop, 42 m/s channels, true geometry 155.9 pc / 23.2 deg; r0.5 = beam
+0.237 x 0.175 arcsec, peak SNR 36, the exoALMA-like case; r1.5 = beam 0.39 x 0.27 arcsec, SNR ~135). Archived `results/speedie/eval_v1_2026-10-10/`. Moments are signal-masked,
+noise-clipped improvements over dirty (RULES.md #6); one cube per case, so no spread; the 4 numbers per model are 4 cases.
+
+| case | model | PSNR (dirty) | M0 % | M1 % | M2 % | invented_frac |
+|---|---|---|---|---|---|---|
+| GI r0.5 | Wiener (no learning) | 32.4 (24.3) | 44 | 60 | 61 | |
+| GI r0.5 | unified-wiener | 41.0 | -36 | 71 | 58 | 0.13 |
+| GI r0.5 | kin_mae_ft (mixed) | 41.8 | -66 | 4 | -193 | 0.15 |
+| GI r0.5 | kin_mae_ft (nb16 original) | 40.9 | -692 | -61 | -219 | 0.20 |
+| GI r1.5 | Wiener | 31.7 (28.3) | 20 | 29 | 45 | |
+| GI r1.5 | unified-wiener | 32.7 | -167 | -165 | -952 | 0.20 |
+| GI r1.5 | kin_mae_ft (mixed) | 34.4 | -2697 | -330 | -765 | 0.20 |
+| GI r1.5 | kin_mae_ft (nb16 original) | 33.2 | -7969 | -1502 | -1317 | 0.22 |
+
+Wiggle (mean of r0.5 and r1.5, `compare_models.py`): rc_r dirty 0.65, Wiener 0.91, unified-wiener 0.87, kin_mae_ft 0.60, nb16 kin_mae_ft 0.50. Keplerian twin, spurious rotation-curve
+rms (m/s, 0 = invents nothing): Wiener -4.6, unified-wiener +7.0, kin_mae_ft +11.5, nb16 +15.6.
+
+Reads. (1) PSNR rises for every learned model while M0/M2 collapse: PSNR is not the quantity that matters here. At r1.5 the learned models are far worse than dirty on all three moments
+(M2 -615 to -1317 %), while the non-learned Wiener still improves them. (2) The failure is a regime shift, not a ranking: the r0.5 numbers for unified-wiener (M1 71, M2 58) are
+usable, r1.5 is not. r1.5 differs from everything in training by a beam 1.65 x wider, a noise level 3.7 x lower relative to signal, and noise correlated between channels (+0.64 at lag 1,
+which the training noise and the Wiener noise model both lack). Training only ever showed beams from the line-emission and sg_synth cubes and a noise level fixed at about half the
+signal. (3) At r0.5 unified-wiener is ahead of plain Wiener on PSNR (41.0 vs 32.4) and M1 (71 vs 60), level on M2 (58 vs 61) and behind on M0 (-36 vs 44); at r1.5 plain Wiener is better on every moment. On wiggle (rc_r, mean of both noise levels) plain Wiener leads: 0.91 vs 0.87. (4) invented_frac 0.13-0.22
+on a disk with true structure is high; the detector denominator was checked (RULES.md #8) with the Keplerian twin, which gets 0.13-0.23 too, so invented blobs are not specific
+to the GI cube. Consequence: the learned stage must be trained on randomised beam width, noise level (SNR 10-150) and the measured channel correlation before it is ever
+used on realistic cubes, and the do-no-harm blend (output = Wiener unless the correction is confidently better) moves from "nice to have" to required. Touches published numbers:
+none of the earlier nb16 line-emission numbers change; it limits what they mean for real ALMA-like cubes (all had beam and noise level inside the training range).
+
+## 2026-10-10 | bug | Round 2 (`unified-wiener-k15`) v2 died one step after a skipped batch: the skip path itself held the graph (CUDA OOM)
+
+v2 (with the skip-non-finite fix) reproduced v1 exactly through round 5 (identical losses: the seed is fixed) and died at the same point, ~step 1532 in round 6, with
+`torch.OutOfMemoryError` in the forward pass (`F.group_norm`; 14.51 GiB in use, 47 MiB free). Cause: the skip branch did `continue` without releasing `out` and `loss`, so
+the skipped step's whole autograd graph stayed alive while the next forward pass allocated a second set of activations. The non-finite loss at step 1532 is the original
+event (v1); the OOM was caused by my fix. A first write-up of this entry blamed allocator fragmentation from a "GPU Wiener" in the redraw: wrong, the Wiener runs in numpy on
+the CPU (only the resampling uses the GPU), corrected the same hour. Fixes: the skip branch frees `out`/`loss` before continuing; a forward OOM is caught, frees the
+graph and skips the step; a non-finite batch prints its min/max and shape (the cause of the step-1532 overflow is still unknown); `torch.cuda.empty_cache()` after each
+redraw and `expandable_segments` (harmless, not the fix). v3 was launched before the graph-release line but with the OOM handler, which frees the same graph, so it
+should get past step 1532 with two skipped steps. No published number touched.
+
+## 2026-10-10 | run | `unified-ft-single` v1: fine-tuning the single-channel checkpoints on mixed data hurts line emission
+
+Fine-tuned `winner_aug_res480_seed43`, `sweep_winner_p10_600` and `sg_k3_fresh` on the mixed data (same recipe as `unified-ft-kin`: lr 1e-4, 6000 steps).
+Archived `results/unified/ft-single_v1_2026-10-10/` with per-size tables. Line = mean over the 5 line-emission holdouts (across cubes, not seeds); moments are
+the signal-masked, noise-clipped improvement over dirty; rc_r the rotation-curve wiggle correlation.
+
+| 600 px, line | PSNR | M0 % | M1 % | M2 % | rc_r | line-centre error m/s |
+|---|---|---|---|---|---|---|
+| `unified-wiener` (reference) | 46.25 | 33.0 | 85.4 | 83.3 | 0.70 | 49 |
+| `kin_mae_ft` (mixed fine-tune) | 41.84 | 35.3 | 69.7 | 48.3 | 0.54 | 44 |
+| res480 fine-tuned | 32.59 | -99.3 | 33.7 | -171.3 | 0.45 | 74 |
+| p10_600 fine-tuned | 32.74 | -140.2 | 20.6 | -157.8 | 0.48 | 81 |
+| sg_k3_fresh fine-tuned | 40.85 | -15.9 | 66.8 | -39.7 | 0.55 | 47 |
+
+Reads. (1) The two single-channel models are refuted for the unified role: their d2 loss stays at ~0.034 for all 6000 steps (sg_k3_fresh: 0.005), so one
+output channel cannot fit the velocity structure of the mixed data, and line-emission M0/M2 go strongly negative. Their only gain is SG v2 (rc_r 0.76 to 0.83).
+(2) sg_k3_fresh improves on its own start (analytic rc_r 0.77 to 0.79, hydro PSNR 32.6 to 33.8, line M0 -49 to -16 % on the two shared cubes) but stays below
+`unified-wiener` on every line metric. (3) SG v2 is not helped by anything: dirty already scores rc_r 0.85 there. The Wiener-fed model remains the base for
+round 2 and later. Caveats: before/after JSONs cover different case subsets (2 vs 5 line cubes); 6 cases failed in every model with the old scorer
+(`wiggle_fourier` polyfit on an empty track, guard already in the current code). Touches no published number. Checkpoints kept (RULES.md #12).
+
+## 2026-10-10 | bug | Round 2 (`unified-wiener-k15` v1) died on one non-finite step
+
+Step 1532 of 12000 (round 5/40, 33 min): `FloatingPointError: non-finite loss at step 1532: inputs finite=True`. The batch was finite, so
+the overflow happened inside the fp16-autocast forward pass of the 63-channel model; the round losses before it (L1 0.030, d1 0.018,
+d2 0.009) show no drift. The trainer's guard raised on the first bad step, which is stricter than GradScaler itself (that skips a step
+with non-finite gradients and carries on). Fix in `train_unified.py`: skip the step (drop gradients, halve the loss scale), abort only
+after 50 in a row or if the inputs are non-finite, average each round over finite steps, log the running skip count. Checked on MPS
+by injecting two NaN losses into a smoke run: both skipped, run completed. Relaunched as v2 (accepted 07:14 IST when `unified-ft-single` freed its slot). Touches no published number: v1 produced only an unscored round-5 checkpoint. Archived
+`results/unified/unified-wiener-k15_v1_2026-10-10_failed/`.
+
+## 2026-10-10 | run | Speedie GI disk and its Keplerian twin prepared (Kaggle `speedie-prep-fast` v1, CPU): real ALMA-style noise is correlated between channels
+
+58 min with 24 parallel range requests (the sequential first kernel managed 69 s per channel and would have needed ~20 h). Archived `results/speedie/` (noise report, log); the eight cubes
+({GI,Kep}_r{0.5,1.5}_{clean,dirty}.fits, central 1024 px, 200 channels at 42 m/s) are in the kernel Output. Headers carry the WRONG geometry (162.9 pc / 23.5 deg; correct 155.9 pc / 23.2 deg / PA 236.7 deg, research.md
+2026-10-10); the evaluation now ignores the header and uses the correct values.
+
+| cube | beam (arcsec) | noise rms (mJy/beam) | peak SNR | noise correlation between channels, lag 1 / 2 / 3 | spatial corr. at 8 px | (dirty - clean) / noise, signal channels |
+|---|---|---|---|---|---|---|
+| GI, robust 0.5 | 0.237 x 0.175 | 2.12 | 36.4 | **+0.64** / +0.16 / 0.00 | 0.53 | 1.00 |
+| Kep twin, robust 0.5 | 0.237 x 0.175 | 2.12 | 35.7 | +0.64 / +0.15 / 0.00 | 0.53 | 1.00 |
+| GI, robust 1.5 | 0.390 x 0.274 | 1.26 | 137.7 | +0.64 / +0.15 / 0.00 | 0.79 | 1.05 |
+| Kep twin, robust 1.5 | 0.390 x 0.274 | 1.26 | 131.5 | +0.64 / +0.15 / 0.00 | 0.79 | 1.07 |
+
+Reads. (1) The truth is consistent: in the signal channels dirty minus the beam-convolved model is exactly at the noise level for robust 0.5 (5-7 % above it for robust 1.5, a small model / imaging mismatch).
+(2) **Noise in a realistic ALMA-like cube is correlated between neighbouring channels: +0.64 at lag 1, +0.15 at lag 2, zero beyond** (whatever spectral response syndisk applies; real ALMA cubes are Hanning-smoothed
+too). Everything we trained so far draws channel-INDEPENDENT noise, and the 3D Wiener filter's noise model is flat along velocity. Both are wrong for this regime: the fix is a velocity covariance in the training noise
+and a noise spectrum along velocity in the Wiener step, both measured from line-free channels. (3) Peak SNR 36 (robust 0.5) sits inside exoALMA's fiducial 13-50; robust 1.5 (SNR ~135) is the easy end.
+Next: score `unified-wiener`, the mixed-data `kin_gamma0_mae_ft` fine-tune and the original nb16 `kin_gamma0_mae_ft` on all four (kernel `eval-speedie`, queued for a GPU slot).
+
+---
+
+## 2026-10-10 | run | Fine-tuning kin_gamma0_mae_ft / starlet_ft on the mixed data (Kaggle `unified-ft-kin` v1): helps what it had never seen, does not beat the Wiener-fed model
+
+Archived `results/unified/ft-kin_v1_2026-10-10/` (log, 4 eval JSONs). 6000 steps (48 min) + scoring (60 min) per checkpoint, lr 1e-4, dirty input in the checkpoint's own 31-channel format, data mix and sizes as in the
+2026-10-09 plan entry. Evaluation here is at NATIVE size with no internal resize to 256 (nb16 resized), so absolute numbers differ from nb16's; compare within this harness. 6 cases per checkpoint failed to score (the
+empty-spine-track bug, fixed since). One run, no seeds. Matched cases only (the "before" scoring covered 7 cases at 300 and 600 px), 600 px:
+
+| case | metric | Wiener | kin_mae before to after | kin_starlet before to after | unified-wiener |
+|---|---|---|---|---|---|
+| run_0002_00560_rt_00 (line) | PSNR dB | 32.5 | 43.2 to 43.2 | 43.7 to 43.7 | 40.5 |
+| | M1 % / M2 % | 33 / 24 | 57 to 71 / 43 to 85 | 69 to 72 / 81 to 87 | 63 / 79 |
+| | line-centre m/s | 136 | 84 to 58 | 92 to 57 | 84 |
+| run_0026_00005_rt_04 (line) | PSNR dB | 30.6 | 41.6 to 40.7 | 43.8 to 41.2 | 43.2 |
+| | M1 % / M2 % | 69 / 61 | 63 to 84 / 15 to 73 | 87 to 86 / 77 to 75 | 86 / 81 |
+| hydro 9074 | PSNR dB | 34.5 | 30.9 to 34.1 | 30.9 to 34.0 | 33.4 |
+| | rc_r (dirty 0.13) | 0.16 | 0.50 to 0.43 | 0.43 to 0.39 | 0.37 |
+| | line-centre m/s (dirty 308) | 293 | 258 to 189 | 255 to 187 | 263 |
+| analytic an07 (deconv. / noise-only) | rc_r | 0.59 / 0.84 | 0.60 to 0.87 / 0.76 to 0.90 | 0.58 to 0.87 / 0.71 to 0.90 | 0.86 / n.a. |
+| SG v2 | rc_r (dirty 0.85) | 0.86 | 0.63 to 0.78 | 0.59 to 0.75 | 0.83 |
+
+Mean over all 5 line cubes after fine-tuning, 600 px: `kin_mae_ft` PSNR 41.8, M0/M1/M2 35 / 70 / 48 %, rc_r 0.54, line-centre 44 m/s; `kin_starlet_ft` 42.3, 38 / 72 / 57, 0.58, 42 m/s; the Wiener-fed `unified-wiener` 46.3, 33 / 85 / 83, 0.70, 49 m/s.
+
+Reads. (1) Fine-tuning on the mixed data helps the starting checkpoints where they had never seen the data (analytic disks, hydro 9074 PSNR +3 dB, line-centre error down 25 to 40 %, M2 on both line cubes) and costs
+line-emission PSNR on only one of two cubes (-0.9 and -2.6 dB). (2) It does not beat the model that is fed the Wiener cube: unified-wiener is ahead on line-emission PSNR (+4 dB), M1 (+13 to 15 points), M2 (+26 to 35) and
+rc_r (+0.12 to 0.16), and on analytic M1 / M2 (81 / 87 vs 42 / 34); the fine-tunes keep the lower line-centre error on line cubes (42 to 44 vs 49 m/s), higher M0 (35 to 38 vs 33) and the lower line-centre error on 9074. (3) The original
+`kin_gamma0_mae_ft` already had the best 9074 wiggle of anything scored (0.50), and fine-tuning lowered it (0.43): a single cube, so a lead. (4) SG v2 stays unsolved for every model: none reaches dirty (0.85) or Wiener (0.86).
+Direction: the Wiener-fed arm is the base for round 2; the dirty-input fine-tunes stay as secondary candidates; `unified-ft-single` (winner_aug_res480, sweep_winner_p10_600, sg_k3_fresh) still running. Checkpoints (rule 12, models/README.md):
+Kaggle kernel Outputs of `unified-ft-kin`, `unified-wiener`, `wiggle-correction`.
+
+---
+
+## 2026-10-10 | added | CPU-side work while the fine-tunes run: Speedie data prep, a spurious-wiggle metric, the model comparison script, the revised mentor deck; one correction
+
+- **Speedie GI disk** (research.md 2026-10-09/10): `experiments/speedie_prep.py` (streams the deflate zips by HTTP range, crops 1024 px, builds beam-convolved truth, measures noise) with `tests/test_speedie_prep.py`
+  (a 1 Jy point source peaks at exactly 1.000 Jy/beam, beam position angle, half-channel velocity resampling, noise-report recovery of a known lag-1 covariance, zip and range I/O against a local server: PASS).
+  Runs as CPU-only Kaggle kernel `speedie-prep` (no GPU slot); output is attached to later kernels as a kernel source. `train_unified.py --speedie-dir --eval-speedie GI_r0.5,Kep_r0.5` scores them at native pixels
+  (tested end to end on a toy stand-in; the real cubes are not yet in).
+- **Spurious-wiggle metric.** `wiggle_scorecard` now also reports `rc_rms_ms` and `rc_rms_clean_ms`, the absolute rotation-curve residual rms in m/s for each method and for clean. On the Keplerian twin clean's is the floor, and a
+  method's excess over it is structure the denoiser invented (`compare_models.py` prints it as "spurious m/s"). Correlation cannot say this: the twin has no wiggle to correlate with.
+- **`experiments/compare_models.py`**: one table per size from the `eval_*.json` files (line / hydro / analytic / SG v2 / Speedie GI / Speedie Keplerian twin; PSNR, M0/M1/M2, rc_r, line-centre error), with dirty and Wiener as reference rows.
+- **Mentor deck revised** (artifact "Recovering the GI Wiggle", now 9 slides): slides 2, 3, 4, 6, 8 rewritten and a new slide 7 (the unified model); slide 5 keeps its figure with a metric note. The Keplerian numbers (0.664, 0.925,
+  0.733) are gone; every figure on the new slides is from PROGRESS.md 2026-10-08 to 2026-10-10.
+- **Correction.** I wrote that notebook 14's from-scratch 600 px arms ranked "8th, 9th and 13th of 14" in notebook 16; those were mean-rank VALUES, not positions. By mean rank over 8 metrics they are 10th (`sweep_winner_p10_600`),
+  12th (`sweep_winner_600`) and 14th (`sweep_winner_aug_600`). Fixed on the `native600-loss-sweep` branch (`80b9340`); the conclusion (native 600 from scratch has not helped) is unchanged and slightly stronger.
+- **Speedie prep was 11x too slow, fixed (2026-10-10 ~05:30 IST).** The first kernel (`speedie-prep`, sequential range requests) read the model cube at 69 s per channel (0.23 MB/s) because
+  Zenodo throttles PER CONNECTION: measured from the laptop, 1 request 0.26 MB/s, 8 parallel 1.72 MB/s, 16 parallel on real model-cube channel blocks 2.85 MB/s. Sequentially the job would have taken
+  ~20 h and passed Kaggle's 12 h cap before producing the Keplerian twin (order was GI model, GI r0.5, GI r1.5, then Kep). `speedie_prep.py` now downloads with 24 parallel range requests, takes robust 0.5 for BOTH disks
+  before robust 1.5, and downloads each zip to disk with a resumable chunk log; `tests/test_speedie_prep.py` covers the parallel crop, the parallel download (byte-identical), local-zip streaming and resume. Relaunched as
+  `speedie-prep-fast` (CPU only); the original kernel is left running only until the fast one shows progress. Expected ~16 GB at ~3 MB/s, about 1.5 to 2 h, not yet confirmed on Kaggle's network.
+- **Round 2 launched 2026-10-10 05:44 IST** (`unified-wiener-k15`): the same Wiener-fed model as `unified-wiener`, two changes at once (wider window 3 to 15 channels per side; each simulation also served as the noise-only task, p_ai 0.5), so a difference from v1 cannot be assigned to one of them; the ablations come later. Weekly GPU quota reset at about 05:30 IST Saturday.
+- Housekeeping: the system cleared `/private/tmp` (scratch venv, the nb14 worktree); the branch was already pushed, the venv was rebuilt, the worktree re-added.
+
+---
+
+## 2026-10-10 | run | The learned correction works: leave-one-out and `unified-wiener` both finished (Kaggle `wiggle-correction` v2, `unified-wiener` v1)
+
+Logs read 2026-10-10 00:10 IST; archive folders not yet written (RUNS.md rows pending, code not committed, see provenance caveat in the 2026-10-09 run entry).
+
+**`wiggle-correction` v2** (Wiener + U-Net correction, 5 folds x 9000 steps, 605 min). Trained on the 4 other hydro disks + analytic an01-an06 (the 101-channel analytic cubes),
+scored on the fold's disk, SG v2, an07, an08, none of them trained on. rc_r (rotation-curve wiggle), one run, no seeds:
+
+| held out | dirty | Wiener | **corrected** | oracle (noise-free beam) | median line-centre error, Wiener to corrected |
+|---|---|---|---|---|---|
+| 9074 | 0.13 | 0.16 | **0.44** | 0.93 | 293 to 172 m/s |
+| 9025 | 0.13 | 0.21 | **0.44** | 0.80 | 76 to 48 m/s |
+| 9015 | 0.04 | 0.21 | **0.24** | 0.82 | 59 to 39 m/s |
+| 9032 | 0.68 | 0.64 | 0.65 | 0.90 | 51 to 46 m/s |
+| 9019 | 0.71 | 0.52 | **0.74** | 0.98 | 70 to 61 m/s |
+| SG v2 (5 fold models) | 0.87 | 0.89 | 0.85-0.87 | 0.92 | 37 to 46-49 m/s (worse) |
+| an07 / an08 (5 fold models) | 0.43 / 0.46 | 0.70 / 0.60 | 0.90-0.93 / 0.89-0.93 | 0.97 / 0.95 | 36 to 17-22 / 30 to 16-19 m/s |
+
+First model to beat Wiener AND dirty on the two hard hydro disks (9025, 9074), the stated success bar (PROGRESS.md 2026-10-08). Still far from the oracle on the hydro disks
+(0.44 vs 0.93 on 9074) and, on SG v2, no better than dirty. Gains on the analytic disks are large but those are a smooth single-mode family close to the training analytic disks.
+
+**`unified-wiener` v1** (one model, all three data kinds, 12000 steps in 163 min, window +-0.3 km/s, deconvolution-task data only; built BEFORE the noise-only variants).
+Scored at 256/300/320/480/600 px. Line-emission holdouts, mean of the cubes available at each size (4 at 256 and 300: run_0002_00560_rt_04 failed there, see below):
+
+| size | PSNR dirty / Wiener / model | M0 / M1 / M2 % (Wiener) | M0 / M1 / M2 % (model) | rc_r dirty / Wiener / model |
+|---|---|---|---|---|
+| 256 | 20.3 / 30.5 / 41.3 | 20 / 54 / 46 | 20 / 81 / 84 | 0.26 / 0.51 / 0.79 |
+| 320 | 20.1 / 30.5 / 43.2 | 19 / 59 / 50 | 27 / 85 / 86 | 0.21 / 0.40 / 0.73 |
+| 480 | 20.1 / 30.5 / 45.2 | 19 / 59 / 51 | 32 / 86 / 85 | 0.22 / 0.38 / 0.69 |
+| 600 | 20.1 / 30.5 / 46.3 | 19 / 59 / 51 | 33 / 85 / 83 | 0.21 / 0.39 / 0.70 |
+
+Against notebook 16's best checkpoints on the same 5 holdouts (nb16 v6, its own Keplerian wiggle metric so the wiggle columns do not compare): `kin_gamma0_mae_ft` PSNR 45.7, M0 28, M1 78, M2 54;
+`kin_gamma0_starlet_ft` 47.1, 30, 83, 69. At 600 px this single from-scratch model has 46.3, 33, 85, 83: level on PSNR and M0, ahead on M1 and M2, and it holds all five sizes.
+The wiggle on line emission (rc_r) rises from Wiener's 0.39-0.51 to 0.70-0.79; only `run_0026_00005_rt_04` does not gain over Wiener (0.84 vs 0.82-0.83).
+
+Weak spots, same run: SG v2 (the 0.033 km/s hydro cube) is not helped (rc_r 0.83-0.88, equal to dirty, 0.01-0.02 below Wiener; M1 improvement turns negative at 480/600, -13 and -18 %);
+hydro 9074 PSNR falls below Wiener (33.4 vs 34.5 at 600) while rc_r rises 0.16 to 0.37-0.45, and its wiggle gain shrinks with size (0.45 at 256 to 0.37 at 600);
+M0 is negative on run_0002_00560_rt_00 (-10 to -32 %), the cube where dirty is already good. Four cases FAILED in scoring (`run_0002_00560_rt_04` at 256 and 300, `an08` at 300 and 320):
+`np.polyfit` on an empty spine track in `wiggle_scorecard.wiggle_fourier` (the fitted geometry left no channel within 1 km/s of v_sys or R_out < R_in at that size). Fixed 2026-10-10.
+
+**Reads.** (1) A learned correction on top of Wiener is the first thing that recovers part of the hydro wiggle on unseen disks. (2) One model covers all five sizes with the wiggle gain stable for
+line emission and the analytic disks, so no per-resolution models are needed on this evidence. (3) The remaining problem is SG v2 and the faint hydro disks; the window (+-0.3 km/s), more GI data
+and the noise-only variants are the changes aimed at that.
+
+---
+
+## 2026-10-09 | plan | Fine-tune the best existing checkpoints on the unified data mix, plus fresh training of the same architectures; ALMA-matched noise-only task added
+
+**Decision (user, 2026-10-09).** Use several existing checkpoints and train them again on the data the plan calls for, then go to exoALMA (evaluation only: Jason
+does not want any model trained on exoALMA data). Fresh training of the same architectures is wanted too. Any checkpoint on the Kaggle account may be used.
+
+**Shortlist** (from the nb16 v6 ranking over 14 checkpoints, 7 cubes, 8 metrics; mean ranks in PROGRESS.md / this session):
+`kin_gamma0_mae_ft` (rank 5.1, best line-emission wiggle 0.757), `kin_gamma0_starlet_ft` (best M1/M2: 82.7 / 69.0 %), `winner_aug_res480_seed43` (best overall rank 4.75),
+`sweep_winner_p10_600` (nb14's native-600 representative: nb16 SG v2 wiggle rank 2 of 14, low line-emission moments), `sg_k3_fresh` (not in nb16; best learned model on the
+rotation-curve wiggle on unseen disks, confirmed by the user's own reading). `winner_res320_seed42` is not in any dataset on the account; skipped. nb14's native-600 arms
+(PSNR 37.2 / 37.2 / 35.2 on 600 px images; `winner_patch_600` 30.18) are not a clear win over the 256 px models.
+
+**New in `experiments/train_unified.py`:**
+1. *Arm "legacy" (`--init CKPT`)*: the checkpoint keeps its own input/output format (dirty window with min-max shared from the centre channel; one centre channel out, or the
+   whole window out for the 31-channel kin_gamma0 family) and is trained further with the same data mix, sizes and losses (L1 + first and second velocity differences).
+   `--fresh` keeps the architecture and discards the weights. Window sizes are set in km/s so 0.033 km/s cubes see the same velocity span.
+2. *ALMA-matched noise-only variant of every simulation* (`--p-ai`, default 0.5; held-out cases also scored as `<name>_ai`): real ALMA products (and exoALMA's fiducial set) are
+   CLEAN images in which the beam is already inside the clean target, so the task is noise-only. sg_synth and the analytic pairs add a second beam (a deconvolution task); the
+   variant uses clean + noise at the pair's own measured noise spectrum, no extra beam. One smoke-run lead (an07 only, 4 steps, 128 px): Wiener lifts the rotation-curve wiggle
+   score from 0.61 (dirty) to 0.84 on the noise-only version, which it did not do on the deconvolution version. A lead, not a result.
+3. Local smoke tests run on the Apple GPU (MPS) for the network (resampling stays on CPU: MPS cannot area-pool 600 to 256); MPS and CPU gave identical scores on the same smoke run.
+4. `--before`: scores the starting checkpoint under the new protocol (subset, sizes 300 and 600) so fine-tune gains are measured against the same cubes.
+
+**Smoke results (8 steps, 128/160 px, tiny model budget; plumbing only):** kin_gamma0_mae_ft (stack output) and sg_k3_fresh (single-channel, three-centre loss) both train and score.
+The starting checkpoints look bad at 128/160 px (moments strongly negative), because those sizes are far from the 256 px they trained at; that is the mismatch the all-sizes
+fine-tuning is meant to remove, and says nothing about their real quality.
+
+**Kernels** (private, GPU, code via the `exxa-wiggle-code` dataset, checkpoints via `exxa-unified-ft-sources` (kin_gamma0_mae_ft / starlet_ft as `.ckpt`, RULES.md #3),
+`exxa-13-checkpoint-sources` (sg_k3_fresh), `exxa-05-v38-recovered` (res480) and the nb14 kernel output (sweep_winner_p10_600)):
+`unified-ft-kin` (2 checkpoints), `unified-ft-single` (3 checkpoints), 20 rounds x 300 steps each at lr 1e-4, before and after scoring on 12 cases x 5 sizes.
+GPU slots: Kaggle allows 2 at once and both are in use (`wiggle-correction` LOO, ~7 h in; `unified-wiener` narrow-window control, ~1.5 h in), so an auto-launcher
+pushes each kernel when a slot frees. Note `unified-wiener` v1 was built before the noise-only variants existed, so it only informs the deconvolution task and the window comparison.
+
+---
+
+## 2026-10-09 | plan + bug | One model for line emission + SG + analytic, scored on PSNR, moments AND the wiggle at 256/300/320/480/600 px
+
+**Request (user, 2026-10-09).** The trained models score well on PSNR, M0/M1 and dispersion (M2) and fail the wiggle. Retrain on line
+emission plus self-gravitating plus wiggle-bearing data, ready for ALMA, as a few properly trained checkpoints that hold at 256, 300, 320,
+480 and 600 px and are best on everything at once.
+
+**Design** (`experiments/train_unified.py`, Kaggle `kaggle/unified/`):
+- Data: 9 line-emission cubes (cube_split train + val; the standard 5 holdouts never trained on), hydro 9015/9019/9025/9032 (9074 held
+  out), analytic an01-an06 (an07/an08 held out), sampled one third each. Fresh noise every round from each cube's own measured 2D noise
+  spectrum (the pair residual), so line emission keeps its beam-correlated noise (the CLEAN / real-ALMA regime) and the SG cubes their
+  beam-shaped noise.
+- Resolution: every draw is resampled to a random size from {256, 300, 320, 480, 600}; scoring is done at each of the five.
+- Two arms (checkpoints): `wiener` = native-grid 3D Wiener + zero-initialised U-Net correction; `direct` = dirty + correction (ablation).
+- Loss: L1 on three adjacent channels + L1 on the first velocity difference (line centre: M1, wiggle) + L1 on the second (line width: M2).
+- Scoring per holdout x size: `checkpoint_eval.score` (PSNR, SSIM, M0/M1/M2 signal-masked, artifacts; the nb16 definitions) and
+  `wiggle_scorecard.score_cube` (rc_r, finger coherence, line-centre error, Terry spine), each against dirty and Wiener on the same cube.
+
+**Bugs found while building it (both would have produced wrong numbers, neither reached a published table):**
+1. *Edge-channel continuum subtraction destroys a deconvolving Wiener filter.* Subtracting the mean of the edge channels adds the same
+   noise pattern (sigma / sqrt(16)) to every channel; the 3D Wiener reads a channel-constant pattern as signal and the beam deconvolution then
+   amplifies it: an07 Wiener PSNR 34.5 dB without it, 15.6 dB with it. Fix: continuum is removed only from line emission (real continuum, no
+   deconvolution there, where it costs nothing: run_0002 Wiener 23.9 to 33.2 dB); the simulations have none and are left alone.
+2. *The hydro disks have line flux in their edge channels* (9074: 92% of peak in the first/last 8 channels; the old analytic cubes 12%), so an
+   edge-channel noise estimate is invalid for them. SG noise stays on `blind_noise2d` (quietest channels at high k). The analytic disks are
+   now generated with 161 channels (+-8 km/s) so their edges are line-free; **the LOO run (wiggle-correction v2) used the earlier 101-channel
+   analytic cubes**, so its analytic numbers are not on the same cubes as anything from the unified run.
+3. *Wiener on a resampled cube amplifies the resampling's own artifacts* (an07 at 256 px: 1.3 dB; 9074 upsampled to 600: 19.1 dB). Fix: Wiener
+   runs once on the native grid, where beam and noise are defined, and the dirty and Wiener cubes are then resampled to the test size. Verified:
+   an07 29.2 to 34.5 dB, 9074 21.3 to 33.3 dB, run_0002 23.9 to 33.2 dB at every one of the five sizes. A real cube is never resampled, so this
+   is also the ALMA path.
+
+Early sign to watch: on line emission Wiener lowers the wiggle score (run_0002 at 128/160 px, rc_r dirty 0.76, Wiener 0.69), so on that data
+the learned stage starts below dirty on the wiggle.
+
+| Kaggle kernel | ver | mode | status |
+|---|---:|---|---|
+| `unified-smoke` | 1 | wiener, 2 rounds x 40 steps, eval run_0002 + an07 at 256/600 | COMPLETE in 14.8 min, plumbing ok (14 line cubes found, 19 training cubes loaded in 7 min, eval at both sizes) but **loss NaN from step 1**: hydro 9019 is in different units (peak 1.4e10; every other cube < 0.3), which overflowed the float16 cache. Its model numbers are meaningless. Fixed: caches normalised by each cube's Wiener peak before the float16 cast, and a non-finite loss now stops the run. Verified locally on 9019 (finite, targets <= 1.42). The LOO run used float32 caches and is not affected. |
+| `unified-wiener` | 1 | full: 40 rounds x 300 steps, 5 line holdouts + 9074 + SG v2 + an07/an08 x 5 sizes | launched 2026-10-09 ~20:00 IST, ~4 h |
+| `unified-direct` | - | same, direct arm | waiting: Kaggle allows 2 GPU sessions; launches when the LOO run ends |
+
+---
+
+## 2026-10-09 | run | Learned correction on 3D Wiener, leave-one-hydro-disk-out, on Kaggle (`krishanyadav333/wiggle-correction`)
+
+New script kernel (`kaggle/wiggle_correction/`), private, GPU, no GitHub-linked notebook so RULES.md #2 (cells vs `src/`) does not apply.
+Trainer `experiments/train_wiggle_correction.py`: out = Wiener(a=2) + U-Net([7-channel dirty window, 7-channel Wiener window,
+noise-level map]), last conv zero-initialised (checked: step-1 L1 equals Wiener's L1 exactly, so the untrained model IS Wiener),
+loss = L1 to clean on three adjacent centres + L1 on their central velocity difference, fresh noise every round (clean (*) beam +
+beam (*) new noise at each cube's measured level), fixed budget (30 rounds x 300 steps, batch 12 x 3 centres, 128 px crops, base 48,
+AdamW one-cycle 3e-4, fp16), no early stopping, no selection on the holdout. The spectral window is set in km/s so the 0.033 km/s
+cubes (9019, SG v2) see the same velocity span as the 0.1 km/s ones. Per fold: train on the 4 other hydro disks + analytic an01-an06;
+held out and scored with the scorecard: the fold's hydro disk, SG v2, and analytic an07/an08 (never trained on).
+
+**Provenance caveat.** Tracked files come from a clone of `midterm-prep` at launch time; `analytic_gi.py`, `wiggle_scorecard.py`,
+`make_analytic_gi_cubes.py` and `train_wiggle_correction.py` were not committed, so they ride in the private dataset
+`krishanyadav333/exxa-wiggle-code` (MANIFEST.json holds sha256 sums; local HEAD 5b04466 plus those files). Commit them and cite the
+SHA in RUNS.md once the run lands. The checkpoint of every round is written straight to `/kaggle/working/wiggle_correction/` (RULES.md #1).
+
+| Kaggle ver | mode | outcome |
+|---:|---|---|
+| 1 | smoke (fold 9074, 2 rounds x 40 steps, eval 9074 + an07), 2.7 min | COMPLETE. Plumbing verified on GPU. After only 80 steps rc_r: 9074 Wiener 0.158 to **0.257** (dirty 0.132), an07 Wiener 0.697 to **0.814** (dirty 0.434); line-centre median 293 to 242 m/s and 36 to 29 m/s. One fold, a tiny budget, one run: it shows the pipeline works and the sign, not a result. |
+| 2 | full, 5 folds x 9000 steps, eval 4 cubes per fold | launched 2026-10-09 ~14:00 IST; expected ~5 h; log is only readable after it ends |
+
+A first attempt cloned the repo into `/kaggle/working` and put the whole 1.5 GB clone in the Output; version 2 clones to `/tmp`.
+
+---
+
+## 2026-10-09 | finding | Existing checkpoints re-scored on the rotation-curve metric: none comes near the noise-free beam (0.89); the high-SNR SG v2 cube is where every learned model loses to dirty
+
+`experiments/wiggle_scorecard.py` now runs `winner_aug_seed43`, `sg_k3_fresh` and `kin_gamma0` (each through its own training
+preprocessing, via `wiggle_domain_split.py`'s loaders) beside dirty, 3D Wiener a=2 and the noise-free beam oracle, on all 12 cubes
+(5 hydro `sg_synth`, SG v2, 6 analytic). Output `results/wiggle-scorecard/2026-10-09/` (scorecard.json / .md / run_log.txt / 12 PNGs; one run, no
+seeds, ~3 h wall clock including a laptop sleep). `rc_r` = correlation with clean of M1 minus clean's own rotation curve, R >= 2 beams.
+
+| method | hydro 5 disks (mean +/- std across disks) | SG v2 | analytic 6 (mean +/- std) | paired wins vs dirty (hydro / SG v2 / analytic) |
+|---|---|---|---|---|
+| noise-free beam (oracle) | 0.885 +/- 0.076 | 0.916 | 0.936 +/- 0.060 | n/a |
+| dirty | 0.341 +/- 0.329 | 0.873 | 0.421 +/- 0.181 | n/a |
+| 3D Wiener a=2 | 0.349 +/- 0.218 | 0.892 | 0.557 +/- 0.292 | 3/5, 1/1, 5/6 |
+| winner_aug_seed43 | 0.377 +/- 0.225 | 0.792 | 0.397 +/- 0.171 | 3/5, 0/1, 1/6 |
+| sg_k3_fresh | 0.496 +/- 0.246 † | 0.813 | 0.537 +/- 0.231 | 4/5 †, 0/1, 6/6 |
+| kin_gamma0 | 0.446 +/- 0.232 | 0.770 | 0.424 +/- 0.225 | 4/5, 0/1, 3/6 |
+
+† `sg_k3_fresh` was trained on 9015, 9019, 9032 and validated on 9025 (RUNS.md 12-sg-spectral-context); only 9074 is a genuine holdout for it
+(rc_r 0.362 vs dirty 0.132). Its hydro mean is inflated by the disks it saw; the analytic disks and SG v2 are unseen for it. `winner_aug` and
+`kin_gamma0` were trained on line emission only, so every cube here is unseen for them. For SG v2 the static noise pattern was removed before any
+method ran, which if anything favours the learned models.
+
+What it says:
+1. **The target is not met by anything we have.** The best honest hydro number is Wiener / kin_gamma0 / winner_aug at 0.35-0.45 against the oracle's 0.885 and
+   dirty's 0.341. Per-disk wins are the fair read: the across-disk std (0.2-0.3) is as large as every between-method gap on 5 disks, so means alone do not
+   rank the methods. 9015 and 9025 (dirty rc_r 0.04 and 0.13) stay at 0.08-0.35 for every method.
+2. **On SG v2 (dirty already 0.873, oracle 0.916, headroom 0.043) every learned model is worse than dirty** (0.77-0.81) and Wiener is the only method above it
+   (0.892). The learned models lose where the data are good, which is the standing finding (RUNS.md 12) now confirmed on the finger metric.
+3. **sg_k3_fresh transfers best of the learned models**: 6/6 on the analytic disks (0.537, level with Wiener's 0.557, unseen for it) and the best
+   `spine_r` among learned models on hydro, but it loses on SG v2 and its single clean hydro holdout is a win. A spectral window (k=3) plus SG-domain
+   training is the only learned recipe that helps on cubes it has not seen; line-emission-only training (winner_aug, kin_gamma0) does not (winner_aug 1/6 on
+   analytic, kin_gamma0 3/6).
+4. **Line centres are still 5 to 10 times off the 10 m/s spec on hydro disks**: median |dM1| 14 m/s for the beam oracle, 76-135 m/s for dirty and every method
+   (best sg_k3_fresh 76, contaminated; Wiener 110, kin_gamma0 90, winner_aug 111).
+5. Metric reads: `spine_r` (Terry spine agreement) ranks Wiener first on hydro (0.634) and dirty near the bottom (0.305); A_wiggle is inflated 2-4x by dirty on the
+   analytic disks (see the analytic entry below), so a wiggle amplitude measured on a raw dirty cube is not usable without denoising.
+
+**Published numbers this touches.** `models/best_models/README.md` wiggle column (resid_r 0.760 / 0.681 / 0.8155 / 0.568-0.587), RUNS.md 08/09/10/11/12 wiggle
+numbers, and the deck slides quoting them: all Keplerian `resid_r`, superseded for ranking by the `rc_r` table above (their own numbers stand as measured).
+Rank change worth noting: under `resid_r` kin_gamma0 was "the strongest in-domain wiggle result" and DDRM the worst; under `rc_r` kin_gamma0 is mid-pack
+(0.446 hydro, 0.770 SG v2). DDRM and `winner_beam` / `winner_p10` / `ddpm_seed42` were not re-scored here (DDRM needs the sampler; the rest are untested
+single-channel U-Nets of the winner_aug family).
+
+Next: the learned correction stage has to beat Wiener on `rc_r` on 9015/9025/9074 and not fall below dirty on SG v2; start from `sg_k3_fresh`'s recipe (SG-domain
+data plus spectral window), add Wiener as input and the analytic disks as extra training volume, validate leave-one-out on the five hydro disks.
+
+---
+
+## 2026-10-09 | added + finding | Longarini's analytic GI model: exact-truth test disks; 3D Wiener beats dirty on 4 of 6 analytic disks but the hydro disks stay hard
+
+**Arrival.** `giggle_functions.py` (C. Longarini; the "new GI wiggle function"), found in `~/Downloads`, copied unmodified to
+`references/longarini_giggle_functions.py`. It computes the rotation curve of a self-gravitating disk (Keplerian plus a disc term through
+elliptic integrals) and adds an m-armed log-spiral velocity perturbation that scales with q = md/ms and beta^(-1/2); the sky velocity is
+(u_phi cos(phi) + u_r sin(phi)) sin(i). Run as shipped it needs `from scipy import ndimage` and fails on scipy >= 1.14 (`simps` removed). Bugs left
+unported, none touch the velocity path: `get_masses` is an `if/if/else` that prints an error for statements -1 and 0 and uses `b[j]` with `j` undefined
+when `statement == 0`; `amplitude_central_channel` calls `momentone` without `off`; the `*eta` variants have no azimuthal spiral term; the sign of the
+log phase differs between `ur` and `urC`; the plot labels are pixel-hardcoded. Ask Cristiano whether a fixed version exists.
+
+**Ported** as `src/data/analytic_gi.py` (vectorised, same physics; the emission model, beam and noise are ours and are documented as chosen, not derived),
+`tests/test_analytic_gi.py` (PASS: Keplerian limit at md to 0 within 1e-6, disc speeds the rotation up 2% / 7% / 16% at 30 / 100 / 250 au for md = 0.35,
+the quadratic estimator recovers the exact v_los to 0.1 m/s on an unbeamed cube, so the estimator is not what limits any score) and
+`experiments/make_analytic_gi_cubes.py`. Six disks `an01`-`an06` (md 0.15-0.60, m 2-3, beta 3-5, pitch 13-20 deg, i 20-30 deg), laid out like
+`sg_synth` (301 px, 1.99 au/px, 101 channels at 0.1 km/s, clean carries the hydro cubes' own 16.1 x 12.9 px beam, dirty = recovered beam (*) clean +
+recovered beam (*) noise). Noise is scaled per disk so rmsdiff/rms = 0.44-0.52, inside the hydro band (0.41-0.57); at the sg_synth recipe's
+NOISE_FRAC = 0.35 it came out 0.78-0.95 because the emission is compact, so that was changed and is the one knob that differs. Cubes live in
+`self-gravitating cube and dirty cube/sg_analytic/` (gitignored, regenerate with the script; fixed seeds 1000+k), plus an exact `*_vlos_truth.npy`.
+
+**Scorecard on the six analytic disks** (`results/wiggle-scorecard/2026-10-09/`, same metrics as 2026-10-08; mean +/- std across disks, no seeds):
+
+| method | rc_r | rc_coh (40-160 au) | median abs line-centre error | spine_r | A_wiggle / clean |
+|---|---|---|---|---|---|
+| noise-free beam (oracle) | 0.936 +/- 0.060 | 0.961 | 11 m/s | 0.93 | 0.85 |
+| dirty | 0.421 +/- 0.181 | 0.515 | 58 m/s | 0.09 | 2.9 |
+| 3D Wiener a=2 | **0.557 +/- 0.292** | 0.578 | 28 m/s | 0.32 | 1.36 |
+| 3D Wiener a=4 | 0.322 +/- 0.263 | 0.337 | 40 m/s | 0.21 | 1.07 |
+
+Per disk, Wiener a=2 vs dirty on rc_r: an02 0.629 vs 0.428, an03 0.669 vs 0.462, an05 0.709 vs 0.485, an06 0.904 vs 0.684 (wins), an04 0.338 vs 0.328
+(tie), an01 0.092 vs 0.139 (loses; md = 0.15, the weakest wiggle, noise dominates: dirty's rotation-curve residual has 6.0x clean's rms).
+
+What it says:
+1. Same ordering as the hydro disks on the oracle (beam alone keeps 0.94) and on dirty (noise destroys it), so the analytic disks are a fair
+   stand-in for the noise problem, with an exact truth.
+2. Here Wiener helps (0.557 vs 0.421, 4 wins, 1 tie, 1 loss); on the five hydro disks it did not (0.349 vs 0.341). The analytic spiral is one smooth mode,
+   which a linear filter can keep; the hydro fingers are messier and faint. So Wiener's hydro failure is a statement about hydro structure, and a learned
+   stage trained on analytic disks alone would be tested on an easier problem than the target. Use analytic disks for training volume and scoring on
+   them as a unit test, but select on the hydro disks.
+3. On an03 (`an03.png`) Wiener alpha=2 turns the noisy spine of dirty into a nearly straight one: the clean spine swings by about +/-20 au over 170 au,
+   Wiener's stays within a few au (spine_r 0.44), so its A_wiggle ratio near 1 (25 vs 22 au) is not evidence the spine wiggle survived. Read A_ratio together
+   with spine_r. alpha=4 oversmooths (rc_r 0.32).
+
+**Published numbers this touches:** none new. Caveat for anyone quoting these: the analytic velocity amplitude is weak (spiral rms 0.07 km/s inside the
+mask for md = 0.35, i = 30) next to the hydro cubes, the rotation-curve metric is what keeps it measurable.
+
+---
+
+## 2026-10-08 | bug + finding | GI wiggle scorecard: the Keplerian resid_r mostly scores the axisymmetric rotation curve, not the fingers; on the finger signal, 3D Wiener does not beat dirty
+
+`experiments/wiggle_scorecard.py` (CPU, ~1 min for all six cubes) scores any method on every GI cube
+we have, the same way, with figures. Output `results/wiggle-scorecard/2026-10-08/` (scorecard.json,
+scorecard.md, one PNG per cube with M0, M1, residual, systemic channel + Terry spine, spine curve vs
+clean; run_log.txt). Cubes: the 5 `sg_synth` disks and SG v2 (static pattern removed). The shipped
+`_v3_extract` run_sg_* pairs are left out: run_sg_00019's dirty equals its clean (relative difference 3e-12
+on channel 300); the other four differ from their clean by only 0.3 to 30 % rms, very low noise (corrected 2026-10-10, first
+written as if all five were identical), so none separates methods.
+
+**The bug (how caught).** On 9015 the clean cube's own Keplerian residual (M1 minus the fitted
+Keplerian, the `compare_wiggles()` definition used since 2026-08-28) is a global dipole, not
+fingers: a q = 0.25-0.75 disk is not Keplerian (self-gravity and pressure bend the rotation curve,
+and the emission surface is elevated). Any smooth cube reproduces that dipole, so resid_r is high
+for anything that keeps the large-scale velocity field. The scorecard therefore adds `rc_*`: subtract
+the clean cube's own rotation curve v_phi(R), fitted freely per beam/2-wide radial bin, so only
+non-axisymmetric motion is left. Clean's rc residual then shows the spiral fingers directly (9015,
+9025 figures); 3D Wiener's shows an m = 2 butterfly that clean does not have, plus a monotonic drift
+of the systemic-channel spine. R < 2 beam FWHM is excluded from rc metrics (beam-smeared even in clean).
+
+| cube | beam_only (oracle) rc_r / coh | dirty rc_r / coh | Wiener a=2 rc_r / coh | Wiener a=4 rc_r | old Keplerian resid_r dirty / Wiener a=2 |
+|---|---|---|---|---|---|
+| 9015 | 0.815 / 0.871 | 0.040 / 0.087 | 0.214 / 0.381 | 0.206 | 0.838 / 0.992 |
+| 9019 | 0.980 / 0.980 | **0.715** / 0.685 | 0.522 / 0.311 | 0.275 | 0.996 / 0.995 |
+| 9025 | 0.801 / 0.792 | 0.134 / 0.226 | 0.208 / 0.275 | 0.141 | 0.963 / 0.995 |
+| 9032 | 0.902 / 0.897 | **0.683** / 0.638 | 0.642 / 0.606 | 0.537 | 0.725 / 0.695 |
+| 9074 | 0.925 / 0.953 | 0.132 / 0.127 | 0.158 / 0.116 | 0.091 | 0.245 / 0.298 |
+| mean of 5 (std across disks) | **0.885 +/- 0.076** | 0.341 +/- 0.329 | 0.349 +/- 0.218 | 0.250 +/- 0.175 | 0.753 / 0.795 |
+| SG v2 | 0.916 / 0.944 | 0.873 / 0.911 | **0.892** / 0.925 | 0.875 | 0.998 / 0.998 |
+
+coh = Fourier coherence with clean's residual at 40-160 au (Terry+2022's lambda_wiggle range).
+`beam_only` is clean (*) beam with no noise: an oracle, not a method. One run, deterministic (no seeds).
+
+What it says:
+1. **Noise, not resolution, destroys the wiggle on the synthetic disks.** The noise-free extra beam
+   keeps rc_r 0.80-0.98; the same beam plus noise drops it to 0.04-0.72. A denoiser has headroom
+   from 0.34 to ~0.89 mean, before any deconvolution.
+2. **3D Wiener does not recover it.** Mean rc_r 0.349 vs dirty 0.341. It wins 3/5 but only where both
+   are below 0.22 (9015, 9025, 9074), and loses where dirty is decent (9019 0.715 to 0.522, 9032 0.683
+   to 0.642). Wiener's large old gains (9015 0.838 to 0.994,
+   9025 0.334 to 0.657) were the axisymmetric part. Its real gains are in amplitude and line centres:
+   median |dM1| 116 to 59 m/s on 9015, 136 to 76 on 9025; spine_r 0.31 to 0.63 mean.
+3. **Line centres are far from exoALMA's ~10 m/s need.** Median |M1 - M1_clean|: beam_only 5-30 m/s,
+   dirty 41-308, Wiener 37-293; 15-82% of dirty mask pixels are off by more than 100 m/s.
+4. Terry+2022 spine (Eq. 3, both halves, 20-60 channels within 1 km/s of vsys): dirty's spine jumps
+   between noise peaks (spine_r 0.21-0.52, A_wiggle 1.2-4.7x clean's: the noise reads as wiggle).
+   Wiener smooths the jumps (spine_r 0.39-0.88) but over-estimates A by 1.1-1.7x on 4 of 6 cubes.
+
+**Published numbers this touches.** Every Keplerian `resid_r`/`compare_wiggles()` number since
+2026-08-28: the 2026-10-02 entries below (3D Wiener 0.925, the 5-disk table 0.733 vs 0.628, "4/5 wins"),
+`research.md` 2026-10-02, `results/RUNS.md` sections 09-wiggle-scoring, 10-sg-training, 11-sg-loo
+(sg_loo_wiggle.json), 12-sg-spectral-context, and `models/best_models/README.md`'s wiggle resid_r
+column. They were computed as stated; what they measure is mostly the axisymmetric velocity field,
+so rankings among methods that keep it (dirty, Wiener, beam-only) are unreliable. Not yet re-scored:
+U-Net / DDRM / kin_gamma checkpoints under rc_r (next step; the scorecard takes any cube).
+
+Deviations from Terry+2022 and limits, stated in the script docstring: y_n linearly detrended before
+the FFT; R_in = 2 beam FWHM (they used h/H < 0.25 from the SPH); R_out = 95% of clean M0 (they used 95%
+of disc mass), clipped to the image; their centroid window (5 px at 1.33 au) is converted to au. Track
+lengths 220-400 au make the Fourier grid coarse (self-test: a 12 au, 80 au sinusoid comes back as 10.6 au,
+73.6 au), so A_ratio and lam_ratio are comparisons between methods, not absolute Terry amplitudes.
+The rotation curve is fitted on clean (shared model, as before); on real data it must come from the
+cube being scored.
+
+Consequence for the plan: the success bar for the learned correction is rc_r, not Keplerian resid_r.
+Target: from dirty's 0.34 toward beam_only's 0.89 on the 5 disks, without Wiener's m = 2 artifact.
+
+---
+
+## 2026-10-02 | finding | SG v2 wiggle: beam-aware Wiener deconvolution beats dirty at every scale >= 6 px; the U-Net fails at the finger scales, not by plain blur
+
+`experiments/wiggle_wiener_deconv.py` (CPU, numpy only, reuses `wiggle_all_methods_step1.npz`'s
+shared Keplerian model and mask; channels 240-360). Its quadratic centroid reproduces the stored
+bettermoments M1 maps exactly (corr 1.00000, median diff 1.7e-16 km/s) before anything is compared.
+Wiener filter per channel with the recovered beam (`dirty_beam_recovered_v2.fits`), noise PSD from
+line-free channels 0-59 and 541-600, no clean data used.
+
+| method | resid_r | coherence with clean residual: 50-100 / 25-50 / 12-25 / 6-12 px |
+|---|---|---|
+| dirty | 0.892 | 0.94 / 0.85 / 0.79 / 0.69 |
+| Wiener, alpha=1 | **0.900** | **0.97 / 0.89 / 0.82 / 0.71** |
+| noise-free beam-only (ceiling for pure denoising) | 0.920 | 0.96 / 0.89 / 0.85 / 0.76 |
+| U-Net (winner_aug) | 0.805 | 0.77 / 0.73 / 0.76 / 0.70 |
+| DDRM | 0.587 | 0.70 / 0.53 / 0.58 / 0.45 |
+
+alpha sweep 0.5/1/2/4/8: 0.877/0.900/0.886/0.859/0.781. Single cube, single run, no LOO yet: a
+lead, not a result.
+
+Three things measured along the way:
+1. The U-Net is worse than dirty exactly at the GI-finger scales (25-100 px) and adds power at
+   12-50 px (1.21-1.37x clean): it replaces the pattern rather than only smoothing it.
+2. Binning error on the Keplerian velocity (i.e. on channel / isovelocity contour) explains 11.9%
+   of the U-Net's error variance, against 4.0% for dirty and 2.1% for Wiener (radius: 6.1%). That
+   is the radial-spoke artifact: channels denoised independently put their errors along isovelocity
+   lobes.
+3. Hypothesis tested and refuted: the model does not quantize line centres to channel centres.
+   Pixel-locking exists (|frac|<0.1 of a channel: clean 0.203, dirty 0.299, U-Net 0.274), but it is
+   the noise acting on the quadratic estimator, larger in dirty than in the U-Net output.
+
+Also: realistic per-band fusion of dirty + U-Net (weights fitted on one half of the disk, applied
+to the other) gives 0.890 vs 0.882 and 0.922 vs 0.902 on the held-out halves. Small but above both.
+
+Consequence: the blur relative to clean on SG data is mostly the beam (coherence <6 px is 0.38 even
+noise-free), and the current networks never learned deconvolution (trained on A=I line emission).
+Next is a non-blind deconvolution network (Wiener step in feature space, Dong et al. 2020 DWDN;
+unfolded data/prior steps, Zhang et al. 2020 USRNet) with a noise-level map input (FFDNet), spectral
+context, and a residual on top of the Wiener estimate, trained on SG synth pairs across noise levels.
+Figure: `results/self-gravitating/wiggle_wiener_vs_unet.png`; numbers: `wiener_results.json`.
+
+**Same day, follow-up (`experiments/wiggle_wiener3d.py`): 3D Wiener reaches the linear ceiling.**
+The dirty noise is 0.53 correlated between channels at every lag (1, 2, 3, 5): a static pattern
+identical across the cube (mean of ch 0-59 vs mean of ch 541-600: r = 0.986), 53.7% of each
+channel's noise variance; clean is ~1e-6 there. Subtracting the per-pixel mean of the line-free
+channels leaves channel-independent noise (lag-1 corr -0.015). That does not move dirty's own
+centroid (0.892 both ways: a constant offset cancels in the parabola) but helps any spatial filter.
+Then Wiener in 3D (beam deconvolution + filtering along velocity, block ch 180-420, scored 240-360):
+
+| method | resid_r | 50-100 / 25-50 / 12-25 / 6-12 px |
+|---|---|---|
+| 2D Wiener, static removed | 0.902 | 0.96 / 0.88 / 0.81 / 0.69 |
+| **3D Wiener, alpha=1** | **0.925** | **0.98 / 0.93 / 0.86 / 0.73** |
+| oracle 3D Wiener (clean's power spectrum; linear ceiling) | 0.923 | 0.98 / 0.92 / 0.84 / 0.74 |
+
+Data-driven 3D Wiener sits at the linear ceiling and above the noise-free beam-only cube (0.920).
+alpha 2/4: 0.912/0.902. Channel maps (v = +1.17 km/s) show arms and inner ring close to clean,
+dirty a blob: `results/self-gravitating/wiggle_3d_wiener.png`. Below ~6 px coherence stays ~0.35
+even for the oracle: information the beam removed. Caveats: one cube; the static pattern may be how
+this synthetic dirty cube was made (on real ALMA the matching step is continuum subtraction); not
+yet run on the 5 SG LOO disks or the line-emission holdouts.
+
+**5-disk check of 3D Wiener (`experiments/wiggle_wiener3d_loo.py`, `results/self-gravitating/wiener3d_loo.json`).**
+The five `sg_synth` disks (dirty = beam (*) clean + beam (*) noise, unit-gain beam), shared Keplerian fit
+from clean with the true inclination fixed, `signal_mask` frac 0.05, no clean data in the filter. A first
+pass had a beam-normalisation and noise-spectrum bug (beam summed to 355); the numbers below are the fixed run.
+
+| disk | dirty r / PSNR | Wiener a=2 r / PSNR | Wiener a=1 r |
+|---|---|---|---|
+| 9015 | 0.838 / 18.4 | **0.994** / 29.3 | 0.337 |
+| 9019 | 0.996 / 20.3 | 0.995 / 33.1 | 0.993 |
+| 9025 | 0.334 / 19.3 | **0.657** / 29.7 | 0.053 |
+| 9032 | 0.728 / 31.0 | 0.730 / 35.3 | 0.577 |
+| 9074 | 0.245 / 21.3 | 0.288 / 33.0 | 0.040 |
+| mean | 0.628 +/- 0.325 | **0.733 +/- 0.292** (4/5 wins, 1 tie) | 0.400 +/- 0.399 (0/5) |
+
+PSNR rises on every disk (+4 to +14 dB). The wiggle gain is large only where dirty's own r is middling
+(9015, 9025) and negligible where dirty is near-perfect (9019) or where both are poor (9074: 0.245 -> 0.288).
+Estimated noise spectrum (from dirty only) matches the oracle one (0.733 vs 0.733), so the noise estimate is
+not the problem. alpha=1 loses on all 5 (deconvolution amplifies noise); alpha=2 is stable; alpha above 2 and a
+per-cube rule were not swept. Honest read: 3D Wiener is a strong no-training baseline for noise and amplitude,
+but it does NOT solve the wiggle on the hard disks (9025, 9074); that is what the learned stage has to do.
+**Superseded 2026-10-08 (entry above):** this resid_r is Keplerian-subtracted and mostly scores the axisymmetric
+rotation curve. On the rotation-curve residual (rc_r) Wiener a=2 is 0.349 vs dirty 0.341 mean, not a win.
+
+**Line-emission data is a different problem (checked on `run_0002_00560_rt_00`).** 201 ch at 0.1 km/s
+(exoALMA's fiducial spacing). dirty - clean is independent between channels (lag 1/2/5/20 corr
+-0.003/+0.001/+0.001/+0.002), no static part (0.005 of variance), spatially beam-correlated (power
+224 at k<0.02, 0.64 at 0.05-0.1, ~1e-14 above 0.2), and the signal has no beam (<D C*>/<|C|^2> ~1
+at all k, Phase 0's A=I). 3D Wiener with the noise spectrum taken from a different cube
+(`run_0006_00170_rt_00`), no training: rel. error 0.574 -> 0.195, PSNR 29.36 -> 38.75 (alpha=2),
+M1 corr 0.9812 -> 0.9895 (alpha=1). Above V12 (32.95), near the best 1-channel U-Nets; only the
+spectral-context models (kin_gamma0 ~42.9) beat it.
+
+**Correction (2026-10-08).** The sentence that stood here said models trained on line emission "are trained on the wrong forward model for
+exoALMA" because their signal has no beam while a real CLEAN cube's does. That was wrong. Checked on `run_0002_00560_rt_00`: the clean AND the dirty
+cube carry the same beam in the header (BMAJ 0.185", BMIN 0.126", BPA 149 deg, 18.6 x 12.7 px at 0.01"/px), the clean channel's spatial power
+is band-limited like a beam-smoothed image (1.4e3 at k=0.01, 1.8e-2 at 0.065, 1.3e-7 at 0.115 cycles/px, then the float32 floor), and the
+dirty-minus-clean noise is band-limited too (power 1.26 at 0.065, 6e-5 at 0.115): beam-correlated noise, as in a CLEAN image. "A = I" (Phase 0)
+is right about clean to dirty, because the beam is already in the clean cube. So the line-emission pairs are the same kind of object as exoALMA's
+fiducial products (0.15" circular beam via uv-taper, 100 m/s channels, ~1.5 K rms; exoALMA I, research.md 2026-10-08), at matching channel
+spacing (CDELT3 = 0.1 km/s) and a similar per-channel peak SNR (clean peak 0.0374 over noise rms 0.00127, about 29; exoALMA 12CO/13CO about 13 to 50).
+What differs: beam shape (elliptical 0.185 x 0.126 vs circular 0.15"), pixel scale, and the noise realisation (ours synthetic).
+
+---
+
 ## 2026-10-02 | added | collect_outputs() now zips each run for one-click download
 
 `zip_patterns` kwarg added to `collect_outputs()`: `run_dir` is always zipped

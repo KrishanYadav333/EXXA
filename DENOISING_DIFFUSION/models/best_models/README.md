@@ -3,6 +3,10 @@
 Hardlinks (RULES.md #12: nothing here is deleted from its original location, this folder
 costs no extra disk).
 
+> **Superseded for ranking (2026-10-09):** the `wiggle resid_r` column below is the Keplerian-subtracted correlation, which mostly scores the axisymmetric
+> rotation curve. On the rotation-curve metric (`rc_r`, `results/PROGRESS.md` 2026-10-09, `results/wiggle-scorecard/2026-10-09/`) none of these checkpoints reaches
+> the noise-free-beam level 0.885, and on SG v2 all three score below dirty. The numbers below stand as measured; do not use them to rank models.
+
 ## Confirmed on wiggle evidence, not just pixel metric
 
 | file | role | epoch | val_loss | PSNR | wiggle resid_r | source |

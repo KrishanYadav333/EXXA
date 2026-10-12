@@ -1,0 +1,142 @@
++ git clone --branch midterm-prep --depth 1 https://github.com/KrishanYadav333/EXXA.git /tmp/EXXA
+Cloning into '/tmp/EXXA'...
+Updating files:   1% (99/5584)Updating files:   2% (112/5584)Updating files:   3% (168/5584)Updating files:   4% (224/5584)Updating files:   4% (239/5584)Updating files:   5% (280/5584)Updating files:   6% (336/5584)Updating files:   7% (391/5584)Updating files:   8% (447/5584)Updating files:   9% (503/5584)Updating files:  10% (559/5584)Updating files:  11% (615/5584)Updating files:  12% (671/5584)Updating files:  13% (726/5584)Updating files:  13% (774/5584)Updating files:  14% (782/5584)Updating files:  15% (838/5584)Updating files:  16% (894/5584)Updating files:  17% (950/5584)Updating files:  18% (1006/5584)Updating files:  19% (1061/5584)Updating files:  20% (1117/5584)Updating files:  21% (1173/5584)Updating files:  22% (1229/5584)Updating files:  23% (1285/5584)Updating files:  24% (1341/5584)Updating files:  25% (1396/5584)Updating files:  26% (1452/5584)Updating files:  27% (1508/5584)Updating files:  28% (1564/5584)Updating files:  29% (1620/5584)Updating files:  30% (1676/5584)Updating files:  31% (1732/5584)Updating files:  32% (1787/5584)Updating files:  33% (1843/5584)Updating files:  34% (1899/5584)Updating files:  35% (1955/5584)Updating files:  36% (2011/5584)Updating files:  37% (2067/5584)Updating files:  38% (2122/5584)Updating files:  39% (2178/5584)Updating files:  40% (2234/5584)Updating files:  41% (2290/5584)Updating files:  42% (2346/5584)Updating files:  43% (2402/5584)Updating files:  44% (2457/5584)Updating files:  45% (2513/5584)Updating files:  46% (2569/5584)Updating files:  47% (2625/5584)Updating files:  48% (2681/5584)Updating files:  49% (2737/5584)Updating files:  50% (2792/5584)Updating files:  51% (2848/5584)Updating files:  52% (2904/5584)Updating files:  53% (2960/5584)Updating files:  54% (3016/5584)Updating files:  55% (3072/5584)Updating files:  56% (3128/5584)Updating files:  57% (3183/5584)Updating files:  58% (3239/5584)Updating files:  59% (3295/5584)Updating files:  60% (3351/5584)Updating files:  61% (3407/5584)Updating files:  62% (3463/5584)Updating files:  63% (3518/5584)Updating files:  64% (3574/5584)Updating files:  65% (3630/5584)Updating files:  66% (3686/5584)Updating files:  67% (3742/5584)Updating files:  68% (3798/5584)Updating files:  69% (3853/5584)Updating files:  70% (3909/5584)Updating files:  71% (3965/5584)Updating files:  72% (4021/5584)Updating files:  73% (4077/5584)Updating files:  74% (4133/5584)Updating files:  75% (4188/5584)Updating files:  76% (4244/5584)Updating files:  77% (4300/5584)Updating files:  78% (4356/5584)Updating files:  79% (4412/5584)Updating files:  80% (4468/5584)Updating files:  81% (4524/5584)Updating files:  82% (4579/5584)Updating files:  83% (4635/5584)Updating files:  84% (4691/5584)Updating files:  85% (4747/5584)Updating files:  86% (4803/5584)Updating files:  87% (4859/5584)Updating files:  88% (4914/5584)Updating files:  89% (4970/5584)Updating files:  90% (5026/5584)Updating files:  90% (5027/5584)Updating files:  91% (5082/5584)Updating files:  92% (5138/5584)Updating files:  93% (5194/5584)Updating files:  94% (5249/5584)Updating files:  94% (5280/5584)Updating files:  95% (5305/5584)Updating files:  96% (5361/5584)Updating files:  97% (5417/5584)Updating files:  97% (5463/5584)Updating files:  98% (5473/5584)Updating files:  98% (5487/5584)Updating files:  98% (5521/5584)Updating files:  99% (5529/5584)Updating files: 100% (5584/5584)Updating files: 100% (5584/5584), done.
++ /usr/bin/python3 -m pip install -q --no-deps pytorch-msssim bettermoments
+overlaid ['src/data/analytic_gi.py', 'experiments/wiggle_scorecard.py', 'experiments/make_analytic_gi_cubes.py', 'experiments/train_wiggle_correction.py', 'experiments/train_unified.py', 'experiments/speedie_prep.py'] | staged from 5b04466 (+ the uncommitted files listed)
+speedie -> /kaggle/input/speedie-prep-fast/speedie | models: {'unified_wiener': '/kaggle/input/unified-wiener/unified_wiener/unified_wiener.pth', 'kin_mae_ft_mixed': '/kaggle/input/unified-ft-kin/ft_kin_gamma0_mae_ft/unified_ft_kin_gamma0_mae_ft.pth', 'kin_mae_ft_nb16': '/kaggle/input/exxa-unified-ft-sources/kin_gamma0_mae_ft.ckpt'}
++ /usr/bin/python3 -u experiments/train_unified.py --eval-only --eval-ckpt /kaggle/input/unified-wiener/unified_wiener/unified_wiener.pth --tag unified_wiener --speedie-dir /kaggle/input/speedie-prep-fast/speedie --eval-speedie GI_r0.5,Kep_r0.5,GI_r1.5,Kep_r1.5 --n-line-eval -1 --eval-sg  --out /kaggle/working/eval_speedie
+device cuda  {'arm': 'wiener', 'init': '', 'fresh': False, 'eval_only': True, 'eval_ckpt': '/kaggle/input/unified-wiener/unified_wiener/unified_wiener.pth', 'tag': 'unified_wiener', 'k': 3, 'rounds': 40, 'steps': 300, 'batch': 12, 'crop': 128, 'base': 48, 'lr': 0.0003, 'sizes': '256,300,320,480,600', 'hydro': '9015,9019,9025,9032', 'analytic': 'an01,an02,an03,an04,an05,an06', 'p_ai': 0.5, 'n_line': 0, 'n_line_eval': -1, 'eval_sg': '', 'eval_ai': True, 'speedie_dir': '/kaggle/input/speedie-prep-fast/speedie', 'eval_speedie': 'GI_r0.5,Kep_r0.5,GI_r1.5,Kep_r1.5', 'before': False, 'before_cases': 'run_0002_00560_rt_00,run_0026_00005_rt_04,9074,9074_ai,an07,an07_ai,sgv2', 'before_sizes': '300,600', 'refresh': 3, 'seed': 0, 'out': '/kaggle/working/eval_speedie', 'smoke': False}
+loaded /kaggle/input/unified-wiener/unified_wiener/unified_wiener.pth: arm wiener, window +-3, base 48
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+  speedie_GI_r0.5_1024: dirty built [0s]
+  speedie_GI_r0.5_1024: wiener built [0s]
+  speedie_GI_r0.5_1024: model built [0s]
+  speedie_GI_r0.5_1024: scored [24s]
+speedie_GI_r0.5@1024           PSNR dirty 24.30 wiener 32.40 MODEL 40.98 | M0/M1/M2 % wiener 44/60/61 MODEL -36/71/58 | rc_r dirty 0.361 wiener 0.853 MODEL 0.837 | dv_med 37/27/26 m/s | 295s
+  speedie_Kep_r0.5_1024: dirty built [0s]
+  speedie_Kep_r0.5_1024: wiener built [0s]
+  speedie_Kep_r0.5_1024: model built [0s]
+  speedie_Kep_r0.5_1024: scored [23s]
+speedie_Kep_r0.5@1024          PSNR dirty 24.65 wiener 32.77 MODEL 41.29 | M0/M1/M2 % wiener 39/57/54 MODEL -64/73/59 | rc_r dirty 0.218 wiener 0.393 MODEL 0.453 | dv_med 30/11/17 m/s | 286s
+  speedie_GI_r1.5_1024: dirty built [0s]
+  speedie_GI_r1.5_1024: wiener built [0s]
+  speedie_GI_r1.5_1024: model built [0s]
+  speedie_GI_r1.5_1024: scored [23s]
+speedie_GI_r1.5@1024           PSNR dirty 28.29 wiener 31.75 MODEL 32.72 | M0/M1/M2 % wiener 20/29/45 MODEL -167/-165/-952 | rc_r dirty 0.935 wiener 0.958 MODEL 0.906 | dv_med 13/13/18 m/s | 285s
+  speedie_Kep_r1.5_1024: dirty built [0s]
+  speedie_Kep_r1.5_1024: wiener built [0s]
+  speedie_Kep_r1.5_1024: model built [0s]
+  speedie_Kep_r1.5_1024: scored [22s]
+speedie_Kep_r1.5@1024          PSNR dirty 28.77 wiener 32.26 MODEL 33.25 | M0/M1/M2 % wiener 17/23/28 MODEL -194/-131/-615 | rc_r dirty 0.748 wiener 0.848 MODEL 0.635 | dv_med 10/6/15 m/s | 285s
+EVAL DONE
+MODEL unified_wiener exit 0 in 21.1 min
++ /usr/bin/python3 -u experiments/train_unified.py --eval-only --init /kaggle/input/unified-ft-kin/ft_kin_gamma0_mae_ft/unified_ft_kin_gamma0_mae_ft.pth --tag kin_mae_ft_mixed --speedie-dir /kaggle/input/speedie-prep-fast/speedie --eval-speedie GI_r0.5,Kep_r0.5,GI_r1.5,Kep_r1.5 --n-line-eval -1 --eval-sg  --out /kaggle/working/eval_speedie
+device cuda  {'arm': 'wiener', 'init': '/kaggle/input/unified-ft-kin/ft_kin_gamma0_mae_ft/unified_ft_kin_gamma0_mae_ft.pth', 'fresh': False, 'eval_only': True, 'eval_ckpt': '', 'tag': 'kin_mae_ft_mixed', 'k': 3, 'rounds': 40, 'steps': 300, 'batch': 12, 'crop': 128, 'base': 48, 'lr': 0.0003, 'sizes': '256,300,320,480,600', 'hydro': '9015,9019,9025,9032', 'analytic': 'an01,an02,an03,an04,an05,an06', 'p_ai': 0.5, 'n_line': 0, 'n_line_eval': -1, 'eval_sg': '', 'eval_ai': True, 'speedie_dir': '/kaggle/input/speedie-prep-fast/speedie', 'eval_speedie': 'GI_r0.5,Kep_r0.5,GI_r1.5,Kep_r1.5', 'before': False, 'before_cases': 'run_0002_00560_rt_00,run_0026_00005_rt_04,9074,9074_ai,an07,an07_ai,sgv2', 'before_sizes': '300,600', 'refresh': 3, 'seed': 0, 'out': '/kaggle/working/eval_speedie', 'smoke': False}
+fine-tuning /kaggle/input/unified-ft-kin/ft_kin_gamma0_mae_ft/unified_ft_kin_gamma0_mae_ft.pth: window +-15 channels, 31 output channel(s)
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+  speedie_GI_r0.5_1024: dirty built [0s]
+  speedie_GI_r0.5_1024: wiener built [0s]
+  speedie_GI_r0.5_1024: model built [0s]
+  speedie_GI_r0.5_1024: scored [23s]
+speedie_GI_r0.5@1024           PSNR dirty 24.30 wiener 32.40 MODEL 41.76 | M0/M1/M2 % wiener 44/60/61 MODEL -66/4/-193 | rc_r dirty 0.361 wiener 0.853 MODEL 0.580 | dv_med 37/27/41 m/s | 322s
+  speedie_Kep_r0.5_1024: dirty built [0s]
+  speedie_Kep_r0.5_1024: wiener built [0s]
+  speedie_Kep_r0.5_1024: model built [0s]
+  speedie_Kep_r0.5_1024: scored [22s]
+speedie_Kep_r0.5@1024          PSNR dirty 24.65 wiener 32.77 MODEL 41.57 | M0/M1/M2 % wiener 39/57/54 MODEL -89/3/-108 | rc_r dirty 0.218 wiener 0.393 MODEL 0.065 | dv_med 30/11/21 m/s | 301s
+  speedie_GI_r1.5_1024: dirty built [0s]
+  speedie_GI_r1.5_1024: wiener built [0s]
+  speedie_GI_r1.5_1024: model built [0s]
+  speedie_GI_r1.5_1024: scored [22s]
+speedie_GI_r1.5@1024           PSNR dirty 28.29 wiener 31.75 MODEL 34.44 | M0/M1/M2 % wiener 20/29/45 MODEL -2697/-330/-765 | rc_r dirty 0.935 wiener 0.958 MODEL 0.616 | dv_med 13/13/33 m/s | 296s
+  speedie_Kep_r1.5_1024: dirty built [0s]
+  speedie_Kep_r1.5_1024: wiener built [0s]
+  speedie_Kep_r1.5_1024: model built [0s]
+  speedie_Kep_r1.5_1024: scored [20s]
+speedie_Kep_r1.5@1024          PSNR dirty 28.77 wiener 32.26 MODEL 35.47 | M0/M1/M2 % wiener 17/23/28 MODEL -3294/-220/-491 | rc_r dirty 0.748 wiener 0.848 MODEL 0.089 | dv_med 10/6/19 m/s | 294s
+EVAL DONE
+MODEL kin_mae_ft_mixed exit 0 in 20.4 min
++ /usr/bin/python3 -u experiments/train_unified.py --eval-only --init /kaggle/input/exxa-unified-ft-sources/kin_gamma0_mae_ft.ckpt --tag kin_mae_ft_nb16 --speedie-dir /kaggle/input/speedie-prep-fast/speedie --eval-speedie GI_r0.5,Kep_r0.5,GI_r1.5,Kep_r1.5 --n-line-eval -1 --eval-sg  --out /kaggle/working/eval_speedie
+device cuda  {'arm': 'wiener', 'init': '/kaggle/input/exxa-unified-ft-sources/kin_gamma0_mae_ft.ckpt', 'fresh': False, 'eval_only': True, 'eval_ckpt': '', 'tag': 'kin_mae_ft_nb16', 'k': 3, 'rounds': 40, 'steps': 300, 'batch': 12, 'crop': 128, 'base': 48, 'lr': 0.0003, 'sizes': '256,300,320,480,600', 'hydro': '9015,9019,9025,9032', 'analytic': 'an01,an02,an03,an04,an05,an06', 'p_ai': 0.5, 'n_line': 0, 'n_line_eval': -1, 'eval_sg': '', 'eval_ai': True, 'speedie_dir': '/kaggle/input/speedie-prep-fast/speedie', 'eval_speedie': 'GI_r0.5,Kep_r0.5,GI_r1.5,Kep_r1.5', 'before': False, 'before_cases': 'run_0002_00560_rt_00,run_0026_00005_rt_04,9074,9074_ai,an07,an07_ai,sgv2', 'before_sizes': '300,600', 'refresh': 3, 'seed': 0, 'out': '/kaggle/working/eval_speedie', 'smoke': False}
+fine-tuning /kaggle/input/exxa-unified-ft-sources/kin_gamma0_mae_ft.ckpt: window +-15 channels, 31 output channel(s)
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+  speedie_GI_r0.5_1024: dirty built [0s]
+  speedie_GI_r0.5_1024: wiener built [0s]
+  speedie_GI_r0.5_1024: model built [0s]
+  speedie_GI_r0.5_1024: scored [21s]
+speedie_GI_r0.5@1024           PSNR dirty 24.30 wiener 32.40 MODEL 40.94 | M0/M1/M2 % wiener 44/60/61 MODEL -692/-61/-219 | rc_r dirty 0.361 wiener 0.853 MODEL 0.454 | dv_med 37/27/49 m/s | 312s
+  speedie_Kep_r0.5_1024: dirty built [0s]
+  speedie_Kep_r0.5_1024: wiener built [0s]
+  speedie_Kep_r0.5_1024: model built [0s]
+  speedie_Kep_r0.5_1024: scored [21s]
+speedie_Kep_r0.5@1024          PSNR dirty 24.65 wiener 32.77 MODEL 41.67 | M0/M1/M2 % wiener 39/57/54 MODEL -840/-39/-186 | rc_r dirty 0.218 wiener 0.393 MODEL 0.074 | dv_med 30/11/21 m/s | 294s
+  speedie_GI_r1.5_1024: dirty built [0s]
+  speedie_GI_r1.5_1024: wiener built [0s]
+  speedie_GI_r1.5_1024: model built [0s]
+  speedie_GI_r1.5_1024: scored [21s]
+speedie_GI_r1.5@1024           PSNR dirty 28.29 wiener 31.75 MODEL 33.21 | M0/M1/M2 % wiener 20/29/45 MODEL -7969/-1502/-1317 | rc_r dirty 0.935 wiener 0.958 MODEL 0.548 | dv_med 13/13/42 m/s | 293s
+  speedie_Kep_r1.5_1024: dirty built [0s]
+  speedie_Kep_r1.5_1024: wiener built [0s]
+  speedie_Kep_r1.5_1024: model built [0s]
+  speedie_Kep_r1.5_1024: scored [21s]
+speedie_Kep_r1.5@1024          PSNR dirty 28.77 wiener 32.26 MODEL 32.16 | M0/M1/M2 % wiener 17/23/28 MODEL -9721/-1154/-913 | rc_r dirty 0.748 wiener 0.848 MODEL 0.064 | dv_med 10/6/18 m/s | 292s
+EVAL DONE
+MODEL kin_mae_ft_nb16 exit 0 in 20.0 min
+EVAL SPEEDIE DONE
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __script__.ipynb to html
+[NbConvertApp] Writing 289427 bytes to __results__.html

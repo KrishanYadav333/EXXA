@@ -2,8 +2,24 @@
 ## Project Context File for Agentic IDE
 
 Local-only tracking doc, tracked in git as of `b6cdd79` (syncing across machines). Last
-updated: 2026-09-24 (week 17 of 22; midterm evaluation Aug 10-14 is done, WordPress post
-submitted; final submission window ahead).
+updated: 2026-10-12 (week 20 of 22; final submission Oct 26 - Nov 3).
+
+## 0. CURRENT STATE (2026-10-12) — read this first; older sections below are history
+
+- **Scope to the end:** final models, then exoALMA inference only (DSHARP / VLT out). Dated schedule: `PLAN.md`
+  ("Revised timeline (2026-10-11)"); final-model bars and rounds: `results/PLAN.md`; ALMA design: `ALMA_PLAN.md`.
+- **Model line now:** `experiments/train_unified.py` (Wiener-fed U-Net correction, K=15 window, line emission + hydro +
+  analytic + rendered Young GI discs, all 5 sizes, realistic noise: peak SNR 3-150, Hanning channel correlation, beam
+  broadening, robust normalisation, fp32 residual stream). Notebooks 05-16 are history for this line.
+- **Where results stand:** line emission meets every bar (600 px: 47-48 dB, M0 40-45, M1 86-87, M2 82-88 %); GI wiggle on the
+  Speedie disc 0.75 at peak SNR 24, 0.61 at 12, ~0 at 6 (target 0.85 at >= 13 not yet met). R5 (3 seeds, Young GI data) running
+  2026-10-12; ensemble evaluation running. Details: `results/PROGRESS.md` (newest first), `results/RUNS.md`.
+- **Compute:** three Kaggle accounts driven by `kaggle/accounts/` (orchestrator, keys in `~/.kaggle-<name>/`, never in the repo):
+  main `krishanyadav333`, backup `deepsceneloc`, `aditi` (`aditisah11`). Code reaches Kaggle as the private dataset
+  `exxa-wiggle-code` (flat files + MANIFEST sha256), datasets are shared privately between accounts.
+- **Never train on exoALMA data** (Jason). Speedie et al. 2024 is test-only.
+- **Branches:** work on `midterm-prep`. Notebook 14's current version is on `native600-loss-sweep`; the
+  `14-native600-loss-sweep.ipynb` on midterm-prep is a stale Kaggle Version 8 auto-commit (2026-10-09).
 
 ---
 

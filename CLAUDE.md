@@ -80,6 +80,13 @@ The thirteen rules, in short — the file has the incident behind each:
 - Both are part of the push, not a follow-up. Include them in the same commit or the one
   right before it, not "later."
 
+## Research goes in research.md
+
+Every literature search, paper read or web lookup is logged in
+`DENOISING_DIFFUSION/research.md` in the same session it happens: the question, the sources
+(linked), what they say, what we measured against it, and the decision. Do not leave research
+only in the chat. `results/PROGRESS.md` is what we ran; `research.md` is what we read.
+
 ## Repo orientation
 
 - `DENOISING_DIFFUSION/src/` — the library the notebooks import. This *does* hot-reload on

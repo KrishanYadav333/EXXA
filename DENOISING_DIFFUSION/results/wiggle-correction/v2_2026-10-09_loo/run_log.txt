@@ -1,0 +1,318 @@
++ git clone --branch midterm-prep --depth 1 https://github.com/KrishanYadav333/EXXA.git /tmp/EXXA
+Cloning into '/tmp/EXXA'...
+Updating files:   1% (98/5584)Updating files:   2% (112/5584)Updating files:   3% (168/5584)Updating files:   3% (213/5584)Updating files:   4% (224/5584)Updating files:   5% (280/5584)Updating files:   6% (336/5584)Updating files:   7% (391/5584)Updating files:   8% (447/5584)Updating files:   9% (503/5584)Updating files:  10% (559/5584)Updating files:  11% (615/5584)Updating files:  11% (640/5584)Updating files:  12% (671/5584)Updating files:  13% (726/5584)Updating files:  14% (782/5584)Updating files:  15% (838/5584)Updating files:  16% (894/5584)Updating files:  17% (950/5584)Updating files:  18% (1006/5584)Updating files:  19% (1061/5584)Updating files:  20% (1117/5584)Updating files:  21% (1173/5584)Updating files:  22% (1229/5584)Updating files:  23% (1285/5584)Updating files:  24% (1341/5584)Updating files:  25% (1396/5584)Updating files:  26% (1452/5584)Updating files:  27% (1508/5584)Updating files:  28% (1564/5584)Updating files:  29% (1620/5584)Updating files:  30% (1676/5584)Updating files:  31% (1732/5584)Updating files:  32% (1787/5584)Updating files:  33% (1843/5584)Updating files:  34% (1899/5584)Updating files:  35% (1955/5584)Updating files:  36% (2011/5584)Updating files:  37% (2067/5584)Updating files:  38% (2122/5584)Updating files:  39% (2178/5584)Updating files:  40% (2234/5584)Updating files:  41% (2290/5584)Updating files:  42% (2346/5584)Updating files:  43% (2402/5584)Updating files:  44% (2457/5584)Updating files:  45% (2513/5584)Updating files:  46% (2569/5584)Updating files:  47% (2625/5584)Updating files:  48% (2681/5584)Updating files:  49% (2737/5584)Updating files:  50% (2792/5584)Updating files:  51% (2848/5584)Updating files:  52% (2904/5584)Updating files:  53% (2960/5584)Updating files:  54% (3016/5584)Updating files:  55% (3072/5584)Updating files:  56% (3128/5584)Updating files:  57% (3183/5584)Updating files:  58% (3239/5584)Updating files:  59% (3295/5584)Updating files:  60% (3351/5584)Updating files:  61% (3407/5584)Updating files:  62% (3463/5584)Updating files:  63% (3518/5584)Updating files:  64% (3574/5584)Updating files:  65% (3630/5584)Updating files:  66% (3686/5584)Updating files:  67% (3742/5584)Updating files:  68% (3798/5584)Updating files:  69% (3853/5584)Updating files:  70% (3909/5584)Updating files:  71% (3965/5584)Updating files:  72% (4021/5584)Updating files:  73% (4077/5584)Updating files:  74% (4133/5584)Updating files:  75% (4188/5584)Updating files:  76% (4244/5584)Updating files:  77% (4300/5584)Updating files:  78% (4356/5584)Updating files:  79% (4412/5584)Updating files:  80% (4468/5584)Updating files:  81% (4524/5584)Updating files:  82% (4579/5584)Updating files:  83% (4635/5584)Updating files:  84% (4691/5584)Updating files:  85% (4747/5584)Updating files:  86% (4803/5584)Updating files:  87% (4859/5584)Updating files:  88% (4914/5584)Updating files:  89% (4970/5584)Updating files:  89% (5011/5584)Updating files:  90% (5026/5584)Updating files:  91% (5082/5584)Updating files:  92% (5138/5584)Updating files:  93% (5194/5584)Updating files:  93% (5246/5584)Updating files:  94% (5249/5584)Updating files:  95% (5305/5584)Updating files:  96% (5361/5584)Updating files:  97% (5417/5584)Updating files:  97% (5462/5584)Updating files:  98% (5473/5584)Updating files:  98% (5486/5584)Updating files:  98% (5507/5584)Updating files:  99% (5529/5584)Updating files:  99% (5573/5584)Updating files: 100% (5584/5584)Updating files: 100% (5584/5584), done.
++ /usr/bin/python3 -m pip install -q --no-deps pytorch-msssim bettermoments
+ba34368 Kaggle Notebook | 14-native600-loss-sweep | Version 8
+
+overlaid ['src/data/analytic_gi.py', 'experiments/wiggle_scorecard.py', 'experiments/make_analytic_gi_cubes.py', 'experiments/train_wiggle_correction.py'] | local HEAD when staged: 5b04466 (+ the uncommitted files listed)
+sg_synth -> /kaggle/input/datasets/krishanyadav333/exxa-sg-synth-pairs/kaggle-sg-training-dataset | kinematic_data_v2 -> /kaggle/input/datasets/krishanyadav333/self-gravitating-v2/kinematic_data_v2
++ /usr/bin/python3 experiments/make_analytic_gi_cubes.py
+an01 md=0.15 m=2 beta=5.0 pitch=13 i=20: rmsdiff/rms = 0.474 (sg_synth 0.41-0.57)
+an02 md=0.35 m=2 beta=5.0 pitch=13 i=30: rmsdiff/rms = 0.468 (sg_synth 0.41-0.57)
+an03 md=0.6 m=2 beta=5.0 pitch=13 i=20: rmsdiff/rms = 0.475 (sg_synth 0.41-0.57)
+an04 md=0.35 m=3 beta=5.0 pitch=18 i=20: rmsdiff/rms = 0.489 (sg_synth 0.41-0.57)
+an05 md=0.35 m=2 beta=3.0 pitch=13 i=30: rmsdiff/rms = 0.521 (sg_synth 0.41-0.57)
+an06 md=0.6 m=2 beta=3.0 pitch=20 i=20: rmsdiff/rms = 0.435 (sg_synth 0.41-0.57)
+an07 md=0.45 m=2 beta=4.0 pitch=15 i=25: rmsdiff/rms = 0.534 (sg_synth 0.41-0.57)
+an08 md=0.25 m=3 beta=3.0 pitch=18 i=30: rmsdiff/rms = 0.502 (sg_synth 0.41-0.57)
++ /usr/bin/python3 -u experiments/train_wiggle_correction.py --out /kaggle/working/wiggle_correction --rounds 30 --steps 300 --batch 12 --crop 128 --base 48
+device cuda  args {'folds': '9074,9025,9015,9032,9019', 'hydro': '9074,9025,9015,9032,9019', 'rounds': 30, 'steps': 300, 'batch': 12, 'crop': 128, 'base': 48, 'lr': 0.0003, 'eval_extra': 'sgv2,an07,an08', 'out': '/kaggle/working/wiggle_correction', 'smoke': False}
+
+===== fold 9074: train on ['9025', '9015', '9032', '9019', 'an01', 'an02', 'an03', 'an04', 'an05', 'an06'] =====
+[9074] round 1/30 step 300/9000  L1 0.01956 (wiener 0.03416)  vel 0.01592  249s
+[9074] round 2/30 step 600/9000  L1 0.01808 (wiener 0.03976)  vel 0.00820  484s
+[9074] round 3/30 step 900/9000  L1 0.01224 (wiener 0.02923)  vel 0.00723  717s
+[9074] round 4/30 step 1200/9000  L1 0.01601 (wiener 0.03867)  vel 0.01294  950s
+[9074] round 5/30 step 1500/9000  L1 0.00876 (wiener 0.02272)  vel 0.00427  1195s
+[9074] round 6/30 step 1800/9000  L1 0.00804 (wiener 0.03075)  vel 0.00537  1426s
+[9074] round 7/30 step 2100/9000  L1 0.01170 (wiener 0.03841)  vel 0.00799  1657s
+[9074] round 8/30 step 2400/9000  L1 0.01180 (wiener 0.04094)  vel 0.00621  1888s
+[9074] round 9/30 step 2700/9000  L1 0.00798 (wiener 0.02509)  vel 0.00533  2119s
+[9074] round 10/30 step 3000/9000  L1 0.01103 (wiener 0.02712)  vel 0.01293  2365s
+[9074] round 11/30 step 3300/9000  L1 0.00473 (wiener 0.02696)  vel 0.00248  2598s
+[9074] round 12/30 step 3600/9000  L1 0.00757 (wiener 0.02317)  vel 0.00502  2830s
+[9074] round 13/30 step 3900/9000  L1 0.01016 (wiener 0.03649)  vel 0.01058  3064s
+[9074] round 14/30 step 4200/9000  L1 0.01090 (wiener 0.03845)  vel 0.00766  3297s
+[9074] round 15/30 step 4500/9000  L1 0.00930 (wiener 0.03142)  vel 0.00797  3529s
+[9074] round 16/30 step 4800/9000  L1 0.00664 (wiener 0.03008)  vel 0.00389  3760s
+[9074] round 17/30 step 5100/9000  L1 0.00630 (wiener 0.03866)  vel 0.00393  3991s
+[9074] round 18/30 step 5400/9000  L1 0.00500 (wiener 0.02944)  vel 0.00416  4225s
+[9074] round 19/30 step 5700/9000  L1 0.00350 (wiener 0.02035)  vel 0.00219  4456s
+[9074] round 20/30 step 6000/9000  L1 0.00512 (wiener 0.02786)  vel 0.00352  4687s
+[9074] round 21/30 step 6300/9000  L1 0.00785 (wiener 0.03618)  vel 0.00824  4920s
+[9074] round 22/30 step 6600/9000  L1 0.00472 (wiener 0.03786)  vel 0.00334  5166s
+[9074] round 23/30 step 6900/9000  L1 0.00602 (wiener 0.03880)  vel 0.00420  5412s
+[9074] round 24/30 step 7200/9000  L1 0.00439 (wiener 0.03508)  vel 0.00308  5645s
+[9074] round 25/30 step 7500/9000  L1 0.00406 (wiener 0.02984)  vel 0.00257  5879s
+[9074] round 26/30 step 7800/9000  L1 0.00266 (wiener 0.02163)  vel 0.00139  6124s
+[9074] round 27/30 step 8100/9000  L1 0.00389 (wiener 0.02411)  vel 0.00298  6358s
+[9074] round 28/30 step 8400/9000  L1 0.00294 (wiener 0.02862)  vel 0.00216  6605s
+[9074] round 29/30 step 8700/9000  L1 0.00335 (wiener 0.02746)  vel 0.00225  6837s
+[9074] round 30/30 step 9000/9000  L1 0.00637 (wiener 0.04528)  vel 0.00529  7072s
+  9074: beam_only built [0s]
+  9074: dirty built [0s]
+  9074: wiener3d_a2 built [1s]
+  9074: wiener_corr built [12s]
+  9074: scored [17s]
+[9074] 9074: rc_r  dirty 0.132  wiener 0.158  CORR 0.440  oracle 0.925 | line-centre median 293 -> 172 m/s
+  sgv2: beam_only built [1s]
+  sgv2: dirty built [1s]
+  sgv2: wiener3d_a2 built [6s]
+  sgv2: wiener_corr built [59s]
+  sgv2: scored [76s]
+[9074] sgv2: rc_r  dirty 0.873  wiener 0.891  CORR 0.852  oracle 0.916 | line-centre median 37 -> 48 m/s
+  an07: beam_only built [0s]
+  an07: dirty built [0s]
+  an07: wiener3d_a2 built [1s]
+  an07: wiener_corr built [6s]
+  an07: scored [9s]
+[9074] an07: rc_r  dirty 0.434  wiener 0.697  CORR 0.904  oracle 0.969 | line-centre median 36 -> 17 m/s
+  an08: beam_only built [0s]
+  an08: dirty built [0s]
+  an08: wiener3d_a2 built [1s]
+  an08: wiener_corr built [6s]
+  an08: scored [10s]
+[9074] an08: rc_r  dirty 0.462  wiener 0.603  CORR 0.893  oracle 0.951 | line-centre median 30 -> 18 m/s
+[9074] done in 123.0 min
+
+===== fold 9025: train on ['9074', '9015', '9032', '9019', 'an01', 'an02', 'an03', 'an04', 'an05', 'an06'] =====
+[9025] round 1/30 step 300/9000  L1 0.01383 (wiener 0.02964)  vel 0.00983  257s
+[9025] round 2/30 step 600/9000  L1 0.00600 (wiener 0.01668)  vel 0.00262  491s
+[9025] round 3/30 step 900/9000  L1 0.01070 (wiener 0.02261)  vel 0.00580  738s
+[9025] round 4/30 step 1200/9000  L1 0.00981 (wiener 0.02779)  vel 0.00669  970s
+[9025] round 5/30 step 1500/9000  L1 0.00867 (wiener 0.02332)  vel 0.00402  1203s
+[9025] round 6/30 step 1800/9000  L1 0.00899 (wiener 0.03430)  vel 0.00617  1437s
+[9025] round 7/30 step 2100/9000  L1 0.01066 (wiener 0.03298)  vel 0.00809  1670s
+[9025] round 8/30 step 2400/9000  L1 0.00815 (wiener 0.02615)  vel 0.00377  1917s
+[9025] round 9/30 step 2700/9000  L1 0.00548 (wiener 0.02124)  vel 0.00295  2149s
+[9025] round 10/30 step 3000/9000  L1 0.00655 (wiener 0.01658)  vel 0.00320  2397s
+[9025] round 11/30 step 3300/9000  L1 0.00952 (wiener 0.03536)  vel 0.00746  2631s
+[9025] round 12/30 step 3600/9000  L1 0.00762 (wiener 0.03267)  vel 0.00489  2865s
+[9025] round 13/30 step 3900/9000  L1 0.00647 (wiener 0.02697)  vel 0.00448  3098s
+[9025] round 14/30 step 4200/9000  L1 0.00915 (wiener 0.03534)  vel 0.00546  3345s
+[9025] round 15/30 step 4500/9000  L1 0.00852 (wiener 0.03349)  vel 0.00698  3578s
+[9025] round 16/30 step 4800/9000  L1 0.00633 (wiener 0.02945)  vel 0.00417  3810s
+[9025] round 17/30 step 5100/9000  L1 0.00500 (wiener 0.02623)  vel 0.00340  4042s
+[9025] round 18/30 step 5400/9000  L1 0.00363 (wiener 0.02520)  vel 0.00233  4274s
+[9025] round 19/30 step 5700/9000  L1 0.00596 (wiener 0.03094)  vel 0.00371  4520s
+[9025] round 20/30 step 6000/9000  L1 0.00555 (wiener 0.02450)  vel 0.00496  4753s
+[9025] round 21/30 step 6300/9000  L1 0.00734 (wiener 0.03349)  vel 0.00715  4986s
+[9025] round 22/30 step 6600/9000  L1 0.00336 (wiener 0.02393)  vel 0.00206  5218s
+[9025] round 23/30 step 6900/9000  L1 0.00313 (wiener 0.02371)  vel 0.00232  5465s
+[9025] round 24/30 step 7200/9000  L1 0.00472 (wiener 0.03829)  vel 0.00402  5697s
+[9025] round 25/30 step 7500/9000  L1 0.00384 (wiener 0.02524)  vel 0.00213  5944s
+[9025] round 26/30 step 7800/9000  L1 0.00344 (wiener 0.02982)  vel 0.00283  6177s
+[9025] round 27/30 step 8100/9000  L1 0.00318 (wiener 0.03816)  vel 0.00312  6409s
+[9025] round 28/30 step 8400/9000  L1 0.00452 (wiener 0.03552)  vel 0.00314  6657s
+[9025] round 29/30 step 8700/9000  L1 0.00464 (wiener 0.03691)  vel 0.00360  6904s
+[9025] round 30/30 step 9000/9000  L1 0.00445 (wiener 0.02476)  vel 0.00340  7138s
+  9025: beam_only built [0s]
+  9025: dirty built [0s]
+  9025: wiener3d_a2 built [1s]
+  9025: wiener_corr built [10s]
+  9025: scored [14s]
+[9025] 9025: rc_r  dirty 0.134  wiener 0.208  CORR 0.437  oracle 0.801 | line-centre median 76 -> 48 m/s
+  sgv2: beam_only built [1s]
+  sgv2: dirty built [1s]
+  sgv2: wiener3d_a2 built [6s]
+  sgv2: wiener_corr built [58s]
+  sgv2: scored [76s]
+[9025] sgv2: rc_r  dirty 0.873  wiener 0.891  CORR 0.872  oracle 0.916 | line-centre median 37 -> 46 m/s
+  an07: beam_only built [0s]
+  an07: dirty built [0s]
+  an07: wiener3d_a2 built [1s]
+  an07: wiener_corr built [6s]
+  an07: scored [9s]
+[9025] an07: rc_r  dirty 0.434  wiener 0.697  CORR 0.932  oracle 0.969 | line-centre median 36 -> 18 m/s
+  an08: beam_only built [0s]
+  an08: dirty built [0s]
+  an08: wiener3d_a2 built [1s]
+  an08: wiener_corr built [6s]
+  an08: scored [11s]
+[9025] an08: rc_r  dirty 0.462  wiener 0.603  CORR 0.886  oracle 0.951 | line-centre median 30 -> 19 m/s
+[9025] done in 120.9 min
+
+===== fold 9015: train on ['9074', '9025', '9032', '9019', 'an01', 'an02', 'an03', 'an04', 'an05', 'an06'] =====
+[9015] round 1/30 step 300/9000  L1 0.01907 (wiener 0.03551)  vel 0.01274  257s
+[9015] round 2/30 step 600/9000  L1 0.01463 (wiener 0.03235)  vel 0.01023  504s
+[9015] round 3/30 step 900/9000  L1 0.00918 (wiener 0.02341)  vel 0.00576  738s
+[9015] round 4/30 step 1200/9000  L1 0.01588 (wiener 0.02606)  vel 0.00974  986s
+[9015] round 5/30 step 1500/9000  L1 0.00911 (wiener 0.02216)  vel 0.00513  1233s
+[9015] round 6/30 step 1800/9000  L1 0.00648 (wiener 0.02541)  vel 0.00440  1481s
+[9015] round 7/30 step 2100/9000  L1 0.00754 (wiener 0.02266)  vel 0.00618  1715s
+[9015] round 8/30 step 2400/9000  L1 0.00834 (wiener 0.02071)  vel 0.00483  1962s
+[9015] round 9/30 step 2700/9000  L1 0.00826 (wiener 0.02523)  vel 0.00701  2195s
+[9015] round 10/30 step 3000/9000  L1 0.00930 (wiener 0.03805)  vel 0.00804  2429s
+[9015] round 11/30 step 3300/9000  L1 0.00613 (wiener 0.03368)  vel 0.00416  2675s
+[9015] round 12/30 step 3600/9000  L1 0.00739 (wiener 0.03011)  vel 0.00721  2908s
+[9015] round 13/30 step 3900/9000  L1 0.00811 (wiener 0.04307)  vel 0.00569  3140s
+[9015] round 14/30 step 4200/9000  L1 0.00512 (wiener 0.02834)  vel 0.00289  3387s
+[9015] round 15/30 step 4500/9000  L1 0.00869 (wiener 0.03173)  vel 0.00704  3619s
+[9015] round 16/30 step 4800/9000  L1 0.00682 (wiener 0.02327)  vel 0.00536  3852s
+[9015] round 17/30 step 5100/9000  L1 0.00809 (wiener 0.02921)  vel 0.00712  4086s
+[9015] round 18/30 step 5400/9000  L1 0.00632 (wiener 0.03648)  vel 0.00494  4318s
+[9015] round 19/30 step 5700/9000  L1 0.00759 (wiener 0.03932)  vel 0.00622  4551s
+[9015] round 20/30 step 6000/9000  L1 0.00430 (wiener 0.02992)  vel 0.00313  4783s
+[9015] round 21/30 step 6300/9000  L1 0.00443 (wiener 0.03096)  vel 0.00336  5017s
+[9015] round 22/30 step 6600/9000  L1 0.00440 (wiener 0.02715)  vel 0.00288  5251s
+[9015] round 23/30 step 6900/9000  L1 0.00484 (wiener 0.03000)  vel 0.00281  5484s
+[9015] round 24/30 step 7200/9000  L1 0.00268 (wiener 0.02264)  vel 0.00205  5717s
+[9015] round 25/30 step 7500/9000  L1 0.00299 (wiener 0.02342)  vel 0.00212  5950s
+[9015] round 26/30 step 7800/9000  L1 0.00310 (wiener 0.02596)  vel 0.00212  6183s
+[9015] round 27/30 step 8100/9000  L1 0.00282 (wiener 0.02613)  vel 0.00214  6417s
+[9015] round 28/30 step 8400/9000  L1 0.00429 (wiener 0.03091)  vel 0.00357  6651s
+[9015] round 29/30 step 8700/9000  L1 0.00885 (wiener 0.03086)  vel 0.00911  6899s
+[9015] round 30/30 step 9000/9000  L1 0.00514 (wiener 0.02993)  vel 0.00411  7132s
+  9015: beam_only built [0s]
+  9015: dirty built [0s]
+  9015: wiener3d_a2 built [1s]
+  9015: wiener_corr built [10s]
+  9015: scored [15s]
+[9015] 9015: rc_r  dirty 0.040  wiener 0.214  CORR 0.237  oracle 0.815 | line-centre median 59 -> 39 m/s
+  sgv2: beam_only built [1s]
+  sgv2: dirty built [1s]
+  sgv2: wiener3d_a2 built [6s]
+  sgv2: wiener_corr built [58s]
+  sgv2: scored [76s]
+[9015] sgv2: rc_r  dirty 0.873  wiener 0.891  CORR 0.862  oracle 0.916 | line-centre median 37 -> 47 m/s
+  an07: beam_only built [0s]
+  an07: dirty built [0s]
+  an07: wiener3d_a2 built [1s]
+  an07: wiener_corr built [6s]
+  an07: scored [9s]
+[9015] an07: rc_r  dirty 0.434  wiener 0.697  CORR 0.933  oracle 0.969 | line-centre median 36 -> 18 m/s
+  an08: beam_only built [0s]
+  an08: dirty built [0s]
+  an08: wiener3d_a2 built [1s]
+  an08: wiener_corr built [6s]
+  an08: scored [11s]
+[9015] an08: rc_r  dirty 0.462  wiener 0.603  CORR 0.895  oracle 0.951 | line-centre median 30 -> 17 m/s
+[9015] done in 120.8 min
+
+===== fold 9032: train on ['9074', '9025', '9015', '9019', 'an01', 'an02', 'an03', 'an04', 'an05', 'an06'] =====
+[9032] round 1/30 step 300/9000  L1 0.01810 (wiener 0.03407)  vel 0.01040  257s
+[9032] round 2/30 step 600/9000  L1 0.02137 (wiener 0.04179)  vel 0.01360  491s
+[9032] round 3/30 step 900/9000  L1 0.01235 (wiener 0.03093)  vel 0.00663  725s
+[9032] round 4/30 step 1200/9000  L1 0.01363 (wiener 0.03949)  vel 0.00999  958s
+[9032] round 5/30 step 1500/9000  L1 0.01249 (wiener 0.03080)  vel 0.00615  1206s
+[9032] round 6/30 step 1800/9000  L1 0.00967 (wiener 0.03362)  vel 0.00610  1439s
+[9032] round 7/30 step 2100/9000  L1 0.01481 (wiener 0.03275)  vel 0.01019  1671s
+[9032] round 8/30 step 2400/9000  L1 0.00651 (wiener 0.02173)  vel 0.00273  1918s
+[9032] round 9/30 step 2700/9000  L1 0.01038 (wiener 0.03465)  vel 0.00587  2152s
+[9032] round 10/30 step 3000/9000  L1 0.00900 (wiener 0.02619)  vel 0.00287  2385s
+[9032] round 11/30 step 3300/9000  L1 0.00831 (wiener 0.03132)  vel 0.00418  2633s
+[9032] round 12/30 step 3600/9000  L1 0.00697 (wiener 0.02579)  vel 0.00405  2866s
+[9032] round 13/30 step 3900/9000  L1 0.01098 (wiener 0.03907)  vel 0.00721  3100s
+[9032] round 14/30 step 4200/9000  L1 0.00909 (wiener 0.04081)  vel 0.00612  3335s
+[9032] round 15/30 step 4500/9000  L1 0.00560 (wiener 0.02790)  vel 0.00332  3569s
+[9032] round 16/30 step 4800/9000  L1 0.00844 (wiener 0.03313)  vel 0.00773  3804s
+[9032] round 17/30 step 5100/9000  L1 0.00352 (wiener 0.02687)  vel 0.00244  4037s
+[9032] round 18/30 step 5400/9000  L1 0.00383 (wiener 0.02528)  vel 0.00216  4272s
+[9032] round 19/30 step 5700/9000  L1 0.00554 (wiener 0.02737)  vel 0.00283  4504s
+[9032] round 20/30 step 6000/9000  L1 0.01005 (wiener 0.05419)  vel 0.00724  4752s
+[9032] round 21/30 step 6300/9000  L1 0.00316 (wiener 0.02195)  vel 0.00166  4984s
+[9032] round 22/30 step 6600/9000  L1 0.00572 (wiener 0.02953)  vel 0.00338  5219s
+[9032] round 23/30 step 6900/9000  L1 0.00910 (wiener 0.03378)  vel 0.00840  5451s
+[9032] round 24/30 step 7200/9000  L1 0.00427 (wiener 0.03473)  vel 0.00281  5699s
+[9032] round 25/30 step 7500/9000  L1 0.00381 (wiener 0.03064)  vel 0.00261  5946s
+[9032] round 26/30 step 7800/9000  L1 0.00330 (wiener 0.02051)  vel 0.00249  6180s
+[9032] round 27/30 step 8100/9000  L1 0.00397 (wiener 0.03395)  vel 0.00265  6413s
+[9032] round 28/30 step 8400/9000  L1 0.00489 (wiener 0.02961)  vel 0.00520  6661s
+[9032] round 29/30 step 8700/9000  L1 0.00625 (wiener 0.03507)  vel 0.00475  6911s
+[9032] round 30/30 step 9000/9000  L1 0.00374 (wiener 0.02472)  vel 0.00177  7145s
+  9032: beam_only built [0s]
+  9032: dirty built [0s]
+  9032: wiener3d_a2 built [1s]
+  9032: wiener_corr built [9s]
+  9032: scored [14s]
+[9032] 9032: rc_r  dirty 0.683  wiener 0.642  CORR 0.645  oracle 0.902 | line-centre median 51 -> 46 m/s
+  sgv2: beam_only built [1s]
+  sgv2: dirty built [1s]
+  sgv2: wiener3d_a2 built [6s]
+  sgv2: wiener_corr built [58s]
+  sgv2: scored [76s]
+[9032] sgv2: rc_r  dirty 0.873  wiener 0.891  CORR 0.861  oracle 0.916 | line-centre median 37 -> 49 m/s
+  an07: beam_only built [0s]
+  an07: dirty built [0s]
+  an07: wiener3d_a2 built [1s]
+  an07: wiener_corr built [6s]
+  an07: scored [9s]
+[9032] an07: rc_r  dirty 0.434  wiener 0.697  CORR 0.916  oracle 0.969 | line-centre median 36 -> 21 m/s
+  an08: beam_only built [0s]
+  an08: dirty built [0s]
+  an08: wiener3d_a2 built [1s]
+  an08: wiener_corr built [6s]
+  an08: scored [11s]
+[9032] an08: rc_r  dirty 0.462  wiener 0.603  CORR 0.896  oracle 0.951 | line-centre median 30 -> 18 m/s
+[9032] done in 121.0 min
+
+===== fold 9019: train on ['9074', '9025', '9015', '9032', 'an01', 'an02', 'an03', 'an04', 'an05', 'an06'] =====
+[9019] round 1/30 step 300/9000  L1 0.02628 (wiener 0.04686)  vel 0.01912  241s
+[9019] round 2/30 step 600/9000  L1 0.01887 (wiener 0.03300)  vel 0.00946  472s
+[9019] round 3/30 step 900/9000  L1 0.01699 (wiener 0.02686)  vel 0.00784  704s
+[9019] round 4/30 step 1200/9000  L1 0.01350 (wiener 0.02664)  vel 0.00780  935s
+[9019] round 5/30 step 1500/9000  L1 0.01291 (wiener 0.03857)  vel 0.00948  1165s
+[9019] round 6/30 step 1800/9000  L1 0.00901 (wiener 0.02457)  vel 0.00469  1396s
+[9019] round 7/30 step 2100/9000  L1 0.00922 (wiener 0.02276)  vel 0.00568  1627s
+[9019] round 8/30 step 2400/9000  L1 0.00688 (wiener 0.02907)  vel 0.00403  1859s
+[9019] round 9/30 step 2700/9000  L1 0.00993 (wiener 0.02861)  vel 0.00712  2091s
+[9019] round 10/30 step 3000/9000  L1 0.00741 (wiener 0.03737)  vel 0.00506  2320s
+[9019] round 11/30 step 3300/9000  L1 0.00760 (wiener 0.03361)  vel 0.00353  2550s
+[9019] round 12/30 step 3600/9000  L1 0.01009 (wiener 0.03252)  vel 0.00698  2781s
+[9019] round 13/30 step 3900/9000  L1 0.00804 (wiener 0.03939)  vel 0.00668  3012s
+[9019] round 14/30 step 4200/9000  L1 0.00640 (wiener 0.03117)  vel 0.00494  3243s
+[9019] round 15/30 step 4500/9000  L1 0.00744 (wiener 0.03911)  vel 0.00649  3473s
+[9019] round 16/30 step 4800/9000  L1 0.00976 (wiener 0.04517)  vel 0.00721  3703s
+[9019] round 17/30 step 5100/9000  L1 0.01096 (wiener 0.03358)  vel 0.00765  3934s
+[9019] round 18/30 step 5400/9000  L1 0.00693 (wiener 0.02681)  vel 0.00405  4166s
+[9019] round 19/30 step 5700/9000  L1 0.00451 (wiener 0.02263)  vel 0.00254  4396s
+[9019] round 20/30 step 6000/9000  L1 0.00469 (wiener 0.02817)  vel 0.00361  4626s
+[9019] round 21/30 step 6300/9000  L1 0.00392 (wiener 0.03066)  vel 0.00270  4856s
+[9019] round 22/30 step 6600/9000  L1 0.00464 (wiener 0.03539)  vel 0.00326  5086s
+[9019] round 23/30 step 6900/9000  L1 0.00384 (wiener 0.02418)  vel 0.00257  5317s
+[9019] round 24/30 step 7200/9000  L1 0.00221 (wiener 0.02333)  vel 0.00150  5548s
+[9019] round 25/30 step 7500/9000  L1 0.00564 (wiener 0.03496)  vel 0.00455  5778s
+[9019] round 26/30 step 7800/9000  L1 0.00332 (wiener 0.02912)  vel 0.00238  6009s
+[9019] round 27/30 step 8100/9000  L1 0.00389 (wiener 0.03443)  vel 0.00340  6239s
+[9019] round 28/30 step 8400/9000  L1 0.00539 (wiener 0.04746)  vel 0.00489  6469s
+[9019] round 29/30 step 8700/9000  L1 0.00380 (wiener 0.02938)  vel 0.00292  6701s
+[9019] round 30/30 step 9000/9000  L1 0.00348 (wiener 0.03029)  vel 0.00268  6931s
+  9019: beam_only built [3s]
+  9019: dirty built [3s]
+  9019: wiener3d_a2 built [11s]
+  9019: wiener_corr built [120s]
+  9019: scored [142s]
+[9019] 9019: rc_r  dirty 0.715  wiener 0.522  CORR 0.742  oracle 0.980 | line-centre median 70 -> 61 m/s
+  sgv2: beam_only built [1s]
+  sgv2: dirty built [1s]
+  sgv2: wiener3d_a2 built [6s]
+  sgv2: wiener_corr built [58s]
+  sgv2: scored [76s]
+[9019] sgv2: rc_r  dirty 0.873  wiener 0.891  CORR 0.855  oracle 0.916 | line-centre median 37 -> 46 m/s
+  an07: beam_only built [0s]
+  an07: dirty built [0s]
+  an07: wiener3d_a2 built [1s]
+  an07: wiener_corr built [6s]
+  an07: scored [10s]
+[9019] an07: rc_r  dirty 0.434  wiener 0.697  CORR 0.925  oracle 0.969 | line-centre median 36 -> 22 m/s
+  an08: beam_only built [0s]
+  an08: dirty built [0s]
+  an08: wiener3d_a2 built [1s]
+  an08: wiener_corr built [6s]
+  an08: scored [11s]
+[9019] an08: rc_r  dirty 0.462  wiener 0.603  CORR 0.926  oracle 0.951 | line-centre median 30 -> 16 m/s
+[9019] done in 119.6 min
+
+rc_r by fold (holdout hydro disk | SG v2 | an07 | an08):
+  fold 9074  (dirty/wiener/corr)  9074: 0.13/0.16/0.44  sgv2: 0.87/0.89/0.85  an07: 0.43/0.70/0.90  an08: 0.46/0.60/0.89
+  fold 9025  (dirty/wiener/corr)  9025: 0.13/0.21/0.44  sgv2: 0.87/0.89/0.87  an07: 0.43/0.70/0.93  an08: 0.46/0.60/0.89
+  fold 9015  (dirty/wiener/corr)  9015: 0.04/0.21/0.24  sgv2: 0.87/0.89/0.86  an07: 0.43/0.70/0.93  an08: 0.46/0.60/0.89
+  fold 9032  (dirty/wiener/corr)  9032: 0.68/0.64/0.65  sgv2: 0.87/0.89/0.86  an07: 0.43/0.70/0.92  an08: 0.46/0.60/0.90
+  fold 9019  (dirty/wiener/corr)  9019: 0.71/0.52/0.74  sgv2: 0.87/0.89/0.85  an07: 0.43/0.70/0.93  an08: 0.46/0.60/0.93
+TRAINING SCRIPT DONE in 605.4 min
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __script__.ipynb to html
+[NbConvertApp] Writing 290384 bytes to __results__.html

@@ -1,0 +1,1189 @@
++ git clone --branch midterm-prep --depth 1 https://github.com/KrishanYadav333/EXXA.git /tmp/EXXA
+Cloning into '/tmp/EXXA'...
+Updating files:   1% (99/5584)Updating files:   2% (112/5584)Updating files:   3% (168/5584)Updating files:   4% (224/5584)Updating files:   4% (240/5584)Updating files:   5% (280/5584)Updating files:   6% (336/5584)Updating files:   7% (391/5584)Updating files:   8% (447/5584)Updating files:   9% (503/5584)Updating files:  10% (559/5584)Updating files:  11% (615/5584)Updating files:  12% (671/5584)Updating files:  13% (726/5584)Updating files:  14% (782/5584)Updating files:  15% (838/5584)Updating files:  16% (894/5584)Updating files:  17% (950/5584)Updating files:  18% (1006/5584)Updating files:  19% (1061/5584)Updating files:  20% (1117/5584)Updating files:  21% (1173/5584)Updating files:  22% (1229/5584)Updating files:  23% (1285/5584)Updating files:  24% (1341/5584)Updating files:  25% (1396/5584)Updating files:  26% (1452/5584)Updating files:  27% (1508/5584)Updating files:  28% (1564/5584)Updating files:  29% (1620/5584)Updating files:  30% (1676/5584)Updating files:  31% (1732/5584)Updating files:  32% (1787/5584)Updating files:  33% (1843/5584)Updating files:  34% (1899/5584)Updating files:  35% (1955/5584)Updating files:  36% (2011/5584)Updating files:  37% (2067/5584)Updating files:  38% (2122/5584)Updating files:  39% (2178/5584)Updating files:  40% (2234/5584)Updating files:  41% (2290/5584)Updating files:  42% (2346/5584)Updating files:  43% (2402/5584)Updating files:  43% (2405/5584)Updating files:  44% (2457/5584)Updating files:  45% (2513/5584)Updating files:  46% (2569/5584)Updating files:  47% (2625/5584)Updating files:  48% (2681/5584)Updating files:  49% (2737/5584)Updating files:  50% (2792/5584)Updating files:  51% (2848/5584)Updating files:  52% (2904/5584)Updating files:  53% (2960/5584)Updating files:  54% (3016/5584)Updating files:  55% (3072/5584)Updating files:  56% (3128/5584)Updating files:  57% (3183/5584)Updating files:  58% (3239/5584)Updating files:  59% (3295/5584)Updating files:  60% (3351/5584)Updating files:  61% (3407/5584)Updating files:  62% (3463/5584)Updating files:  63% (3518/5584)Updating files:  64% (3574/5584)Updating files:  65% (3630/5584)Updating files:  66% (3686/5584)Updating files:  67% (3742/5584)Updating files:  68% (3798/5584)Updating files:  69% (3853/5584)Updating files:  70% (3909/5584)Updating files:  71% (3965/5584)Updating files:  72% (4021/5584)Updating files:  73% (4077/5584)Updating files:  74% (4133/5584)Updating files:  75% (4188/5584)Updating files:  76% (4244/5584)Updating files:  77% (4300/5584)Updating files:  78% (4356/5584)Updating files:  79% (4412/5584)Updating files:  80% (4468/5584)Updating files:  81% (4524/5584)Updating files:  82% (4579/5584)Updating files:  83% (4635/5584)Updating files:  84% (4691/5584)Updating files:  85% (4747/5584)Updating files:  86% (4803/5584)Updating files:  87% (4859/5584)Updating files:  88% (4914/5584)Updating files:  89% (4970/5584)Updating files:  90% (5026/5584)Updating files:  90% (5052/5584)Updating files:  91% (5082/5584)Updating files:  92% (5138/5584)Updating files:  93% (5194/5584)Updating files:  94% (5249/5584)Updating files:  94% (5296/5584)Updating files:  95% (5305/5584)Updating files:  96% (5361/5584)Updating files:  97% (5417/5584)Updating files:  97% (5463/5584)Updating files:  98% (5473/5584)Updating files:  98% (5487/5584)Updating files:  99% (5529/5584)Updating files:  99% (5569/5584)Updating files: 100% (5584/5584)Updating files: 100% (5584/5584), done.
++ /usr/bin/python3 -m pip install -q --no-deps pytorch-msssim bettermoments
+ba34368 Kaggle Notebook | 14-native600-loss-sweep | Version 8
+
+overlaid ['src/data/analytic_gi.py', 'experiments/wiggle_scorecard.py', 'experiments/make_analytic_gi_cubes.py', 'experiments/train_wiggle_correction.py', 'experiments/train_unified.py'] | staged from 5b04466 (+ the uncommitted files listed)
+sg_synth -> /kaggle/input/datasets/krishanyadav333/exxa-sg-synth-pairs/kaggle-sg-training-dataset | v2 -> /kaggle/input/datasets/krishanyadav333/self-gravitating-v2/kinematic_data_v2 | line emission -> /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data (14 cubes)
++ /usr/bin/python3 experiments/make_analytic_gi_cubes.py
+an01 md=0.15 m=2 beta=5.0 pitch=13 i=20: rmsdiff/rms = 0.501 (sg_synth 0.41-0.57)
+an02 md=0.35 m=2 beta=5.0 pitch=13 i=30: rmsdiff/rms = 0.510 (sg_synth 0.41-0.57)
+an03 md=0.6 m=2 beta=5.0 pitch=13 i=20: rmsdiff/rms = 0.500 (sg_synth 0.41-0.57)
+an04 md=0.35 m=3 beta=5.0 pitch=18 i=20: rmsdiff/rms = 0.467 (sg_synth 0.41-0.57)
+an05 md=0.35 m=2 beta=3.0 pitch=13 i=30: rmsdiff/rms = 0.495 (sg_synth 0.41-0.57)
+an06 md=0.6 m=2 beta=3.0 pitch=20 i=20: rmsdiff/rms = 0.449 (sg_synth 0.41-0.57)
+an07 md=0.45 m=2 beta=4.0 pitch=15 i=25: rmsdiff/rms = 0.546 (sg_synth 0.41-0.57)
+an08 md=0.25 m=3 beta=3.0 pitch=18 i=30: rmsdiff/rms = 0.501 (sg_synth 0.41-0.57)
+CHECKPOINT kin_gamma0_mae_ft -> /kaggle/input/datasets/krishanyadav333/exxa-unified-ft-sources/kin_gamma0_mae_ft.ckpt
++ /usr/bin/python3 -u experiments/train_unified.py --init /kaggle/input/datasets/krishanyadav333/exxa-unified-ft-sources/kin_gamma0_mae_ft.ckpt --lr 1e-4 --rounds 20 --steps 300 --before --out /kaggle/working/ft_kin_gamma0_mae_ft
+device cuda  {'arm': 'wiener', 'init': '/kaggle/input/datasets/krishanyadav333/exxa-unified-ft-sources/kin_gamma0_mae_ft.ckpt', 'fresh': False, 'tag': '', 'k': 3, 'rounds': 20, 'steps': 300, 'batch': 12, 'crop': 128, 'base': 48, 'lr': 0.0001, 'sizes': '256,300,320,480,600', 'hydro': '9015,9019,9025,9032', 'analytic': 'an01,an02,an03,an04,an05,an06', 'p_ai': 0.5, 'n_line': 0, 'n_line_eval': 0, 'eval_sg': '9074,sgv2,an07,an08', 'eval_ai': True, 'before': True, 'before_cases': 'run_0002_00560_rt_00,run_0026_00005_rt_04,9074,9074_ai,an07,an07_ai,sgv2', 'before_sizes': '300,600', 'refresh': 3, 'seed': 0, 'out': '/kaggle/working/ft_kin_gamma0_mae_ft', 'smoke': False}
+fine-tuning /kaggle/input/datasets/krishanyadav333/exxa-unified-ft-sources/kin_gamma0_mae_ft.ckpt: window +-15 channels, 31 output channel(s)
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+  run_0002_00560_rt_00_300: dirty built [0s]
+  run_0002_00560_rt_00_300: wiener built [0s]
+  run_0002_00560_rt_00_300: model built [0s]
+  run_0002_00560_rt_00_300: scored [3s]
+run_0002_00560_rt_00@300       PSNR dirty 22.55 wiener 32.46 MODEL 44.40 | M0/M1/M2 % wiener 17/32/22 MODEL 44/70/32 | rc_r dirty 0.779 wiener 0.696 MODEL 0.843 | dv_med 112/136/86 m/s | 30s
+  run_0002_00560_rt_00_600: dirty built [0s]
+  run_0002_00560_rt_00_600: wiener built [0s]
+  run_0002_00560_rt_00_600: model built [0s]
+  run_0002_00560_rt_00_600: scored [6s]
+run_0002_00560_rt_00@600       PSNR dirty 22.57 wiener 32.49 MODEL 43.21 | M0/M1/M2 % wiener 17/33/24 MODEL 31/57/43 | rc_r dirty 0.764 wiener 0.690 MODEL 0.872 | dv_med 112/136/84 m/s | 97s
+  run_0026_00005_rt_04_300: dirty built [0s]
+  run_0026_00005_rt_04_300: wiener built [0s]
+  run_0026_00005_rt_04_300: model built [0s]
+  run_0026_00005_rt_04_300: scored [2s]
+run_0026_00005_rt_04@300       PSNR dirty 19.38 wiener 30.53 MODEL 42.46 | M0/M1/M2 % wiener 48/69/61 MODEL 50/73/47 | rc_r dirty 0.146 wiener 0.845 MODEL 0.684 | dv_med 195/131/85 m/s | 29s
+  run_0026_00005_rt_04_600: dirty built [0s]
+  run_0026_00005_rt_04_600: wiener built [0s]
+  run_0026_00005_rt_04_600: model built [0s]
+  run_0026_00005_rt_04_600: scored [8s]
+run_0026_00005_rt_04@600       PSNR dirty 19.40 wiener 30.55 MODEL 41.61 | M0/M1/M2 % wiener 48/69/61 MODEL 53/63/15 | rc_r dirty 0.149 wiener 0.845 MODEL 0.879 | dv_med 195/131/98 m/s | 102s
+  9074_300: dirty built [0s]
+  9074_300: wiener built [0s]
+  9074_300: model built [0s]
+  9074_300: beam_oracle built [0s]
+  9074_300: scored [3s]
+9074@300                       PSNR dirty 21.15 wiener 34.47 MODEL 30.37 | M0/M1/M2 % wiener 51/22/62 MODEL 12/21/34 | rc_r dirty 0.134 wiener 0.163 MODEL 0.399 | dv_med 308/293/234 m/s | 27s
+  9074_600: dirty built [0s]
+  9074_600: wiener built [0s]
+  9074_600: model built [0s]
+  9074_600: beam_oracle built [0s]
+  9074_600: scored [13s]
+9074@600                       PSNR dirty 21.16 wiener 34.49 MODEL 30.86 | M0/M1/M2 % wiener 51/22/61 MODEL 39/25/41 | rc_r dirty 0.133 wiener 0.163 MODEL 0.497 | dv_med 308/293/258 m/s | 106s
+  9074_ai_300: dirty built [0s]
+  9074_ai_300: wiener built [0s]
+  9074_ai_300: model built [0s]
+  9074_ai_300: scored [3s]
+9074_ai@300                    PSNR dirty 22.97 wiener 38.26 MODEL 32.64 | M0/M1/M2 % wiener 58/11/74 MODEL 30/3/56 | rc_r dirty 0.311 wiener 0.218 MODEL 0.361 | dv_med 258/276/243 m/s | 26s
+  9074_ai_600: dirty built [0s]
+  9074_ai_600: wiener built [0s]
+  9074_ai_600: model built [0s]
+  9074_ai_600: scored [13s]
+9074_ai@600                    PSNR dirty 22.97 wiener 38.28 MODEL 32.12 | M0/M1/M2 % wiener 57/10/72 MODEL -5/-21/51 | rc_r dirty 0.314 wiener 0.217 MODEL 0.413 | dv_med 257/276/271 m/s | 110s
+  sgv2_300: dirty built [0s]
+  sgv2_300: wiener built [0s]
+  sgv2_300: model built [0s]
+  sgv2_300: beam_oracle built [0s]
+  sgv2_300: scored [6s]
+sgv2@300                       PSNR dirty 27.74 wiener 28.57 MODEL 23.26 | M0/M1/M2 % wiener 20/28/31 MODEL -28/-52/-46 | rc_r dirty 0.849 wiener 0.865 MODEL 0.510 | dv_med 51/46/99 m/s | 36s
+  sgv2_600: dirty built [0s]
+  sgv2_600: wiener built [0s]
+  sgv2_600: model built [0s]
+  sgv2_600: beam_oracle built [0s]
+  sgv2_600: scored [15s]
+sgv2@600                       PSNR dirty 27.32 wiener 28.01 MODEL 23.27 | M0/M1/M2 % wiener 14/29/32 MODEL -34/-31/-50 | rc_r dirty 0.846 wiener 0.856 MODEL 0.626 | dv_med 59/53/105 m/s | 101s
+  an07_300: dirty built [0s]
+  an07_300: wiener built [0s]
+  an07_300: model built [0s]
+  an07_300: beam_oracle built [0s]
+  an07_300: scored [3s]
+an07@300                       PSNR dirty 19.13 wiener 27.75 MODEL 39.48 | M0/M1/M2 % wiener 33/44/52 MODEL 35/28/8 | rc_r dirty 0.593 wiener 0.591 MODEL 0.410 | dv_med 59/43/49 m/s | 23s
+  an07_600: dirty built [0s]
+  an07_600: wiener built [0s]
+  an07_600: model built [0s]
+  an07_600: beam_oracle built [0s]
+  an07_600: scored [7s]
+an07@600                       PSNR dirty 19.14 wiener 27.77 MODEL 35.16 | M0/M1/M2 % wiener 33/44/52 MODEL 35/41/-7 | rc_r dirty 0.592 wiener 0.593 MODEL 0.602 | dv_med 59/43/37 m/s | 85s
+  an07_ai_300: dirty built [0s]
+  an07_ai_300: wiener built [0s]
+  an07_ai_300: model built [0s]
+  an07_ai_300: scored [2s]
+an07_ai@300                    PSNR dirty 21.02 wiener 29.97 MODEL 42.55 | M0/M1/M2 % wiener 45/43/53 MODEL -19/-57/-108 | rc_r dirty 0.617 wiener 0.841 MODEL 0.511 | dv_med 49/24/40 m/s | 23s
+  an07_ai_600: dirty built [0s]
+  an07_ai_600: wiener built [0s]
+  an07_ai_600: model built [0s]
+  an07_ai_600: scored [6s]
+an07_ai@600                    PSNR dirty 21.03 wiener 29.99 MODEL 37.76 | M0/M1/M2 % wiener 45/43/53 MODEL 3/-1/-91 | rc_r dirty 0.617 wiener 0.841 MODEL 0.758 | dv_med 49/24/29 m/s | 86s
+BEFORE-EVAL DONE
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+  line  run_0006_00170_rt_00  (201, 600, 600)
+  line  run_0010_00125_rt_01  (201, 600, 600)
+  line  run_0010_00125_rt_02  (201, 600, 600)
+  line  run_0020_01000_rt_02  (201, 600, 600)
+  line  run_0022_00155_rt_03  (201, 600, 600)
+  line  run_0030_00015_rt_00  (201, 600, 600)
+  line  run_0035_00025_rt_01  (201, 600, 600)
+  line  run_0016_00550_rt_01  (201, 600, 600)
+  line  run_0036_00350_rt_03  (201, 600, 600)
+  hydro    9015  (172, 301, 301)
+  hydro    9019  (512, 600, 600)
+  hydro    9025  (172, 301, 301)
+  hydro    9032  (157, 301, 301)
+  analytic an01  (161, 301, 301)
+  analytic an02  (161, 301, 301)
+  analytic an03  (161, 301, 301)
+  analytic an04  (161, 301, 301)
+  analytic an05  (161, 301, 301)
+  analytic an06  (161, 301, 301)
+19 training cubes (analytic: 6, hydro: 4, line: 9), loaded in 96s
+step 1: L1 0.03908 (the starting checkpoint on the new data mix)
+round 1/20 step 300  L1 0.02282  d1 0.01051  d2 0.00609  redraw 119s  sizes [256, 300, 320, 480, 600]  5.7 min
+round 2/20 step 600  L1 0.01479  d1 0.00880  d2 0.00557  redraw 16s  sizes [256, 300, 320, 480, 600]  7.8 min
+round 3/20 step 900  L1 0.01303  d1 0.00790  d2 0.00508  redraw 32s  sizes [256, 300, 320, 480, 600]  10.3 min
+round 4/20 step 1200  L1 0.01317  d1 0.00790  d2 0.00492  redraw 17s  sizes [256, 300, 320, 480, 600]  12.5 min
+round 5/20 step 1500  L1 0.01201  d1 0.00728  d2 0.00463  redraw 16s  sizes [256, 300, 320, 480, 600]  14.6 min
+round 6/20 step 1800  L1 0.01161  d1 0.00696  d2 0.00440  redraw 23s  sizes [256, 300, 320, 480, 600]  17.0 min
+round 7/20 step 2100  L1 0.01177  d1 0.00705  d2 0.00420  redraw 36s  sizes [256, 300, 320, 480, 600]  19.5 min
+round 8/20 step 2400  L1 0.01121  d1 0.00673  d2 0.00407  redraw 28s  sizes [256, 300, 320, 480, 600]  21.9 min
+round 9/20 step 2700  L1 0.01102  d1 0.00678  d2 0.00406  redraw 15s  sizes [256, 300, 320, 480, 600]  24.1 min
+round 10/20 step 3000  L1 0.01021  d1 0.00642  d2 0.00390  redraw 34s  sizes [256, 300, 320, 480, 600]  26.6 min
+round 11/20 step 3300  L1 0.01040  d1 0.00623  d2 0.00369  redraw 34s  sizes [256, 300, 320, 480, 600]  29.1 min
+round 12/20 step 3600  L1 0.01004  d1 0.00610  d2 0.00362  redraw 24s  sizes [256, 300, 320, 480, 600]  31.4 min
+round 13/20 step 3900  L1 0.00932  d1 0.00572  d2 0.00343  redraw 17s  sizes [256, 300, 320, 480, 600]  33.6 min
+round 14/20 step 4200  L1 0.00954  d1 0.00580  d2 0.00344  redraw 31s  sizes [256, 300, 320, 480, 600]  36.1 min
+round 15/20 step 4500  L1 0.01033  d1 0.00623  d2 0.00361  redraw 7s  sizes [256, 300, 320, 480, 600]  38.1 min
+round 16/20 step 4800  L1 0.01016  d1 0.00626  d2 0.00360  redraw 7s  sizes [256, 300, 320, 480]  40.0 min
+round 17/20 step 5100  L1 0.01029  d1 0.00628  d2 0.00359  redraw 26s  sizes [256, 300, 320, 480]  42.3 min
+round 18/20 step 5400  L1 0.00976  d1 0.00598  d2 0.00349  redraw 26s  sizes [256, 300, 320, 480]  44.6 min
+round 19/20 step 5700  L1 0.00970  d1 0.00594  d2 0.00344  redraw 31s  sizes [256, 300, 320, 480, 600]  47.0 min
+round 20/20 step 6000  L1 0.01022  d1 0.00630  d2 0.00363  redraw 12s  sizes [256, 300, 320, 480, 600]  49.1 min
+TRAINED 6000 steps in 49.1 min -> /kaggle/working/ft_kin_gamma0_mae_ft/unified_ft_kin_gamma0_mae_ft.pth
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+  run_0002_00560_rt_00_256: dirty built [0s]
+  run_0002_00560_rt_00_256: wiener built [0s]
+  run_0002_00560_rt_00_256: model built [0s]
+  run_0002_00560_rt_00_256: scored [2s]
+run_0002_00560_rt_00@256       PSNR dirty 22.55 wiener 32.45 MODEL 44.36 | M0/M1/M2 % wiener 16/31/21 MODEL 45/73/81 | rc_r dirty 0.749 wiener 0.696 MODEL 0.881 | dv_med 112/136/79 m/s | 21s
+  run_0002_00560_rt_00_300: dirty built [0s]
+  run_0002_00560_rt_00_300: wiener built [0s]
+  run_0002_00560_rt_00_300: model built [0s]
+  run_0002_00560_rt_00_300: scored [3s]
+run_0002_00560_rt_00@300       PSNR dirty 22.55 wiener 32.46 MODEL 44.41 | M0/M1/M2 % wiener 17/32/22 MODEL 44/72/86 | rc_r dirty 0.779 wiener 0.696 MODEL 0.873 | dv_med 112/136/70 m/s | 24s
+  run_0002_00560_rt_00_320: dirty built [0s]
+  run_0002_00560_rt_00_320: wiener built [0s]
+  run_0002_00560_rt_00_320: model built [0s]
+  run_0002_00560_rt_00_320: scored [3s]
+run_0002_00560_rt_00@320       PSNR dirty 22.56 wiener 32.47 MODEL 44.26 | M0/M1/M2 % wiener 17/32/23 MODEL 43/73/88 | rc_r dirty 0.761 wiener 0.698 MODEL 0.877 | dv_med 112/135/68 m/s | 28s
+  run_0002_00560_rt_00_480: dirty built [0s]
+  run_0002_00560_rt_00_480: wiener built [0s]
+  run_0002_00560_rt_00_480: model built [0s]
+  run_0002_00560_rt_00_480: scored [4s]
+run_0002_00560_rt_00@480       PSNR dirty 22.56 wiener 32.48 MODEL 43.58 | M0/M1/M2 % wiener 17/32/23 MODEL 38/72/87 | rc_r dirty 0.772 wiener 0.692 MODEL 0.874 | dv_med 112/136/61 m/s | 61s
+  run_0002_00560_rt_00_600: dirty built [0s]
+  run_0002_00560_rt_00_600: wiener built [0s]
+  run_0002_00560_rt_00_600: model built [0s]
+  run_0002_00560_rt_00_600: scored [7s]
+run_0002_00560_rt_00@600       PSNR dirty 22.57 wiener 32.49 MODEL 43.15 | M0/M1/M2 % wiener 17/33/24 MODEL 36/71/85 | rc_r dirty 0.764 wiener 0.690 MODEL 0.874 | dv_med 112/136/58 m/s | 93s
+  run_0002_00560_rt_01_256: dirty built [0s]
+  run_0002_00560_rt_01_256: wiener built [0s]
+  run_0002_00560_rt_01_256: model built [0s]
+  run_0002_00560_rt_01_256: scored [2s]
+run_0002_00560_rt_01@256       PSNR dirty 19.19 wiener 30.22 MODEL 47.10 | M0/M1/M2 % wiener 20/66/64 MODEL 53/90/83 | rc_r dirty 0.047 wiener 0.149 MODEL 0.454 | dv_med 62/41/31 m/s | 20s
+  run_0002_00560_rt_01_300: dirty built [0s]
+  run_0002_00560_rt_01_300: wiener built [0s]
+  run_0002_00560_rt_01_300: model built [0s]
+  run_0002_00560_rt_01_300: scored [2s]
+run_0002_00560_rt_01@300       PSNR dirty 19.20 wiener 30.23 MODEL 46.34 | M0/M1/M2 % wiener 21/67/65 MODEL 51/88/76 | rc_r dirty 0.045 wiener 0.150 MODEL 0.462 | dv_med 62/41/31 m/s | 23s
+  run_0002_00560_rt_01_320: dirty built [0s]
+  run_0002_00560_rt_01_320: wiener built [0s]
+  run_0002_00560_rt_01_320: model built [0s]
+  run_0002_00560_rt_01_320: scored [3s]
+run_0002_00560_rt_01@320       PSNR dirty 19.20 wiener 30.23 MODEL 45.93 | M0/M1/M2 % wiener 21/66/64 MODEL 50/87/72 | rc_r dirty 0.046 wiener 0.153 MODEL 0.463 | dv_med 62/41/31 m/s | 28s
+  run_0002_00560_rt_01_480: dirty built [0s]
+  run_0002_00560_rt_01_480: wiener built [0s]
+  run_0002_00560_rt_01_480: model built [0s]
+  run_0002_00560_rt_01_480: scored [4s]
+run_0002_00560_rt_01@480       PSNR dirty 19.21 wiener 30.25 MODEL 43.70 | M0/M1/M2 % wiener 21/67/65 MODEL 42/78/57 | rc_r dirty 0.041 wiener 0.064 MODEL 0.349 | dv_med 62/41/31 m/s | 60s
+  run_0002_00560_rt_01_600: dirty built [0s]
+  run_0002_00560_rt_01_600: wiener built [0s]
+  run_0002_00560_rt_01_600: model built [0s]
+  run_0002_00560_rt_01_600: scored [5s]
+run_0002_00560_rt_01@600       PSNR dirty 19.22 wiener 30.25 MODEL 42.57 | M0/M1/M2 % wiener 21/67/65 MODEL 36/71/48 | rc_r dirty 0.042 wiener 0.076 MODEL 0.371 | dv_med 62/41/31 m/s | 93s
+  run_0002_00560_rt_04_256: dirty built [0s]
+  run_0002_00560_rt_04_256: wiener built [0s]
+  run_0002_00560_rt_04_256: model built [0s]
+run_0002_00560_rt_04@256: FAILED
+Traceback (most recent call last):
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 474, in run_eval
+    r = score_case(model, arm, case, S, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 453, in score_case
+    sc = ws.score_cube(f"{name}_{S}", d, methods, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 296, in score_cube
+    fou = {k: np.array([wiggle_fourier(y, au) for y in tr]) for k, tr in tracks.items()}
+                        ~~~~~~~~~~~~~~^^^^^^^
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 255, in wiggle_fourier
+    y = y - np.polyval(np.polyfit(x, y, 1), x)
+                       ~~~~~~~~~~^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/numpy/lib/_polynomial_impl.py", line 636, in polyfit
+    raise TypeError("expected non-empty vector for x")
+TypeError: expected non-empty vector for x
+
+  run_0002_00560_rt_04_300: dirty built [0s]
+  run_0002_00560_rt_04_300: wiener built [0s]
+  run_0002_00560_rt_04_300: model built [0s]
+run_0002_00560_rt_04@300: FAILED
+Traceback (most recent call last):
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 474, in run_eval
+    r = score_case(model, arm, case, S, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 453, in score_case
+    sc = ws.score_cube(f"{name}_{S}", d, methods, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 296, in score_cube
+    fou = {k: np.array([wiggle_fourier(y, au) for y in tr]) for k, tr in tracks.items()}
+                        ~~~~~~~~~~~~~~^^^^^^^
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 255, in wiggle_fourier
+    y = y - np.polyval(np.polyfit(x, y, 1), x)
+                       ~~~~~~~~~~^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/numpy/lib/_polynomial_impl.py", line 636, in polyfit
+    raise TypeError("expected non-empty vector for x")
+TypeError: expected non-empty vector for x
+
+  run_0002_00560_rt_04_320: dirty built [0s]
+  run_0002_00560_rt_04_320: wiener built [0s]
+  run_0002_00560_rt_04_320: model built [0s]
+  run_0002_00560_rt_04_320: scored [3s]
+run_0002_00560_rt_04@320       PSNR dirty 18.96 wiener 30.39 MODEL 46.88 | M0/M1/M2 % wiener 11/75/66 MODEL 51/87/56 | rc_r dirty 0.026 wiener 0.067 MODEL 0.191 | dv_med 45/28/17 m/s | 29s
+  run_0002_00560_rt_04_480: dirty built [0s]
+  run_0002_00560_rt_04_480: wiener built [0s]
+  run_0002_00560_rt_04_480: model built [0s]
+  run_0002_00560_rt_04_480: scored [5s]
+run_0002_00560_rt_04@480       PSNR dirty 18.97 wiener 30.41 MODEL 44.03 | M0/M1/M2 % wiener 11/75/66 MODEL 40/78/44 | rc_r dirty 0.036 wiener 0.021 MODEL 0.165 | dv_med 45/28/17 m/s | 63s
+  run_0002_00560_rt_04_600: dirty built [0s]
+  run_0002_00560_rt_04_600: wiener built [0s]
+  run_0002_00560_rt_04_600: model built [0s]
+  run_0002_00560_rt_04_600: scored [7s]
+run_0002_00560_rt_04@600       PSNR dirty 18.98 wiener 30.43 MODEL 42.42 | M0/M1/M2 % wiener 11/75/66 MODEL 29/69/32 | rc_r dirty 0.031 wiener 0.071 MODEL 0.271 | dv_med 45/28/18 m/s | 99s
+  run_0025_01000_rt_04_256: dirty built [0s]
+  run_0025_01000_rt_04_256: wiener built [0s]
+  run_0025_01000_rt_04_256: model built [0s]
+  run_0025_01000_rt_04_256: scored [5s]
+run_0025_01000_rt_04@256       PSNR dirty 20.17 wiener 28.77 MODEL 43.57 | M0/M1/M2 % wiener -4/53/39 MODEL 44/77/46 | rc_r dirty 0.097 wiener 0.361 MODEL 0.554 | dv_med 35/18/18 m/s | 25s
+  run_0025_01000_rt_04_300: dirty built [0s]
+  run_0025_01000_rt_04_300: wiener built [0s]
+  run_0025_01000_rt_04_300: model built [0s]
+  run_0025_01000_rt_04_300: scored [4s]
+run_0025_01000_rt_04@300       PSNR dirty 20.18 wiener 28.79 MODEL 43.12 | M0/M1/M2 % wiener -4/53/39 MODEL 41/75/37 | rc_r dirty 0.079 wiener 0.250 MODEL 0.463 | dv_med 35/18/19 m/s | 28s
+  run_0025_01000_rt_04_320: dirty built [0s]
+  run_0025_01000_rt_04_320: wiener built [0s]
+  run_0025_01000_rt_04_320: model built [0s]
+  run_0025_01000_rt_04_320: scored [7s]
+run_0025_01000_rt_04@320       PSNR dirty 20.18 wiener 28.78 MODEL 42.77 | M0/M1/M2 % wiener -4/53/39 MODEL 39/73/30 | rc_r dirty 0.067 wiener 0.258 MODEL 0.483 | dv_med 35/18/19 m/s | 34s
+  run_0025_01000_rt_04_480: dirty built [0s]
+  run_0025_01000_rt_04_480: wiener built [0s]
+  run_0025_01000_rt_04_480: model built [0s]
+  run_0025_01000_rt_04_480: scored [9s]
+run_0025_01000_rt_04@480       PSNR dirty 20.19 wiener 28.80 MODEL 41.22 | M0/M1/M2 % wiener -4/53/40 MODEL 25/60/-11 | rc_r dirty 0.084 wiener 0.295 MODEL 0.536 | dv_med 35/18/20 m/s | 72s
+  run_0025_01000_rt_04_600: dirty built [0s]
+  run_0025_01000_rt_04_600: wiener built [0s]
+  run_0025_01000_rt_04_600: model built [0s]
+  run_0025_01000_rt_04_600: scored [14s]
+run_0025_01000_rt_04@600       PSNR dirty 20.19 wiener 28.82 MODEL 40.33 | M0/M1/M2 % wiener -4/53/40 MODEL 17/54/3 | rc_r dirty 0.083 wiener 0.266 MODEL 0.489 | dv_med 35/18/20 m/s | 110s
+  run_0026_00005_rt_04_256: dirty built [0s]
+  run_0026_00005_rt_04_256: wiener built [0s]
+  run_0026_00005_rt_04_256: model built [0s]
+  run_0026_00005_rt_04_256: scored [2s]
+run_0026_00005_rt_04@256       PSNR dirty 19.38 wiener 30.52 MODEL 44.24 | M0/M1/M2 % wiener 48/68/61 MODEL 63/86/87 | rc_r dirty 0.144 wiener 0.845 MODEL 0.872 | dv_med 194/130/87 m/s | 21s
+  run_0026_00005_rt_04_300: dirty built [0s]
+  run_0026_00005_rt_04_300: wiener built [0s]
+  run_0026_00005_rt_04_300: model built [0s]
+  run_0026_00005_rt_04_300: scored [3s]
+run_0026_00005_rt_04@300       PSNR dirty 19.38 wiener 30.53 MODEL 43.78 | M0/M1/M2 % wiener 48/69/61 MODEL 63/87/84 | rc_r dirty 0.146 wiener 0.845 MODEL 0.864 | dv_med 195/131/83 m/s | 24s
+  run_0026_00005_rt_04_320: dirty built [0s]
+  run_0026_00005_rt_04_320: wiener built [0s]
+  run_0026_00005_rt_04_320: model built [0s]
+  run_0026_00005_rt_04_320: scored [3s]
+run_0026_00005_rt_04@320       PSNR dirty 19.39 wiener 30.53 MODEL 43.57 | M0/M1/M2 % wiener 48/68/60 MODEL 63/87/85 | rc_r dirty 0.148 wiener 0.844 MODEL 0.859 | dv_med 195/130/83 m/s | 28s
+  run_0026_00005_rt_04_480: dirty built [0s]
+  run_0026_00005_rt_04_480: wiener built [0s]
+  run_0026_00005_rt_04_480: model built [0s]
+  run_0026_00005_rt_04_480: scored [6s]
+run_0026_00005_rt_04@480       PSNR dirty 19.39 wiener 30.54 MODEL 41.84 | M0/M1/M2 % wiener 48/69/61 MODEL 61/86/81 | rc_r dirty 0.155 wiener 0.845 MODEL 0.729 | dv_med 195/130/90 m/s | 65s
+  run_0026_00005_rt_04_600: dirty built [0s]
+  run_0026_00005_rt_04_600: wiener built [0s]
+  run_0026_00005_rt_04_600: model built [0s]
+  run_0026_00005_rt_04_600: scored [8s]
+run_0026_00005_rt_04@600       PSNR dirty 19.40 wiener 30.55 MODEL 40.71 | M0/M1/M2 % wiener 48/69/61 MODEL 58/84/73 | rc_r dirty 0.149 wiener 0.845 MODEL 0.690 | dv_med 195/131/93 m/s | 96s
+  9074_256: dirty built [0s]
+  9074_256: wiener built [0s]
+  9074_256: model built [0s]
+  9074_256: beam_oracle built [0s]
+  9074_256: scored [3s]
+9074@256                       PSNR dirty 21.15 wiener 34.48 MODEL 34.60 | M0/M1/M2 % wiener 53/23/63 MODEL 25/34/35 | rc_r dirty 0.131 wiener 0.158 MODEL 0.536 | dv_med 308/293/180 m/s | 20s
+  9074_300: dirty built [0s]
+  9074_300: wiener built [0s]
+  9074_300: model built [0s]
+  9074_300: beam_oracle built [0s]
+  9074_300: scored [4s]
+9074@300                       PSNR dirty 21.15 wiener 34.47 MODEL 34.61 | M0/M1/M2 % wiener 51/22/62 MODEL 24/32/34 | rc_r dirty 0.134 wiener 0.163 MODEL 0.511 | dv_med 308/293/181 m/s | 26s
+  9074_320: dirty built [0s]
+  9074_320: wiener built [0s]
+  9074_320: model built [0s]
+  9074_320: beam_oracle built [0s]
+  9074_320: scored [4s]
+9074@320                       PSNR dirty 21.15 wiener 34.49 MODEL 34.60 | M0/M1/M2 % wiener 50/23/61 MODEL 23/32/33 | rc_r dirty 0.132 wiener 0.160 MODEL 0.497 | dv_med 308/293/182 m/s | 29s
+  9074_480: dirty built [0s]
+  9074_480: wiener built [0s]
+  9074_480: model built [0s]
+  9074_480: beam_oracle built [0s]
+  9074_480: scored [8s]
+9074@480                       PSNR dirty 21.16 wiener 34.49 MODEL 34.36 | M0/M1/M2 % wiener 51/21/61 MODEL 23/29/32 | rc_r dirty 0.129 wiener 0.158 MODEL 0.443 | dv_med 307/293/188 m/s | 61s
+  9074_600: dirty built [0s]
+  9074_600: wiener built [0s]
+  9074_600: model built [0s]
+  9074_600: beam_oracle built [0s]
+  9074_600: scored [14s]
+9074@600                       PSNR dirty 21.16 wiener 34.49 MODEL 34.13 | M0/M1/M2 % wiener 51/22/61 MODEL 23/28/31 | rc_r dirty 0.133 wiener 0.163 MODEL 0.430 | dv_med 308/293/189 m/s | 102s
+  9074_ai_256: dirty built [0s]
+  9074_ai_256: wiener built [0s]
+  9074_ai_256: model built [0s]
+  9074_ai_256: scored [2s]
+9074_ai@256                    PSNR dirty 22.97 wiener 38.26 MODEL 37.60 | M0/M1/M2 % wiener 60/13/74 MODEL 37/17/68 | rc_r dirty 0.310 wiener 0.212 MODEL 0.484 | dv_med 259/275/171 m/s | 19s
+  9074_ai_300: dirty built [0s]
+  9074_ai_300: wiener built [0s]
+  9074_ai_300: model built [0s]
+  9074_ai_300: scored [3s]
+9074_ai@300                    PSNR dirty 22.97 wiener 38.26 MODEL 38.65 | M0/M1/M2 % wiener 58/11/74 MODEL 35/19/70 | rc_r dirty 0.311 wiener 0.218 MODEL 0.463 | dv_med 258/276/179 m/s | 25s
+  9074_ai_320: dirty built [0s]
+  9074_ai_320: wiener built [0s]
+  9074_ai_320: model built [0s]
+  9074_ai_320: scored [3s]
+9074_ai@320                    PSNR dirty 22.97 wiener 38.27 MODEL 38.83 | M0/M1/M2 % wiener 56/11/72 MODEL 32/18/70 | rc_r dirty 0.309 wiener 0.212 MODEL 0.455 | dv_med 258/275/180 m/s | 29s
+  9074_ai_480: dirty built [0s]
+  9074_ai_480: wiener built [0s]
+  9074_ai_480: model built [0s]
+  9074_ai_480: scored [6s]
+9074_ai@480                    PSNR dirty 22.97 wiener 38.28 MODEL 38.92 | M0/M1/M2 % wiener 57/10/73 MODEL 23/22/72 | rc_r dirty 0.312 wiener 0.209 MODEL 0.430 | dv_med 257/276/188 m/s | 61s
+  9074_ai_600: dirty built [0s]
+  9074_ai_600: wiener built [0s]
+  9074_ai_600: model built [0s]
+  9074_ai_600: scored [11s]
+9074_ai@600                    PSNR dirty 22.97 wiener 38.28 MODEL 38.48 | M0/M1/M2 % wiener 57/10/72 MODEL 22/22/72 | rc_r dirty 0.314 wiener 0.217 MODEL 0.426 | dv_med 257/276/192 m/s | 99s
+  sgv2_256: dirty built [0s]
+  sgv2_256: wiener built [0s]
+  sgv2_256: model built [0s]
+  sgv2_256: beam_oracle built [0s]
+  sgv2_256: scored [5s]
+sgv2@256                       PSNR dirty 28.38 wiener 29.36 MODEL 26.20 | M0/M1/M2 % wiener 29/28/28 MODEL 6/-23/-26 | rc_r dirty 0.884 wiener 0.898 MODEL 0.796 | dv_med 43/39/76 m/s | 27s
+  sgv2_300: dirty built [0s]
+  sgv2_300: wiener built [0s]
+  sgv2_300: model built [0s]
+  sgv2_300: beam_oracle built [0s]
+  sgv2_300: scored [6s]
+sgv2@300                       PSNR dirty 27.74 wiener 28.57 MODEL 25.86 | M0/M1/M2 % wiener 20/28/31 MODEL 5/-11/-20 | rc_r dirty 0.849 wiener 0.865 MODEL 0.767 | dv_med 51/46/84 m/s | 27s
+  sgv2_320: dirty built [0s]
+  sgv2_320: wiener built [0s]
+  sgv2_320: model built [0s]
+  sgv2_320: beam_oracle built [0s]
+  sgv2_320: scored [6s]
+sgv2@320                       PSNR dirty 28.05 wiener 28.92 MODEL 26.09 | M0/M1/M2 % wiener 22/29/29 MODEL 5/-12/-23 | rc_r dirty 0.872 wiener 0.887 MODEL 0.805 | dv_med 49/44/81 m/s | 31s
+  sgv2_480: dirty built [0s]
+  sgv2_480: wiener built [0s]
+  sgv2_480: model built [0s]
+  sgv2_480: beam_oracle built [0s]
+  sgv2_480: scored [10s]
+sgv2@480                       PSNR dirty 27.83 wiener 28.67 MODEL 26.05 | M0/M1/M2 % wiener 17/29/30 MODEL 3/-2/-18 | rc_r dirty 0.846 wiener 0.861 MODEL 0.770 | dv_med 55/50/88 m/s | 63s
+  sgv2_600: dirty built [0s]
+  sgv2_600: wiener built [0s]
+  sgv2_600: model built [0s]
+  sgv2_600: beam_oracle built [0s]
+  sgv2_600: scored [15s]
+sgv2@600                       PSNR dirty 27.32 wiener 28.01 MODEL 25.71 | M0/M1/M2 % wiener 14/29/32 MODEL 6/3/-11 | rc_r dirty 0.846 wiener 0.856 MODEL 0.780 | dv_med 59/53/95 m/s | 99s
+  an07_256: dirty built [0s]
+  an07_256: wiener built [0s]
+  an07_256: model built [0s]
+  an07_256: beam_oracle built [0s]
+  an07_256: scored [3s]
+an07@256                       PSNR dirty 19.13 wiener 27.76 MODEL 39.21 | M0/M1/M2 % wiener 33/44/52 MODEL 57/68/80 | rc_r dirty 0.593 wiener 0.593 MODEL 0.879 | dv_med 58/43/24 m/s | 17s
+  an07_300: dirty built [0s]
+  an07_300: wiener built [0s]
+  an07_300: model built [0s]
+  an07_300: beam_oracle built [0s]
+  an07_300: scored [3s]
+an07@300                       PSNR dirty 19.13 wiener 27.75 MODEL 38.89 | M0/M1/M2 % wiener 33/44/52 MODEL 57/67/78 | rc_r dirty 0.593 wiener 0.591 MODEL 0.882 | dv_med 59/43/23 m/s | 21s
+  an07_320: dirty built [0s]
+  an07_320: wiener built [0s]
+  an07_320: model built [0s]
+  an07_320: beam_oracle built [0s]
+  an07_320: scored [4s]
+an07@320                       PSNR dirty 19.13 wiener 27.76 MODEL 38.77 | M0/M1/M2 % wiener 33/44/52 MODEL 57/67/77 | rc_r dirty 0.594 wiener 0.593 MODEL 0.882 | dv_med 59/43/22 m/s | 25s
+  an07_480: dirty built [0s]
+  an07_480: wiener built [0s]
+  an07_480: model built [0s]
+  an07_480: beam_oracle built [0s]
+  an07_480: scored [7s]
+an07@480                       PSNR dirty 19.14 wiener 27.77 MODEL 38.09 | M0/M1/M2 % wiener 33/44/52 MODEL 56/54/48 | rc_r dirty 0.591 wiener 0.593 MODEL 0.875 | dv_med 59/43/22 m/s | 54s
+  an07_600: dirty built [0s]
+  an07_600: wiener built [0s]
+  an07_600: model built [0s]
+  an07_600: beam_oracle built [0s]
+  an07_600: scored [7s]
+an07@600                       PSNR dirty 19.14 wiener 27.77 MODEL 37.27 | M0/M1/M2 % wiener 33/44/52 MODEL 55/42/34 | rc_r dirty 0.592 wiener 0.593 MODEL 0.869 | dv_med 59/43/23 m/s | 81s
+  an07_ai_256: dirty built [0s]
+  an07_ai_256: wiener built [0s]
+  an07_ai_256: model built [0s]
+  an07_ai_256: scored [2s]
+an07_ai@256                    PSNR dirty 21.02 wiener 29.97 MODEL 45.46 | M0/M1/M2 % wiener 45/43/53 MODEL 62/64/80 | rc_r dirty 0.617 wiener 0.841 MODEL 0.910 | dv_med 49/24/21 m/s | 16s
+  an07_ai_300: dirty built [0s]
+  an07_ai_300: wiener built [0s]
+  an07_ai_300: model built [0s]
+  an07_ai_300: scored [2s]
+an07_ai@300                    PSNR dirty 21.02 wiener 29.97 MODEL 45.12 | M0/M1/M2 % wiener 45/43/53 MODEL 60/64/79 | rc_r dirty 0.617 wiener 0.841 MODEL 0.913 | dv_med 49/24/21 m/s | 20s
+  an07_ai_320: dirty built [0s]
+  an07_ai_320: wiener built [0s]
+  an07_ai_320: model built [0s]
+  an07_ai_320: scored [3s]
+an07_ai@320                    PSNR dirty 21.02 wiener 29.98 MODEL 44.77 | M0/M1/M2 % wiener 45/43/53 MODEL 59/64/79 | rc_r dirty 0.619 wiener 0.841 MODEL 0.913 | dv_med 49/24/21 m/s | 24s
+  an07_ai_480: dirty built [0s]
+  an07_ai_480: wiener built [0s]
+  an07_ai_480: model built [0s]
+  an07_ai_480: scored [6s]
+an07_ai@480                    PSNR dirty 21.03 wiener 29.99 MODEL 42.95 | M0/M1/M2 % wiener 45/43/53 MODEL 55/62/71 | rc_r dirty 0.616 wiener 0.841 MODEL 0.905 | dv_med 49/24/22 m/s | 53s
+  an07_ai_600: dirty built [0s]
+  an07_ai_600: wiener built [0s]
+  an07_ai_600: model built [0s]
+  an07_ai_600: scored [6s]
+an07_ai@600                    PSNR dirty 21.03 wiener 29.99 MODEL 41.39 | M0/M1/M2 % wiener 45/43/53 MODEL 54/54/52 | rc_r dirty 0.617 wiener 0.841 MODEL 0.900 | dv_med 49/24/22 m/s | 79s
+  an08_256: dirty built [0s]
+  an08_256: wiener built [0s]
+  an08_256: model built [0s]
+  an08_256: beam_oracle built [0s]
+  an08_256: scored [3s]
+an08@256                       PSNR dirty 19.59 wiener 27.05 MODEL 37.64 | M0/M1/M2 % wiener 35/36/39 MODEL 55/57/75 | rc_r dirty 0.496 wiener 0.480 MODEL 0.837 | dv_med 54/32/19 m/s | 18s
+  an08_300: dirty built [0s]
+  an08_300: wiener built [0s]
+  an08_300: model built [0s]
+  an08_300: beam_oracle built [0s]
+an08@300: FAILED
+Traceback (most recent call last):
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 474, in run_eval
+    r = score_case(model, arm, case, S, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 453, in score_case
+    sc = ws.score_cube(f"{name}_{S}", d, methods, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 296, in score_cube
+    fou = {k: np.array([wiggle_fourier(y, au) for y in tr]) for k, tr in tracks.items()}
+                        ~~~~~~~~~~~~~~^^^^^^^
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 255, in wiggle_fourier
+    y = y - np.polyval(np.polyfit(x, y, 1), x)
+                       ~~~~~~~~~~^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/numpy/lib/_polynomial_impl.py", line 636, in polyfit
+    raise TypeError("expected non-empty vector for x")
+TypeError: expected non-empty vector for x
+
+  an08_320: dirty built [0s]
+  an08_320: wiener built [0s]
+  an08_320: model built [0s]
+  an08_320: beam_oracle built [0s]
+an08@320: FAILED
+Traceback (most recent call last):
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 474, in run_eval
+    r = score_case(model, arm, case, S, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 453, in score_case
+    sc = ws.score_cube(f"{name}_{S}", d, methods, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 296, in score_cube
+    fou = {k: np.array([wiggle_fourier(y, au) for y in tr]) for k, tr in tracks.items()}
+                        ~~~~~~~~~~~~~~^^^^^^^
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 255, in wiggle_fourier
+    y = y - np.polyval(np.polyfit(x, y, 1), x)
+                       ~~~~~~~~~~^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/numpy/lib/_polynomial_impl.py", line 636, in polyfit
+    raise TypeError("expected non-empty vector for x")
+TypeError: expected non-empty vector for x
+
+  an08_480: dirty built [0s]
+  an08_480: wiener built [0s]
+  an08_480: model built [0s]
+  an08_480: beam_oracle built [0s]
+  an08_480: scored [9s]
+an08@480                       PSNR dirty 19.60 wiener 27.06 MODEL 36.64 | M0/M1/M2 % wiener 35/37/40 MODEL 56/54/67 | rc_r dirty 0.494 wiener 0.474 MODEL 0.832 | dv_med 55/32/21 m/s | 62s
+  an08_600: dirty built [0s]
+  an08_600: wiener built [0s]
+  an08_600: model built [0s]
+  an08_600: beam_oracle built [0s]
+  an08_600: scored [10s]
+an08@600                       PSNR dirty 19.60 wiener 27.06 MODEL 35.67 | M0/M1/M2 % wiener 35/37/40 MODEL 55/45/50 | rc_r dirty 0.496 wiener 0.483 MODEL 0.827 | dv_med 55/32/22 m/s | 87s
+  an08_ai_256: dirty built [0s]
+  an08_ai_256: wiener built [0s]
+  an08_ai_256: model built [0s]
+  an08_ai_256: scored [3s]
+an08_ai@256                    PSNR dirty 22.08 wiener 30.43 MODEL 45.18 | M0/M1/M2 % wiener 42/33/46 MODEL 56/56/74 | rc_r dirty 0.561 wiener 0.794 MODEL 0.878 | dv_med 47/20/21 m/s | 17s
+  an08_ai_300: dirty built [0s]
+  an08_ai_300: wiener built [0s]
+  an08_ai_300: model built [0s]
+an08_ai@300: FAILED
+Traceback (most recent call last):
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 474, in run_eval
+    r = score_case(model, arm, case, S, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 453, in score_case
+    sc = ws.score_cube(f"{name}_{S}", d, methods, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 296, in score_cube
+    fou = {k: np.array([wiggle_fourier(y, au) for y in tr]) for k, tr in tracks.items()}
+                        ~~~~~~~~~~~~~~^^^^^^^
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 255, in wiggle_fourier
+    y = y - np.polyval(np.polyfit(x, y, 1), x)
+                       ~~~~~~~~~~^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/numpy/lib/_polynomial_impl.py", line 636, in polyfit
+    raise TypeError("expected non-empty vector for x")
+TypeError: expected non-empty vector for x
+
+  an08_ai_320: dirty built [0s]
+  an08_ai_320: wiener built [0s]
+  an08_ai_320: model built [0s]
+an08_ai@320: FAILED
+Traceback (most recent call last):
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 474, in run_eval
+    r = score_case(model, arm, case, S, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 453, in score_case
+    sc = ws.score_cube(f"{name}_{S}", d, methods, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 296, in score_cube
+    fou = {k: np.array([wiggle_fourier(y, au) for y in tr]) for k, tr in tracks.items()}
+                        ~~~~~~~~~~~~~~^^^^^^^
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 255, in wiggle_fourier
+    y = y - np.polyval(np.polyfit(x, y, 1), x)
+                       ~~~~~~~~~~^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/numpy/lib/_polynomial_impl.py", line 636, in polyfit
+    raise TypeError("expected non-empty vector for x")
+TypeError: expected non-empty vector for x
+
+  an08_ai_480: dirty built [0s]
+  an08_ai_480: wiener built [0s]
+  an08_ai_480: model built [0s]
+  an08_ai_480: scored [9s]
+an08_ai@480                    PSNR dirty 22.10 wiener 30.44 MODEL 42.86 | M0/M1/M2 % wiener 42/34/46 MODEL 49/53/67 | rc_r dirty 0.559 wiener 0.793 MODEL 0.883 | dv_med 47/20/19 m/s | 60s
+  an08_ai_600: dirty built [0s]
+  an08_ai_600: wiener built [0s]
+  an08_ai_600: model built [0s]
+  an08_ai_600: scored [9s]
+an08_ai@600                    PSNR dirty 22.10 wiener 30.44 MODEL 41.35 | M0/M1/M2 % wiener 42/34/47 MODEL 48/43/44 | rc_r dirty 0.562 wiener 0.796 MODEL 0.875 | dv_med 47/20/20 m/s | 85s
+EVAL DONE
+FT kin_gamma0_mae_ft DONE in 110.6 min
+CHECKPOINT kin_gamma0_starlet_ft -> /kaggle/input/datasets/krishanyadav333/exxa-unified-ft-sources/kin_gamma0_starlet_ft.ckpt
++ /usr/bin/python3 -u experiments/train_unified.py --init /kaggle/input/datasets/krishanyadav333/exxa-unified-ft-sources/kin_gamma0_starlet_ft.ckpt --lr 1e-4 --rounds 20 --steps 300 --before --out /kaggle/working/ft_kin_gamma0_starlet_ft
+device cuda  {'arm': 'wiener', 'init': '/kaggle/input/datasets/krishanyadav333/exxa-unified-ft-sources/kin_gamma0_starlet_ft.ckpt', 'fresh': False, 'tag': '', 'k': 3, 'rounds': 20, 'steps': 300, 'batch': 12, 'crop': 128, 'base': 48, 'lr': 0.0001, 'sizes': '256,300,320,480,600', 'hydro': '9015,9019,9025,9032', 'analytic': 'an01,an02,an03,an04,an05,an06', 'p_ai': 0.5, 'n_line': 0, 'n_line_eval': 0, 'eval_sg': '9074,sgv2,an07,an08', 'eval_ai': True, 'before': True, 'before_cases': 'run_0002_00560_rt_00,run_0026_00005_rt_04,9074,9074_ai,an07,an07_ai,sgv2', 'before_sizes': '300,600', 'refresh': 3, 'seed': 0, 'out': '/kaggle/working/ft_kin_gamma0_starlet_ft', 'smoke': False}
+fine-tuning /kaggle/input/datasets/krishanyadav333/exxa-unified-ft-sources/kin_gamma0_starlet_ft.ckpt: window +-15 channels, 31 output channel(s)
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+  run_0002_00560_rt_00_300: dirty built [0s]
+  run_0002_00560_rt_00_300: wiener built [0s]
+  run_0002_00560_rt_00_300: model built [0s]
+  run_0002_00560_rt_00_300: scored [3s]
+run_0002_00560_rt_00@300       PSNR dirty 22.55 wiener 32.46 MODEL 45.13 | M0/M1/M2 % wiener 17/32/22 MODEL 40/74/64 | rc_r dirty 0.779 wiener 0.696 MODEL 0.840 | dv_med 112/136/86 m/s | 31s
+  run_0002_00560_rt_00_600: dirty built [0s]
+  run_0002_00560_rt_00_600: wiener built [0s]
+  run_0002_00560_rt_00_600: model built [0s]
+  run_0002_00560_rt_00_600: scored [6s]
+run_0002_00560_rt_00@600       PSNR dirty 22.57 wiener 32.49 MODEL 43.71 | M0/M1/M2 % wiener 17/33/24 MODEL 24/69/81 | rc_r dirty 0.764 wiener 0.690 MODEL 0.871 | dv_med 112/136/92 m/s | 106s
+  run_0026_00005_rt_04_300: dirty built [0s]
+  run_0026_00005_rt_04_300: wiener built [0s]
+  run_0026_00005_rt_04_300: model built [0s]
+  run_0026_00005_rt_04_300: scored [2s]
+run_0026_00005_rt_04@300       PSNR dirty 19.38 wiener 30.53 MODEL 44.31 | M0/M1/M2 % wiener 48/69/61 MODEL 57/86/82 | rc_r dirty 0.146 wiener 0.845 MODEL 0.648 | dv_med 195/131/90 m/s | 30s
+  run_0026_00005_rt_04_600: dirty built [0s]
+  run_0026_00005_rt_04_600: wiener built [0s]
+  run_0026_00005_rt_04_600: model built [0s]
+  run_0026_00005_rt_04_600: scored [8s]
+run_0026_00005_rt_04@600       PSNR dirty 19.40 wiener 30.55 MODEL 43.83 | M0/M1/M2 % wiener 48/69/61 MODEL 60/87/77 | rc_r dirty 0.149 wiener 0.845 MODEL 0.867 | dv_med 195/131/106 m/s | 108s
+  9074_300: dirty built [0s]
+  9074_300: wiener built [0s]
+  9074_300: model built [0s]
+  9074_300: beam_oracle built [0s]
+  9074_300: scored [3s]
+9074@300                       PSNR dirty 21.15 wiener 34.47 MODEL 30.54 | M0/M1/M2 % wiener 51/22/62 MODEL 22/23/42 | rc_r dirty 0.134 wiener 0.163 MODEL 0.338 | dv_med 308/293/238 m/s | 27s
+  9074_600: dirty built [0s]
+  9074_600: wiener built [0s]
+  9074_600: model built [0s]
+  9074_600: beam_oracle built [0s]
+  9074_600: scored [13s]
+9074@600                       PSNR dirty 21.16 wiener 34.49 MODEL 30.90 | M0/M1/M2 % wiener 51/22/61 MODEL 26/22/32 | rc_r dirty 0.133 wiener 0.163 MODEL 0.425 | dv_med 308/293/255 m/s | 109s
+  9074_ai_300: dirty built [0s]
+  9074_ai_300: wiener built [0s]
+  9074_ai_300: model built [0s]
+  9074_ai_300: scored [3s]
+9074_ai@300                    PSNR dirty 22.97 wiener 38.26 MODEL 32.50 | M0/M1/M2 % wiener 58/11/74 MODEL 13/-1/53 | rc_r dirty 0.311 wiener 0.218 MODEL 0.237 | dv_med 258/276/245 m/s | 26s
+  9074_ai_600: dirty built [0s]
+  9074_ai_600: wiener built [0s]
+  9074_ai_600: model built [0s]
+  9074_ai_600: scored [11s]
+9074_ai@600                    PSNR dirty 22.97 wiener 38.28 MODEL 32.23 | M0/M1/M2 % wiener 57/10/72 MODEL -0/-21/47 | rc_r dirty 0.314 wiener 0.217 MODEL 0.345 | dv_med 257/276/235 m/s | 106s
+  sgv2_300: dirty built [0s]
+  sgv2_300: wiener built [0s]
+  sgv2_300: model built [0s]
+  sgv2_300: beam_oracle built [0s]
+  sgv2_300: scored [6s]
+sgv2@300                       PSNR dirty 27.74 wiener 28.57 MODEL 23.40 | M0/M1/M2 % wiener 20/28/31 MODEL -30/-57/-50 | rc_r dirty 0.849 wiener 0.865 MODEL 0.458 | dv_med 51/46/103 m/s | 35s
+  sgv2_600: dirty built [0s]
+  sgv2_600: wiener built [0s]
+  sgv2_600: model built [0s]
+  sgv2_600: beam_oracle built [0s]
+  sgv2_600: scored [15s]
+sgv2@600                       PSNR dirty 27.32 wiener 28.01 MODEL 23.41 | M0/M1/M2 % wiener 14/29/32 MODEL -29/-29/-54 | rc_r dirty 0.846 wiener 0.856 MODEL 0.591 | dv_med 59/53/106 m/s | 101s
+  an07_300: dirty built [0s]
+  an07_300: wiener built [0s]
+  an07_300: model built [0s]
+  an07_300: beam_oracle built [0s]
+  an07_300: scored [3s]
+an07@300                       PSNR dirty 19.13 wiener 27.75 MODEL 40.27 | M0/M1/M2 % wiener 33/44/52 MODEL 38/30/11 | rc_r dirty 0.593 wiener 0.591 MODEL 0.362 | dv_med 59/43/52 m/s | 23s
+  an07_600: dirty built [0s]
+  an07_600: wiener built [0s]
+  an07_600: model built [0s]
+  an07_600: beam_oracle built [0s]
+  an07_600: scored [7s]
+an07@600                       PSNR dirty 19.14 wiener 27.77 MODEL 35.81 | M0/M1/M2 % wiener 33/44/52 MODEL 42/38/-7 | rc_r dirty 0.592 wiener 0.593 MODEL 0.576 | dv_med 59/43/39 m/s | 84s
+  an07_ai_300: dirty built [0s]
+  an07_ai_300: wiener built [0s]
+  an07_ai_300: model built [0s]
+  an07_ai_300: scored [2s]
+an07_ai@300                    PSNR dirty 21.02 wiener 29.97 MODEL 44.10 | M0/M1/M2 % wiener 45/43/53 MODEL -3/-50/-101 | rc_r dirty 0.617 wiener 0.841 MODEL 0.449 | dv_med 49/24/46 m/s | 22s
+  an07_ai_600: dirty built [0s]
+  an07_ai_600: wiener built [0s]
+  an07_ai_600: model built [0s]
+  an07_ai_600: scored [6s]
+an07_ai@600                    PSNR dirty 21.03 wiener 29.99 MODEL 38.86 | M0/M1/M2 % wiener 45/43/53 MODEL 22/-11/-80 | rc_r dirty 0.617 wiener 0.841 MODEL 0.711 | dv_med 49/24/35 m/s | 84s
+BEFORE-EVAL DONE
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+  line  run_0006_00170_rt_00  (201, 600, 600)
+  line  run_0010_00125_rt_01  (201, 600, 600)
+  line  run_0010_00125_rt_02  (201, 600, 600)
+  line  run_0020_01000_rt_02  (201, 600, 600)
+  line  run_0022_00155_rt_03  (201, 600, 600)
+  line  run_0030_00015_rt_00  (201, 600, 600)
+  line  run_0035_00025_rt_01  (201, 600, 600)
+  line  run_0016_00550_rt_01  (201, 600, 600)
+  line  run_0036_00350_rt_03  (201, 600, 600)
+  hydro    9015  (172, 301, 301)
+  hydro    9019  (512, 600, 600)
+  hydro    9025  (172, 301, 301)
+  hydro    9032  (157, 301, 301)
+  analytic an01  (161, 301, 301)
+  analytic an02  (161, 301, 301)
+  analytic an03  (161, 301, 301)
+  analytic an04  (161, 301, 301)
+  analytic an05  (161, 301, 301)
+  analytic an06  (161, 301, 301)
+19 training cubes (analytic: 6, hydro: 4, line: 9), loaded in 21s
+step 1: L1 0.03852 (the starting checkpoint on the new data mix)
+round 1/20 step 300  L1 0.02200  d1 0.01028  d2 0.00592  redraw 119s  sizes [256, 300, 320, 480, 600]  4.4 min
+round 2/20 step 600  L1 0.01433  d1 0.00851  d2 0.00539  redraw 16s  sizes [256, 300, 320, 480, 600]  6.5 min
+round 3/20 step 900  L1 0.01282  d1 0.00771  d2 0.00496  redraw 32s  sizes [256, 300, 320, 480, 600]  9.0 min
+round 4/20 step 1200  L1 0.01314  d1 0.00778  d2 0.00485  redraw 17s  sizes [256, 300, 320, 480, 600]  11.2 min
+round 5/20 step 1500  L1 0.01174  d1 0.00713  d2 0.00452  redraw 16s  sizes [256, 300, 320, 480, 600]  13.4 min
+round 6/20 step 1800  L1 0.01137  d1 0.00684  d2 0.00429  redraw 23s  sizes [256, 300, 320, 480, 600]  15.7 min
+round 7/20 step 2100  L1 0.01131  d1 0.00676  d2 0.00409  redraw 36s  sizes [256, 300, 320, 480, 600]  18.3 min
+round 8/20 step 2400  L1 0.01104  d1 0.00656  d2 0.00397  redraw 28s  sizes [256, 300, 320, 480, 600]  20.7 min
+round 9/20 step 2700  L1 0.01087  d1 0.00665  d2 0.00398  redraw 15s  sizes [256, 300, 320, 480, 600]  22.8 min
+round 10/20 step 3000  L1 0.01004  d1 0.00628  d2 0.00384  redraw 32s  sizes [256, 300, 320, 480, 600]  25.3 min
+round 11/20 step 3300  L1 0.01013  d1 0.00608  d2 0.00361  redraw 33s  sizes [256, 300, 320, 480, 600]  27.8 min
+round 12/20 step 3600  L1 0.00987  d1 0.00594  d2 0.00356  redraw 23s  sizes [256, 300, 320, 480, 600]  30.1 min
+round 13/20 step 3900  L1 0.00912  d1 0.00555  d2 0.00336  redraw 17s  sizes [256, 300, 320, 480, 600]  32.3 min
+round 14/20 step 4200  L1 0.00932  d1 0.00563  d2 0.00336  redraw 30s  sizes [256, 300, 320, 480, 600]  34.7 min
+round 15/20 step 4500  L1 0.01012  d1 0.00605  d2 0.00353  redraw 6s  sizes [256, 300, 320, 480, 600]  36.6 min
+round 16/20 step 4800  L1 0.00994  d1 0.00607  d2 0.00351  redraw 6s  sizes [256, 300, 320, 480]  38.6 min
+round 17/20 step 5100  L1 0.01003  d1 0.00608  d2 0.00350  redraw 25s  sizes [256, 300, 320, 480]  40.9 min
+round 18/20 step 5400  L1 0.00951  d1 0.00578  d2 0.00340  redraw 25s  sizes [256, 300, 320, 480]  43.1 min
+round 19/20 step 5700  L1 0.00948  d1 0.00575  d2 0.00335  redraw 30s  sizes [256, 300, 320, 480, 600]  45.5 min
+round 20/20 step 6000  L1 0.01000  d1 0.00611  d2 0.00354  redraw 12s  sizes [256, 300, 320, 480, 600]  47.6 min
+TRAINED 6000 steps in 47.6 min -> /kaggle/working/ft_kin_gamma0_starlet_ft/unified_ft_kin_gamma0_starlet_ft.pth
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+  run_0002_00560_rt_00_256: dirty built [0s]
+  run_0002_00560_rt_00_256: wiener built [0s]
+  run_0002_00560_rt_00_256: model built [0s]
+  run_0002_00560_rt_00_256: scored [2s]
+run_0002_00560_rt_00@256       PSNR dirty 22.55 wiener 32.45 MODEL 44.67 | M0/M1/M2 % wiener 16/31/21 MODEL 45/73/86 | rc_r dirty 0.749 wiener 0.696 MODEL 0.884 | dv_med 112/136/76 m/s | 21s
+  run_0002_00560_rt_00_300: dirty built [0s]
+  run_0002_00560_rt_00_300: wiener built [0s]
+  run_0002_00560_rt_00_300: model built [0s]
+  run_0002_00560_rt_00_300: scored [3s]
+run_0002_00560_rt_00@300       PSNR dirty 22.55 wiener 32.46 MODEL 44.92 | M0/M1/M2 % wiener 17/32/22 MODEL 45/74/89 | rc_r dirty 0.779 wiener 0.696 MODEL 0.886 | dv_med 112/136/69 m/s | 25s
+  run_0002_00560_rt_00_320: dirty built [0s]
+  run_0002_00560_rt_00_320: wiener built [0s]
+  run_0002_00560_rt_00_320: model built [0s]
+  run_0002_00560_rt_00_320: scored [3s]
+run_0002_00560_rt_00@320       PSNR dirty 22.56 wiener 32.47 MODEL 44.83 | M0/M1/M2 % wiener 17/32/23 MODEL 44/75/90 | rc_r dirty 0.761 wiener 0.698 MODEL 0.890 | dv_med 112/135/66 m/s | 29s
+  run_0002_00560_rt_00_480: dirty built [0s]
+  run_0002_00560_rt_00_480: wiener built [0s]
+  run_0002_00560_rt_00_480: model built [0s]
+  run_0002_00560_rt_00_480: scored [4s]
+run_0002_00560_rt_00@480       PSNR dirty 22.56 wiener 32.48 MODEL 44.19 | M0/M1/M2 % wiener 17/32/23 MODEL 39/74/88 | rc_r dirty 0.772 wiener 0.692 MODEL 0.880 | dv_med 112/136/58 m/s | 61s
+  run_0002_00560_rt_00_600: dirty built [0s]
+  run_0002_00560_rt_00_600: wiener built [0s]
+  run_0002_00560_rt_00_600: model built [0s]
+  run_0002_00560_rt_00_600: scored [6s]
+run_0002_00560_rt_00@600       PSNR dirty 22.57 wiener 32.49 MODEL 43.66 | M0/M1/M2 % wiener 17/33/24 MODEL 35/72/87 | rc_r dirty 0.764 wiener 0.690 MODEL 0.872 | dv_med 112/136/57 m/s | 97s
+  run_0002_00560_rt_01_256: dirty built [0s]
+  run_0002_00560_rt_01_256: wiener built [0s]
+  run_0002_00560_rt_01_256: model built [0s]
+  run_0002_00560_rt_01_256: scored [2s]
+run_0002_00560_rt_01@256       PSNR dirty 19.19 wiener 30.22 MODEL 47.80 | M0/M1/M2 % wiener 20/66/64 MODEL 53/91/85 | rc_r dirty 0.047 wiener 0.149 MODEL 0.491 | dv_med 62/41/30 m/s | 20s
+  run_0002_00560_rt_01_300: dirty built [0s]
+  run_0002_00560_rt_01_300: wiener built [0s]
+  run_0002_00560_rt_01_300: model built [0s]
+  run_0002_00560_rt_01_300: scored [2s]
+run_0002_00560_rt_01@300       PSNR dirty 19.20 wiener 30.23 MODEL 47.21 | M0/M1/M2 % wiener 21/67/65 MODEL 52/89/80 | rc_r dirty 0.045 wiener 0.150 MODEL 0.500 | dv_med 62/41/30 m/s | 24s
+  run_0002_00560_rt_01_320: dirty built [0s]
+  run_0002_00560_rt_01_320: wiener built [0s]
+  run_0002_00560_rt_01_320: model built [0s]
+  run_0002_00560_rt_01_320: scored [3s]
+run_0002_00560_rt_01@320       PSNR dirty 19.20 wiener 30.23 MODEL 46.76 | M0/M1/M2 % wiener 21/66/64 MODEL 51/88/76 | rc_r dirty 0.046 wiener 0.153 MODEL 0.499 | dv_med 62/41/30 m/s | 29s
+  run_0002_00560_rt_01_480: dirty built [0s]
+  run_0002_00560_rt_01_480: wiener built [0s]
+  run_0002_00560_rt_01_480: model built [0s]
+  run_0002_00560_rt_01_480: scored [4s]
+run_0002_00560_rt_01@480       PSNR dirty 19.21 wiener 30.25 MODEL 44.23 | M0/M1/M2 % wiener 21/67/65 MODEL 42/76/57 | rc_r dirty 0.041 wiener 0.064 MODEL 0.373 | dv_med 62/41/32 m/s | 58s
+  run_0002_00560_rt_01_600: dirty built [0s]
+  run_0002_00560_rt_01_600: wiener built [0s]
+  run_0002_00560_rt_01_600: model built [0s]
+  run_0002_00560_rt_01_600: scored [5s]
+run_0002_00560_rt_01@600       PSNR dirty 19.22 wiener 30.25 MODEL 42.81 | M0/M1/M2 % wiener 21/67/65 MODEL 35/69/50 | rc_r dirty 0.042 wiener 0.076 MODEL 0.392 | dv_med 62/41/32 m/s | 96s
+  run_0002_00560_rt_04_256: dirty built [0s]
+  run_0002_00560_rt_04_256: wiener built [0s]
+  run_0002_00560_rt_04_256: model built [0s]
+run_0002_00560_rt_04@256: FAILED
+Traceback (most recent call last):
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 474, in run_eval
+    r = score_case(model, arm, case, S, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 453, in score_case
+    sc = ws.score_cube(f"{name}_{S}", d, methods, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 296, in score_cube
+    fou = {k: np.array([wiggle_fourier(y, au) for y in tr]) for k, tr in tracks.items()}
+                        ~~~~~~~~~~~~~~^^^^^^^
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 255, in wiggle_fourier
+    y = y - np.polyval(np.polyfit(x, y, 1), x)
+                       ~~~~~~~~~~^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/numpy/lib/_polynomial_impl.py", line 636, in polyfit
+    raise TypeError("expected non-empty vector for x")
+TypeError: expected non-empty vector for x
+
+  run_0002_00560_rt_04_300: dirty built [0s]
+  run_0002_00560_rt_04_300: wiener built [0s]
+  run_0002_00560_rt_04_300: model built [0s]
+run_0002_00560_rt_04@300: FAILED
+Traceback (most recent call last):
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 474, in run_eval
+    r = score_case(model, arm, case, S, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 453, in score_case
+    sc = ws.score_cube(f"{name}_{S}", d, methods, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 296, in score_cube
+    fou = {k: np.array([wiggle_fourier(y, au) for y in tr]) for k, tr in tracks.items()}
+                        ~~~~~~~~~~~~~~^^^^^^^
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 255, in wiggle_fourier
+    y = y - np.polyval(np.polyfit(x, y, 1), x)
+                       ~~~~~~~~~~^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/numpy/lib/_polynomial_impl.py", line 636, in polyfit
+    raise TypeError("expected non-empty vector for x")
+TypeError: expected non-empty vector for x
+
+  run_0002_00560_rt_04_320: dirty built [0s]
+  run_0002_00560_rt_04_320: wiener built [0s]
+  run_0002_00560_rt_04_320: model built [0s]
+  run_0002_00560_rt_04_320: scored [3s]
+run_0002_00560_rt_04@320       PSNR dirty 18.96 wiener 30.39 MODEL 47.81 | M0/M1/M2 % wiener 11/75/66 MODEL 54/89/67 | rc_r dirty 0.026 wiener 0.067 MODEL 0.161 | dv_med 45/28/17 m/s | 29s
+  run_0002_00560_rt_04_480: dirty built [0s]
+  run_0002_00560_rt_04_480: wiener built [0s]
+  run_0002_00560_rt_04_480: model built [0s]
+  run_0002_00560_rt_04_480: scored [5s]
+run_0002_00560_rt_04@480       PSNR dirty 18.97 wiener 30.41 MODEL 44.68 | M0/M1/M2 % wiener 11/75/66 MODEL 44/80/50 | rc_r dirty 0.036 wiener 0.021 MODEL 0.096 | dv_med 45/28/18 m/s | 61s
+  run_0002_00560_rt_04_600: dirty built [0s]
+  run_0002_00560_rt_04_600: wiener built [0s]
+  run_0002_00560_rt_04_600: model built [0s]
+  run_0002_00560_rt_04_600: scored [7s]
+run_0002_00560_rt_04@600       PSNR dirty 18.98 wiener 30.43 MODEL 42.87 | M0/M1/M2 % wiener 11/75/66 MODEL 34/71/38 | rc_r dirty 0.031 wiener 0.071 MODEL 0.237 | dv_med 45/28/18 m/s | 100s
+  run_0025_01000_rt_04_256: dirty built [0s]
+  run_0025_01000_rt_04_256: wiener built [0s]
+  run_0025_01000_rt_04_256: model built [0s]
+  run_0025_01000_rt_04_256: scored [5s]
+run_0025_01000_rt_04@256       PSNR dirty 20.17 wiener 28.77 MODEL 44.45 | M0/M1/M2 % wiener -4/53/39 MODEL 47/75/51 | rc_r dirty 0.097 wiener 0.361 MODEL 0.581 | dv_med 35/18/17 m/s | 26s
+  run_0025_01000_rt_04_300: dirty built [0s]
+  run_0025_01000_rt_04_300: wiener built [0s]
+  run_0025_01000_rt_04_300: model built [0s]
+  run_0025_01000_rt_04_300: scored [4s]
+run_0025_01000_rt_04@300       PSNR dirty 20.18 wiener 28.79 MODEL 44.09 | M0/M1/M2 % wiener -4/53/39 MODEL 44/74/49 | rc_r dirty 0.079 wiener 0.250 MODEL 0.474 | dv_med 35/18/17 m/s | 30s
+  run_0025_01000_rt_04_320: dirty built [0s]
+  run_0025_01000_rt_04_320: wiener built [0s]
+  run_0025_01000_rt_04_320: model built [0s]
+  run_0025_01000_rt_04_320: scored [6s]
+run_0025_01000_rt_04@320       PSNR dirty 20.18 wiener 28.78 MODEL 43.70 | M0/M1/M2 % wiener -4/53/39 MODEL 43/73/44 | rc_r dirty 0.067 wiener 0.258 MODEL 0.474 | dv_med 35/18/17 m/s | 35s
+  run_0025_01000_rt_04_480: dirty built [0s]
+  run_0025_01000_rt_04_480: wiener built [0s]
+  run_0025_01000_rt_04_480: model built [0s]
+  run_0025_01000_rt_04_480: scored [9s]
+run_0025_01000_rt_04@480       PSNR dirty 20.19 wiener 28.80 MODEL 41.93 | M0/M1/M2 % wiener -4/53/40 MODEL 33/69/41 | rc_r dirty 0.084 wiener 0.295 MODEL 0.542 | dv_med 35/18/19 m/s | 70s
+  run_0025_01000_rt_04_600: dirty built [0s]
+  run_0025_01000_rt_04_600: wiener built [0s]
+  run_0025_01000_rt_04_600: model built [0s]
+  run_0025_01000_rt_04_600: scored [13s]
+run_0025_01000_rt_04@600       PSNR dirty 20.19 wiener 28.82 MODEL 40.83 | M0/M1/M2 % wiener -4/53/40 MODEL 25/63/34 | rc_r dirty 0.083 wiener 0.266 MODEL 0.512 | dv_med 35/18/19 m/s | 109s
+  run_0026_00005_rt_04_256: dirty built [0s]
+  run_0026_00005_rt_04_256: wiener built [0s]
+  run_0026_00005_rt_04_256: model built [0s]
+  run_0026_00005_rt_04_256: scored [3s]
+run_0026_00005_rt_04@256       PSNR dirty 19.38 wiener 30.52 MODEL 44.87 | M0/M1/M2 % wiener 48/68/61 MODEL 65/87/86 | rc_r dirty 0.144 wiener 0.845 MODEL 0.891 | dv_med 194/130/80 m/s | 21s
+  run_0026_00005_rt_04_300: dirty built [0s]
+  run_0026_00005_rt_04_300: wiener built [0s]
+  run_0026_00005_rt_04_300: model built [0s]
+  run_0026_00005_rt_04_300: scored [2s]
+run_0026_00005_rt_04@300       PSNR dirty 19.38 wiener 30.53 MODEL 44.58 | M0/M1/M2 % wiener 48/69/61 MODEL 66/88/87 | rc_r dirty 0.146 wiener 0.845 MODEL 0.894 | dv_med 195/131/77 m/s | 25s
+  run_0026_00005_rt_04_320: dirty built [0s]
+  run_0026_00005_rt_04_320: wiener built [0s]
+  run_0026_00005_rt_04_320: model built [0s]
+  run_0026_00005_rt_04_320: scored [3s]
+run_0026_00005_rt_04@320       PSNR dirty 19.39 wiener 30.53 MODEL 44.33 | M0/M1/M2 % wiener 48/68/60 MODEL 67/88/87 | rc_r dirty 0.148 wiener 0.844 MODEL 0.900 | dv_med 195/130/77 m/s | 29s
+  run_0026_00005_rt_04_480: dirty built [0s]
+  run_0026_00005_rt_04_480: wiener built [0s]
+  run_0026_00005_rt_04_480: model built [0s]
+  run_0026_00005_rt_04_480: scored [6s]
+run_0026_00005_rt_04@480       PSNR dirty 19.39 wiener 30.54 MODEL 42.49 | M0/M1/M2 % wiener 48/69/61 MODEL 65/88/82 | rc_r dirty 0.155 wiener 0.845 MODEL 0.890 | dv_med 195/130/80 m/s | 63s
+  run_0026_00005_rt_04_600: dirty built [0s]
+  run_0026_00005_rt_04_600: wiener built [0s]
+  run_0026_00005_rt_04_600: model built [0s]
+  run_0026_00005_rt_04_600: scored [7s]
+run_0026_00005_rt_04@600       PSNR dirty 19.40 wiener 30.55 MODEL 41.19 | M0/M1/M2 % wiener 48/69/61 MODEL 63/86/75 | rc_r dirty 0.149 wiener 0.845 MODEL 0.881 | dv_med 195/131/84 m/s | 101s
+  9074_256: dirty built [0s]
+  9074_256: wiener built [0s]
+  9074_256: model built [0s]
+  9074_256: beam_oracle built [0s]
+  9074_256: scored [3s]
+9074@256                       PSNR dirty 21.15 wiener 34.48 MODEL 34.49 | M0/M1/M2 % wiener 53/23/63 MODEL 31/36/40 | rc_r dirty 0.131 wiener 0.158 MODEL 0.434 | dv_med 308/293/180 m/s | 21s
+  9074_300: dirty built [0s]
+  9074_300: wiener built [0s]
+  9074_300: model built [0s]
+  9074_300: beam_oracle built [0s]
+  9074_300: scored [4s]
+9074@300                       PSNR dirty 21.15 wiener 34.47 MODEL 34.42 | M0/M1/M2 % wiener 51/22/62 MODEL 29/34/38 | rc_r dirty 0.134 wiener 0.163 MODEL 0.423 | dv_med 308/293/182 m/s | 26s
+  9074_320: dirty built [0s]
+  9074_320: wiener built [0s]
+  9074_320: model built [0s]
+  9074_320: beam_oracle built [0s]
+  9074_320: scored [4s]
+9074@320                       PSNR dirty 21.15 wiener 34.49 MODEL 34.41 | M0/M1/M2 % wiener 50/23/61 MODEL 28/34/37 | rc_r dirty 0.132 wiener 0.160 MODEL 0.420 | dv_med 308/293/182 m/s | 30s
+  9074_480: dirty built [0s]
+  9074_480: wiener built [0s]
+  9074_480: model built [0s]
+  9074_480: beam_oracle built [0s]
+  9074_480: scored [9s]
+9074@480                       PSNR dirty 21.16 wiener 34.49 MODEL 34.20 | M0/M1/M2 % wiener 51/21/61 MODEL 29/28/35 | rc_r dirty 0.129 wiener 0.158 MODEL 0.402 | dv_med 307/293/184 m/s | 65s
+  9074_600: dirty built [0s]
+  9074_600: wiener built [0s]
+  9074_600: model built [0s]
+  9074_600: beam_oracle built [0s]
+  9074_600: scored [14s]
+9074@600                       PSNR dirty 21.16 wiener 34.49 MODEL 34.00 | M0/M1/M2 % wiener 51/22/61 MODEL 30/26/35 | rc_r dirty 0.133 wiener 0.163 MODEL 0.393 | dv_med 308/293/187 m/s | 104s
+  9074_ai_256: dirty built [0s]
+  9074_ai_256: wiener built [0s]
+  9074_ai_256: model built [0s]
+  9074_ai_256: scored [3s]
+9074_ai@256                    PSNR dirty 22.97 wiener 38.26 MODEL 37.72 | M0/M1/M2 % wiener 60/13/74 MODEL 29/16/68 | rc_r dirty 0.310 wiener 0.212 MODEL 0.384 | dv_med 259/275/161 m/s | 19s
+  9074_ai_300: dirty built [0s]
+  9074_ai_300: wiener built [0s]
+  9074_ai_300: model built [0s]
+  9074_ai_300: scored [3s]
+9074_ai@300                    PSNR dirty 22.97 wiener 38.26 MODEL 38.53 | M0/M1/M2 % wiener 58/11/74 MODEL 31/18/71 | rc_r dirty 0.311 wiener 0.218 MODEL 0.377 | dv_med 258/276/167 m/s | 25s
+  9074_ai_320: dirty built [0s]
+  9074_ai_320: wiener built [0s]
+  9074_ai_320: model built [0s]
+  9074_ai_320: scored [3s]
+9074_ai@320                    PSNR dirty 22.97 wiener 38.27 MODEL 38.64 | M0/M1/M2 % wiener 56/11/72 MODEL 27/17/71 | rc_r dirty 0.309 wiener 0.212 MODEL 0.371 | dv_med 258/275/168 m/s | 29s
+  9074_ai_480: dirty built [0s]
+  9074_ai_480: wiener built [0s]
+  9074_ai_480: model built [0s]
+  9074_ai_480: scored [8s]
+9074_ai@480                    PSNR dirty 22.97 wiener 38.28 MODEL 38.60 | M0/M1/M2 % wiener 57/10/73 MODEL 18/19/71 | rc_r dirty 0.312 wiener 0.209 MODEL 0.355 | dv_med 257/276/187 m/s | 64s
+  9074_ai_600: dirty built [0s]
+  9074_ai_600: wiener built [0s]
+  9074_ai_600: model built [0s]
+  9074_ai_600: scored [13s]
+9074_ai@600                    PSNR dirty 22.97 wiener 38.28 MODEL 38.17 | M0/M1/M2 % wiener 57/10/72 MODEL 16/19/71 | rc_r dirty 0.314 wiener 0.217 MODEL 0.358 | dv_med 257/276/194 m/s | 103s
+  sgv2_256: dirty built [0s]
+  sgv2_256: wiener built [0s]
+  sgv2_256: model built [0s]
+  sgv2_256: beam_oracle built [0s]
+  sgv2_256: scored [5s]
+sgv2@256                       PSNR dirty 28.38 wiener 29.36 MODEL 26.20 | M0/M1/M2 % wiener 29/28/28 MODEL 3/-23/-27 | rc_r dirty 0.884 wiener 0.898 MODEL 0.783 | dv_med 43/39/77 m/s | 28s
+  sgv2_300: dirty built [0s]
+  sgv2_300: wiener built [0s]
+  sgv2_300: model built [0s]
+  sgv2_300: beam_oracle built [0s]
+  sgv2_300: scored [6s]
+sgv2@300                       PSNR dirty 27.74 wiener 28.57 MODEL 25.84 | M0/M1/M2 % wiener 20/28/31 MODEL 1/-12/-19 | rc_r dirty 0.849 wiener 0.865 MODEL 0.747 | dv_med 51/46/85 m/s | 27s
+  sgv2_320: dirty built [0s]
+  sgv2_320: wiener built [0s]
+  sgv2_320: model built [0s]
+  sgv2_320: beam_oracle built [0s]
+  sgv2_320: scored [6s]
+sgv2@320                       PSNR dirty 28.05 wiener 28.92 MODEL 26.07 | M0/M1/M2 % wiener 22/29/29 MODEL 1/-12/-23 | rc_r dirty 0.872 wiener 0.887 MODEL 0.788 | dv_med 49/44/81 m/s | 31s
+  sgv2_480: dirty built [0s]
+  sgv2_480: wiener built [0s]
+  sgv2_480: model built [0s]
+  sgv2_480: beam_oracle built [0s]
+  sgv2_480: scored [10s]
+sgv2@480                       PSNR dirty 27.83 wiener 28.67 MODEL 26.02 | M0/M1/M2 % wiener 17/29/30 MODEL -1/-3/-16 | rc_r dirty 0.846 wiener 0.861 MODEL 0.742 | dv_med 55/50/89 m/s | 60s
+  sgv2_600: dirty built [0s]
+  sgv2_600: wiener built [0s]
+  sgv2_600: model built [0s]
+  sgv2_600: beam_oracle built [0s]
+  sgv2_600: scored [14s]
+sgv2@600                       PSNR dirty 27.32 wiener 28.01 MODEL 25.67 | M0/M1/M2 % wiener 14/29/32 MODEL -0/3/-9 | rc_r dirty 0.846 wiener 0.856 MODEL 0.752 | dv_med 59/53/96 m/s | 99s
+  an07_256: dirty built [0s]
+  an07_256: wiener built [0s]
+  an07_256: model built [0s]
+  an07_256: beam_oracle built [0s]
+  an07_256: scored [3s]
+an07@256                       PSNR dirty 19.13 wiener 27.76 MODEL 39.48 | M0/M1/M2 % wiener 33/44/52 MODEL 57/68/81 | rc_r dirty 0.593 wiener 0.593 MODEL 0.879 | dv_med 58/43/25 m/s | 16s
+  an07_300: dirty built [0s]
+  an07_300: wiener built [0s]
+  an07_300: model built [0s]
+  an07_300: beam_oracle built [0s]
+  an07_300: scored [3s]
+an07@300                       PSNR dirty 19.13 wiener 27.75 MODEL 39.07 | M0/M1/M2 % wiener 33/44/52 MODEL 56/69/75 | rc_r dirty 0.593 wiener 0.591 MODEL 0.881 | dv_med 59/43/24 m/s | 21s
+  an07_320: dirty built [0s]
+  an07_320: wiener built [0s]
+  an07_320: model built [0s]
+  an07_320: beam_oracle built [0s]
+  an07_320: scored [4s]
+an07@320                       PSNR dirty 19.13 wiener 27.76 MODEL 38.94 | M0/M1/M2 % wiener 33/44/52 MODEL 56/69/73 | rc_r dirty 0.594 wiener 0.593 MODEL 0.881 | dv_med 59/43/23 m/s | 24s
+  an07_480: dirty built [0s]
+  an07_480: wiener built [0s]
+  an07_480: model built [0s]
+  an07_480: beam_oracle built [0s]
+  an07_480: scored [6s]
+an07@480                       PSNR dirty 19.14 wiener 27.77 MODEL 38.02 | M0/M1/M2 % wiener 33/44/52 MODEL 53/54/43 | rc_r dirty 0.591 wiener 0.593 MODEL 0.872 | dv_med 59/43/23 m/s | 53s
+  an07_600: dirty built [0s]
+  an07_600: wiener built [0s]
+  an07_600: model built [0s]
+  an07_600: beam_oracle built [0s]
+  an07_600: scored [7s]
+an07@600                       PSNR dirty 19.14 wiener 27.77 MODEL 37.16 | M0/M1/M2 % wiener 33/44/52 MODEL 51/43/31 | rc_r dirty 0.592 wiener 0.593 MODEL 0.867 | dv_med 59/43/24 m/s | 82s
+  an07_ai_256: dirty built [0s]
+  an07_ai_256: wiener built [0s]
+  an07_ai_256: model built [0s]
+  an07_ai_256: scored [2s]
+an07_ai@256                    PSNR dirty 21.02 wiener 29.97 MODEL 45.84 | M0/M1/M2 % wiener 45/43/53 MODEL 62/73/65 | rc_r dirty 0.617 wiener 0.841 MODEL 0.904 | dv_med 49/24/22 m/s | 17s
+  an07_ai_300: dirty built [0s]
+  an07_ai_300: wiener built [0s]
+  an07_ai_300: model built [0s]
+  an07_ai_300: scored [3s]
+an07_ai@300                    PSNR dirty 21.02 wiener 29.97 MODEL 45.32 | M0/M1/M2 % wiener 45/43/53 MODEL 59/72/63 | rc_r dirty 0.617 wiener 0.841 MODEL 0.908 | dv_med 49/24/21 m/s | 21s
+  an07_ai_320: dirty built [0s]
+  an07_ai_320: wiener built [0s]
+  an07_ai_320: model built [0s]
+  an07_ai_320: scored [4s]
+an07_ai@320                    PSNR dirty 21.02 wiener 29.98 MODEL 44.91 | M0/M1/M2 % wiener 45/43/53 MODEL 59/72/61 | rc_r dirty 0.619 wiener 0.841 MODEL 0.909 | dv_med 49/24/20 m/s | 25s
+  an07_ai_480: dirty built [0s]
+  an07_ai_480: wiener built [0s]
+  an07_ai_480: model built [0s]
+  an07_ai_480: scored [6s]
+an07_ai@480                    PSNR dirty 21.03 wiener 29.99 MODEL 42.55 | M0/M1/M2 % wiener 45/43/53 MODEL 52/61/63 | rc_r dirty 0.616 wiener 0.841 MODEL 0.906 | dv_med 49/24/19 m/s | 53s
+  an07_ai_600: dirty built [0s]
+  an07_ai_600: wiener built [0s]
+  an07_ai_600: model built [0s]
+  an07_ai_600: scored [6s]
+an07_ai@600                    PSNR dirty 21.03 wiener 29.99 MODEL 41.08 | M0/M1/M2 % wiener 45/43/53 MODEL 50/51/46 | rc_r dirty 0.617 wiener 0.841 MODEL 0.903 | dv_med 49/24/19 m/s | 81s
+  an08_256: dirty built [0s]
+  an08_256: wiener built [0s]
+  an08_256: model built [0s]
+  an08_256: beam_oracle built [0s]
+  an08_256: scored [3s]
+an08@256                       PSNR dirty 19.59 wiener 27.05 MODEL 37.80 | M0/M1/M2 % wiener 35/36/39 MODEL 56/58/75 | rc_r dirty 0.496 wiener 0.480 MODEL 0.841 | dv_med 54/32/20 m/s | 19s
+  an08_300: dirty built [0s]
+  an08_300: wiener built [0s]
+  an08_300: model built [0s]
+  an08_300: beam_oracle built [0s]
+an08@300: FAILED
+Traceback (most recent call last):
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 474, in run_eval
+    r = score_case(model, arm, case, S, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 453, in score_case
+    sc = ws.score_cube(f"{name}_{S}", d, methods, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 296, in score_cube
+    fou = {k: np.array([wiggle_fourier(y, au) for y in tr]) for k, tr in tracks.items()}
+                        ~~~~~~~~~~~~~~^^^^^^^
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 255, in wiggle_fourier
+    y = y - np.polyval(np.polyfit(x, y, 1), x)
+                       ~~~~~~~~~~^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/numpy/lib/_polynomial_impl.py", line 636, in polyfit
+    raise TypeError("expected non-empty vector for x")
+TypeError: expected non-empty vector for x
+
+  an08_320: dirty built [0s]
+  an08_320: wiener built [0s]
+  an08_320: model built [0s]
+  an08_320: beam_oracle built [0s]
+an08@320: FAILED
+Traceback (most recent call last):
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 474, in run_eval
+    r = score_case(model, arm, case, S, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 453, in score_case
+    sc = ws.score_cube(f"{name}_{S}", d, methods, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 296, in score_cube
+    fou = {k: np.array([wiggle_fourier(y, au) for y in tr]) for k, tr in tracks.items()}
+                        ~~~~~~~~~~~~~~^^^^^^^
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 255, in wiggle_fourier
+    y = y - np.polyval(np.polyfit(x, y, 1), x)
+                       ~~~~~~~~~~^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/numpy/lib/_polynomial_impl.py", line 636, in polyfit
+    raise TypeError("expected non-empty vector for x")
+TypeError: expected non-empty vector for x
+
+  an08_480: dirty built [0s]
+  an08_480: wiener built [0s]
+  an08_480: model built [0s]
+  an08_480: beam_oracle built [0s]
+  an08_480: scored [9s]
+an08@480                       PSNR dirty 19.60 wiener 27.06 MODEL 36.56 | M0/M1/M2 % wiener 35/37/40 MODEL 55/54/68 | rc_r dirty 0.494 wiener 0.474 MODEL 0.835 | dv_med 55/32/21 m/s | 61s
+  an08_600: dirty built [0s]
+  an08_600: wiener built [0s]
+  an08_600: model built [0s]
+  an08_600: beam_oracle built [0s]
+  an08_600: scored [11s]
+an08@600                       PSNR dirty 19.60 wiener 27.06 MODEL 35.64 | M0/M1/M2 % wiener 35/37/40 MODEL 54/48/57 | rc_r dirty 0.496 wiener 0.483 MODEL 0.830 | dv_med 55/32/21 m/s | 89s
+  an08_ai_256: dirty built [0s]
+  an08_ai_256: wiener built [0s]
+  an08_ai_256: model built [0s]
+  an08_ai_256: scored [3s]
+an08_ai@256                    PSNR dirty 22.08 wiener 30.43 MODEL 45.41 | M0/M1/M2 % wiener 42/33/46 MODEL 54/66/61 | rc_r dirty 0.561 wiener 0.794 MODEL 0.888 | dv_med 47/20/20 m/s | 17s
+  an08_ai_300: dirty built [0s]
+  an08_ai_300: wiener built [0s]
+  an08_ai_300: model built [0s]
+an08_ai@300: FAILED
+Traceback (most recent call last):
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 474, in run_eval
+    r = score_case(model, arm, case, S, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 453, in score_case
+    sc = ws.score_cube(f"{name}_{S}", d, methods, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 296, in score_cube
+    fou = {k: np.array([wiggle_fourier(y, au) for y in tr]) for k, tr in tracks.items()}
+                        ~~~~~~~~~~~~~~^^^^^^^
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 255, in wiggle_fourier
+    y = y - np.polyval(np.polyfit(x, y, 1), x)
+                       ~~~~~~~~~~^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/numpy/lib/_polynomial_impl.py", line 636, in polyfit
+    raise TypeError("expected non-empty vector for x")
+TypeError: expected non-empty vector for x
+
+  an08_ai_320: dirty built [0s]
+  an08_ai_320: wiener built [0s]
+  an08_ai_320: model built [0s]
+an08_ai@320: FAILED
+Traceback (most recent call last):
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 474, in run_eval
+    r = score_case(model, arm, case, S, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/train_unified.py", line 453, in score_case
+    sc = ws.score_cube(f"{name}_{S}", d, methods, figdir)
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 296, in score_cube
+    fou = {k: np.array([wiggle_fourier(y, au) for y in tr]) for k, tr in tracks.items()}
+                        ~~~~~~~~~~~~~~^^^^^^^
+  File "/tmp/EXXA/DENOISING_DIFFUSION/experiments/wiggle_scorecard.py", line 255, in wiggle_fourier
+    y = y - np.polyval(np.polyfit(x, y, 1), x)
+                       ~~~~~~~~~~^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/numpy/lib/_polynomial_impl.py", line 636, in polyfit
+    raise TypeError("expected non-empty vector for x")
+TypeError: expected non-empty vector for x
+
+  an08_ai_480: dirty built [0s]
+  an08_ai_480: wiener built [0s]
+  an08_ai_480: model built [0s]
+  an08_ai_480: scored [9s]
+an08_ai@480                    PSNR dirty 22.10 wiener 30.44 MODEL 42.40 | M0/M1/M2 % wiener 42/34/46 MODEL 44/53/61 | rc_r dirty 0.559 wiener 0.793 MODEL 0.892 | dv_med 47/20/16 m/s | 61s
+  an08_ai_600: dirty built [0s]
+  an08_ai_600: wiener built [0s]
+  an08_ai_600: model built [0s]
+  an08_ai_600: scored [9s]
+an08_ai@600                    PSNR dirty 22.10 wiener 30.44 MODEL 40.90 | M0/M1/M2 % wiener 42/34/47 MODEL 42/41/41 | rc_r dirty 0.562 wiener 0.796 MODEL 0.885 | dv_med 47/20/17 m/s | 85s
+EVAL DONE
+FT kin_gamma0_starlet_ft DONE in 108.5 min
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __script__.ipynb to html
+[NbConvertApp] Writing 297467 bytes to __results__.html

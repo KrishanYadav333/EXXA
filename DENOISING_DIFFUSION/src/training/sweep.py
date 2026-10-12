@@ -56,6 +56,18 @@ def _rss_gb(pid) -> float:
     return 0.0
 
 
+def _free_ram_gb():
+    """MemAvailable in GB from /proc/meminfo, or None off Linux."""
+    try:
+        with open("/proc/meminfo") as f:
+            for line in f:
+                if line.startswith("MemAvailable:"):
+                    return int(line.split()[1]) / 1048576
+    except (OSError, ValueError, IndexError):
+        pass
+    return None
+
+
 def _host_ram_note() -> str:
     """' | RAM free X/Y GB | main A workers B cache C' from /proc (Linux/Kaggle); '' elsewhere.
 
@@ -89,6 +101,35 @@ def _host_ram_note() -> str:
     except (OSError, KeyError):
         pass
     return note
+
+
+def _sample_side(ds):
+    """Side length of one training sample's image, or None if it cannot be read cheaply."""
+    try:
+        return int(ds[0][0].shape[-1])
+    except Exception:
+        return None
+
+
+def _use_data_parallel(n_gpu: int, side, override=None) -> bool:
+    """Whether to wrap the model in DataParallel.
+
+    nn.DataParallel leaks ~1.4 MB of host RAM per training iteration in the main process, whatever
+    the loss, loader or image size (tools/ram_leak_probe.py, 2026-10-08: +1,442 MB per 1,000
+    iterations with it, +0 without, on the real hybrid loss and on plain MSE alike). Full-image arms
+    run ~175 iterations/epoch, so they leak ~0.25 GB/epoch and finish; a 64 px patch arm runs
+    ~1,400 iterations/epoch, leaks ~1.9 GB/epoch and kills the kernel in 14 epochs. Two GPUs buy
+    nothing on 64 px tiles anyway, so below 256 px a single GPU is used. `override` (True/False) or
+    the EXXA_DP environment variable ("0"/"1") forces either choice.
+    """
+    if n_gpu <= 1:
+        return False
+    env = os.environ.get("EXXA_DP")
+    if env in ("0", "1"):
+        return env == "1"
+    if override is not None:
+        return bool(override)
+    return side is None or side >= 256
 
 
 def _unwrap(m):
@@ -157,6 +198,8 @@ def train_unet(
     latent_dim: int = 128,
     kl_weight: float = 0.0,
     verbose: bool = True,
+    min_free_ram_gb: float = 1.5,
+    data_parallel=None,
 ):
     """
     Train one config with early stopping; return fixed metrics + history.
@@ -178,6 +221,15 @@ def train_unet(
             in_channels to match. Mismatched values fail on the first batch. 0 (default)
             leaves every existing config unchanged.
         latent_dim: VAE only -- channels in the latent map.
+        data_parallel: None = automatic (see _use_data_parallel: off below 256 px, where
+            DataParallel leaks ~1.4 MB/iteration and gains nothing), True/False to force.
+        min_free_ram_gb: host-RAM watchdog (Linux only; 0 disables). At each epoch end, if
+            MemAvailable minus 1.5x the last epoch's loss would fall below this, stop the
+            arm, keep the best-epoch weights, and record `ram_guard` in the checkpoint and the
+            result. A kernel that dies from RAM exhaustion can sit dead for hours before
+            Kaggle gives up (nb14 v7: 4.5 h), and loses the arm; this loses only the epochs
+            it could not afford. An arm stopped this way is under-trained and is NOT
+            comparable to one that ran to its patience.
         kl_weight: VAE only -- weight on the KL term. Ignored by architectures
             with no extra loss, so a single sweep driver can pass it blindly.
 
@@ -212,7 +264,10 @@ def train_unet(
 
     fwd = forward_fn(arch)
     extra = extra_loss_fn(arch)
-    model = torch.nn.DataParallel(net) if n_gpu > 1 else net
+    use_dp = _use_data_parallel(n_gpu, _sample_side(train_ds), data_parallel)
+    if verbose and n_gpu > 1:
+        print(f"  [dp] DataParallel {'on' if use_dp else 'OFF (host-RAM leak, small images)'}", flush=True)
+    model = torch.nn.DataParallel(net) if use_dp else net
 
     # A velocity-aware objective when asked for. The U-Net was measured on 2026-08-28 to
     # improve pixel metrics while DEGRADING the GI wiggle (residual correlation 0.804 against
@@ -279,6 +334,7 @@ def train_unet(
     best_val, best_epoch, best_state = float("inf"), -1, None
     epochs_no_improve = 0
     tr_hist, va_hist = [], []
+    ram_guard, prev_free = None, None
     t_start = time.time()
 
     for ep in range(1, max_epochs + 1):
@@ -305,6 +361,19 @@ def train_unet(
             print(f"  ep {ep:>3} | train {tr:.4f} | val {va:.4f} | "
                   f"lr {optimizer.param_groups[0]['lr']:.1e} ({time.time()-t0:.0f}s)"
                   f"{_host_ram_note()}{mark}", flush=True)
+
+        free = _free_ram_gb()
+        if free is not None and min_free_ram_gb > 0:
+            grew = max(0.0, prev_free - free) if prev_free is not None else 0.0
+            prev_free = free
+            if free - 1.5 * grew < min_free_ram_gb:
+                ram_guard = {"stopped_epoch": ep, "free_gb": round(free, 2),
+                             "growth_gb_per_epoch": round(grew, 2)}
+                if verbose:
+                    print(f"  RAM GUARD: {free:.1f} GB free, losing {grew:.2f} GB/epoch -> "
+                          f"stopping at epoch {ep}, keeping best epoch {best_epoch}. UNDER-TRAINED, "
+                          f"not comparable to arms that ran to patience.", flush=True)
+                break
 
         if ep >= min_epochs and epochs_no_improve >= patience:
             if verbose:
@@ -334,7 +403,8 @@ def train_unet(
                         "out_channels": out_channels,
                         "kinematic_gamma": kinematic_gamma,
                         "beam_dim": 4 if use_beam else 0,
-                        "latent_dim": latent_dim, "kl_weight": kl_weight},
+                        "latent_dim": latent_dim, "kl_weight": kl_weight,
+                        "ram_guard": ram_guard},
                        ckpt_path)
 
     metrics = val_metrics(model, val_loader, device, use_beam=use_beam, arch=arch)
@@ -346,6 +416,7 @@ def train_unet(
         "train_losses": tr_hist,
         "val_losses": va_hist,
         "wall_time_s": time.time() - t_start,
+        "ram_guard": ram_guard,
         **metrics,
     }
 

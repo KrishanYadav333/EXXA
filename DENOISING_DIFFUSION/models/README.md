@@ -281,3 +281,13 @@ it. The `_ft` diffusion arms run at the source's saved Adam lr (DDPM 2e-4, DDRM 
 Not yet scored on PSNR/SSIM (diffusion) or moments and the wiggle (any arm). The `sg_k3_*_ft`
 arms peaked at epochs 7 to 21 of a 30-epoch minimum, so they moved little from the source
 before early stopping, worth remembering before reading anything into their ranking.
+
+## 2026-10-10: models trained with `train_wiggle_correction.py` / `train_unified.py` (live in Kaggle kernel Outputs; RULES.md #12: keep all of them)
+
+| model | where | what |
+|---|---|---|
+| `corr_fold{9074,9025,9015,9032,9019}.pth` | kernel `wiggle-correction` v2 Output, `wiggle_correction/` | Wiener + U-Net correction, each trained without that hydro disk (not comparable across folds as one model) |
+| `unified_wiener.pth` | kernel `unified-wiener` v1 Output, `unified_wiener/` | Wiener + correction, ONE model for all data kinds and sizes, window +-0.3 km/s, deconvolution-task data |
+| `unified_ft_kin_gamma0_mae_ft.pth`, `unified_ft_kin_gamma0_starlet_ft.pth` | kernel `unified-ft-kin` v1 Output, `ft_<name>/` | the two nb13 kin_gamma0 fine-tunes, further fine-tuned on the mixed data (lr 1e-4, 6000 steps) |
+| `unified_ft_*.pth` for winner_aug_res480, sweep_winner_p10_600, sg_k3_fresh | kernel `unified-ft-single` v1 Output, `ft_<name>/` (`unified_ft_nb05_winner_aug_res480_seed43.pth`, `unified_ft_nb14_sweep_winner_p10_600.pth`, `unified_ft_sg_k3_fresh.pth`) | same recipe; res480 and p10 refuted on line emission, kept per RULES.md #12 |
+| `unified_real_k15.pth`, `unified_real_k3_sgv2.pth` | kernels `unified-wiener-real-k15` v1 and `unified-wiener-real-sgv2` v1 Outputs, `unified_wiener_k15/`, `unified_wiener_k3/` | R3b (K=15, lr 1.5e-4, input clamp) and R3c (K=3 + SG v2): 12000 steps of the realistic-noise recipe; R3b is the current best on Speedie r0.5 |

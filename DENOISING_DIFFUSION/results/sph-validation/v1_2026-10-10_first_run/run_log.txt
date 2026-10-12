@@ -1,0 +1,67 @@
++ git clone --branch midterm-prep --depth 1 https://github.com/KrishanYadav333/EXXA.git /tmp/EXXA
+Cloning into '/tmp/EXXA'...
+Updating files:   1% (96/5584)Updating files:   1% (108/5584)Updating files:   2% (112/5584)Updating files:   3% (168/5584)Updating files:   4% (224/5584)Updating files:   4% (242/5584)Updating files:   5% (280/5584)Updating files:   6% (336/5584)Updating files:   7% (391/5584)Updating files:   8% (447/5584)Updating files:   8% (491/5584)Updating files:   9% (503/5584)Updating files:  10% (559/5584)Updating files:  11% (615/5584)Updating files:  12% (671/5584)Updating files:  13% (726/5584)Updating files:  14% (782/5584)Updating files:  15% (838/5584)Updating files:  16% (894/5584)Updating files:  17% (950/5584)Updating files:  18% (1006/5584)Updating files:  19% (1061/5584)Updating files:  20% (1117/5584)Updating files:  21% (1173/5584)Updating files:  22% (1229/5584)Updating files:  23% (1285/5584)Updating files:  24% (1341/5584)Updating files:  25% (1396/5584)Updating files:  26% (1452/5584)Updating files:  27% (1508/5584)Updating files:  28% (1564/5584)Updating files:  29% (1620/5584)Updating files:  30% (1676/5584)Updating files:  31% (1732/5584)Updating files:  32% (1787/5584)Updating files:  33% (1843/5584)Updating files:  34% (1899/5584)Updating files:  35% (1955/5584)Updating files:  36% (2011/5584)Updating files:  37% (2067/5584)Updating files:  38% (2122/5584)Updating files:  39% (2178/5584)Updating files:  40% (2234/5584)Updating files:  41% (2290/5584)Updating files:  42% (2346/5584)Updating files:  43% (2402/5584)Updating files:  44% (2457/5584)Updating files:  45% (2513/5584)Updating files:  46% (2569/5584)Updating files:  47% (2625/5584)Updating files:  48% (2681/5584)Updating files:  49% (2737/5584)Updating files:  50% (2792/5584)Updating files:  51% (2848/5584)Updating files:  52% (2904/5584)Updating files:  53% (2960/5584)Updating files:  54% (3016/5584)Updating files:  55% (3072/5584)Updating files:  56% (3128/5584)Updating files:  57% (3183/5584)Updating files:  58% (3239/5584)Updating files:  59% (3295/5584)Updating files:  60% (3351/5584)Updating files:  61% (3407/5584)Updating files:  62% (3463/5584)Updating files:  63% (3518/5584)Updating files:  64% (3574/5584)Updating files:  65% (3630/5584)Updating files:  66% (3686/5584)Updating files:  67% (3742/5584)Updating files:  68% (3798/5584)Updating files:  69% (3853/5584)Updating files:  70% (3909/5584)Updating files:  71% (3965/5584)Updating files:  72% (4021/5584)Updating files:  73% (4077/5584)Updating files:  74% (4133/5584)Updating files:  75% (4188/5584)Updating files:  76% (4244/5584)Updating files:  77% (4300/5584)Updating files:  78% (4356/5584)Updating files:  79% (4412/5584)Updating files:  80% (4468/5584)Updating files:  81% (4524/5584)Updating files:  82% (4579/5584)Updating files:  83% (4635/5584)Updating files:  84% (4691/5584)Updating files:  85% (4747/5584)Updating files:  86% (4803/5584)Updating files:  87% (4859/5584)Updating files:  87% (4903/5584)Updating files:  88% (4914/5584)Updating files:  89% (4970/5584)Updating files:  90% (5026/5584)Updating files:  91% (5082/5584)Updating files:  91% (5092/5584)Updating files:  92% (5138/5584)Updating files:  93% (5194/5584)Updating files:  94% (5249/5584)Updating files:  94% (5281/5584)Updating files:  95% (5305/5584)Updating files:  96% (5361/5584)Updating files:  96% (5378/5584)Updating files:  97% (5417/5584)Updating files:  98% (5473/5584)Updating files:  98% (5476/5584)Updating files:  98% (5487/5584)Updating files:  98% (5507/5584)Updating files:  99% (5529/5584)Updating files:  99% (5569/5584)Updating files: 100% (5584/5584)Updating files: 100% (5584/5584), done.
++ /usr/bin/python3 -m pip install -q sarracen bettermoments
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 120.4/120.4 kB 1.2 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 47.4/47.4 kB 1.0 MB/s eta 0:00:00
+overlaid ['src/data/analytic_gi.py', 'experiments/wiggle_scorecard.py', 'experiments/make_analytic_gi_cubes.py', 'experiments/train_wiggle_correction.py', 'experiments/train_unified.py', 'experiments/speedie_prep.py', 'src/data/sph_cube.py', 'experiments/validate_sph_speedie.py']
+    sg_00005: -10% (0.15 MB/s)
++ /usr/bin/python3 -u experiments/validate_sph_speedie.py --dump /tmp/sg_00005 --clean-dir /kaggle/input/notebooks/krishanyadav333/speedie-prep-fast/speedie --out /kaggle/working/sph_validation
+dump: 991,216 gas particles, star 2.406 Msun, disc 0.694 Msun, T [ 5.   9.7 20.3] K
+GI: ref (200, 1024, 1024), 3.118 au/px (MCFOST grid 6385/2048 = 3.118), v -4.18..4.18 km/s, beam 0.237x0.175 arcsec PA 1.2
+  orientation pa   236.7 flip False mirror False: M1 corr -0.033
+  orientation pa   236.7 flip False mirror True : M1 corr -0.877
+  orientation pa   236.7 flip True  mirror False: M1 corr -0.027
+  orientation pa   236.7 flip True  mirror True : M1 corr +0.897
+  orientation pa  -236.7 flip False mirror False: M1 corr +0.884
+  orientation pa  -236.7 flip False mirror True : M1 corr -0.030
+  orientation pa  -236.7 flip True  mirror False: M1 corr -0.861
+  orientation pa  -236.7 flip True  mirror True : M1 corr -0.024
+  orientation pa   416.7 flip False mirror False: M1 corr +0.024
+  orientation pa   416.7 flip False mirror True : M1 corr +0.860
+  orientation pa   416.7 flip True  mirror False: M1 corr +0.031
+  orientation pa   416.7 flip True  mirror True : M1 corr -0.885
+  orientation pa   -56.7 flip False mirror False: M1 corr -0.897
+  orientation pa   -56.7 flip False mirror True : M1 corr +0.026
+  orientation pa   -56.7 flip True  mirror False: M1 corr +0.877
+  orientation pa   -56.7 flip True  mirror True : M1 corr +0.033
+  kept: {'m1_corr': 0.8972447557802906, 'pa': 236.7, 'flip': True, 'mirror': True}
+  GI_tau1: sph built [0s]
+  GI_tau1: scored [15s]
+GI tau0      1: M1 corr 0.917 slope 0.955  rc_r -0.047  resid_r 0.976  rc_rms 232.0 vs clean 68.8 m/s  [5.3 min]
+  GI_tau3: sph built [0s]
+  GI_tau3: scored [15s]
+GI tau0      3: M1 corr 0.917 slope 0.953  rc_r -0.047  resid_r 0.976  rc_rms 231.2 vs clean 68.8 m/s  [6.0 min]
+  GI_tau10: sph built [0s]
+  GI_tau10: scored [15s]
+GI tau0     10: M1 corr 0.918 slope 0.950  rc_r -0.051  resid_r 0.976  rc_rms 229.4 vs clean 68.8 m/s  [6.7 min]
+  GI_tau30: sph built [0s]
+  GI_tau30: scored [14s]
+GI tau0     30: M1 corr 0.918 slope 0.949  rc_r -0.055  resid_r 0.976  rc_rms 228.1 vs clean 68.8 m/s  [7.4 min]
+  GI_tau100: sph built [0s]
+  GI_tau100: scored [14s]
+GI tau0    100: M1 corr 0.918 slope 0.948  rc_r -0.054  resid_r 0.976  rc_rms 227.4 vs clean 68.8 m/s  [8.1 min]
+Kep: ref (200, 1024, 1024), 3.118 au/px (MCFOST grid 6385/2048 = 3.118), v -4.18..4.18 km/s, beam 0.237x0.175 arcsec PA 1.2
+  Kep_tau1: sph built [0s]
+  Kep_tau1: scored [15s]
+Kep tau0      1: M1 corr 0.922 slope 1.008  rc_r -0.016  resid_r 0.978  rc_rms 227.3 vs clean 17.5 m/s  [9.1 min]
+  Kep_tau3: sph built [0s]
+  Kep_tau3: scored [15s]
+Kep tau0      3: M1 corr 0.922 slope 1.006  rc_r -0.011  resid_r 0.978  rc_rms 226.5 vs clean 17.5 m/s  [9.8 min]
+  Kep_tau10: sph built [0s]
+  Kep_tau10: scored [15s]
+Kep tau0     10: M1 corr 0.922 slope 1.003  rc_r -0.002  resid_r 0.978  rc_rms 224.3 vs clean 17.5 m/s  [10.5 min]
+  Kep_tau30: sph built [0s]
+  Kep_tau30: scored [15s]
+Kep tau0     30: M1 corr 0.922 slope 1.001  rc_r 0.003  resid_r 0.978  rc_rms 221.7 vs clean 17.5 m/s  [11.3 min]
+  Kep_tau100: sph built [0s]
+  Kep_tau100: scored [15s]
+Kep tau0    100: M1 corr 0.922 slope 0.999  rc_r 0.002  resid_r 0.978  rc_rms 219.9 vs clean 17.5 m/s  [12.0 min]
+VALIDATION DONE in 12.0 min
+SPH VALIDATION DONE in 12.0 min
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __script__.ipynb to html
+[NbConvertApp] Writing 284041 bytes to __results__.html

@@ -1,0 +1,13 @@
+{
+  "id": "krishanyadav333/unified-ft-kin",
+  "title": "unified-ft-kin",
+  "code_file": "kernel_unified_ft.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_internet": "true",
+  "dataset_sources": ["krishanyadav333/line-emission-data", "krishanyadav333/exxa-sg-synth-pairs", "krishanyadav333/self-gravitating-v2", "krishanyadav333/exxa-wiggle-code", "krishanyadav333/exxa-unified-ft-sources", "krishanyadav333/exxa-13-checkpoint-sources", "krishanyadav333/exxa-05-v38-recovered"],
+  "competition_sources": [],
+  "kernel_sources": []
+}

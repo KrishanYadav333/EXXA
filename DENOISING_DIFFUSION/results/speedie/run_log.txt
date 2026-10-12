@@ -1,0 +1,214 @@
+staged from 5b04466 (+ the uncommitted files listed)
+[GI] model cube (parallel x24)
+    model channel 25/201
+    model channel 50/201
+    model channel 75/201
+    model channel 100/201
+    model channel 125/201
+    model channel 150/201
+    model channel 175/201
+    model channel 200/201
+[GI_r0.5] downloading the synthetic ALMA zip (parallel x24)
+    GIdisk_13CO_robust0.5.zip: 10% (3.85 MB/s)
+    GIdisk_13CO_robust0.5.zip: 21% (4.62 MB/s)
+    GIdisk_13CO_robust0.5.zip: 31% (4.70 MB/s)
+    GIdisk_13CO_robust0.5.zip: 42% (4.76 MB/s)
+    GIdisk_13CO_robust0.5.zip: 52% (4.85 MB/s)
+    GIdisk_13CO_robust0.5.zip: 63% (4.81 MB/s)
+    GIdisk_13CO_robust0.5.zip: 73% (4.82 MB/s)
+    GIdisk_13CO_robust0.5.zip: 84% (4.92 MB/s)
+    GIdisk_13CO_robust0.5.zip: 94% (4.79 MB/s)
+[GI_r0.5] unpacking + building truth (18 min so far)
+    lines.contsub.JvMcorr.pbcor. channel 0/200
+    lines.contsub.JvMcorr.pbcor. channel 25/200
+    lines.contsub.JvMcorr.pbcor. channel 50/200
+    lines.contsub.JvMcorr.pbcor. channel 75/200
+    lines.contsub.JvMcorr.pbcor. channel 100/200
+    lines.contsub.JvMcorr.pbcor. channel 125/200
+    lines.contsub.JvMcorr.pbcor. channel 150/200
+    lines.contsub.JvMcorr.pbcor. channel 175/200
+WARNING: VerifyWarning: Keyword name 'SPD_WHICH' is greater than 8 characters or contains characters not allowed by the FITS standard; a HIERARCH card will be created. [astropy.io.fits.card]
+WARNING: VerifyWarning: Keyword name 'SPD_ROBUST' is greater than 8 characters or contains characters not allowed by the FITS standard; a HIERARCH card will be created. [astropy.io.fits.card]
+[GI_r0.5] rms 2.118e-03 Jy/beam, peak SNR 36.4, spectral lag-1 corr +0.64, clean explains signal channels to 68% rms [19 min total]
+[Kep] model cube (parallel x24)
+    model channel 25/201
+    model channel 50/201
+    model channel 75/201
+    model channel 100/201
+    model channel 125/201
+    model channel 150/201
+    model channel 175/201
+    model channel 200/201
+[Kep_r0.5] downloading the synthetic ALMA zip (parallel x24)
+    Kepdisk_13CO_robust0.5.zip: 11% (3.35 MB/s)
+    Kepdisk_13CO_robust0.5.zip: 21% (4.31 MB/s)
+    Kepdisk_13CO_robust0.5.zip: 32% (4.35 MB/s)
+    Kepdisk_13CO_robust0.5.zip: 43% (4.56 MB/s)
+    Kepdisk_13CO_robust0.5.zip: 54% (4.72 MB/s)
+    Kepdisk_13CO_robust0.5.zip: 65% (4.69 MB/s)
+    Kepdisk_13CO_robust0.5.zip: 75% (4.71 MB/s)
+    Kepdisk_13CO_robust0.5.zip: 86% (4.79 MB/s)
+    Kepdisk_13CO_robust0.5.zip: 97% (4.81 MB/s)
+[Kep_r0.5] unpacking + building truth (18 min so far)
+    lines.contsub.JvMcorr.pbcor. channel 0/200
+    lines.contsub.JvMcorr.pbcor. channel 25/200
+    lines.contsub.JvMcorr.pbcor. channel 50/200
+    lines.contsub.JvMcorr.pbcor. channel 75/200
+    lines.contsub.JvMcorr.pbcor. channel 100/200
+    lines.contsub.JvMcorr.pbcor. channel 125/200
+    lines.contsub.JvMcorr.pbcor. channel 150/200
+    lines.contsub.JvMcorr.pbcor. channel 175/200
+[Kep_r0.5] rms 2.120e-03 Jy/beam, peak SNR 35.7, spectral lag-1 corr +0.64, clean explains signal channels to 75% rms [37 min total]
+[GI_r1.5] downloading the synthetic ALMA zip (parallel x24)
+    GIdisk_13CO_robust1.5.zip: 11% (4.54 MB/s)
+    GIdisk_13CO_robust1.5.zip: 21% (4.79 MB/s)
+    GIdisk_13CO_robust1.5.zip: 32% (5.02 MB/s)
+    GIdisk_13CO_robust1.5.zip: 43% (5.12 MB/s)
+    GIdisk_13CO_robust1.5.zip: 54% (4.98 MB/s)
+    GIdisk_13CO_robust1.5.zip: 64% (5.05 MB/s)
+    GIdisk_13CO_robust1.5.zip: 75% (5.13 MB/s)
+    GIdisk_13CO_robust1.5.zip: 86% (5.15 MB/s)
+    GIdisk_13CO_robust1.5.zip: 97% (5.21 MB/s)
+[GI_r1.5] unpacking + building truth (10 min so far)
+    lines.contsub.JvMcorr.pbcor. channel 0/200
+    lines.contsub.JvMcorr.pbcor. channel 25/200
+    lines.contsub.JvMcorr.pbcor. channel 50/200
+    lines.contsub.JvMcorr.pbcor. channel 75/200
+    lines.contsub.JvMcorr.pbcor. channel 100/200
+    lines.contsub.JvMcorr.pbcor. channel 125/200
+    lines.contsub.JvMcorr.pbcor. channel 150/200
+    lines.contsub.JvMcorr.pbcor. channel 175/200
+[GI_r1.5] rms 1.261e-03 Jy/beam, peak SNR 137.7, spectral lag-1 corr +0.64, clean explains signal channels to 23% rms [48 min total]
+[Kep_r1.5] downloading the synthetic ALMA zip (parallel x24)
+    Kepdisk_13CO_robust1.5.zip: 11% (4.05 MB/s)
+    Kepdisk_13CO_robust1.5.zip: 21% (4.75 MB/s)
+    Kepdisk_13CO_robust1.5.zip: 32% (4.82 MB/s)
+    Kepdisk_13CO_robust1.5.zip: 43% (5.14 MB/s)
+    Kepdisk_13CO_robust1.5.zip: 54% (5.12 MB/s)
+    Kepdisk_13CO_robust1.5.zip: 64% (5.25 MB/s)
+    Kepdisk_13CO_robust1.5.zip: 75% (5.36 MB/s)
+    Kepdisk_13CO_robust1.5.zip: 86% (5.38 MB/s)
+    Kepdisk_13CO_robust1.5.zip: 97% (5.38 MB/s)
+[Kep_r1.5] unpacking + building truth (10 min so far)
+    lines.contsub.JvMcorr.pbcor. channel 0/200
+    lines.contsub.JvMcorr.pbcor. channel 25/200
+    lines.contsub.JvMcorr.pbcor. channel 50/200
+    lines.contsub.JvMcorr.pbcor. channel 75/200
+    lines.contsub.JvMcorr.pbcor. channel 100/200
+    lines.contsub.JvMcorr.pbcor. channel 125/200
+    lines.contsub.JvMcorr.pbcor. channel 150/200
+    lines.contsub.JvMcorr.pbcor. channel 175/200
+[Kep_r1.5] rms 1.262e-03 Jy/beam, peak SNR 131.5, spectral lag-1 corr +0.64, clean explains signal channels to 28% rms [58 min total]
+SPEEDIE PREP DONE
+{
+ "GI_r0.5": {
+  "noise_rms_jybeam": 0.0021183954259836983,
+  "spectral_corr_lag": {
+   "1": 0.6391998060635277,
+   "2": 0.1558494318008437,
+   "3": 0.004764345432060628,
+   "5": 0.0025484611325170695
+  },
+  "spatial_corr_x_lag": {
+   "1": 0.9901250889232189,
+   "3": 0.9145324396719994,
+   "8": 0.5290175093636433
+  },
+  "residual_std_brightest_channels": 0.0021238999906927347,
+  "residual_over_line_free_noise": 1.002598459495106,
+  "peak_clean_jybeam": 0.0770946815609932,
+  "peak_snr": 36.39295959472656,
+  "brightest_channel_rel_residual": 0.6818373203277588,
+  "bmaj_arcsec": 0.236872315406808,
+  "bmin_arcsec": 0.17515970766543598,
+  "pix_arcsec": 0.0199979208,
+  "n_chan": 200,
+  "crop": 1024,
+  "dv_kms": 0.041999999999999815,
+  "minutes": 18.603849883874258
+ },
+ "Kep_r0.5": {
+  "noise_rms_jybeam": 0.0021197237050378176,
+  "spectral_corr_lag": {
+   "1": 0.6377595360711718,
+   "2": 0.15145781518014467,
+   "3": -0.000636072192593888,
+   "5": -0.004389219242122429
+  },
+  "spatial_corr_x_lag": {
+   "1": 0.990200759455501,
+   "3": 0.9151896651890812,
+   "8": 0.5326686999853741
+  },
+  "residual_std_brightest_channels": 0.0021121462341398,
+  "residual_over_line_free_noise": 0.9964252553858748,
+  "peak_clean_jybeam": 0.07565482705831528,
+  "peak_snr": 35.69089126586914,
+  "brightest_channel_rel_residual": 0.7509867548942566,
+  "bmaj_arcsec": 0.236872315406808,
+  "bmin_arcsec": 0.17515970766543598,
+  "pix_arcsec": 0.0199979208,
+  "n_chan": 200,
+  "crop": 1024,
+  "dv_kms": 0.041999999999999815,
+  "minutes": 18.225889841715496
+ },
+ "GI_r1.5": {
+  "noise_rms_jybeam": 0.001260525667665632,
+  "spectral_corr_lag": {
+   "1": 0.6374958474884418,
+   "2": 0.15216259836723353,
+   "3": 0.0025432989487438598,
+   "5": 0.006532390690553337
+  },
+  "spatial_corr_x_lag": {
+   "1": 0.9963700110707443,
+   "3": 0.9678062382906104,
+   "8": 0.7925634994943168
+  },
+  "residual_std_brightest_channels": 0.0013193334452807903,
+  "residual_over_line_free_noise": 1.0466533757492336,
+  "peak_clean_jybeam": 0.1735362857580185,
+  "peak_snr": 137.66976928710938,
+  "brightest_channel_rel_residual": 0.22680047154426575,
+  "bmaj_arcsec": 0.38956102728840003,
+  "bmin_arcsec": 0.273976922035224,
+  "pix_arcsec": 0.0199979208,
+  "n_chan": 200,
+  "crop": 1024,
+  "dv_kms": 0.041999999999999815,
+  "minutes": 10.780513342221578
+ },
+ "Kep_r1.5": {
+  "noise_rms_jybeam": 0.001261975978615001,
+  "spectral_corr_lag": {
+   "1": 0.6402598779017499,
+   "2": 0.15451909509932832,
+   "3": -0.00016082860555507265,
+   "5": 0.0072674995103808706
+  },
+  "spatial_corr_x_lag": {
+   "1": 0.9963658123101177,
+   "3": 0.9677637681005021,
+   "8": 0.7921770994056011
+  },
+  "residual_std_brightest_channels": 0.0013521603541448712,
+  "residual_over_line_free_noise": 1.0714628305594582,
+  "peak_clean_jybeam": 0.1659281700849533,
+  "peak_snr": 131.4828338623047,
+  "brightest_channel_rel_residual": 0.27680715918540955,
+  "bmaj_arcsec": 0.38956102728840003,
+  "bmin_arcsec": 0.273976922035224,
+  "pix_arcsec": 0.0199979208,
+  "n_chan": 200,
+  "crop": 1024,
+  "dv_kms": 0.041999999999999815,
+  "minutes": 10.327674547831217
+ }
+}
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __script__.ipynb to html
+[NbConvertApp] Writing 278043 bytes to __results__.html

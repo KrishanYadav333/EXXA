@@ -1,0 +1,13 @@
+{
+  "id": "krishanyadav333/eval-speedie",
+  "title": "eval-speedie",
+  "code_file": "kernel_eval_speedie.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_internet": "true",
+  "dataset_sources": ["krishanyadav333/line-emission-data", "krishanyadav333/exxa-wiggle-code", "krishanyadav333/exxa-unified-ft-sources"],
+  "competition_sources": [],
+  "kernel_sources": ["krishanyadav333/speedie-prep-fast", "krishanyadav333/unified-wiener", "krishanyadav333/unified-ft-kin"]
+}
