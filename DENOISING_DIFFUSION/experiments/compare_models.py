@@ -17,6 +17,7 @@ import json, sys, argparse, statistics as st
 
 GROUPS = {"line": lambda c: c.startswith("run_00"), "hydro": lambda c: c in ("9074", "9074_ai"),
           "analytic": lambda c: c in ("an07", "an08", "an07_ai", "an08_ai"), "sgv2": lambda c: c == "sgv2",
+          "young_test": lambda c: c.startswith("run_young_"),      # held-out WHOLE Young et al. 2026 simulations (R5 and later evals)
           "speedie_GI": lambda c: c.startswith("speedie_GI"), "speedie_Kep": lambda c: c.startswith("speedie_Kep")}
 
 

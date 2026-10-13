@@ -65,6 +65,7 @@ SG_DIR = os.path.join(ROOT, "self-gravitating cube and dirty cube")
 # Hanning: lag-1 +0.67, lag-2 +0.17; Speedie measured +0.64 / +0.15), beam broadened by r ~ U(1, beam_max) in the A = I tasks.
 REAL = {"snr": None, "chan_a": 0.0, "beam_max": 1.0}
 DEADLINE = float("inf")   # wall-clock time (epoch s) by which this session must have saved everything: EXXA_T0 (kernel start) + --budget-h
+GATE_SWEEP = []      # --gate-sweep: mix levels a in [0, 1] of  a * model + (1 - a) * Wiener  scored next to the plain model (PLAN.md: do-no-harm gate)
 NORM = "wiener"      # --norm: "wiener" = divide by the Wiener cube's peak (all runs to 2026-10-11); "robust" = see scale_of
 CLIP_IN = 0.0        # --clip-in: clamp the network input to +-CLIP_IN (k15 v3: inputs of +-35-40 vs the usual +-4 overflowed fp16 and the run diverged)
 HYDRO_TRAIN = ["9015", "9019", "9025", "9032"]
@@ -164,8 +165,8 @@ def native_wiener(dirty, kind, noise_chans=None):
     at 256 px, 2026-10-09), and a real cube is never resampled, so the test sizes resample AFTER this step."""
     n = dirty.shape[-1]
     vs = vel_spectrum(dirty.shape[0], *velocity_corr(dirty))      # blind; ~flat on channel-independent noise
-    if kind == "line":
-        return wiener(dirty, None, empirical_noise2d(dirty), vspec=vs)
+    if kind == "line":                     # noise from the line-free edge channels, or from `noise_chans` (a real cube: chosen from its spectrum)
+        return wiener(dirty, None, empirical_noise2d(dirty, noise_chans), vspec=vs)
     if kind.endswith("_ai"):
         return wiener(dirty, None, quiet_noise2d(dirty), vspec=vs)
     H = beam_otf(n)
@@ -641,6 +642,9 @@ def score_case(model, arm, case, S, figdir):
     prep = ce.prepare(case_ce)
     res = {"model": ce.score(prep, pred)[0], "wiener": ce.score(prep, w)[0]}
     res["dirty_psnr"] = prep.psnr_dirty
+    # blind peak-SNR estimate, the quantity a gate would switch on: Wiener-normalisation scale over the rms of what the Wiener removed (same
+    # numbers the network gets as its noise-map input); logged for every case so its relation to the true peak SNR can be read off.
+    res["snr_est"] = float(scale_of(dS, w) / max(noise_level(dS, w), 1e-30))
     # 2) the wiggle: rotation-curve residual, coherence, line-centre error, Terry spine
     d = {"clean": cS, "dirty": dS, "velax": v, "au": au * n / S, "incl": incl if incl is not None else 30.0,
          "crop": slice(None), "beam_au": beam_au}
@@ -650,8 +654,18 @@ def score_case(model, arm, case, S, figdir):
     if oracle is not None:                         # noise-free clean (*) beam at this size: the resolution-only reference
         ws.METHODS["beam_oracle"] = lambda _d: resample(oracle, S)[sl]
         methods.append("beam_oracle")
+    for a_ in GATE_SWEEP:                          # blend with the Wiener output; a = 1 is the plain model, a = 0 the plain Wiener
+        if 0.0 < a_ < 1.0:
+            ws.METHODS[f"mix{a_:g}"] = lambda _d, a_=a_: a_ * pred + (1 - a_) * w
+            methods.append(f"mix{a_:g}")
     sc = ws.score_cube(f"{name}_{S}", d, methods, figdir)
     res["wiggle"] = sc["methods"]
+    if GATE_SWEEP:
+        res["mix"] = {}
+        for a_ in GATE_SWEEP:
+            if 0.0 < a_ < 1.0:
+                m_ = ce.score(prep, a_ * pred + (1 - a_) * w)[0]
+                res["mix"][f"{a_:g}"] = {k: float(m_[k]) for k in ("psnr", "M0", "M1", "M2") if k in m_}
     for k in ("model", "wiener"):
         res[k] = {kk: (float(vv) if isinstance(vv, (int, float, np.floating, np.integer, bool)) else vv)
                   for kk, vv in res[k].items() if not isinstance(vv, np.ndarray)}
@@ -736,6 +750,7 @@ def main():
     ap.add_argument("--sph-max", type=int, default=0, help="at most this many sph folders (0 = all)")
     ap.add_argument("--eval-sph", action="store_true", help="score the held-out sph simulations")
     ap.add_argument("--norm", default="wiener", choices=["wiener", "robust"], help="cube normalisation (robust: needed for training SNR down to 3)")
+    ap.add_argument("--gate-sweep", default="", help="evaluation: comma list of mix levels a; scores a * model + (1 - a) * Wiener for each")
     ap.add_argument("--tta", action="store_true", help="evaluation: average over the 4 sky-plane flips")
     ap.add_argument("--eval-ladder", default="", help="peak-SNR targets for the Speedie SNR ladder, e.g. 3,6,12,24 (empty: off)")
     ap.add_argument("--ladder-base", default="GI_r0.5,Kep_r0.5")
@@ -747,8 +762,9 @@ def main():
         args.rounds, args.steps, args.batch, args.crop, args.base = 2, 4, 2, 64, 8
         args.sizes, args.hydro, args.analytic, args.n_line, args.n_line_eval = "128,160", "9015", "an01", 1, 1
         args.eval_sg, args.before_sizes, args.before_cases = "an07", "128", "run_0002_00560_rt_00,an07_ai"
-    global K, CLIP_IN, NORM, DEADLINE
+    global K, CLIP_IN, NORM, DEADLINE, GATE_SWEEP
     K, CLIP_IN, NORM = args.k, args.clip_in, args.norm
+    GATE_SWEEP = [float(x) for x in args.gate_sweep.split(",") if x]
     DEADLINE = float(os.environ.get("EXXA_T0", time.time())) + args.budget_h * 3600
     if args.fp32_stream:
         _enable_fp32_stream()

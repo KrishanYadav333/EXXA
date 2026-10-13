@@ -1,0 +1,19 @@
+{
+  "id": "krishanyadav333/alma-exoalma",
+  "title": "alma-exoalma",
+  "code_file": "kernel_alma.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_internet": "true",
+  "dataset_sources": [
+    "krishanyadav333/exxa-wiggle-code"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [
+    "deepsceneloc/unified-r4n-k15-long",
+    "aditisah11/unified-r4n-k15-long-s11",
+    "krishanyadav333/speedie-prep-fast"
+  ]
+}
