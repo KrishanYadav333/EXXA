@@ -9,6 +9,96 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-10-13 | run | R4n-long seed 23 done (first RULES.md #14 stop-and-resume on Kaggle worked); three seeds in: seed 3's line-emission M0 (55) was the high outlier
+
+Seed 23 trained all 24000 steps with 0 skipped steps, reached its 11 h budget while evaluating, wrote `status_*.json` (eval_complete false), and `orchestrator.py resume` relaunched it with its own output attached; the resumed
+session scored the remaining cases (72 of 72, none failed). Three R4n-long seeds (3 / 11 / 23): Speedie r0.5 wiggle 0.87 / 0.88 / 0.87; ladder SNR 24 0.81 / 0.82 / 0.80; SNR 12 0.60 / 0.41 / 0.56; SNR 6 0.11 / 0.12 / 0.13;
+twin spurious at SNR 6 +82 / +67 / +78 m/s; 9074 0.34 / 0.28 / 0.36; SG v2 0.86 / 0.85 / 0.85; Speedie r1.5 M0 -20 / -185 / -141; line emission 600 px PSNR 49.30 / 47.91 / 48.07 and M0/M1/M2 55/87/89, 34/84/85, 30/83/85.
+Corrections to earlier headlines: the "49.3 dB, M0 55" quoted for R4n-long was seed 3 alone and the high outlier; the three-seed mean at 600 px is 48.4 dB, M0 40, M1 85, M2 86. The stable properties of the recipe across
+seeds: Speedie r0.5 wiggle 0.87-0.88, SNR-24 wiggle 0.80-0.82, SNR-6 invented wiggle +67-82 m/s (not +233 / +519 as single R4 seeds gave), SG v2 0.85-0.86. The unstable ones: SNR-12 wiggle (0.41-0.60), line M0 at 600 px
+(30-55), Speedie r1.5 M0 (-20 to -185). The gate (`eval-gate`, running) targets the last.
+
+## 2026-10-13 | code | Open pre-ALMA items sorted (results/PLAN.md 0b); gate sweep launched; `final_report.py` built; seed 23 stopped at its 11 h budget and was resumed
+
+Krishan: sort the open items first, then ALMA. Order and reasons in `results/PLAN.md` section 0b; the key sequencing decision is that the do-no-harm gate (high-SNR M0 damage, -20 to -185 % at peak SNR 135) goes in BEFORE the final
+evaluation, so the frozen numbers describe the shipped pipeline. `train_unified.py --gate-sweep a,b,c` scores a * model + (1 - a) * Wiener next to the model and the Wiener on every case and logs `snr_est` (Wiener-normalisation scale
+over the rms of what the Wiener removed, the network's own noise-map quantity); local check: it reads 12.0 on a line cube of true peak SNR 15.5 and 13.9 on an analytic disc of 19.7, i.e. ~25-30 % low but monotonic.
+`eval-gate` (aditi, R4n-long seeds 3 + 11) scores it on ladder SNR 12 / 24, Speedie r0.5, SG v2, Speedie r1.5; the threshold is chosen from that table, not guessed. Wiener, not dirty, is the blend target because it
+was never worse than dirty on the moments at r1.5 (M0 -4 / +17, M1 +25, M2 +40), while dirty is zero by construction. `experiments/final_report.py` writes the frozen model's table at all five sizes by group with the range
+across individual seeds, the ladder and the gate sweep (tested on the existing seeds); `compare_models.py` gained the `young_test` group. 2026-10-13 15:30: seed 11 became visible to chirag, so the final evaluation (`eval-final`, chirag, seeds 3 + 11 + 23 averaged, all cases, `--gate-sweep` on every case, 5 held-out Young simulations) was launched without waiting for the gate decision: the gate is a selection among the mixes stored in that one run. Seed 23 (chirag) trained all 24000 steps, then stopped at its 11 h deadline with
+3 cases unscored (status file `eval_complete: false`): the RULES.md #14 mechanism worked as designed; `orchestrator.py resume` relaunched it with its own output attached.
+
+## 2026-10-13 | run | ALMA Gate A passes: on exoALMA's REAL noise with a known injected disc, the averaged R4n-long model recovers line centres to 6-25 m/s (dirty 20-67) and invents no wiggle; the 77 m/s shift on MWC 758 is raw-M1 noise
+
+`alma-exoalma-s5` (account aditi, R4n-long seeds 3 + 11 averaged, MWC 758 13CO fiducial cropped to 512 px = 12.8 arcsec; archived `results/alma/mwc758-13co_s5_v1_2026-10-13/`).
+S5 injection-recovery (truth: Speedie GI disc and Keplerian twin resampled to 25 mas and 100 m/s, injected into this cube's own line-free planes = real exoALMA noise; one simulated disc):
+
+| case | wiggle rc_r dirty / Wiener / MODEL | line-centre error vs truth, median m/s, dirty / MODEL | spurious rc rms m/s, dirty / Wiener / MODEL | M1 model - M1 dirty, bright px |
+|---|---|---|---|---|
+| GI, SNR 12 | 0.03 / 0.56 / **0.75** | 67 / **25** | +1329 / -23 / -24 | 56 m/s |
+| GI, SNR 24 | 0.09 / 0.78 / **0.89** | 37 / **18** | +445 / -19 / -18 | 35 m/s |
+| GI, SNR 36 | 0.29 / 0.86 / **0.93** | 26 / **14** | +127 / -14 / -14 | 26 m/s |
+| twin, SNR 12 | -0.00 / 0.22 / 0.64 | 54 / **8** | +1275 / +3.2 / **-0.1** | 51 m/s |
+| twin, SNR 24 | 0.01 / 0.43 / 0.79 | 29 / **7** | +328 / -1.5 / **-1.3** | 31 m/s |
+| twin, SNR 36 | 0.13 / 0.58 / 0.86 | 20 / **6** | +75 / -2.2 / **-1.3** | 22 m/s |
+
+Reads. (1) The model's line centres are 2-8x closer to the truth than the raw cube's at every SNR, on real exoALMA noise, and on the wiggle-free twin within 6-8 m/s of truth (exoALMA's quoted
+velocity precision is ~10 m/s). (2) The |M1 model - M1 raw| difference on the injected disc (22-56 m/s) is of the size seen on the real MWC 758 cube (77 m/s median on its bright pixels, raw
+SNR lower), while the model's own error against truth is 6-25 m/s: the shift on the real cube is the raw M1's noise, not model bias. (3) No invented wiggle on the twin (-0.1 to -1.3 m/s); on the GI
+disc the recovered residual rms is 14-24 m/s BELOW the truth's, i.e. the wiggle amplitude is slightly under-recovered, not exaggerated. (4) The injected-wiggle recovery (0.75 / 0.89 / 0.93 at
+SNR 12 / 24 / 36) is higher than the synthetic SNR ladder's (single seeds 0.41-0.60 / 0.81-0.82 at 12 / 24). Not a contradiction to rely on: the injected truth carries Speedie's own
+0.24 x 0.18 arcsec beam (~9.5 x 7 px here), wider than the 0.15 arcsec noise correlation, so signal and noise separate more easily than for a real 0.15 arcsec image; and it is a 2-seed average.
+Real MWC 758 (same run): off-line noise 25.3x lower, M0 total ratio 1.02, S2 above-4-sigma fraction 7.5e-5 raw vs 2.2e-5 denoised; S6 now valid (restricted to the disc): the denoised
+rotation-curve residual correlates 0.82 with the raw one (coherence 0.79), residual rms 101 vs 117 m/s. The 13CO disc is compact (fit R 47-149 au). Gate A (ALMA_PLAN.md): passed.
+
+## 2026-10-13 | code | ALMA S5 injection-recovery and the S6 mask fix built and launched; R6 (256 px training crops) launched
+
+S5 (`alma_unified.py --inject-dir`): the truth is Speedie et al.'s GI disc and Keplerian twin (speedie_prep clean cubes, test-only), resampled to the real cube's pixel scale (area) and
+channel width (velocity binning), centred, padded with line-free planes, and added to blocks of the real cube's OWN line-free planes (real noise with its spatial and channel correlation)
+scaled to peak SNR 12 / 24 / 36; then the same path as the real cube (line-free finder, continuum, velocity-aware Wiener, model). Scored against truth with the wiggle scorecard
+(rc_r, line-centre error, spurious wiggle on the twin) and, for comparison with the real-cube S1 number, |M1 model - M1 dirty| on the brightest 10 %. If the model's line-centre error
+against truth is small while |M1 model - M1 dirty| matches the 76-83 m/s seen on MWC 758, the real-cube shift is raw-M1 noise, not model bias. S6: both cubes restricted to the S1 signal
+mask grown by one beam before the geometry fit. Local plumbing test only (stand-in truth, old K=3 model; numbers not quoted). Launched on aditi with R4n-long seeds 3 + 11 averaged.
+R6 (PLAN.md track C): the R4n-long recipe with 256 px training crops (batch 4) instead of 128 px (batch 12), on the reasoning that the GI spiral spans hundreds of pixels and the model
+has only ever seen 128 px windows; seed 31, 24000 steps, first full run on the RULES.md #14 kernel. Decision on Oct 15: adopted only if its wiggle at SNR 12-24 beats the R4n-long
+seeds without hurting line emission. The averaged final evaluation of R4n-long is waiting for seed 23 and for seed 11 to be shared with chirag.
+
+## 2026-10-13 | run | R4n-long seed 11: the recipe's Speedie and SNR-24 wiggle hold across seeds (0.87-0.88, 0.81-0.82); SNR 12 and line M0 at 600 px do not; MWC 758 cropped run
+
+Seed 11 (account aditi, 24000 steps, 0 non-finite steps, archived `results/unified/r4n-k15-long-s11_v1_2026-10-13/`) against seed 3: Speedie r0.5 wiggle 0.88 vs 0.87, M0/M1/M2 3/81/89 vs 8/83/87;
+ladder SNR 24 0.82 vs 0.81, SNR 12 0.41 vs 0.60, SNR 6 0.12 vs 0.11; invented wiggle on the twin at SNR 6 +67 vs +82 m/s; line emission 600 px 47.91 dB 34/84/85 vs 49.30 dB 55/87/89, 256 px
+47.38 53/87/87 vs 47.79 53/87/84; 9074 0.28 vs 0.34, SG v2 0.85 vs 0.86, an07 0.79 vs 0.88, an08 0.77 vs 0.82. Reads: the recipe's gains on the Speedie wiggle at SNR ~36 and 24 and on line
+emission at 256 px are stable across seeds and above every R4 seed; the SNR-12 wiggle (0.41-0.60) and line M0 at 600 px (34-55) vary as much as R4's did, so the final model is an average
+of seeds (the third, seed 23, runs on chirag) and its numbers are reported with the seed range.
+MWC 758 13CO cropped to 256 px (v2, archived `results/alma/mwc758-13co_r4n_v2_2026-10-13_crop256/`): off-line noise 24.6x lower, M0 total ratio 0.98, |M1 shift| on the brightest 10 % median 76 m/s
+(p95 257), above-4-sigma fraction in line-free planes 7.9e-5 raw vs 2.1e-5 denoised. S6 is still invalid: the scorecard builds its geometry mask from the reference M0 at 5 % of the peak, and
+with the RAW cube as reference that mask includes noise blobs across the field (rc_rms 6 km/s); fix: restrict S6 to the S1 signal mask. The denoised M0 ring looks smoother than the raw one;
+whether that is noise removal or lost asymmetry is what injection-recovery (S5) is for.
+
+## 2026-10-13 | run | First exoALMA cube through the unified denoiser (MWC 758 13CO, R4n-long, inference only): Gate A passes on noise, flux and invented structure; velocity shift not yet interpretable
+
+`alma-exoalma-r4n` v1 on account chirag (archived `results/alma/mwc758-13co_r4n_v1_2026-10-13/`). Cube: 301 x 1024 x 1024, 25 mas/px, circular 0.15 arcsec beam = 6.0 px, 100 m/s channels; 258
+line-free planes by sigma clipping (the line spans ~43 planes, 4.3 km/s, consistent with a nearly face-on disc, i ~21 deg); raw off-line rms 4.70 mJy/beam; the line-free planes' mean holds a
+compact central residual (peak 9.9 sigma of the mean; a point-like source also visible in single line-free planes, raw and denoised), subtracted as continuum. Download 13 s, denoise 4.9 min on a T4.
+S1: off-line noise 30.7x lower (4.70 to 0.153 mJy/beam); M0 total ratio 0.96 inside the 5-sigma mask (3862 px); |M1 shift| on the brightest 10 % median 83 m/s, 95th percentile 267 m/s.
+S2: fraction of line-free-plane pixels above 4 sigma_raw 2.3e-4 raw, 1.2e-5 denoised (the denoiser removes noise peaks and does not create new ones at this threshold).
+S6: INVALID as run: the 1024 px field is 25.6 arcsec and the 13CO disc ~1.5 arcsec, so the geometry fit, the 95 %-flux radius (2052 au) and the spine ran on empty sky (rc_rms 8-13 km/s).
+Figure: the denoised 5.99 km/s channel shows the disc's emission crisp on a clean background; M0 keeps the ring shape. Reading: Gate A passes on noise, flux and invented structure; the
+83 m/s median M1 shift is NOT yet interpretable, because the raw M1 at this SNR is itself noisy (no truth on a real cube): the injection-recovery check S5 (a known disc injected into this
+cube's own line-free noise) is what can say whether the shift is the model's bias or raw-M1 noise. v2 (cropped to 256 px around the disc) launched for S6.
+
+## 2026-10-13 | code | ALMA inference adapter for the unified model (`experiments/alma_unified.py`, kernel `kaggle/alma/`); first exoALMA run launched
+
+Same path as the synthetic tests: real cube (truncated downloads read by whole planes; 4D Stokes squeezed; frequency axis to radio velocity; velocity made ascending; NaN outside the
+primary beam -> 0; central crop) -> line-free planes by iterative 3-sigma clipping of the central spectrum (an edge-plane rule failed when the edges hold line) -> their per-pixel mean
+removed (residual continuum, reported in sigma) -> velocity-aware Wiener on the native grid with noise from those planes (`native_wiener(..., "line", noise_chans)`, now honoured for
+line emission) -> the model with its own K / norm / clip from the checkpoint (several checkpoints averaged) -> optional resampling (`--scale`) -> denoised cube + raw / denoised M0, M1, M2 as
+FITS (DS9) + figure + `report.json`: S1 (off-line rms raw vs denoised, M0 total ratio in the 5-sigma mask, |M1 shift| on the brightest 10 % in m/s), S2 (fraction of line-free-plane pixels above
+4 sigma_raw, raw as denominator), S6 (rotation-curve residual of the denoised M1 against the RAW M1's, given inclination and distance). Tests: the line-free finder on a synthetic cube keeps
+0 of 60 line planes and all 140 line-free ones, also with the line touching the edge; plumbing on the local truncated MWC 758 12CO file (128 of 301 planes, -9.2 to +2.8 km/s, i.e. almost no
+line: those numbers mean nothing and are not quoted). exoALMA's 0.15 arcsec beam is 6.0 px at 25 mas, the low end of the training beams; `--scale` exists for the S4 check. First real run:
+MWC 758 13CO on account aditi with R5 seed 1 (main's weekly quota is used up and aditi cannot see R4n-long); its purpose is Gate A, not the final numbers.
+
 ## 2026-10-12 | code | RULES.md #14: every run saves before the 12 h limit and resumes (Krishan's standing rule)
 
 `train_unified.py`: `--budget-h` (default 11 h from `EXXA_T0`, set by the kernel at its first line), `--eval-reserve-h` (default 1.5 h); training stops before a round that would not fit
@@ -160,7 +250,7 @@ account with a free GPU slot and unused weekly quota, polls status and collects 
 or collaborator endpoint (searched CLI 1.7.4.5 and kagglesdk), so sharing the datasets (`line-emission-data`, `exxa-sg-synth-pairs`, `self-gravitating-v2`, `exxa-wiggle-code`, and a
 Speedie dataset made from the `speedie-prep-fast` output) with each account stays a one-time manual step; `kernel_sources` do not cross accounts, so jobs for other accounts must not
 use them. Quota left is not readable through the API; it is inferred from push replies. Tested: account discovery (main only so far), a `--dry-run` submit, reset-time logic.
-Added `sync_account.py` (2026-10-11): with an account's own key, it uploads that account's OWN copies of the datasets (11.8 GB, cloned locally, `--dir-mode zip` keeps the layout) and rebuilds `exxa-wiggle-code` from the repo, so no website sharing is needed; `orchestrator.py submit` rewrites dataset / kernel source owners to the target account, and speedie-prep-fast is run per account on CPU. Account `backup` (deepsceneloc, Krishan's own backup) is configured (key moved out of the repo tree to `~/.kaggle-backup/kaggle.json`, chmod 600); `orchestrator.py check` shows all five shared items visible to it; a smoke job (`unified-smoke-backup`) was submitted through the orchestrator at ~02:00 IST to test mounting and the GPU slot. Two friends' accounts not yet configured. A key file had been left inside the repo working tree and was moved out before it could be committed. 2026-10-12: account `aditi` (aditisah11) configured the same way (key moved from the repo tree to `~/.kaggle-aditi/`; it was also pasted into the chat, so it should be rotated); it sees only `line-emission-data` so far, so the R5 launcher is restricted to `backup` until the other shares are in place. Caveat recorded: Kaggle's terms restrict multiple accounts and credential sharing; a suspension would fall on the account holders. Nothing has been run on another account yet.
+Added `sync_account.py` (2026-10-11): with an account's own key, it uploads that account's OWN copies of the datasets (11.8 GB, cloned locally, `--dir-mode zip` keeps the layout) and rebuilds `exxa-wiggle-code` from the repo, so no website sharing is needed; `orchestrator.py submit` rewrites dataset / kernel source owners to the target account, and speedie-prep-fast is run per account on CPU. Account `backup` (deepsceneloc, Krishan's own backup) is configured (key moved out of the repo tree to `~/.kaggle-backup/kaggle.json`, chmod 600); `orchestrator.py check` shows all five shared items visible to it; a smoke job (`unified-smoke-backup`) was submitted through the orchestrator at ~02:00 IST to test mounting and the GPU slot. Two friends' accounts not yet configured. A key file had been left inside the repo working tree and was moved out before it could be committed. 2026-10-12: account `aditi` (aditisah11) configured the same way (key moved from the repo tree to `~/.kaggle-aditi/`; it was also pasted into the chat, so it should be rotated); it sees only `line-emission-data` so far, so the R5 launcher is restricted to `backup` until the other shares are in place. 2026-10-13: account `chirag` (chiragbhayal) added the same way (key moved from the repo root to `~/.kaggle-chirag/`, never tracked). Weekly GPU quota of main and backup is used up until the Saturday 17 Oct 05:30 IST reset; aditi (~8 h left) and chirag (30 h) carry the work until then. Caveat recorded: Kaggle's terms restrict multiple accounts and credential sharing; a suspension would fall on the account holders. Nothing has been run on another account yet.
 
 ## 2026-10-10 | finding | Every test cube placed on one SNR axis: the wiggle is solved at SNR >~ 20 and NOT at ~8-10; two of my claims corrected
 

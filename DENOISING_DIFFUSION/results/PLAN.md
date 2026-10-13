@@ -23,6 +23,28 @@ inference adapter runs on exoALMA fiducial cubes with checks S1, S2, S5, S6 of A
 Every result reports the spread across cubes and seeds, with the Wiener and dirty rows. Selection per RULES.md #4: wiggle and
 moments on held-out cubes, never PSNR alone. Deliverable: 2-3 checkpoints; two split by data type is an acceptable outcome.
 
+## 0b. Open items before ALMA, in priority order (2026-10-13, Krishan: sort these first, then ALMA)
+
+| # | item | why here | status |
+|---|---|---|---|
+| 1 | Seed 11 shared with chirag | blocks the averaged final evaluation | needs the share (user) |
+| 2 | High-SNR M0 damage: do-no-harm gate | known flaw, known fix, no training; must be in BEFORE the final evaluation so the frozen numbers describe the shipped pipeline | `eval-gate` running (a * model + (1 - a) * Wiener, a = 0.25 / 0.5 / 0.75, SNR 12-135) |
+| 3 | Seed 23 completes | running | resumed after its 11 h budget stop |
+| 4 | Final averaged evaluation (seeds 3 + 11 + 23, gate in), 5 sizes, Speedie, ladder, held-out Young sims | this IS the frozen model | after 1-3; `final_report.py` ready |
+| 5 | Final figures and results table | needs 4 | `final_report.py` ready |
+| 6 | R6 (256 px crops) decision | job running; adopt only if SNR 12-24 wiggle beats R4n-long seeds without hurting line emission | due Oct 15 |
+| 7 | Wiggle at SNR 12 (0.41-0.60 vs 0.85) | moves only if 6 wins; else reported as a measured limit with the SNR curve | follows 6 |
+| 8 | SG v2 equal to dirty | ceiling-limited: noise-free beam reference 0.92, dirty 0.85 (peak SNR 63); documented, no work | write-up |
+
+Then: re-run ALMA (14 discs + MWC 758) with the frozen model (~5 min per cube).
+
+## 0c. After GSoC (Krishan, 2026-10-13): consolidate notebooks, datasets and checkpoints in one place
+
+Decided to do this after Nov 3, not now. Plan when it is time: (1) `kaggle/accounts/archive_all.py` (written, untracked until then) pulls code as pushed, outputs and checkpoints of every project kernel on all
+four accounts into `archive/` (git-ignored) and writes `results/KERNELS.md`; (2) publish the final checkpoints as one Kaggle Model on the main account so any account can attach them; (3) a public host (Hugging Face or a
+GitHub release) for the final checkpoints; (4) datasets stay where they are (sharing works; no ownership transfer known). The mentor data (line emission, sg_synth, SG v2) stays private throughout. Caveat while waiting:
+every checkpoint currently lives only in a Kaggle kernel output on one of four accounts, three of them not Krishan's own main account, and RULES.md #12 (keep every checkpoint until GSoC finishes) depends on those accounts surviving to Nov 3.
+
 ## 1. Workstreams
 
 **A. Realistic noise and beam (code, no new data). Gate for everything else.**

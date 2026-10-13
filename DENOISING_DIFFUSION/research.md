@@ -11,6 +11,17 @@ PROGRESS.md entry.
 
 ---
 
+## 2026-10-13 | exoALMA sample: which cubes exist and the geometry needed to score them
+
+**Question.** Krishan: more discs for the ALMA test, from the web. Which public exoALMA cubes exist, and what inclination and distance does each need for the kinematics check (S6)?
+**Read.** The Harvard Dataverse release (doi:10.7910/DVN/CFHWNH, file list through its API; it answers HTTP 403 to Python's default `Python-urllib` user agent and 200 to curl / browser agents, so
+our downloads send an explicit agent) and exoALMA I (Teague et al. 2025, arXiv:2504.18688, local PDF): Table 1 (distances) and Table 2 (M*, inclination, PA from discminer fits of 12CO).
+**Findings.** 45 fiducial image cubes: 15 discs x {12CO, 13CO, CS}, 1.26 GB each for CO, 0.63 GB for CS. Discs (d pc, |i| deg): DM Tau 144, 38.7; AA Tau 135, 58.7; LkCa 15 157, 50.3; HD 34282 309,
+58.3; MWC 758 156, 19.4; CQ Tau 149, 36.3; SY Cha 182, 52.4; PDS 66 98, 31.9; HD 135344B 135, 16.1; HD 143006 167, 16.9; J1604 145, 6.0; J1615 156, 46.5; V4046 Sgr 72, 34.1; J1842 151, 39.4;
+J1852 147, 32.7. Fiducial channels 100 m/s (CO), 200 m/s (CS). The MAPS discs (AS 209, HD 163296, GM Aur, IM Lup, MWC 480) were deliberately excluded from exoALMA as already observed.
+**Used.** All 14 remaining 13CO cubes run through `alma_unified.py` (inference only). MWC 758 was run at i = 21 deg before this table was read; the table gives 19.4 deg (S6 only).
+Note: AA Tau and HD 34282 are near i ~ 58 deg, where the two-layer emission makes the single-surface rotation-curve residual less reliable.
+
 ## 2026-10-10 | Speedie et al. 2024 MCFOST settings (`GIdisk_13C16O_mcfost.para`, Zenodo 11668694), read for the SPH-converter validation
 
 **Read.** The release's MCFOST parameter file, `sg.setup`, `sg.discparams`, and the dump `sg_00005` itself (sarracen 1.3.1).
