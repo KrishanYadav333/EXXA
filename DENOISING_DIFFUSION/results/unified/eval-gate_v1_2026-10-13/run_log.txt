@@ -1,0 +1,96 @@
+[{"stream_name":"stdout","time":0.720361429,"data":"+ git clone --branch midterm-prep --depth 1 https://github.com/KrishanYadav333/EXXA.git /tmp/EXXA\n"}
+,{"stream_name":"stderr","time":0.75354527,"data":"Cloning into '/tmp/EXXA'...\n"}
+,{"stream_name":"stderr","time":74.407961099,"data":"Updating files:   1% (99/5807)\rUpdating files:   2% (117/5807)\rUpdating files:   3% (175/5807)\rUpdating files:   4% (233/5807)\rUpdating files:   4% (280/5807)\rUpdating files:   5% (291/5807)\rUpdating files:   6% (349/5807)\rUpdating files:   7% (407/5807)\rUpdating files:   8% (465/5807)\rUpdating files:   9% (523/5807)\rUpdating files:  10% (581/5807)\rUpdating files:  11% (639/5807)\rUpdating files:  12% (697/5807)\rUpdating files:  13% (755/5807)\rUpdating files:  14% (813/5807)\rUpdating files:  14% (824/5807)\rUpdating files:  15% (872/5807)\rUpdating files:  16% (930/5807)\rUpdating files:  17% (988/5807)\rUpdating files:  18% (1046/5807)\rUpdating files:  19% (1104/5807)\rUpdating files:  20% (1162/5807)\rUpdating files:  21% (1220/5807)\rUpdating files:  22% (1278/5807)\rUpdating files:  23% (1336/5807)\rUpdating files:  24% (1394/5807)\rUpdating files:  25% (1452/5807)\rUpdating files:  26% (1510/5807)\rUpdating files:  27% (1568/5807)\rUpdating files:  28% (1626/5807)\rUpdating files:  29% (1685/5807)\rUpdating files:  30% (1743/5807)\rUpdating files:  31% (1801/5807)\rUpdating files:  32% (1859/5807)\rUpdating files:  33% (1917/5807)\rUpdating files:  34% (1975/5807)\rUpdating files:  35% (2033/5807)\rUpdating files:  36% (2091/5807)\rUpdating files:  37% (2149/5807)\rUpdating files:  38% (2207/5807)\rUpdating files:  39% (2265/5807)\rUpdating files:  40% (2323/5807)\rUpdating files:  41% (2381/5807)\rUpdating files:  42% (2439/5807)\rUpdating files:  43% (2498/5807)\rUpdating files:  44% (2556/5807)\rUpdating files:  45% (2614/5807)\rUpdating files:  46% (2672/5807)\rUpdating files:  47% (2730/5807)\rUpdating files:  48% (2788/5807)\rUpdating files:  49% (2846/5807)\rUpdating files:  50% (2904/5807)\rUpdating files:  51% (2962/5807)\rUpdating files:  52% (3020/5807)\rUpdating files:  53% (3078/5807)\rUpdating files:  54% (3136/5807)\rUpdating files:  55% (3194/5807)\rUpdating files:  56% (3252/5807)\rUpdating files:  57% (3310/5807)\rUpdating files:  58% (3369/5807)\rUpdating files:  59% (3427/5807)\rUpdating files:  60% (3485/5807)\rUpdating files:  61% (3543/5807)\rUpdating files:  62% (3601/5807)\rUpdating files:  63% (3659/5807)\rUpdating files:  64% (3717/5807)\rUpdating files:  65% (3775/5807)\rUpdating files:  66% (3833/5807)\rUpdating files:  67% (3891/5807)\rUpdating files:  68% (3949/5807)\rUpdating files:  69% (4007/5807)\rUpdating files:  70% (4065/5807)\rUpdating files:  71% (4123/5807)\rUpdating files:  72% (4182/5807)\rUpdating files:  73% (4240/5807)\rUpdating files:  74% (4298/5807)\rUpdating files:  75% (4356/5807)\rUpdating files:  76% (4414/5807)\rUpdating files:  77% (4472/5807)\rUpdating files:  78% (4530/5807)\rUpdating files:  79% (4588/5807)\rUpdating files:  80% (4646/5807)\rUpdating files:  81% (4704/5807)\rUpdating files:  82% (4762/5807)\rUpdating files:  83% (4820/5807)\rUpdating files:  84% (4878/5807)\rUpdating files:  85% (4936/5807)\rUpdating files:  86% (4995/5807)\rUpdating files:  87% (5053/5807)\rUpdating files:  88% (5111/5807)\rUpdating files:  89% (5169/5807)\rUpdating files:  90% (5227/5807)\rUpdating files:  90% (5238/5807)\rUpdating files:  91% (5285/5807)\rUpdating files:  92% (5343/5807)\rUpdating files:  93% (5401/5807)\rUpdating files:  94% (5459/5807)\rUpdating files:  94% (5500/5807)\rUpdating files:  95% (5517/5807)\rUpdating files:  96% (5575/5807)\rUpdating files:  97% (5633/5807)\rUpdating files:  97% (5686/5807)\rUpdating files:  98% (5691/5807)\rUpdating files:  98% (5709/5807)\rUpdating files:  98% (5744/5807)\rUpdating files:  99% (5749/5807)\rUpdating files: 100% (5807/5807)\rUpdating files: 100% (5807/5807), done.\n"}
+,{"stream_name":"stdout","time":74.455115618,"data":"+ /usr/bin/python3 -m pip install -q --no-deps pytorch-msssim bettermoments\n"}
+,{"stream_name":"stdout","time":80.970169777,"data":"overlaid ['src/data/analytic_gi.py', 'experiments/wiggle_scorecard.py', 'experiments/make_analytic_gi_cubes.py', 'experiments/train_wiggle_correction.py', 'experiments/train_unified.py', 'experiments/speedie_prep.py', 'src/data/sph_cube.py', 'experiments/validate_sph_speedie.py', 'experiments/make_sph_cubes.py', 'experiments/alma_unified.py'] | staged from 5b04466 (+ the uncommitted files listed)\n"}
+,{"stream_name":"stdout","time":81.207480214,"data":"+ /usr/bin/python3 experiments/make_analytic_gi_cubes.py\n"}
+,{"stream_name":"stdout","time":89.535959151,"data":"an01 md=0.15 m=2 beta=5.0 pitch=13 i=20: rmsdiff/rms = 0.501 (sg_synth 0.41-0.57)\n"}
+,{"stream_name":"stdout","time":96.326825882,"data":"an02 md=0.35 m=2 beta=5.0 pitch=13 i=30: rmsdiff/rms = 0.510 (sg_synth 0.41-0.57)\n"}
+,{"stream_name":"stdout","time":103.432610789,"data":"an03 md=0.6 m=2 beta=5.0 pitch=13 i=20: rmsdiff/rms = 0.500 (sg_synth 0.41-0.57)\n"}
+,{"stream_name":"stdout","time":110.115915474,"data":"an04 md=0.35 m=3 beta=5.0 pitch=18 i=20: rmsdiff/rms = 0.467 (sg_synth 0.41-0.57)\n"}
+,{"stream_name":"stdout","time":116.85419217,"data":"an05 md=0.35 m=2 beta=3.0 pitch=13 i=30: rmsdiff/rms = 0.495 (sg_synth 0.41-0.57)\n"}
+,{"stream_name":"stdout","time":123.700730724,"data":"an06 md=0.6 m=2 beta=3.0 pitch=20 i=20: rmsdiff/rms = 0.449 (sg_synth 0.41-0.57)\n"}
+,{"stream_name":"stdout","time":130.566631161,"data":"an07 md=0.45 m=2 beta=4.0 pitch=15 i=25: rmsdiff/rms = 0.546 (sg_synth 0.41-0.57)\n"}
+,{"stream_name":"stdout","time":137.123378833,"data":"an08 md=0.25 m=3 beta=3.0 pitch=18 i=30: rmsdiff/rms = 0.501 (sg_synth 0.41-0.57)\n"}
+,{"stream_name":"stdout","time":137.395273803,"data":"speedie -\u003e /kaggle/input/notebooks/krishanyadav333/speedie-prep-fast/speedie | groups: {'gate_R4n_s3_s11': '/kaggle/input/notebooks/deepsceneloc/unified-r4n-k15-long/unified_wiener_k15/unified_r4n_k15_long.pth,/kaggle/input/notebooks/aditisah11/unified-r4n-k15-long-s11/unified_wiener_k15/unified_r4n_k15_long_s11.pth'}\n"}
+,{"stream_name":"stdout","time":137.445122353,"data":"+ /usr/bin/python3 -u experiments/train_unified.py --eval-only --eval-ckpt /kaggle/input/notebooks/deepsceneloc/unified-r4n-k15-long/unified_wiener_k15/unified_r4n_k15_long.pth,/kaggle/input/notebooks/aditisah11/unified-r4n-k15-long-s11/unified_wiener_k15/unified_r4n_k15_long_s11.pth --eval-speedie GI_r0.5,GI_r1.5,Kep_r1.5 --eval-ladder 12,24 --ladder-base GI_r0.5 --n-line-eval -1 --eval-sg sgv2 --sizes 600 --gate-sweep 0.25,0.5,0.75 --tag gate_R4n_s3_s11 --speedie-dir /kaggle/input/notebooks/krishanyadav333/speedie-prep-fast/speedie --out /kaggle/working/eval_gate\n"}
+,{"stream_name":"stdout","time":146.000138592,"data":"device cuda  {'arm': 'wiener', 'init': '', 'fresh': False, 'eval_only': True, 'eval_ckpt': '/kaggle/input/notebooks/deepsceneloc/unified-r4n-k15-long/unified_wiener_k15/unified_r4n_k15_long.pth,/kaggle/input/notebooks/aditisah11/unified-r4n-k15-long-s11/unified_wiener_k15/unified_r4n_k15_long_s11.pth', 'tag': 'gate_R4n_s3_s11', 'k': 3, 'rounds': 40, 'steps': 300, 'batch': 12, 'crop': 128, 'base': 48, 'lr': 0.0003, 'sizes': '600', 'hydro': '9015,9019,9025,9032', 'analytic': 'an01,an02,an03,an04,an05,an06', 'p_ai': 0.5, 'n_line': 0, 'n_line_eval': -1, 'eval_sg': 'sgv2', 'eval_ai': True, 'speedie_dir': '/kaggle/input/notebooks/krishanyadav333/speedie-prep-fast/speedie', 'eval_speedie': 'GI_r0.5,GI_r1.5,Kep_r1.5', 'before': False, 'before_cases': 'run_0002_00560_rt_00,run_0026_00005_rt_04,9074,9074_ai,an07,an07_ai,sgv2', 'before_sizes': '300,600', 'refresh': 3, 'seed': 0, 'out': '/kaggle/working/eval_gate', 'smoke': False, 'snr': '', 'chan_corr': 0.0, 'fp32_stream': False, 'budget_h': 11.0, 'eval_reserve_h': 1.5, 'resume': '', 'sph_dir': '', 'sph_max': 0, 'eval_sph': False, 'norm': 'wiener', 'gate_sweep': '0.25,0.5,0.75', 'tta': False, 'eval_ladder': '12,24', 'ladder_base': 'GI_r0.5', 'train_sgv2': False, 'clip_in': 0.0, 'beam_max': 1.0}\n"}
+,{"stream_name":"stdout","time":146.648210351,"data":"loaded /kaggle/input/notebooks/deepsceneloc/unified-r4n-k15-long/unified_wiener_k15/unified_r4n_k15_long.pth: arm wiener, window +-15, base 48\n"}
+,{"stream_name":"stdout","time":148.486460215,"data":"loaded /kaggle/input/notebooks/aditisah11/unified-r4n-k15-long-s11/unified_wiener_k15/unified_r4n_k15_long_s11.pth (ensemble member 2)\n"}
+,{"stream_name":"stdout","time":148.507873903,"data":"======================================================================\n"}
+,{"stream_name":"stdout","time":148.507893527,"data":"CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)\n"}
+,{"stream_name":"stdout","time":148.507900185,"data":"======================================================================\n"}
+,{"stream_name":"stdout","time":148.507904937,"data":"  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data\n"}
+,{"stream_name":"stdout","time":148.507909128,"data":"  total cubes       : 14  across 11 distinct RunIDs\n"}
+,{"stream_name":"stdout","time":148.507913207,"data":"  seed=42  n_holdout=3  val_fraction=0.2\n"}
+,{"stream_name":"stdout","time":148.507917867,"data":"----------------------------------------------------------------------\n"}
+,{"stream_name":"stdout","time":148.507922381,"data":"  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']\n"}
+,{"stream_name":"stdout","time":148.507926929,"data":"  VAL     :  2 cubes | RunIDs ['0016', '0036']\n"}
+,{"stream_name":"stdout","time":148.507931229,"data":"  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  \u003c-- inference only, NEVER trained/validated\n"}
+,{"stream_name":"stdout","time":148.507935875,"data":"----------------------------------------------------------------------\n"}
+,{"stream_name":"stdout","time":148.507939952,"data":"  HOLDOUT cube folders (reserved for moment-map evaluation):\n"}
+,{"stream_name":"stdout","time":148.507948731,"data":"    - run_0002_00560_rt_00\n"}
+,{"stream_name":"stdout","time":148.507953509,"data":"    - run_0002_00560_rt_01\n"}
+,{"stream_name":"stdout","time":148.507957395,"data":"    - run_0002_00560_rt_04\n"}
+,{"stream_name":"stdout","time":148.50796089,"data":"    - run_0025_01000_rt_04\n"}
+,{"stream_name":"stdout","time":148.507964303,"data":"    - run_0026_00005_rt_04\n"}
+,{"stream_name":"stdout","time":148.507967754,"data":"======================================================================\n"}
+,{"stream_name":"stdout","time":676.299020961,"data":"  speedie_GI_r0.5_1024: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":676.299087162,"data":"  speedie_GI_r0.5_1024: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":676.299092365,"data":"  speedie_GI_r0.5_1024: model built [0s]\n"}
+,{"stream_name":"stdout","time":677.108533169,"data":"  speedie_GI_r0.5_1024: mix0.25 built [1s]\n"}
+,{"stream_name":"stdout","time":677.920642337,"data":"  speedie_GI_r0.5_1024: mix0.5 built [2s]\n"}
+,{"stream_name":"stdout","time":678.720295356,"data":"  speedie_GI_r0.5_1024: mix0.75 built [2s]\n"}
+,{"stream_name":"stdout","time":715.83486387,"data":"  speedie_GI_r0.5_1024: scored [40s]\n"}
+,{"stream_name":"stdout","time":824.802339849,"data":"speedie_GI_r0.5@1024           PSNR dirty 24.30 wiener 34.68 MODEL 53.00 | M0/M1/M2 % wiener 23/55/49 MODEL 7/83/90 | rc_r dirty 0.361 wiener 0.588 MODEL 0.889 | dv_med 37/38/22 m/s | 658s\n"}
+,{"stream_name":"stdout","time":1336.858272188,"data":"  speedie_GI_r1.5_1024: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":1336.858331128,"data":"  speedie_GI_r1.5_1024: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":1336.858347382,"data":"  speedie_GI_r1.5_1024: model built [0s]\n"}
+,{"stream_name":"stdout","time":1337.668031108,"data":"  speedie_GI_r1.5_1024: mix0.25 built [1s]\n"}
+,{"stream_name":"stdout","time":1338.467941028,"data":"  speedie_GI_r1.5_1024: mix0.5 built [2s]\n"}
+,{"stream_name":"stdout","time":1339.274407821,"data":"  speedie_GI_r1.5_1024: mix0.75 built [2s]\n"}
+,{"stream_name":"stdout","time":1374.824406705,"data":"  speedie_GI_r1.5_1024: scored [38s]\n"}
+,{"stream_name":"stdout","time":1481.700029425,"data":"speedie_GI_r1.5@1024           PSNR dirty 28.29 wiener 32.35 MODEL 46.44 | M0/M1/M2 % wiener -4/25/40 MODEL -76/40/-257 | rc_r dirty 0.935 wiener 0.882 MODEL 0.950 | dv_med 13/22/15 m/s | 639s\n"}
+,{"stream_name":"stdout","time":1993.374281428,"data":"  speedie_Kep_r1.5_1024: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":1993.37435463,"data":"  speedie_Kep_r1.5_1024: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":1993.374365957,"data":"  speedie_Kep_r1.5_1024: model built [0s]\n"}
+,{"stream_name":"stdout","time":1994.186508429,"data":"  speedie_Kep_r1.5_1024: mix0.25 built [1s]\n"}
+,{"stream_name":"stdout","time":1994.993622543,"data":"  speedie_Kep_r1.5_1024: mix0.5 built [2s]\n"}
+,{"stream_name":"stdout","time":1995.800095776,"data":"  speedie_Kep_r1.5_1024: mix0.75 built [2s]\n"}
+,{"stream_name":"stdout","time":2031.277120224,"data":"  speedie_Kep_r1.5_1024: scored [38s]\n"}
+,{"stream_name":"stdout","time":2138.731599079,"data":"speedie_Kep_r1.5@1024          PSNR dirty 28.77 wiener 32.77 MODEL 47.20 | M0/M1/M2 % wiener -9/30/27 MODEL -109/60/-156 | rc_r dirty 0.748 wiener 0.645 MODEL 0.851 | dv_med 10/9/7 m/s | 639s\n"}
+,{"stream_name":"stdout","time":2633.997307808,"data":"  speedie_ladder_GI_r0.5_snr12_1024: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":2633.9973852,"data":"  speedie_ladder_GI_r0.5_snr12_1024: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":2633.997392615,"data":"  speedie_ladder_GI_r0.5_snr12_1024: model built [0s]\n"}
+,{"stream_name":"stdout","time":2634.800466837,"data":"  speedie_ladder_GI_r0.5_snr12_1024: mix0.25 built [1s]\n"}
+,{"stream_name":"stdout","time":2635.61167683,"data":"  speedie_ladder_GI_r0.5_snr12_1024: mix0.5 built [2s]\n"}
+,{"stream_name":"stdout","time":2636.419478831,"data":"  speedie_ladder_GI_r0.5_snr12_1024: mix0.75 built [2s]\n"}
+,{"stream_name":"stdout","time":2671.144941313,"data":"  speedie_ladder_GI_r0.5_snr12_1024: scored [37s]\n"}
+,{"stream_name":"stdout","time":2777.307270481,"data":"speedie_ladder_GI_r0.5_snr12@1024 PSNR dirty 20.98 wiener 37.28 MODEL 51.48 | M0/M1/M2 % wiener 72/83/38 MODEL 74/93/90 | rc_r dirty 0.012 wiener 0.181 MODEL 0.504 | dv_med 79/49/35 m/s | 637s\n"}
+,{"stream_name":"stdout","time":3276.879667766,"data":"  speedie_ladder_GI_r0.5_snr24_1024: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":3276.879769022,"data":"  speedie_ladder_GI_r0.5_snr24_1024: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":3276.879777849,"data":"  speedie_ladder_GI_r0.5_snr24_1024: model built [0s]\n"}
+,{"stream_name":"stdout","time":3277.692115314,"data":"  speedie_ladder_GI_r0.5_snr24_1024: mix0.25 built [1s]\n"}
+,{"stream_name":"stdout","time":3278.506102508,"data":"  speedie_ladder_GI_r0.5_snr24_1024: mix0.5 built [2s]\n"}
+,{"stream_name":"stdout","time":3279.316956743,"data":"  speedie_ladder_GI_r0.5_snr24_1024: mix0.75 built [2s]\n"}
+,{"stream_name":"stdout","time":3316.271244108,"data":"  speedie_ladder_GI_r0.5_snr24_1024: scored [39s]\n"}
+,{"stream_name":"stdout","time":3424.511355562,"data":"speedie_ladder_GI_r0.5_snr24@1024 PSNR dirty 22.92 wiener 35.37 MODEL 53.18 | M0/M1/M2 % wiener 41/66/42 MODEL 38/88/90 | rc_r dirty 0.137 wiener 0.431 MODEL 0.827 | dv_med 48/42/27 m/s | 646s\n"}
+,{"stream_name":"stdout","time":3619.976424688,"data":"  sgv2_600: dirty built [0s]\n"}
+,{"stream_name":"stdout","time":3619.976480781,"data":"  sgv2_600: wiener built [0s]\n"}
+,{"stream_name":"stdout","time":3619.976489884,"data":"  sgv2_600: model built [0s]\n"}
+,{"stream_name":"stdout","time":3619.97649633,"data":"  sgv2_600: beam_oracle built [0s]\n"}
+,{"stream_name":"stdout","time":3620.148416739,"data":"  sgv2_600: mix0.25 built [0s]\n"}
+,{"stream_name":"stdout","time":3620.319555319,"data":"  sgv2_600: mix0.5 built [0s]\n"}
+,{"stream_name":"stdout","time":3620.493046262,"data":"  sgv2_600: mix0.75 built [1s]\n"}
+,{"stream_name":"stdout","time":3643.357411639,"data":"  sgv2_600: scored [23s]\n"}
+,{"stream_name":"stdout","time":3664.549272776,"data":"sgv2@600                       PSNR dirty 27.32 wiener 23.76 MODEL 27.95 | M0/M1/M2 % wiener 6/-7/-7 MODEL -1/12/18 | rc_r dirty 0.846 wiener 0.716 MODEL 0.865 | dv_med 59/87/56 m/s | 228s\n"}
+,{"stream_name":"stdout","time":3664.553277515,"data":"EVAL DONE\n"}
+,{"stream_name":"stdout","time":3667.892285479,"data":"MODEL gate_R4n_s3_s11 exit 0 in 58.8 min\n"}
+,{"stream_name":"stdout","time":3667.892347548,"data":"EVAL GATE DONE\n"}
+,{"stream_name":"stderr","time":3669.981265829,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":3669.981319089,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":3670.251701841,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":3670.251769487,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":3671.049374923,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":3672.03250966,"data":"[NbConvertApp] Writing 302391 bytes to __results__.html\n"}
+]

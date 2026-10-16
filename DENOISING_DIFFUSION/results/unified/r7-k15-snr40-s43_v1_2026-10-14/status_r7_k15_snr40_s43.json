@@ -1,0 +1,8 @@
+{
+ "tag": "r7_k15_snr40_s43",
+ "train_complete": true,
+ "eval_complete": true,
+ "round": 80,
+ "rounds": 80,
+ "checkpoint": "unified_r7_k15_snr40_s43.pth"
+}

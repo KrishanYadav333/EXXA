@@ -1,0 +1,57 @@
+Cloning into '/tmp/EXXA'...
+Updating files:   1% (98/5846)Updating files:   2% (117/5846)Updating files:   2% (148/5846)Updating files:   3% (176/5846)Updating files:   4% (234/5846)Updating files:   5% (293/5846)Updating files:   6% (351/5846)Updating files:   7% (410/5846)Updating files:   8% (468/5846)Updating files:   8% (485/5846)Updating files:   9% (527/5846)Updating files:  10% (585/5846)Updating files:  11% (644/5846)Updating files:  12% (702/5846)Updating files:  13% (760/5846)Updating files:  14% (819/5846)Updating files:  15% (877/5846)Updating files:  16% (936/5846)Updating files:  17% (994/5846)Updating files:  18% (1053/5846)Updating files:  19% (1111/5846)Updating files:  20% (1170/5846)Updating files:  21% (1228/5846)Updating files:  22% (1287/5846)Updating files:  23% (1345/5846)Updating files:  24% (1404/5846)Updating files:  25% (1462/5846)Updating files:  26% (1520/5846)Updating files:  27% (1579/5846)Updating files:  28% (1637/5846)Updating files:  29% (1696/5846)Updating files:  30% (1754/5846)Updating files:  31% (1813/5846)Updating files:  32% (1871/5846)Updating files:  33% (1930/5846)Updating files:  34% (1988/5846)Updating files:  35% (2047/5846)Updating files:  36% (2105/5846)Updating files:  37% (2164/5846)Updating files:  38% (2222/5846)Updating files:  39% (2280/5846)Updating files:  40% (2339/5846)Updating files:  41% (2397/5846)Updating files:  42% (2456/5846)Updating files:  43% (2514/5846)Updating files:  44% (2573/5846)Updating files:  45% (2631/5846)Updating files:  46% (2690/5846)Updating files:  47% (2748/5846)Updating files:  48% (2807/5846)Updating files:  49% (2865/5846)Updating files:  50% (2923/5846)Updating files:  51% (2982/5846)Updating files:  52% (3040/5846)Updating files:  53% (3099/5846)Updating files:  54% (3157/5846)Updating files:  55% (3216/5846)Updating files:  56% (3274/5846)Updating files:  57% (3333/5846)Updating files:  58% (3391/5846)Updating files:  59% (3450/5846)Updating files:  60% (3508/5846)Updating files:  61% (3567/5846)Updating files:  62% (3625/5846)Updating files:  63% (3683/5846)Updating files:  64% (3742/5846)Updating files:  65% (3800/5846)Updating files:  66% (3859/5846)Updating files:  67% (3917/5846)Updating files:  68% (3976/5846)Updating files:  69% (4034/5846)Updating files:  70% (4093/5846)Updating files:  71% (4151/5846)Updating files:  72% (4210/5846)Updating files:  73% (4268/5846)Updating files:  74% (4327/5846)Updating files:  75% (4385/5846)Updating files:  76% (4443/5846)Updating files:  77% (4502/5846)Updating files:  78% (4560/5846)Updating files:  79% (4619/5846)Updating files:  80% (4677/5846)Updating files:  81% (4736/5846)Updating files:  82% (4794/5846)Updating files:  83% (4853/5846)Updating files:  84% (4911/5846)Updating files:  85% (4970/5846)Updating files:  86% (5028/5846)Updating files:  86% (5071/5846)Updating files:  87% (5087/5846)Updating files:  88% (5145/5846)Updating files:  89% (5203/5846)Updating files:  90% (5262/5846)Updating files:  91% (5320/5846)Updating files:  91% (5349/5846)Updating files:  92% (5379/5846)Updating files:  93% (5437/5846)Updating files:  94% (5496/5846)Updating files:  95% (5554/5846)Updating files:  95% (5582/5846)Updating files:  96% (5613/5846)Updating files:  97% (5671/5846)Updating files:  97% (5725/5846)Updating files:  98% (5730/5846)Updating files:  98% (5749/5846)Updating files:  98% (5783/5846)Updating files:  99% (5788/5846)Updating files:  99% (5836/5846)Updating files: 100% (5846/5846)Updating files: 100% (5846/5846), done.
+  speedie_GI_r0.5: dirty built [0s]
+  speedie_GI_r0.5: oracle_linear built [16s]
+  speedie_GI_r0.5: scored [38s]
+speedie_GI_r0.5                      rc_r dirty 0.361 ORACLE 0.797 | spurious (rc_rms - clean) dirty +88.8 oracle -31.6 m/s | dv_med 37/31 m/s [38s]
+  speedie_ladder_GI_r0.5_snr3: dirty built [0s]
+  speedie_ladder_GI_r0.5_snr3: oracle_linear built [15s]
+  speedie_ladder_GI_r0.5_snr3: scored [35s]
+speedie_ladder_GI_r0.5_snr3          rc_r dirty -0.024 ORACLE 0.018 | spurious (rc_rms - clean) dirty +2152.9 oracle +213.5 m/s | dv_med 1555/64 m/s [35s]
+  speedie_ladder_GI_r0.5_snr6: dirty built [0s]
+  speedie_ladder_GI_r0.5_snr6: oracle_linear built [15s]
+  speedie_ladder_GI_r0.5_snr6: scored [35s]
+speedie_ladder_GI_r0.5_snr6          rc_r dirty -0.018 ORACLE 0.204 | spurious (rc_rms - clean) dirty +1668.6 oracle -19.2 m/s | dv_med 215/50 m/s [35s]
+  speedie_ladder_GI_r0.5_snr12: dirty built [0s]
+  speedie_ladder_GI_r0.5_snr12: oracle_linear built [15s]
+  speedie_ladder_GI_r0.5_snr12: scored [35s]
+speedie_ladder_GI_r0.5_snr12         rc_r dirty 0.012 ORACLE 0.448 | spurious (rc_rms - clean) dirty +901.7 oracle -34.2 m/s | dv_med 79/42 m/s [35s]
+  speedie_ladder_GI_r0.5_snr24: dirty built [0s]
+  speedie_ladder_GI_r0.5_snr24: oracle_linear built [15s]
+  speedie_ladder_GI_r0.5_snr24: scored [36s]
+speedie_ladder_GI_r0.5_snr24         rc_r dirty 0.137 ORACLE 0.685 | spurious (rc_rms - clean) dirty +297.4 oracle -34.8 m/s | dv_med 48/35 m/s [36s]
+  speedie_Kep_r0.5: dirty built [0s]
+  speedie_Kep_r0.5: oracle_linear built [15s]
+  speedie_Kep_r0.5: scored [36s]
+speedie_Kep_r0.5                     rc_r dirty 0.218 ORACLE 0.361 | spurious (rc_rms - clean) dirty +40.1 oracle -4.5 m/s | dv_med 30/11 m/s [36s]
+  speedie_ladder_Kep_r0.5_snr3: dirty built [0s]
+  speedie_ladder_Kep_r0.5_snr3: oracle_linear built [18s]
+  speedie_ladder_Kep_r0.5_snr3: scored [39s]
+speedie_ladder_Kep_r0.5_snr3         rc_r dirty 0.005 ORACLE 0.003 | spurious (rc_rms - clean) dirty +2178.8 oracle +280.8 m/s | dv_med 1570/28 m/s [39s]
+  speedie_ladder_Kep_r0.5_snr6: dirty built [0s]
+  speedie_ladder_Kep_r0.5_snr6: oracle_linear built [15s]
+  speedie_ladder_Kep_r0.5_snr6: scored [36s]
+speedie_ladder_Kep_r0.5_snr6         rc_r dirty -0.005 ORACLE 0.011 | spurious (rc_rms - clean) dirty +1680.5 oracle +25.7 m/s | dv_med 180/17 m/s [36s]
+  speedie_ladder_Kep_r0.5_snr12: dirty built [0s]
+  speedie_ladder_Kep_r0.5_snr12: oracle_linear built [15s]
+  speedie_ladder_Kep_r0.5_snr12: scored [35s]
+speedie_ladder_Kep_r0.5_snr12        rc_r dirty -0.008 ORACLE 0.053 | spurious (rc_rms - clean) dirty +882.4 oracle +5.5 m/s | dv_med 63/14 m/s [36s]
+  speedie_ladder_Kep_r0.5_snr24: dirty built [0s]
+  speedie_ladder_Kep_r0.5_snr24: oracle_linear built [15s]
+  speedie_ladder_Kep_r0.5_snr24: scored [35s]
+speedie_ladder_Kep_r0.5_snr24        rc_r dirty 0.040 ORACLE 0.218 | spurious (rc_rms - clean) dirty +204.4 oracle -2.6 m/s | dv_med 38/12 m/s [35s]
+  speedie_GI_r1.5: dirty built [0s]
+  speedie_GI_r1.5: oracle_linear built [15s]
+  speedie_GI_r1.5: scored [36s]
+speedie_GI_r1.5                      rc_r dirty 0.935 ORACLE 0.957 | spurious (rc_rms - clean) dirty +2.2 oracle -13.0 m/s | dv_med 13/14 m/s [36s]
+  speedie_Kep_r1.5: dirty built [0s]
+  speedie_Kep_r1.5: oracle_linear built [15s]
+  speedie_Kep_r1.5: scored [35s]
+speedie_Kep_r1.5                     rc_r dirty 0.748 ORACLE 0.857 | spurious (rc_rms - clean) dirty +5.7 oracle -3.9 m/s | dv_med 10/5 m/s [35s]
+ORACLE SPEEDIE DONE
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __script__.ipynb to html
+[NbConvertApp] Writing 300846 bytes to __results__.html

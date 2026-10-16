@@ -2,24 +2,36 @@
 ## Project Context File for Agentic IDE
 
 Local-only tracking doc, tracked in git as of `b6cdd79` (syncing across machines). Last
-updated: 2026-10-12 (week 20 of 22; final submission Oct 26 - Nov 3).
+updated: 2026-10-15 (week 20 of 22; final submission Oct 26 - Nov 3).
 
-## 0. CURRENT STATE (2026-10-12) — read this first; older sections below are history
+## 0. CURRENT STATE (2026-10-15) — read this first; older sections below are history
 
 - **Scope to the end:** final models, then exoALMA inference only (DSHARP / VLT out). Dated schedule: `PLAN.md`
-  ("Revised timeline (2026-10-11)"); final-model bars and rounds: `results/PLAN.md`; ALMA design: `ALMA_PLAN.md`.
+  ("Revised timeline (2026-10-11)"); final-model bars and the wiggle plan: `results/PLAN.md` (0b, 0b2); ALMA design: `ALMA_PLAN.md`.
+  The model freeze moved from Oct 15 to about Oct 18 so the wiggle levers could be tested; blog draft to Jason Oct 27 is unchanged.
 - **Model line now:** `experiments/train_unified.py` (Wiener-fed U-Net correction, K=15 window, line emission + hydro +
-  analytic + rendered Young GI discs, all 5 sizes, realistic noise: peak SNR 3-150, Hanning channel correlation, beam
-  broadening, robust normalisation, fp32 residual stream). Notebooks 05-16 are history for this line.
-- **Where results stand:** line emission meets every bar (600 px: 47-48 dB, M0 40-45, M1 86-87, M2 82-88 %); GI wiggle on the
-  Speedie disc 0.75 at peak SNR 24, 0.61 at 12, ~0 at 6 (target 0.85 at >= 13 not yet met). R5 (3 seeds, Young GI data) running
-  2026-10-12; ensemble evaluation running. Details: `results/PROGRESS.md` (newest first), `results/RUNS.md`.
-- **Compute:** three Kaggle accounts driven by `kaggle/accounts/` (orchestrator, keys in `~/.kaggle-<name>/`, never in the repo):
-  main `krishanyadav333`, backup `deepsceneloc`, `aditi` (`aditisah11`). Code reaches Kaggle as the private dataset
-  `exxa-wiggle-code` (flat files + MANIFEST sha256), datasets are shared privately between accounts.
-- **Never train on exoALMA data** (Jason). Speedie et al. 2024 is test-only.
+  analytic GI discs, all 5 sizes, realistic noise: peak SNR 3-150, Hanning channel correlation, beam broadening, robust
+  normalisation, fp32 residual stream). Young GI data was refuted (no wiggle gain); SG v2 in training hurt M2. Notebooks 05-16 are history.
+- **Frozen model (so far):** R4n-long seeds 3 + 11 + 23 averaged with the do-no-harm gate (40, 120, 0.25): `results/final/RESULTS.md`
+  (600 px line emission 49.3 dB, M0 / M1 / M2 47 / 86 / 88 %; Speedie GI wiggle 0.89 native, 0.83 at peak SNR 24, 0.55 at 12, 0.13 at 6).
+  **Frozen recipe (Krishan, 2026-10-16): combo-b** = R4n seeds 3 + 11 + 23 + R8-from-R6 averaged, two-pass Wiener (`--wiener2`), size fix (`--infer-beam-px 10
+  --infer-mode full`) on noise-only cubes only, gate on: line @600 51.7 dB, M0/M1/M2 62/89/91 %; Young M0 @600 47 %; Speedie SNR 12 wiggle 0.60. One main checkpoint set is shipped;
+  the best-wiggle alternative (R6 family) is kept, documented and reported next to it ("use best but don't forget other"). Oct 17 batch: all six jobs (option A).
+  The R8 line-centre loss (`--w-m1`) did not clearly help; R6 (256 px crops) has the best real-GI wiggle but costs 2.5 dB and invents wiggle.
+- **Limits, measured:** oracle linear filter on Speedie, ladder SNR 3 / 6 / 12 / 24: 0.02 / 0.20 / 0.45 / 0.68; our model 0.00 / 0.13 / 0.55 / 0.83.
+  The 0.85 target at SNR 12 is not reachable by any method tried; report the curve. 9074 (hydro GI, SNR ~11): oracle linear 0.38, model 0.29-0.33, R6 0.43-0.47.
+- **ALMA:** inference adapter `experiments/alma_unified.py` (S1, S2, S5 injection-recovery, S6). BUG found 2026-10-15: the line-free plane finder called
+  line planes line-free on the 14 exoALMA 13CO cubes; fixed (per-plane detection, `tests/test_line_free.py`); every 14-disc number and the MWC 758 Gate A are
+  to be re-measured (`alma-mwc758-recheck` running, then the 14 discs with the frozen model). No exoALMA data is ever trained on.
+- **Compute:** six Kaggle accounts driven by `kaggle/accounts/` (orchestrator, keys in `~/.kaggle-<name>/`, never in the repo):
+  main `krishanyadav333`, backup `deepsceneloc`, `aditi` (`aditisah11`), `chirag` (`chiragbhayal`), `chirag2` (`chiragbhayal17`), `jensi` (`jensipaneliya`).
+  Weekly quota (30 h GPU per account) resets Saturday 05:30 IST; main, backup, aditi, chirag are out until Oct 17. The Oct 17 batch is built by
+  `kaggle/accounts/make_unified_job.py --oct17` (R6 seeds, R9 beam-matched training, R8 loss-weight bracket). The local 8 GB machine cannot run models: Kaggle only.
+  Code reaches Kaggle as the private dataset `exxa-wiggle-code` (flat files + MANIFEST sha256; `sync_account.py code main`).
+- **Never train on exoALMA data** (Jason). Speedie et al. 2024 is test-only. Mentor data (line emission, sg_synth, SG v2) stays private.
 - **Branches:** work on `midterm-prep`. Notebook 14's current version is on `native600-loss-sweep`; the
   `14-native600-loss-sweep.ipynb` on midterm-prep is a stale Kaggle Version 8 auto-commit (2026-10-09).
+  Pushed 2026-10-16 (gate, levers, M1 loss, line-free fix, results through combo-b and the MWC 758 recheck).
 
 ---
 

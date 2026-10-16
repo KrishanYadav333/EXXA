@@ -1,0 +1,26 @@
+52:SYNTH = {"9015": ("run_9015_00370_rt_00", 20.0), "9019": ("run_9019_00019_rt_00", 30.0),
+53-         "9025": ("run_9025_00370_rt_00", 20.0), "9032": ("run_9032_00020_rt_00", 20.0),
+54-         "9074": ("run_9074_00025_rt_00", 20.0)}
+55-FRAC = 0.05
+an07 clean        rc_r 1.000  dv_med 0 m/s
+an07 dirty        rc_r 0.591  dv_med 59 m/s
+an07 beam_only    rc_r 0.969  dv_med 12 m/s
+an07 wiener3d_a2  rc_r 0.594  dv_med 43 m/s
+an07 oracle3d     rc_r 0.880  dv_med 23 m/s
+an08 clean        rc_r 1.000  dv_med 0 m/s
+an08 dirty        rc_r 0.491  dv_med 55 m/s
+an08 beam_only    rc_r 0.950  dv_med 10 m/s
+an08 wiener3d_a2  rc_r 0.475  dv_med 32 m/s
+an08 oracle3d     rc_r 0.836  dv_med 19 m/s
+9015 clean        rc_r 1.000  dv_med 0 m/s
+9015 dirty        rc_r 0.040  dv_med 116 m/s
+9015 beam_only    rc_r 0.815  dv_med 5 m/s
+9015 wiener3d_a2  rc_r 0.214  dv_med 59 m/s
+9015 oracle3d     rc_r 0.240  dv_med 37 m/s
+9019 clean        rc_r 1.000  dv_med 0 m/s
+9019 dirty        rc_r 0.715  dv_med 68 m/s
+9019 beam_only    rc_r 0.980  dv_med 11 m/s
+9019 wiener3d_a2  rc_r 0.522  dv_med 70 m/s
+9019 oracle3d     rc_r 0.802  dv_med 49 m/s
+
+[exited with code 0]

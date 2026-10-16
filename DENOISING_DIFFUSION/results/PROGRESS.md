@@ -9,6 +9,200 @@ consequence. Triggers are `run`, `added` (a notebook downloaded into the repo), 
 
 ---
 
+## 2026-10-16 | decision | Krishan: push; shares being done; Oct 17 batch = all six jobs; ship the best recipe and keep the alternative documented
+
+Push approved (midterm-prep only, no PRs, no co-author trailer). Oct 17: all six prepared jobs (R6 seeds 32 / 33, R9 seeds 61 / 62, R8 weight 0.003 / 0.03), not the reduced set I suggested; a seventh
+account is coming, which covers the GPU the final evaluation and the ALMA rerun need. Checkpoints: the main deliverable is the frozen combo-b recipe; the best-wiggle alternative (R6 family, and R8-from-R6) is
+kept, archived and reported next to it with its trade-off (more real-GI wiggle, about 2.5 dB less PSNR), not dropped. Figures of eval-final (155 MB) and R7 s42 (24 MB) are not committed (size); they stay
+in `results/` locally and in the kernel Outputs.
+
+## 2026-10-16 | run | MWC 758 re-measured with the fixed line-free finder (CPU, partial): Gate A S5 holds; the 'noise reduction' number is not a useful check
+
+`aditisah11/alma-mwc758-recheck` v1, R4n-long seeds 3 + 11, crop 512, `results/alma/mwc758-13co_recheck_v1_2026-10-16_partial/`. Fixed finder: 239 of 301 planes line-free (258-259 before; MWC 758's line is narrow, so the bug moved
+less here than on the broad 14-disc lines). Config `fixed_only` complete (inference 100 min on CPU): S5 injection-recovery with the cube's own noise, line-centre error vs truth, dirty -> model:
+GI r0.5 SNR 12 / 24 / 36: 67 -> 25, 37 -> 18, 26 -> 14 m/s (rc_r dirty 0.03 / 0.10 / 0.29, model 0.75 / 0.89 / 0.93, Wiener 0.57 / 0.78 / 0.86); Keplerian twin SNR 12 / 24 / 36: 54 -> 8, 29 -> 7, 20 -> 6 m/s.
+S1: M0 flux ratio 1.02, M1 shift on the brightest 10 % of the mask median 79 m/s (p95 228), S2 > 4 sigma pixels in line-free planes 5.7e-5 raw -> 0 denoised. S5 stands, no invented wiggle on the twin.
+Config `levers` (size fix inert at 6 px beams; two-pass Wiener): S5 GI r0.5 SNR 12 / 24 / 36 rc_r 0.78 / 0.90 / 0.94, line-centre error 23 / 17 / 14 m/s (a small gain over fixed_only); the CPU session was
+cancelled by Kaggle at 164 min into it, so its S1 / S2 / S5 Kep / S6 are missing; the 14-disc rerun (GPU, ~5 min per cube) covers the levers on this cube too.
+Not usable as evidence: S1 "noise reduction" now reads 108x. The denoised line-free planes are essentially zero (the network and Wiener flatten empty planes), so raw rms over denoised rms mostly measures
+that, not noise removed from the signal; S5 and the M0 ratio are the checks that mean something. The earlier "25x" and "5-32x" figures should not be quoted either.
+
+## 2026-10-16 | decision | Frozen inference recipe: combo-b (both levers + R8-from-R6 in the ensemble), size fix restricted to the noise-only regime (Krishan: keep both)
+
+Decided on the regime argument, before the untouched final test (Speedie r1.5 ladder at SNR 6 / 12 / 24) is run. Size fix (`--infer-beam-px 10 --infer-mode full`) applies only where the beam is already in the
+cube and only noise is removed (kind "line" / "*_ai": line holdouts, Young sims, Speedie, 9074_ai, every ALMA cube); beam-deconvolution cubes (9074, an07, an08, SG v2) keep the cube as given
+(`train_unified.infer(..., ai=...)`, `tests/test_infer.py`). Reason: combo-a / b lost 0.05 wiggle on the analytic discs and 6 / 8 points of M1 / M2 on SG v2 @600 only there. Those rows now equal the gated
+frozen model by construction, so combo-b's selection-set numbers for them are the frozen ones. Two-pass Wiener was already noise-only. Ensemble for the freeze: R4n seeds 3 + 11 + 23 + R8-from-R6, plus whatever the
+Oct 17 R6-family seeds add; the r1.5 test is run once, after that ensemble is fixed.
+
+## 2026-10-15 | run | Combos back: both inference levers + R8-from-R6 in the ensemble (combo-b) is the best recipe so far; it gains on line emission, Young, Speedie and costs a little on analytic and SG v2
+
+Same cases as eval-final; "frozen" = eval-final's plain model rows (R4n s3 + s11 + s23; gate applied in the report). combo-a = levers on the same 3 seeds, combo-b = levers + R8-from-R6 (4 nets). Gate on in both.
+- Line holdouts: @256 PSNR 48.2 -> 51.2 dB, M0/M1/M2 52/87/85 -> 62/89/90, rc_r 0.88 -> 0.87; @600 49.3 -> 51.7 dB, 47/86/88 -> 62/89/91, rc_r 0.68 -> 0.76, spine_r 0.78 -> 0.75.
+- Young held-out: M0 @256 26 -> 42 %, @600 12 -> 47 % (Wiener ~21), M1/M2 unchanged, wiggle unchanged (rc 0.55-0.62, spine 0.68-0.69).
+- Speedie ladder GI: SNR 12 rc_r 0.55 -> 0.60 (spine 0.32 -> 0.30), SNR 6 0.13 -> 0.14 (spine 0.13 -> 0.18), SNR 24 unchanged 0.83; twin invented wiggle at SNR 6 +52 -> +25 m/s, SNR 3 worse (+1170 -> +1473; the model is not usable at SNR 3 either way).
+- Speedie r1.5 (SNR ~135, gate active): same as the gated frozen model (GI M0/M2 -0/+49).
+- 9074: rc_r @600 0.33 -> 0.30, spine 0.60 -> 0.67; 9074_ai rc 0.37 -> 0.45, spine 0.72 -> 0.76.
+- Costs: analytic rc_r 0.88 -> 0.83 and PSNR -0.6 dB; SG v2 M1/M2 @600 17/28 -> 11/20 and spine 0.59 -> 0.52. Both are deconvolution-regime cubes where the size fix triggers (analytic beam 13.7 px at 256 px).
+- The size fix also triggered on Speedie (major-axis beam 19.5 px at 1024 px, not 12 as assumed): grid 528 px.
+Decision candidate: combo-b's recipe. Open: whether to restrict the size fix to the noise-only regime (the ALMA case), decided on the regime argument before the final r1.5 test is run.
+
+## 2026-10-15 | finding | Measured with the channel-map spine (Terry et al. 2022), the frozen model recovers most of 9074's wiggle; the per-pixel rc_r undersold it. Asked Jason which measure to report
+
+The scorecard has always computed both: rc_r (per-pixel correlation of M1 minus the axisymmetric rotation curve) and spine_r (the Terry et al. 2022 channel-map spine near v_sys, plus the
+wiggle amplitude A and wavelength lambda from its strongest Fourier component). Only rc_r was ever reported. Frozen model (eval-final, R4n seeds 3 + 11 + 23, gate on):
+9074 spine_r 0.60-0.70 (256-600 px; 9074_ai 0.72-0.77) against rc_r 0.29-0.33; at 9074_ai@300 spine_r model / Wiener / dirty 0.76 / 0.38 / 0.15, wiggle amplitude 12.7 au (clean 12.3), wavelength
+174 au (clean 183). 600 px group means (RESULTS.md, column added): line emission spine_r 0.78 (Wiener 0.35, dirty 0.19), hydro 0.66 (0.24 / 0.19), analytic 0.87 (0.42 / 0.17).
+On the Speedie ladder the spine is weaker: 0.13 / 0.32 / 0.31 at SNR 6 / 12 / 24 (Wiener -0.13 / -0.05 / 0.11), so the two measures disagree there and neither is chosen yet.
+Likely reason for the gap on 9074: per-pixel M1 carries noise below the beam scale (600 px: beam ~27 px) that rc_r counts and the spine, a beam-scale tracker, does not.
+Consequence: 9074 is not the failure it looked like on rc_r. Email sent to Jason 2026-10-15 ~17:10 IST with two plots (`results/email_2026-10-15/`): which measure to report, whether "above the
+best linear filter, with the curve against SNR" is an acceptable bar, a second hydro GI test disc, two checkpoints. `compare_models.METRICS` and RESULTS.md now carry spine_r next to rc_r.
+
+## 2026-10-15 | audit | Check of today's work against RULES.md and the plan: four gaps fixed, one decision corrected
+
+1. RULES.md #10: none of today's run folders had a README, R7 seed 43 was never archived, R7 seed 42 had no log: READMEs written for all nine folders, s43 archived, s42 log added.
+2. RULES.md #12: R7 checkpoints existed only on Kaggle: s41 / s42 / s43 downloaded to `models/unified/`. The first s43 download was silently truncated (245 of 349 MB, not a valid zip):
+   every local checkpoint is now checked with `zipfile.testzip` and s43 was re-fetched with a size check. All nine local checkpoints pass. R8 and R7 indexed in `models/README.md`.
+3. Decision corrected: PLAN.md had "adopt the size fix" although it failed two of the adoption criteria fixed BEFORE the test (line wiggle @600 0.77 < 0.80; 9074 0.31 -> 0.25 where the bar was
+   "not lower"). Now: not adopted on its own; `combo-a` decides it with the two-pass Wiener, and any narrowing of when it triggers is chosen before the final test is looked at.
+4. Test contamination: the Speedie r0.5 ladder, 9074, the line holdouts and the Young sims have all been used to choose between models, so they are selection data. The final reported wiggle-vs-SNR
+   curve will come from the Speedie r1.5 disc rescaled to SNR 6 / 12 / 24, used for nothing so far.
+Open risks: all work since `02c8ff4` is uncommitted (local disk + the Kaggle code overlay only); `--train-beam-px` (R9) has only a unit test, not a run on real cubes; the Oct 17 batch needs the pending shares.
+
+## 2026-10-15 | code | The two levers are in the ALMA adapter; MWC 758 re-measurement launched; Oct 17 batch built
+
+`alma_unified.py`: `run_model` = `train_unified.infer` (network on a ~10 px-beam grid when the beam is wider than 12 px; exoALMA's ~6 px beams leave it inert) then a second pass from `prior_wiener`
+(`--infer-beam-px 10`, `--no-wiener2` to switch off); the report records both. `alma_unified.py` was not in the `exxa-wiggle-code` overlay, so Kaggle ran the last PUSHED version (without the line-free fix):
+added to `CODE_FILES` in `sync_account.py` and re-uploaded. `alma-mwc758-recheck` (CPU, kernel `kaggle/alma_mwc_recheck/`) re-measures MWC 758 with the fixed finder, with and without the levers.
+`kaggle/accounts/make_unified_job.py --oct17` writes the batch for the quota reset: R6 seeds 32 / 33, R9 seeds 61 / 62 (`--train-beam-px 8,12`, evaluated with the levers), R8 weight bracket 0.003 / 0.03 warm from R6.
+Not yet done: the mentor deck (its numbers move until the freeze), the 14-disc rerun (needs the frozen model).
+
+## 2026-10-15 | run | Five jobs back: two inference-only levers work (size fix, two-pass Wiener), the M1 loss (R8) does not clearly, the oracle says what linear filtering can do
+
+Archived: `results/unified/{size-test,wiener2-test,r8-m1-r4n,r8-m1-r6}_v1_2026-10-15/`, `results/oracle-speedie_v2_2026-10-15/`. Means over cubes, one training seed per row unless said.
+
+1. **Oracle linear filter on Speedie** (knows clean's and the noise's spectra; `experiments/oracle_limit.py` logic, kernel `oracle-speedie`): GI r0.5 native 0.80 (our model 0.89, dirty 0.36);
+   ladder SNR 3 / 6 / 12 / 24: 0.02 / 0.20 / 0.45 / 0.68 against the model's 0.00 / 0.13 / 0.55 / 0.83. The model is ABOVE the best linear filter at every SNR from 12 up, by 0.10-0.15, so
+   its wiggle is not what a linear filter gives; 0.85 at SNR 12 is 0.40 above the oracle and 0.30 above the model: not reachable by any method we have, and the measured curve is the result to report.
+2. **Size fix** (`aditisah11/size-test`, seeds 3 + 11, gate on; network on a grid where the beam spans ~10 px, `--infer-beam-px 10`): line holdouts @600 wiggle 0.67 plain -> 0.76 (corr) / **0.77 (full)** / 0.75 (b8 corr);
+   run_0026 0.66 -> **0.89** (Wiener 0.85), run_0002_rt_01 0.63 -> 0.76; Young M0 @600 12 -> **29 %** (Wiener 21), @480 19 -> 29; line PSNR 49.3 -> 48.8 dB (full), 48.1 (corr), 46.8 (b8); M1/M2 +-1; 9074 0.31 -> 0.25 (the one case it hurts;
+   it has a 13.8 px beam so it triggers). Not reached: line wiggle >= 0.80 (0.77; run_0002_rt_04 stays 0.57, a cube whose dirty score flips between 0.22 and 0.03 across sizes: metric-unstable).
+3. **Two-pass Wiener** (`aditisah11/wiener2-test`, seeds 3 + 11): line holdouts PSNR @256 48.0 -> **50.9** dB, @600 49.3 -> **51.3**; M0/M1/M2 55/88/86 -> 63/89/91 (@256), 51/86/88 -> 61/87/90 (@600); wiggle @600 0.67 -> 0.71 (run_0026 0.66 -> 0.77);
+   ladder SNR 12 0.50 -> 0.57, 6 0.12 -> 0.13, 24 unchanged; 9074_ai 0.34 -> 0.43 @600; twin spurious unchanged (+3.9 -> +4.9 at SNR 12, +46.9 -> +32.9 at SNR 6). Free, inference only; applies to the noise-only (A = I) cases.
+4. **R8** (M1 loss, `--w-m1 0.01`, 20 rounds, lr 5e-5, one seed each): from R4n s3: ladder SNR 12 **0.35** (R4n seeds 0.60 / 0.41 / 0.56; worse), line @600 M0 58, wiggle 0.73, twin SNR 6 +152 m/s: not adopted. From R6: SNR 12 / 24 0.64 / 0.83,
+   twin spurious SNR 6 / 12 / 24 +60 / +9.5 / +3.3 (R6: +293 / +11.9 / +4.7), 9074 0.40 / 0.38 (R6 0.47 / 0.43), line @600 45.8 dB M0 47 M1 86 M2 84 (R6 44 / 84 / 84). A small, single-seed improvement in invented wiggle and moments over R6 at a small cost in 9074 wiggle; inside seed noise for the SNR-12 number.
+Next: `combo-a` / `combo-b` (levers 2 + 3 together, with and without R8-from-R6 in the ensemble) on the full decision set.
+
+## 2026-10-15 | code | Two more wiggle levers: a second inference pass from a model-informed Wiener (`--wiener2`), and beam-matched training (`--train-beam-px`)
+
+Krishan: best results, not one hopeful experiment. `prior_wiener`: the blind Wiener the network starts from estimates the signal spectrum as the dirty cube's minus a
+noise model, which is poor at low SNR (9074: blind 0.16 vs oracle 0.38); the second pass builds the Wiener from the first pass's own output spectrum and runs the
+network again (noise-only cases; the reported "wiener" row stays the blind one). Test `aditisah11/wiener2-test` (plain vs second pass in the same run).
+`--train-beam-px lo,hi`: every redraw resamples the cube so its beam spans U(lo, hi) px, i.e. trains where `--infer-beam-px` runs the network; for R9 if the size
+test passes. Tests: `tests/test_prior_wiener.py` (oracle prior mse 0.05 vs 1.00 noisy; self prior changes nothing; redraw lands on the beam-matched grid).
+
+## 2026-10-15 | bug | ALMA adapter: the line-free plane finder called LINE planes line-free on the exoALMA 13CO cubes; every 14-disc number that uses those planes is void
+
+What was wrong: `alma_unified.line_free` sigma-clipped the spectrum summed over the central half of the field. When the line's integrated profile is broad
+and flat-topped, no plane is a 3-MAD outlier and the line planes pass as noise: 241-301 of 301 planes were called line-free on the 14 discs (AA Tau all 301,
+PDS 66 296 of 300, DM Tau 282). How caught: the run's own diagnostic panel "a line-free plane" shows the disc's iso-velocity strip at full brightness (AA Tau),
+and the "residual continuum" it reports was 7-48 sigma, i.e. the mean of the line itself. Consequences: the line's mean was subtracted from every plane as
+continuum (AA Tau M0 ratio 0.83); the Wiener's noise spectrum was measured on line planes; S1 noise reduction and S2 (structure in line-free planes) were measured
+on line planes; S6 used a mask built on top of that. Fix: per-plane detection (peak of the beam-smoothed plane over the plane's own MAD noise, > 6), the main run
+of detected planes grown by 5 channels is the line, the rest line-free; `tests/test_line_free.py` reproduces the failure (old finder: 301 of 301 line-free,
+all 121 line planes among them) and passes with the new one (line 85-215 for a true 90-210; noise-only cube all line-free).
+Numbers touched: everything from `aditisah11/alma-exoalma-all13co` (noise reduction 5-32x, S2, S6, M0 ratios; reported in chat 2026-10-14, not in the blog).
+Also the 2026-10-13 MWC 758 Gate A (258-259 of 301 planes line-free there, plausible for its narrower line but unverified): its S1 / S5 figures are to be
+re-measured with the new finder before they are quoted. Correction in the same entry: the "3 of 14 discs failed" (chat, 2026-10-14) was wrong; all 14
+exited 0; the CLI download stopped at its first page of the 140 output files.
+
+## 2026-10-15 | code | Two fixes for the wiggle built: network on a ~10 px beam grid (inference), and a line-centre (M1) training loss; size test launched
+
+Why the size fix: the same 5 line holdouts score wiggle 0.80-1.00 at 256 px and 0.49-0.69 at 600 px (run_0026 0.90 -> 0.66, below its Wiener's 0.85). The test sizes
+are the native 600 px cube area-averaged down; native beam 15-30 px, so at 256 px it spans ~8 px, at 600 px ~20. Speedie at native 1024 px (beam 12 x 9 px) scores
+0.89, so the network works at a beam scale, not an image size. `train_unified.py --infer-beam-px B --infer-mode corr|full` (`infer()`): if the beam is wider than
+1.2 B px the network runs on a grid where it spans B px; `corr` upsamples only its correction onto the full-resolution Wiener, `full` the whole output.
+Test: `tests/test_infer.py`. Kaggle `aditisah11/size-test` (RUNS.md).
+
+Why the M1 loss: every round so far trained on the cube (L1 + velocity differences) and only measured the wiggle afterwards. `loss_m1`: on crops carrying all
+2 x 10 + 1 channels around a line (+-1 km/s), the intensity-weighted line centre of the prediction against clean's, L1 in channels, where clean has a line peaking
+inside the band. A wiggle the model invents on a Keplerian disc is an M1 error too, so this also penalises R6's spurious signal (11.9 m/s at SNR 12). Separate
+forward/backward per step (memory). `--warm` starts from a checkpoint's weights with a fresh optimiser. Tests: `tests/test_loss_m1.py` (shift recovered exactly,
+masked pixels ignored) and a synthetic one-step check (loss 0.58 channels on a noisy input, 0 on a perfect one, gradients flow). A full local smoke run was killed
+for memory (8 GB machine): all further runs are on Kaggle only. R8 (fine-tune from R6 and from R4n seed 3) waits for account chirag2's shares; chirag and the
+other accounts are out of weekly quota until Oct 17 05:30 IST.
+
+Local checkpoint copies (RULES.md #12): R4n-long seeds 3 / 11 / 23 and R6 downloaded to `models/unified/` (git-ignored).
+
+## 2026-10-15 | run | R6 (256 px crop training, 1 seed) done: best real-GI wiggle so far, above the oracle linear limit on 9074, but invents more wiggle on the Keplerian twin and loses ~2.5 dB at 600 px
+
+`chiragbhayal/unified-r6-k15-crop256` v2 (resumed after its 11 h stop; train 80/80 rounds, eval 72/72). Archived `results/unified/r6-k15-crop256_v2_2026-10-15/`. One seed; compared with the
+three R4n-long seeds (3 / 11 / 23) and their average (`final`), same cases, means over the 5 line holdouts:
+
+| | 9074 rc_r (256-600 px) | Speedie SNR 12 / 24 | twin spurious SNR 6 / 12 / 24 (m/s) | line @600 PSNR, M0/M1/M2 |
+|---|---|---|---|---|
+| R6 | **0.43-0.47** | **0.61** / 0.81 | 293 / 11.9 / 4.7 | 45.8 dB, 44/84/84 |
+| R4n s3 / s11 / s23 | 0.26-0.36 | 0.60 / 0.41 / 0.56; 0.80-0.82 | 67-82 / 4.8-8.0 / -1.4-3.7 | 47.9-49.3 dB |
+| R4n average + gate | 0.29-0.33 | 0.55 / 0.83 | 52 / 3.8 / 0.2 | 49.3 dB, 47/86/88 |
+| oracle linear (2026-10-14) | 0.38 | - | - | - |
+
+Reading: crop training raises the real-GI wiggle beyond what any linear filter can reach (0.45 vs 0.38), so the 9074 limit is NOT the oracle figure; but the same model
+invents more structure on a disc with no wiggle (SNR 12: 11.9 m/s vs the 5 m/s bar) and is worse for line emission at 600 px. Not adoptable alone. Candidate uses:
+a wiggle checkpoint separate from the moment checkpoint (PLAN.md allows 2-3 checkpoints split by purpose), or an R6 + R4n average if averaging keeps the gain and cuts the
+spurious signal (one eval job). R6 is one seed: its 0.61 at SNR 12 sits inside R4n's seed spread, the 9074 gain (above every R4n seed at every size) does not.
+
+## 2026-10-14 | run | How much wiggle is recoverable at the test noise: the frozen model already sits at the best LINEAR filter's limit
+
+`experiments/oracle_limit.py` (local, CPU): an oracle 3D Wiener deconvolution that KNOWS clean's and the noise's radially averaged power spectra (not clean
+itself), i.e. the best shift-invariant linear filter possible for that cube, scored with the same rc_r as everything else. Log: `results/oracle-limit_2026-10-14/run_log.txt`.
+
+| cube | dirty | blind Wiener | **oracle linear** | frozen model (256-600 px) | noise-free beam |
+|---|---|---|---|---|---|
+| 9074 (hydro GI, held out, SNR ~11.5) | 0.13 | 0.16 | **0.38** | 0.29-0.33 | 0.93 |
+| an07 | 0.59 | 0.59 | **0.88** | 0.86-0.90 | 0.97 |
+| an08 | 0.49 | 0.48 | **0.84** | 0.84-0.98 | 0.95 |
+| 9015 (trained on) | 0.04 | 0.21 | **0.24** | - | 0.82 |
+| 9019 (trained on) | 0.72 | 0.52 | **0.80** | - | 0.98 |
+
+Consequence: the model matches or slightly beats the best possible linear filter on every cube where both exist. On 9074 the gap to the 0.85 target is not a training failure the
+data can show: a linear method with perfect spectral knowledge reaches 0.38. Only a non-linear method with a much stronger prior on what GI wiggles look like could go
+further, and how far is unmeasured. The noise-free beam figure (0.93) is NOT an achievable target at SNR ~11; the write-up should quote the oracle-linear figure next to it.
+Speedie (SNR-12 ladder, 0.55) is not local; same check to run on Kaggle.
+
+## 2026-10-14 | run | eval-final done (R4n-long seeds 3+11+23 averaged, gate in) and R7 seed 42 done: R7 is not a clear win on the SNR-12 wiggle
+
+`eval-final` (chirag, 362 min, exit 0, 97 cases): `results/final/RESULTS.md` is the frozen-model report, gate (40,120,0.25) applied from stored mixes. Only the two
+Speedie r1.5 cubes (blind SNR 133 / 121) are changed by the gate. Averaged model, 5 line holdouts, mean over cubes (not seeds): 256 px PSNR 48.2, M0/M1/M2 51.8/87.3/84.9 %;
+600 px PSNR 49.4, M0/M1/M2 47.3/85.6/88.2 %, rc_r 0.68 (dirty 0.21, Wiener 0.39). SG v2 (1 cube, SNR ~63): M0 -6 %, rc_r 0.89 vs dirty 0.88, so equal to dirty (item 8, ceiling-limited).
+Speedie ladder (GI r0.5, averaged model): wiggle rc_r 0.00 / 0.13 / 0.55 / 0.83 at peak SNR 3 / 6 / 12 / 24 (Wiener 0.00 / 0.07 / 0.18 / 0.43); twin spurious +1170 / +52 / +3.8 / +0.2 m/s.
+**The 0.85 target at SNR 12 is NOT met (0.55); at SNR 24 it is 0.83.** Twin at SNR 3 is a failure (+1170 m/s); the model should not be trusted below SNR ~6.
+
+R7 seed 42 (jensi, training SNR 3-40; seeds 41 and 43 not done): ladder wiggle SNR 12 = 0.53, SNR 24 = 0.81, SNR 6 = 0.24 (R4n seeds 0.11-0.13), twin SNR 12 / 24 = 0.36 / 0.57 (R4n 0.27-0.31 / 0.46-0.53);
+line @600 PSNR 43.5 / 49.8 / 52.1 / 52.4 / 43.4 vs seeds 3 / 11 / 23 mean about 1 dB higher. One seed: SNR-12 wiggle inside the R4n range (0.41-0.60), so no gain there; SNR 6 gain real-looking but one seed, and
+line emission slightly lower. Not adoptable on this evidence. Seed 41 is stopped at its budget and needs jensi's quota (reset Oct 17); seed 43 running.
+Archived: `results/unified/eval-final_v1_2026-10-14/`, `results/unified/r7-k15-snr40-s42_v1_2026-10-14/`.
+
+## 2026-10-13 | run | Do-no-harm gate chosen and built: at peak SNR ~135 the plain model's M0 / M2 damage (-76 / -257 %) becomes -4 / +50 % with the wiggle at dirty's level; below SNR ~40 the plain model stays
+
+`eval-gate` (aditi, R4n-long seeds 3 + 11 averaged; archived `results/unified/eval-gate_v1_2026-10-13/`): each case scored for a * model + (1 - a) * Wiener at a = 1, 0.75, 0.5, 0.25, 0, with the blind estimate
+`snr_est` (Wiener-normalisation scale over the rms of what the Wiener removed). The estimate reads 133 / 121 on the two peak-SNR-135 cubes and 27 / 18 / 9 on cubes of true peak SNR 36 / 24 / 12 (SG v2, a hydro-like
+deconvolution cube, reads 27 for a true 63): it under-reads by ~25 % at low SNR and is monotonic within the A = I (Speedie-like) regime, which is what the ALMA cubes are. M0 / M1 / M2 % and rc_r by a:
+| case (est.) | a = 1 (plain) | 0.75 | 0.5 | 0.25 | 0 (Wiener) | dirty rc_r |
+|---|---|---|---|---|---|---|
+| Speedie GI r1.5 (133) | -76 / +40 / -257, 0.95 | -53 / +51 / +68, 0.94 | -21 / +46 / +60, 0.93 | -4 / +37 / +50, 0.91 | -4 / +25 / +40, 0.88 | 0.93 |
+| twin r1.5 (121) | -109 / +60 / -156, 0.85 | -74 / +62 / +62, 0.85 | -30 / +54 / +51, 0.82 | -7 / +43 / +39, 0.76 | -9 / +30 / +27, 0.64 | 0.75 |
+| Speedie GI r0.5 (27) | +7 / +83 / +90, 0.89 | +25 / +80 / +77, 0.87 | +31 / +73 / +67, 0.83 | +31 / +64 / +58, 0.74 | +23 / +55 / +49, 0.59 | 0.36 |
+| ladder SNR 24 (18) | +38 / +88 / +90, 0.83 | +48 / +86 / +77, 0.81 | +51 / +80 / +63, 0.76 | +49 / +73 / +52, 0.65 | +41 / +66 / +42, 0.43 | 0.14 |
+| ladder SNR 12 (9) | +74 / +93 / +90, 0.50 | +78 / +93 / +84, 0.54 | +79 / +91 / +65, 0.57 | +77 / +87 / +49, 0.45 | +72 / +83 / +38, 0.18 | 0.01 |
+| SG v2 (27) | -1 / +12 / +18, 0.87 | +1 / +9 / +13, 0.85 | +2 / +5 / +8, 0.82 | +4 / 0 / +1, 0.78 | +6 / -7 / -7, 0.72 | 0.85 |
+Reads. (1) Only at est. >~100 does the plain model lose to a blend: its M0 and M2 are far below dirty there while dirty is nearly the truth. (2) At est. <= 27 the plain model has the best wiggle, and the blend only buys M0 at the
+price of M1 / M2 / wiggle: kept as is. (3) Gate: a = 1 for est. <= 40, linear to 0.25 at est. >= 120, 0.25 above (`gate_alpha`, `--gate 40,120,0.25`); the 40-120 ramp is an interpolation, no cube of that estimate
+was measured (SG v2's true 63 reads 27, so it does not test it). (4) Cost at est. ~121-133: the wiggle returns to dirty's level (0.91 / 0.76 against dirty 0.93 / 0.75), the denoising of M0 / M1 / M2 becomes
+a small gain or a wash, i.e. the pipeline reverts toward the Wiener output exactly where the data need no help. (5) One observation, not acted on: at est. 9 the 0.5 mix has the better wiggle (0.57 against 0.50) at the
+cost of M2 (65 against 90); a single case, two seeds. Built: `train_unified.py --gate lo,hi,floor` (applied inside `denoise`, logs `gate_a`), `alma_unified.py` (default on, reports `snr_est` / `gate_a`),
+`final_report.py --apply-gate` (selects the stored mix per case from `eval-final`'s `--gate-sweep`; changes only the two r1.5 cases in the sweep file). Local pipeline check: gate a = 0.554 reproduces the manual 0.5 blend
+(M0 / M1 / M2 29.9 / 48.8 / 64.7 against 31.0 / 48.3 / 63.4). Queued: R7 (training SNR 3-40, 3 seeds) for the SNR-12 wiggle, on account jensi once the shares are in.
+
 ## 2026-10-13 | run | R4n-long seed 23 done (first RULES.md #14 stop-and-resume on Kaggle worked); three seeds in: seed 3's line-emission M0 (55) was the high outlier
 
 Seed 23 trained all 24000 steps with 0 skipped steps, reached its 11 h budget while evaluating, wrote `status_*.json` (eval_complete false), and `orchestrator.py resume` relaunched it with its own output attached; the resumed

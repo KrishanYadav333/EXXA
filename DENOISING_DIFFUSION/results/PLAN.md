@@ -27,16 +27,39 @@ moments on held-out cubes, never PSNR alone. Deliverable: 2-3 checkpoints; two s
 
 | # | item | why here | status |
 |---|---|---|---|
-| 1 | Seed 11 shared with chirag | blocks the averaged final evaluation | needs the share (user) |
-| 2 | High-SNR M0 damage: do-no-harm gate | known flaw, known fix, no training; must be in BEFORE the final evaluation so the frozen numbers describe the shipped pipeline | `eval-gate` running (a * model + (1 - a) * Wiener, a = 0.25 / 0.5 / 0.75, SNR 12-135) |
-| 3 | Seed 23 completes | running | resumed after its 11 h budget stop |
-| 4 | Final averaged evaluation (seeds 3 + 11 + 23, gate in), 5 sizes, Speedie, ladder, held-out Young sims | this IS the frozen model | after 1-3; `final_report.py` ready |
+| 1 | Seed 11 shared with chirag | blocks the averaged final evaluation | **DONE** |
+| 2 | High-SNR M0 damage: do-no-harm gate | known flaw, known fix, no training; must be in BEFORE the final evaluation so the frozen numbers describe the shipped pipeline | **DONE 2026-10-13**: gate (40, 120, 0.25) chosen from `eval-gate`; in `train_unified.py --gate`, `alma_unified.py` (default on) and `final_report.py --apply-gate`; SNR 135: M0 / M2 -76 / -257 -> -4 / +50 |
+| 3 | Seed 23 completes | running | **DONE** (stopped at its 11 h budget, resumed, 72 of 72 cases) |
+| 4 | Final averaged evaluation (seeds 3 + 11 + 23, gate in), 5 sizes, Speedie, ladder, held-out Young sims | this IS the frozen model | `eval-final` RUNNING on chirag since 15:35 (~7-8 h; gate applied afterwards from its stored mixes) |
 | 5 | Final figures and results table | needs 4 | `final_report.py` ready |
 | 6 | R6 (256 px crops) decision | job running; adopt only if SNR 12-24 wiggle beats R4n-long seeds without hurting line emission | due Oct 15 |
-| 7 | Wiggle at SNR 12 (0.41-0.60 vs 0.85) | moves only if 6 wins; else reported as a measured limit with the SNR curve | follows 6 |
+| 7 | Wiggle at SNR 12 (0.41-0.60 vs 0.85) | two attempts: R6 (256 px crops) and R7 (training SNR 3-40, 3 seeds, new account); adopt the better one only if it beats the R4n-long seeds on SNR 12-24 without hurting line emission; else a measured limit with the SNR curve | R6 running; R7 queued for the new account |
 | 8 | SG v2 equal to dirty | ceiling-limited: noise-free beam reference 0.92, dirty 0.85 (peak SNR 63); documented, no work | write-up |
 
 Then: re-run ALMA (14 discs + MWC 758) with the frozen model (~5 min per cube).
+
+## 0b2. Wiggle plan (2026-10-15, Krishan: fix the large-size wiggle and the real-GI wiggle before ALMA; freeze moves Oct 15 -> ~Oct 18)
+
+**Problem 1, wiggle at 480 / 600 px.** Measured: same line cubes 0.80-1.00 at 256 px, 0.49-0.69 at 600 px; Speedie at 1024 px (beam 12 x 9 px) fine (0.89).
+The network works at a beam scale (~8-12 px), not an image size; at 600 px the line beams span ~20 px. Fix: `--infer-beam-px B --infer-mode corr|full`.
+Test `aditisah11/size-test` (seeds 3 + 11, plain / b10 corr / b10 full / b8 corr). Adopt if at 480 / 600 px: line wiggle mean >= 0.80, PSNR within 0.5 dB of
+plain, M0/M1/M2 within 2 points, Young M0 >= Wiener, 9074 not lower. Then it goes into `alma_unified.py` and the final evaluation.
+
+**Problem 2, real-GI wiggle at low SNR** (frozen model: 9074 0.29-0.33, Speedie SNR 12 0.55; R6 0.43-0.47 / 0.61; oracle linear 9074 0.38, Speedie: `oracle-speedie`).
+Fix: R8 = fine-tune with the line-centre loss (`--w-m1`), the first training that optimises what the wiggle is made of. Two starts: R4n seed 3
+(`chiragbhayal17/unified-r8-m1-r4n`, running) and R6 (`.../unified-r8-m1-r6`, needs R6 shared with chirag2). Adopt if, on the same cases: Speedie SNR 12 >= 0.65 and
+SNR 24 >= 0.85, 9074 >= 0.45, twin spurious <= 5 m/s at SNR 12 and <= 2 at SNR 24, line @600 >= 48 dB with M1/M2 >= 84 %. Oct 17 (quota reset): 3 seeds of the
+winner (one seed proves nothing: seed spread 0.41-0.60 at SNR 12), averaged, with the size fix; final evaluation Oct 18. If R8 lifts the wiggle but costs moments:
+two checkpoints (moments = R4n average, kinematics = R8 average), allowed by 0. If R8 does not lift it: self-consistent Wiener at inference (signal spectrum
+re-estimated from the model output, Wiener rebuilt, network re-run; blind vs oracle Wiener on 9074 is 0.16 vs 0.38), else report the limit against the oracle per SNR.
+
+**Status 2026-10-15 (results back):** size fix FAILS two of its own adoption criteria set this morning (line wiggle @600 0.77 < 0.80; 9074 0.31 -> 0.25, criterion was "not lower"), while it gains elsewhere (Young M0 @600 12 -> 29 %, run_0026 0.66 -> 0.89, PSNR -0.5 dB).
+So it is NOT adopted on that evidence; `combo-a` decides it together with the two-pass Wiener (which alone passes: +2-3 dB, +10 points M0, `wiener2-test`). If the combination still lowers 9074, the size fix is
+restricted to the cubes it helps (beam > ~15 px, a threshold to be chosen BEFORE looking at the final test) or dropped, and the trade-off is reported. R8 (M1 loss) from R4n: not adopted (SNR 12 0.35); from R6: SNR 12 0.64, invented wiggle at SNR 6 293 -> 60 m/s, 9074 0.38-0.40
+(R6 0.43-0.47): small, one seed. Oracle linear on Speedie 0.02 / 0.20 / 0.45 / 0.68 at SNR 3 / 6 / 12 / 24 against the model's 0.00 / 0.13 / 0.55 / 0.83: the 0.85 bar at SNR 12 is a reported limit.
+Done: `combo-a` / `combo-b` (both levers, full decision set): combo-b adopted 2026-10-16, size fix restricted to noise-only cubes (PROGRESS.md 2026-10-16). Oct 17 batch (`make_unified_job.py --oct17`): R6 seeds 32 / 33, R9 (beam-matched training, `--train-beam-px 8,12`) seeds 61 / 62, R8 weight bracket 0.003 / 0.03.
+**Final test, never used for a decision:** the Speedie r1.5 disc rescaled to SNR 6 / 12 / 24 (`--ladder-base GI_r1.5,Kep_r1.5`); every selection so far used the r0.5 ladder, 9074, the line
+holdouts and the Young sims, so the frozen model's reported wiggle-vs-SNR curve comes from r1.5, with the r0.5 numbers labelled as selection data.
 
 ## 0c. After GSoC (Krishan, 2026-10-13): consolidate notebooks, datasets and checkpoints in one place
 
