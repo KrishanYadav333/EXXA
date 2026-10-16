@@ -2,7 +2,7 @@
 One report for the FROZEN final model (PLAN.md: final models, all 5 sizes, wiggle and moments, seed spread), from eval JSONs written by train_unified.py.
 
   python experiments/final_report.py --final final=eval_final.json --seeds s3=a.json s11=b.json s23=c.json --out results/final/RESULTS.md
-         [--ladder final=eval_final.json] [--gate gate=eval_gate.json]
+         [--ladder final=eval_final.json] [--gate gate=eval_gate.json] [--apply-gate 40,120,0.25]
 
 For each of the five sizes: the final (averaged) model next to dirty and Wiener (their rows come from the final file), per group (line, hydro, analytic, sgv2,
 young_test, speedie); then, per group and size, the RANGE of every metric across the individual seeds (min .. max), because a single seed is not evidence
@@ -17,6 +17,26 @@ import compare_models as cm
 SIZES = (256, 300, 320, 480, 600)
 
 
+def gated(res, gate):
+    """Apply the do-no-harm gate to a result file that stored a * model + (1 - a) * Wiener for a in {0.25, 0.5, 0.75} (`--gate-sweep`): per case, a = gate_alpha(snr_est);
+    the stored mix nearest to a replaces the model's moments and wiggle. Cases without stored mixes keep the plain model. Returns (new results, list of changes)."""
+    lo, hi, floor = gate
+    out, changes = {}, []
+    for key, v in res.items():
+        if "failed" in v or "mix" not in v or "snr_est" not in v:
+            out[key] = v; continue
+        a = float(min(1.0, max(floor, 1.0 - (1.0 - floor) * (v["snr_est"] - lo) / (hi - lo))))
+        stored = sorted(float(x) for x in v["mix"])
+        near = min(stored + [1.0], key=lambda x: abs(x - a))
+        if near == 1.0:
+            out[key] = v; continue
+        w = dict(v); w["model"] = {**v["model"], **v["mix"][f"{near:g}"]}
+        w["wiggle"] = {**v["wiggle"], "model": v["wiggle"][f"mix{near:g}"]}
+        out[key] = w
+        changes.append((key, v["snr_est"], a, near))
+    return out, changes
+
+
 def load(spec):
     return {n: json.load(open(p)) for n, p in (x.split("=", 1) for x in spec)}
 
@@ -27,10 +47,16 @@ def main():
     ap.add_argument("--seeds", nargs="*", default=[])
     ap.add_argument("--ladder", nargs="*", default=[])
     ap.add_argument("--gate", nargs="*", default=[])
+    ap.add_argument("--apply-gate", default="", help="lo,hi,floor: apply the do-no-harm gate to the final file (needs --gate-sweep mixes)")
     ap.add_argument("--out", default="")
     a = ap.parse_args()
     final, seeds = load(a.final), load(a.seeds)
     (fname, fres), = final.items()
+    changes = []
+    if a.apply_gate:
+        fres, changes = gated(fres, tuple(float(x) for x in a.apply_gate.split(",")))
+        seeds = {}                                  # per-seed files have no mixes: their range is for the PLAIN model, say so in the table
+        fname = fname + "+gate"
     L = [f"# Final model `{fname}`: results at all five sizes", "",
          "Moments are signal-masked, noise-clipped improvements over dirty (RULES.md #6). `model` = the averaged final model; dirty and Wiener rows are computed on the same cubes.", ""]
     for size in SIZES:
@@ -55,6 +81,9 @@ def main():
                 if rng:
                     L.append(f"| seed range ({len(seeds)} seeds) | | " + " | ".join(f"{min(rng[k]):.2f} .. {max(rng[k]):.2f}" if k in rng else "-" for k, _ in cm.METRICS) + " |")
             L.append("")
+    if changes:
+        L += ["## Where the gate changed the model", "", "| case | blind SNR est | gate a | mix used |", "|---|---|---|---|"]
+        L += [f"| {k} | {e:.0f} | {x:.2f} | {n:g} |" for k, e, x, n in sorted(changes, key=lambda c: -c[1])] + [""]
     for spec in a.ladder:
         n, p = spec.split("=", 1)
         L += [f"## SNR ladder (Speedie GI r0.5 with its own noise rescaled): `{n}`", "", subprocess.run([sys.executable, os.path.join(HERE, "ladder_report.py"), f"{n}={p}"],

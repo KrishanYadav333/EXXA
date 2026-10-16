@@ -1,0 +1,23 @@
+{
+  "id": "chiragbhayal/size-test",
+  "title": "size-test",
+  "code_file": "kernel_size_test.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_internet": "true",
+  "dataset_sources": [
+    "krishanyadav333/line-emission-data",
+    "krishanyadav333/exxa-sg-synth-pairs",
+    "krishanyadav333/self-gravitating-v2",
+    "krishanyadav333/exxa-wiggle-code"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [
+    "deepsceneloc/unified-r4n-k15-long",
+    "aditisah11/unified-r4n-k15-long-s11",
+    "chiragbhayal/unified-r4n-k15-long-s23",
+    "deepsceneloc/sph-cubes"
+  ]
+}

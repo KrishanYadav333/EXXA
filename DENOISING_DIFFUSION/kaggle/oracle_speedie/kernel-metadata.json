@@ -1,0 +1,13 @@
+{
+  "id": "krishanyadav333/oracle-speedie",
+  "title": "oracle-speedie",
+  "code_file": "kernel_oracle_speedie.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": "true",
+  "enable_gpu": "false",
+  "enable_internet": "true",
+  "dataset_sources": ["krishanyadav333/exxa-wiggle-code"],
+  "competition_sources": [],
+  "kernel_sources": ["krishanyadav333/speedie-prep-fast"]
+}

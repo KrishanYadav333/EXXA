@@ -42,7 +42,7 @@ def pick(v, who, k):
     return None if g is None else g.get(k)
 
 
-METRICS = [("psnr", "PSNR"), ("M0", "M0%"), ("M1", "M1%"), ("M2", "M2%"), ("rc_r", "rc_r"), ("dv_med_ms", "dv m/s")]
+METRICS = [("psnr", "PSNR"), ("M0", "M0%"), ("M1", "M1%"), ("M2", "M2%"), ("rc_r", "rc_r"), ("spine_r", "spine_r"), ("dv_med_ms", "dv m/s")]   # spine_r: Terry et al. 2022 channel-map spine (PROGRESS.md 2026-10-15)
 
 
 def summarise(res, size, who):

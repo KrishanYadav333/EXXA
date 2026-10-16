@@ -63,10 +63,14 @@ SG_DIR = os.path.join(ROOT, "self-gravitating cube and dirty cube")
 # Realistic-noise training (PLAN.md workstream A; --snr / --chan-corr / --beam-max, all off by default so older runs reproduce):
 # peak SNR drawn log-uniform in REAL["snr"], neighbouring-channel noise correlation [a, 1, a] with a ~ U(0, chan_a) (a = 0.5 is
 # Hanning: lag-1 +0.67, lag-2 +0.17; Speedie measured +0.64 / +0.15), beam broadened by r ~ U(1, beam_max) in the A = I tasks.
-REAL = {"snr": None, "chan_a": 0.0, "beam_max": 1.0}
+REAL = {"snr": None, "chan_a": 0.0, "beam_max": 1.0, "beam_px": None}   # beam_px: --train-beam-px (lo, hi)
 DEADLINE = float("inf")   # wall-clock time (epoch s) by which this session must have saved everything: EXXA_T0 (kernel start) + --budget-h
+GATE = None          # --gate lo,hi,floor: do-no-harm gate (see gate_alpha). None = off, so every earlier run reproduces
 GATE_SWEEP = []      # --gate-sweep: mix levels a in [0, 1] of  a * model + (1 - a) * Wiener  scored next to the plain model (PLAN.md: do-no-harm gate)
 NORM = "wiener"      # --norm: "wiener" = divide by the Wiener cube's peak (all runs to 2026-10-11); "robust" = see scale_of
+INFER_BEAM = 0.0     # --infer-beam-px: run the network where the beam spans this many px (see infer); 0 = on the cube as given (all runs to 2026-10-14)
+INFER_MODE = "corr"  # --infer-mode
+WIENER2 = False      # --wiener2: evaluation, second pass with prior_wiener (noise-only cases)
 CLIP_IN = 0.0        # --clip-in: clamp the network input to +-CLIP_IN (k15 v3: inputs of +-35-40 vs the usual +-4 overflowed fp16 and the run diverged)
 HYDRO_TRAIN = ["9015", "9019", "9025", "9032"]
 ANALYTIC_TRAIN = ["an01", "an02", "an03", "an04", "an05", "an06"]
@@ -190,6 +194,18 @@ def scale_of(dS, wS):
     return max(s, 1e-30)
 
 
+def gate_alpha(snr_est, gate=None):
+    """Do-no-harm gate (PLAN.md 0b item 2). Mix of the model and the Wiener output, a * model + (1 - a) * Wiener, chosen from the blind peak-SNR estimate:
+    a = 1 up to `lo`, falling linearly to `floor` at `hi`, `floor` above. Measured (eval-gate, 2026-10-13, R4n-long seeds 3 + 11): at estimate 121-133 (true peak SNR
+    ~135) the plain model damages M0 / M2 (-76 / -257 %); a = 0.25 gives -4 / +50 % with the wiggle at dirty's level; at estimates 9-27 (true SNR 12-36 and SG v2)
+    the plain model has the best wiggle, so a stays 1. The ramp between 40 and 120 is an interpolation: no cube of that estimate was measured."""
+    g = gate or GATE
+    if not g:
+        return 1.0
+    lo, hi, floor = g
+    return float(np.clip(1.0 - (1.0 - floor) * (snr_est - lo) / max(hi - lo, 1e-9), floor, 1.0))
+
+
 def noise_level(dS, wS):
     """Noise-map value fed to the network: rms of (dirty - Wiener) at the working size. Same blind definition in training and at
     test time, whatever the data kind or resampling."""
@@ -237,6 +253,7 @@ class TrainCube:
         ai = line_like or rng.random() < self.p_ai
         self.kind = "line" if line_like else self.family + ("_ai" if ai else "")
         clean, spec = self.clean, self.amp
+        r = 1.0
         if ai and REAL["beam_max"] > 1:              # a coarser beam: inside clean AND shaping the noise, as in a CLEAN product
             r = rng.uniform(1.0, REAL["beam_max"])
             G = gauss_otf(self.n, self.fwhm * math.sqrt(r * r - 1))
@@ -254,6 +271,8 @@ class TrainCube:
         del white, noise
         w = native_wiener(dirty, self.kind)
         S = int(rng.choice(sizes))
+        if REAL["beam_px"]:                          # train where inference runs (infer: the beam spans ~INFER_BEAM px), not over every image size
+            S = max(64, int(round(self.n * rng.uniform(*REAL["beam_px"]) / (self.fwhm * r) / 8)) * 8)
         self.S = S
         cS, dS, wS = resample(clean, S), resample(dirty, S), resample(w, S)
         del dirty, w, clean
@@ -478,6 +497,46 @@ def build_net(arm, base):
     return net
 
 
+def make_m1_batch(cubes, probs, n, crop_max, band, rng):
+    """`n` crops, each with ALL 2*band+1 channels around a centre (cube's own 0.1 km/s step), so the line centre (M1) of the prediction can be
+    compared with clean's inside the band. Same inputs as make_batch (arm wiener)."""
+    X, B0, Cc = [], [], []
+    for _ in range(n):
+        cb = cubes[rng.choice(len(cubes), p=probs)]
+        offs, step = offsets(cb.dv)
+        crop = min(crop_max, cb.S)
+        lo_c, hi_c = band * step, cb.C - 1 - band * step
+        c = int(np.clip(rng.choice(cb.C, p=cb.ch_w), lo_c, hi_c))
+        y0, x0 = int(rng.integers(0, cb.S - crop + 1)), int(rng.integers(0, cb.S - crop + 1))
+        sl = (slice(None), slice(y0, y0 + crop), slice(x0, x0 + crop))
+        for cen in c + np.arange(-band, band + 1) * step:
+            nb = np.clip(cen + offs, 0, cb.C - 1)
+            X.append(np.concatenate([cb.d[nb][sl], cb.w[nb][sl], np.full((1, crop, crop), cb.sig, np.float16)]).astype(np.float32))
+            B0.append(cb.w[cen][sl[1:]].astype(np.float32))
+            Cc.append(cb.c[cen][sl[1:]].astype(np.float32))
+    h = max(x.shape[-1] for x in X)
+    pad = lambda a: np.pad(a, [(0, 0)] * (a.ndim - 2) + [(0, h - a.shape[-2]), (0, h - a.shape[-1])])
+    t = lambda a: torch.from_numpy(np.stack([pad(x) for x in a])).float().to(dev)
+    x = t(X)
+    return (x.clamp_(-CLIP_IN, CLIP_IN) if CLIP_IN else x), t(B0), t(Cc)
+
+
+def loss_m1(corr, b0, cc, n, band, thr=0.05):
+    """Line-centre error, the quantity the wiggle is made of (rc_r correlates M1 minus the axisymmetric rotation curve with clean's). Intensity-weighted
+    centroid over the band (positive part) for prediction and clean, L1 in channel units, on pixels where clean has a line peaking inside the band
+    (not within 2 channels of its edge) and brighter than `thr` of the normalised peak. Invented structure on a disc without a wiggle is an M1 error
+    too, so this penalises it directly."""
+    nb = 2 * band + 1
+    p = (b0 + corr[:, 0]).view(n, nb, *b0.shape[-2:]).clamp(min=0)
+    c = cc.view(n, nb, *cc.shape[-2:]).clamp(min=0)
+    v = (torch.arange(nb, device=p.device, dtype=p.dtype) - band).view(1, nb, 1, 1)
+    m1p = (p * v).sum(1) / (p.sum(1) + 1e-6)
+    m1c = (c * v).sum(1) / (c.sum(1) + 1e-6)
+    pk = c.argmax(1)
+    mask = ((c.amax(1) > thr) & (pk >= 2) & (pk <= nb - 3)).float()
+    return ((m1p - m1c).abs() * mask).sum() / mask.sum().clamp(min=1.0), float(mask.mean().item())
+
+
 def loss_fn(corr, b0, cc, w_d1=1.0, w_d2=1.0):
     p = (b0 + corr[:, 0]).view(-1, 3, *b0.shape[-2:])
     c = cc.view(-1, 3, *cc.shape[-2:])
@@ -512,7 +571,43 @@ def denoise(net, arm, dirty, w, dv, bs=8):
             with torch.autocast(device_type="cuda", dtype=torch.float16, enabled=dev == "cuda"):
                 corr = net(x, torch.zeros(len(idx), dtype=torch.long, device=dev), None)
             out[idx] = base[idx] + corr.float()[:, 0, :n, :n].cpu().numpy() * s
+    if GATE and arm == "wiener":
+        a_ = gate_alpha(1.0 / max(sig, 1e-30))               # snr_est = scale / noise level = 1 / sig, the network's own noise-map input
+        out = (a_ * out + (1.0 - a_) * w).astype(np.float32)
     return out
+
+
+def prior_wiener(d, p):
+    """Noise-only regime (A = I): a Wiener filter of `d` whose signal power is the radially averaged power of `p` (a first pass's output) and whose noise
+    power is that of d - p, per velocity frequency. The blind Wiener estimates the signal power as the dirty cube's minus a noise model, which is poor at low
+    SNR (9074: blind 0.16, oracle 0.38; oracle_limit.py); the network starts from that estimate."""
+    C, n, _ = d.shape
+    kr = np.hypot(np.fft.fftfreq(n)[None, :], np.fft.fftfreq(n)[:, None]); nb = 120
+    rb = np.minimum((kr / kr.max() * nb).astype(int), nb - 1); cnt = np.maximum(np.bincount(rb.ravel(), minlength=nb), 1)
+    D = sfft.fftn(d.astype(np.float32), workers=-1); P = sfft.fftn(p.astype(np.float32), workers=-1)
+    for i in range(C):
+        Ps = ws._radial_avg(np.abs(P[i]) ** 2, rb, cnt, nb); Pn = ws._radial_avg(np.abs(D[i] - P[i]) ** 2, rb, cnt, nb)
+        D[i] *= (Ps / (Ps + Pn + 1e-30)).astype(np.float32)
+    del P
+    return sfft.ifftn(D, workers=-1).real.astype(np.float32)
+
+
+def infer(model, arm, dS, w, dv, beam_px, ai=True):
+    """The model on the cube as given, or (INFER_BEAM > 0 and the beam wider than 1.2 x INFER_BEAM px) on a coarser grid where the beam spans INFER_BEAM px.
+    Why: the same line cubes lose wiggle from 256 to 600 px (beam ~9 -> ~20 px; run_0026 0.90 -> 0.66, below Wiener's 0.85), while Speedie at 1024 px
+    (beam 12 x 9 px) is fine, so the network works at a beam scale, not an image size. INFER_MODE "corr": only the network's correction is computed on the
+    coarse grid and upsampled onto the full-resolution Wiener; "full": the coarse output itself is upsampled."""
+    f = (lambda d_, w_: model.denoise(arm, d_, w_, dv)) if isinstance(model, Ensemble) else (lambda d_, w_: denoise(model, arm, d_, w_, dv))
+    S = dS.shape[-1]
+    if not INFER_BEAM or not ai or beam_px <= 1.2 * INFER_BEAM:   # ai: only the noise-only regime (A = I); beam deconvolution cubes keep the cube as given (combo-a / b: analytic -0.05, SG v2 M1/M2 -6/-8)
+        return f(dS, w)
+    s0 = max(64, int(round(S * INFER_BEAM / beam_px / 8)) * 8)
+    print(f"  infer: beam {beam_px:.1f} px > 1.2 x {INFER_BEAM:g}: network on a {s0} px grid (image {S} px, mode {INFER_MODE})", flush=True)
+    d0, w0 = resample(dS, s0), resample(w, s0)
+    p0 = f(d0, w0)
+    if INFER_MODE == "corr":
+        return (w + resample(p0 - w0, S)).astype(np.float32)
+    return resample(p0, S)
 
 
 class Ensemble:
@@ -634,7 +729,9 @@ def score_case(model, arm, case, S, figdir):
         net, kk, oc = model
         pred = denoise_legacy(net, dS, dv, kk, oc)
     else:
-        pred = model.denoise(arm, dS, w, dv) if isinstance(model, Ensemble) else denoise(model, arm, dS, w, dv)
+        pred = infer(model, arm, dS, w, dv, beam_au / (au * n / S), is_ai(kind))
+        if WIENER2 and is_ai(kind) and arm == "wiener":   # second pass from a Wiener built on the first pass (prior_wiener); the "wiener" row stays the blind one
+            pred = infer(model, arm, dS, prior_wiener(dS, pred), dv, beam_au / (au * n / S), True)
     cS, dS, pred, w, v = cS[sl], dS[sl], pred[sl], w[sl], velax[sl]
     # 1) PSNR / SSIM / M0 / M1 / M2 / artifacts: checkpoint_eval, the nb16 definitions
     case_ce = ce.Case(f"{name}@{S}", "line_emission" if is_ai(kind) else "sg", cS.copy(), dS.copy(), v * 1000.0,
@@ -645,6 +742,7 @@ def score_case(model, arm, case, S, figdir):
     # blind peak-SNR estimate, the quantity a gate would switch on: Wiener-normalisation scale over the rms of what the Wiener removed (same
     # numbers the network gets as its noise-map input); logged for every case so its relation to the true peak SNR can be read off.
     res["snr_est"] = float(scale_of(dS, w) / max(noise_level(dS, w), 1e-30))
+    res["gate_a"] = gate_alpha(res["snr_est"]) if GATE else 1.0
     # 2) the wiggle: rotation-curve residual, coherence, line-centre error, Terry spine
     d = {"clean": cS, "dirty": dS, "velax": v, "au": au * n / S, "incl": incl if incl is not None else 30.0,
          "crop": slice(None), "beam_au": beam_au}
@@ -750,6 +848,7 @@ def main():
     ap.add_argument("--sph-max", type=int, default=0, help="at most this many sph folders (0 = all)")
     ap.add_argument("--eval-sph", action="store_true", help="score the held-out sph simulations")
     ap.add_argument("--norm", default="wiener", choices=["wiener", "robust"], help="cube normalisation (robust: needed for training SNR down to 3)")
+    ap.add_argument("--gate", default="", help="do-no-harm gate lo,hi,floor (e.g. 40,120,0.25); empty = off")
     ap.add_argument("--gate-sweep", default="", help="evaluation: comma list of mix levels a; scores a * model + (1 - a) * Wiener for each")
     ap.add_argument("--tta", action="store_true", help="evaluation: average over the 4 sky-plane flips")
     ap.add_argument("--eval-ladder", default="", help="peak-SNR targets for the Speedie SNR ladder, e.g. 3,6,12,24 (empty: off)")
@@ -757,24 +856,39 @@ def main():
     ap.add_argument("--train-sgv2", action="store_true", help="add SG v2 (Terry setup, q 0.75) to the training set; it is then NOT held out")
     ap.add_argument("--clip-in", type=float, default=0.0, help="clamp the network input to +-this (0 = off)")
     ap.add_argument("--beam-max", type=float, default=1.0, help="max beam broadening factor in the noise-only tasks (1 = off)")
+    ap.add_argument("--infer-beam-px", type=float, default=0.0, help="evaluation: run the network on a grid where the beam spans this many px (0 = off)")
+    ap.add_argument("--infer-mode", default="corr", choices=["corr", "full"], help="with --infer-beam-px: upsample the correction only, or the whole output")
+    ap.add_argument("--wiener2", action="store_true", help="evaluation: second pass from a Wiener built on the first pass's output (prior_wiener)")
+    ap.add_argument("--train-beam-px", default="", help="lo,hi: each redraw resamples the cube so its beam spans U(lo, hi) px instead of drawing from --sizes")
+    ap.add_argument("--warm", default="", help="start from this wiener-arm checkpoint's weights (K and base from it), fresh optimizer and schedule")
+    ap.add_argument("--w-m1", type=float, default=0.0, help="weight of the line-centre (M1) loss, loss_m1 (0 = off)")
+    ap.add_argument("--m1-band", type=int, default=10, help="M1 loss: half-width of the channel band, in 0.1 km/s steps")
+    ap.add_argument("--m1-crops", type=int, default=2, help="M1 loss: crops per step (each carries 2 * band + 1 channels)")
+    ap.add_argument("--m1-crop", type=int, default=96, help="M1 loss: crop size (px)")
     args = ap.parse_args()
     if args.smoke:
         args.rounds, args.steps, args.batch, args.crop, args.base = 2, 4, 2, 64, 8
         args.sizes, args.hydro, args.analytic, args.n_line, args.n_line_eval = "128,160", "9015", "an01", 1, 1
         args.eval_sg, args.before_sizes, args.before_cases = "an07", "128", "run_0002_00560_rt_00,an07_ai"
-    global K, CLIP_IN, NORM, DEADLINE, GATE_SWEEP
+    global K, CLIP_IN, NORM, DEADLINE, GATE_SWEEP, GATE, INFER_BEAM, INFER_MODE, WIENER2
     K, CLIP_IN, NORM = args.k, args.clip_in, args.norm
+    INFER_BEAM, INFER_MODE, WIENER2 = args.infer_beam_px, args.infer_mode, args.wiener2
+    GATE = tuple(float(x) for x in args.gate.split(",")) if args.gate else None
     GATE_SWEEP = [float(x) for x in args.gate_sweep.split(",") if x]
     DEADLINE = float(os.environ.get("EXXA_T0", time.time())) + args.budget_h * 3600
     if args.fp32_stream:
         _enable_fp32_stream()
-    REAL.update(snr=tuple(float(v) for v in args.snr.split(",")) if args.snr else None, chan_a=args.chan_corr, beam_max=args.beam_max)
+    REAL.update(snr=tuple(float(v) for v in args.snr.split(",")) if args.snr else None, chan_a=args.chan_corr, beam_max=args.beam_max,
+                beam_px=tuple(float(v) for v in args.train_beam_px.split(",")) if args.train_beam_px else None)
     ens_paths = [p for p in args.eval_ckpt.split(",") if p] if args.eval_ckpt else []
     if args.eval_ckpt:                                        # an arm checkpoint written by this script (comma list = ensemble, same K / arm / base)
         _ck = torch.load(ens_paths[0], map_location="cpu", weights_only=False)
         K, args.arm, args.base, args.eval_only = int(_ck["K"]), _ck["arm"], int(_ck["base"]), True
         CLIP_IN = float((_ck.get("args") or {}).get("clip_in", 0.0))      # a model trained with an input clamp is evaluated with it
         NORM = (_ck.get("args") or {}).get("norm", "wiener")               # and with the normalisation it was trained with
+    if args.warm:                                             # fine-tune: architecture from the checkpoint, everything else from the command line
+        _wk = torch.load(args.warm, map_location="cpu", weights_only=False)
+        K, args.k, args.arm, args.base = int(_wk["K"]), int(_wk["K"]), _wk["arm"], int(_wk["base"])
     legacy = bool(args.init)
     arm = "legacy" if legacy else args.arm
     if args.eval_ckpt:
@@ -795,6 +909,9 @@ def main():
         if args.eval_ckpt:
             net.load_state_dict(_ck["model_state_dict"], strict=True)
             print(f"loaded {ens_paths[0]}: arm {args.arm}, window +-{K}, base {args.base}", flush=True)
+        if args.warm:
+            net.load_state_dict(_wk["model_state_dict"], strict=True); del _wk
+            print(f"warm start from {args.warm}: arm {args.arm}, window +-{K}, base {args.base}", flush=True)
         model = net
         if len(ens_paths) > 1 or args.tta:
             nets = [net]
@@ -866,7 +983,7 @@ def main():
         if dev == "cuda":
             torch.cuda.empty_cache()     # redraw resamples on the GPU; return those blocks before training resumes
         net.train()
-        acc, n_ok = np.zeros(3), 0
+        acc, n_ok, acc_m1, n_m1 = np.zeros(3), 0, 0.0, 0
         for _ in range(args.steps):
             if legacy:
                 x, tgt = make_batch_legacy(cubes, probs, args.batch, args.crop, rng, kk, oc)
@@ -897,6 +1014,16 @@ def main():
             bad_run = 0
             opt.zero_grad(set_to_none=True)
             scaler.scale(loss).backward()
+            if args.w_m1 > 0 and not legacy:             # second, separate forward/backward (memory): the line-centre loss on full-band crops
+                out = loss = None
+                xm, bm, cm = make_m1_batch(cubes, probs, args.m1_crops, args.m1_crop, args.m1_band, rng)
+                with torch.autocast(device_type="cuda", dtype=torch.float16, enabled=dev == "cuda"):
+                    om = net(xm, torch.zeros(xm.shape[0], dtype=torch.long, device=dev), None)
+                lm, mfrac = loss_m1(om.float(), bm, cm, args.m1_crops, args.m1_band)
+                if torch.isfinite(lm):
+                    scaler.scale(args.w_m1 * lm).backward()
+                    acc_m1 += lm.item(); n_m1 += 1
+                del xm, bm, cm, om, lm
             scaler.unscale_(opt); nn.utils.clip_grad_norm_(net.parameters(), 1.0)
             scaler.step(opt); scaler.update(); sched.step(); step += 1
             acc += parts; n_ok += 1
@@ -911,6 +1038,7 @@ def main():
         hist.append([rnd + 1, step, *acc.tolist(), t_draw])
         print(f"round {rnd + 1}/{args.rounds} step {step}  L1 {acc[0]:.5f}  d1 {acc[1]:.5f}  d2 {acc[2]:.5f}  "
               f"redraw {t_draw:.0f}s  sizes {sorted({c.S for c in cubes})}  {(time.time() - t0) / 60:.1f} min"
+              + (f"  M1 err {acc_m1 / max(1, n_m1):.4f} ch" if n_m1 else "")
               + (f"  [{n_bad} non-finite steps skipped so far]" if n_bad else ""), flush=True)
         torch.save({"model_state_dict": net.state_dict(), "arm": arm, "base": args.base, "K": K, "alpha": ALPHA, "init": args.init,
                     "n_neighbors": kk if legacy else None, "out_channels": oc if legacy else 1, "in_channels": net.in_channels,

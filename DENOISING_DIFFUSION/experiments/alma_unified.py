@@ -56,20 +56,35 @@ def read_cube(path, crop):
     return cube, np.ascontiguousarray(velax), hdr, pix, (float(hdr["BMAJ"]) * 3600, float(hdr["BMIN"]) * 3600)
 
 
-def line_free(cube, nsig=3.0):
-    """Planes without line emission: iterative sigma clipping of the spectrum of the central half of the field (median / MAD, 3 sigma, until stable).
-    Line planes are outliers whatever their position, so this works when the edges hold line emission (a truncated download, a narrow band)."""
+def line_free(cube, beam_px=6.0, nsig=6.0, grow=5, bridge=3):
+    """Planes without line emission. Each plane is tested on its own: the peak of its central half, smoothed over a beam, in units of that plane's robust
+    noise (MAD of the smoothed plane). Planes above `nsig` hold line emission; runs of them closer than `bridge` channels are joined, the run with the most
+    signal is the line, grown by `grow` channels for faint wings; every plane outside it is line-free. A disc's line covers one contiguous velocity range
+    (each channel's iso-velocity strip), so this does not depend on the shape of the integrated spectrum. The previous version sigma-clipped the summed
+    spectrum and called 241-301 of 301 planes line-free on the exoALMA 13CO cubes, line planes included (AA Tau: all 301; 2026-10-15)."""
+    from scipy import ndimage
     C, n = cube.shape[0], cube.shape[-1]
     q = n // 4
+    k = max(3, int(round(beam_px)))
+    det = np.empty(C)
+    for i in range(C):
+        p = ndimage.uniform_filter(cube[i, q:n - q, q:n - q].astype(np.float32), k)
+        med = float(np.median(p)); mad = 1.4826 * float(np.median(np.abs(p - med))) + 1e-30
+        det[i] = (float(p.max()) - med) / mad
     spec = cube[:, q:n - q, q:n - q].astype(np.float64).sum((1, 2))
-    keep = np.ones(C, bool)
-    for _ in range(20):
-        med = np.median(spec[keep]); mad = 1.4826 * np.median(np.abs(spec[keep] - med)) + 1e-30
-        new = np.abs(spec - med) < nsig * mad
-        if (new == keep).all():
-            break
-        keep = new
-    lf = np.where(keep)[0]
+    hit = np.where(det > nsig)[0]
+    if len(hit) == 0:                                      # no line found: every plane is noise
+        return np.arange(C), spec
+    runs, cur = [], [hit[0], hit[0]]
+    for h in hit[1:]:
+        if h - cur[1] <= bridge + 1:
+            cur[1] = h
+        else:
+            runs.append(cur); cur = [h, h]
+    runs.append(cur)
+    lo, hi = max(runs, key=lambda r: det[r[0]:r[1] + 1].sum())
+    lo, hi = max(0, lo - grow), min(C - 1, hi + grow)
+    lf = np.r_[0:lo, hi + 1:C]
     return (lf if len(lf) >= 6 else np.r_[0:max(3, C // 10), C - max(3, C // 10):C]), spec
 
 
@@ -109,6 +124,15 @@ def regrid_velocity(cube, velax, dv_new):
     return out, ((edges[k] + edges[k + 1]) / 2).astype(np.float64)
 
 
+def run_model(a, model, arm, d, w, dv, beam_px):
+    """The frozen inference recipe (PLAN.md 0b2): the network on a ~INFER_BEAM-px-beam grid when the beam is wider (train_unified.infer; exoALMA fiducial beams are
+    ~6 px, so this is inert there), then a second pass from a Wiener built on the first pass's output (train_unified.prior_wiener), gate inside denoise()."""
+    pred = tu.infer(model, arm, d, w, dv, beam_px)
+    if a.wiener2:
+        pred = tu.infer(model, arm, d, tu.prior_wiener(d, pred), dv, beam_px)
+    return pred
+
+
 def inject(a, model, arm, cube, lf, velax_real, pix, beam):
     """S5: a cube with KNOWN truth in this observation's REAL noise. Truth = Speedie et al.'s GI disc and its Keplerian twin (speedie_prep clean cubes,
     test-only data), moved to this cube's pixel scale (area resampling) and channel width (velocity binning), centred, then added to blocks of the real
@@ -140,9 +164,9 @@ def inject(a, model, arm, cube, lf, velax_real, pix, beam):
         for snr in [float(x) for x in a.inject_snr.split(",") if x]:
             truth = tr * np.float32(snr * sig / max(float(tr.max()), 1e-30))
             dirty = truth + nz
-            lf_i, _ = line_free(dirty)
+            lf_i, _ = line_free(dirty, beam[0] / pix)
             w = tu.native_wiener(dirty - dirty[lf_i].mean(0)[None], "line", lf_i)
-            pred = model.denoise(arm, dirty - dirty[lf_i].mean(0)[None], w, dv)
+            pred = run_model(a, model, arm, dirty - dirty[lf_i].mean(0)[None], w, dv, beam[0] / pix)
             d = {"clean": truth, "dirty": dirty, "velax": v, "au": pix * 155.9, "incl": 23.2, "crop": slice(None), "beam_au": beam[0] * 155.9}
             ws.METHODS["wiener"] = lambda _d, w=w: w; ws.METHODS["model"] = lambda _d, p=pred: p
             sc = ws.score_cube(f"S5_{name}_snr{snr:g}", d, ["dirty", "wiener", "model"], a.out)["methods"]
@@ -178,16 +202,21 @@ def main():
     ap.add_argument("--incl", type=float, default=None)
     ap.add_argument("--pa", type=float, default=None)
     ap.add_argument("--dist", type=float, default=150.0)
+    ap.add_argument("--gate", default="40,120,0.25", help="do-no-harm gate lo,hi,floor (train_unified.gate_alpha); empty = off")
+    ap.add_argument("--infer-beam-px", type=float, default=10.0, help="run the network on a grid where the beam spans this many px when it is wider than 1.2x (0 = off)")
+    ap.add_argument("--no-wiener2", dest="wiener2", action="store_false", help="skip the second pass from a model-informed Wiener (default on)")
     ap.add_argument("--inject-dir", default="", help="S5: folder with speedie_prep clean cubes (GI_r0.5_clean.fits ...); empty = skip")
     ap.add_argument("--inject-cases", default="GI_r0.5,Kep_r0.5")
     ap.add_argument("--inject-snr", default="12,24,36")
     a = ap.parse_args()
+    tu.GATE = tuple(float(x) for x in a.gate.split(",")) if a.gate else None
+    tu.INFER_BEAM, tu.INFER_MODE = a.infer_beam_px, "full"
     os.makedirs(a.out, exist_ok=True)
     t0 = time.time()
     cube, velax, hdr, pix, beam = read_cube(a.cube, a.crop)
     C, n = cube.shape[0], cube.shape[-1]
     dv = float(velax[1] - velax[0])
-    lf, spec = line_free(cube)
+    lf, spec = line_free(cube, beam[0] / pix)
     cont = cube[lf].mean(0)
     sigma_raw = float(cube[lf].std())
     cont_sig = float(np.abs(cont).max() / (sigma_raw / math.sqrt(len(lf))))
@@ -202,7 +231,7 @@ def main():
         d_in, w_in = tu.resample(cube, S), tu.resample(w, S)
     else:
         d_in, w_in = cube, w
-    pred = model.denoise(arm, d_in, w_in, dv)
+    pred = run_model(a, model, arm, d_in, w_in, dv, beam[0] / (pix * (n / d_in.shape[-1])))
     if a.scale != 1.0:
         pred = tu.resample(pred, n) * np.float32(1.0)                 # area / bilinear back to the native grid
     print(f"denoised in {(time.time() - t0) / 60:.1f} min", flush=True)
@@ -217,8 +246,9 @@ def main():
     dm1 = np.abs(m1d - m1r)[bright & np.isfinite(m1d) & np.isfinite(m1r)] * 1000
     inv_raw = float((np.abs(cube[lf]) > 4 * sigma_raw).mean())
     inv_den = float((np.abs(pred[lf]) > 4 * sigma_raw).mean())
-    rep = {"cube": os.path.basename(a.cube), "shape": [C, n, n], "pix_mas": pix * 1000, "beam_arcsec": beam, "beam_px": [beam[0] / pix, beam[1] / pix],
-           "dv_ms": dv * 1000, "line_free_planes": len(lf), "sigma_raw": sigma_raw, "residual_continuum_peak_sigma": cont_sig, "scale": a.scale,
+    rep = {"gate": a.gate, "wiener2": a.wiener2, "infer_beam_px": a.infer_beam_px, "snr_est": float(tu.scale_of(cube, w) / max(tu.noise_level(cube, w), 1e-30)),
+           "gate_a": tu.gate_alpha(float(tu.scale_of(cube, w) / max(tu.noise_level(cube, w), 1e-30))), "cube": os.path.basename(a.cube), "shape": [C, n, n], "pix_mas": pix * 1000, "beam_arcsec": beam, "beam_px": [beam[0] / pix, beam[1] / pix],
+           "dv_ms": dv * 1000, "line_free_planes": len(lf), "line_range_kms": [float(velax[np.setdiff1d(np.arange(C), lf)].min()), float(velax[np.setdiff1d(np.arange(C), lf)].max())] if len(lf) < C else None, "sigma_raw": sigma_raw, "residual_continuum_peak_sigma": cont_sig, "scale": a.scale,
            "S1": {"offline_rms_raw": sigma_raw, "offline_rms_den": sig_den, "noise_reduction": sigma_raw / max(sig_den, 1e-30),
                   "m0_total_ratio": float(m0d[mask].sum() / max(m0r[mask].sum(), 1e-30)) if mask.any() else None, "mask_px": int(mask.sum()),
                   "m1_shift_bright_median_ms": float(np.median(dm1)) if dm1.size else None, "m1_shift_bright_p95_ms": float(np.percentile(dm1, 95)) if dm1.size else None},

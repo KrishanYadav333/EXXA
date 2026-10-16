@@ -12,6 +12,7 @@ os.environ.setdefault("EXXA_T0", str(time.time()))     # RULES.md #14: the sessi
 ARM = "wiener"
 K = 3                  # spectral window half-width (channels at 0.1 km/s): 3 = +-0.3 km/s, 15 = +-1.5 km/s like kin_gamma0
 EXTRA = []             # extra train_unified.py flags, e.g. ["--snr", "10,150", "--chan-corr", "0.5", "--beam-max", "1.6", "--tag", "real_k3"]
+WARM = ""              # fine-tune: file name of a train_unified checkpoint in an attached kernel output (e.g. "unified_r6_k15_crop256.pth"), passed as --warm
 MODE = "full"          # "smoke": 2 rounds x 40 steps, 1 line holdout + an07, two sizes ; "full": everything
 BRANCH = "midterm-prep"
 REPO = "/tmp/EXXA"     # not /kaggle/working: the clone must not land in the notebook Output
@@ -78,6 +79,10 @@ TAG = EXTRA[EXTRA.index("--tag") + 1] if "--tag" in EXTRA else f"{ARM}_k{K}"
 prev = resume_inputs([TAG], OUT)
 if prev.get(TAG):
     args += ["--resume", prev[TAG]]
+elif WARM:             # a resumed session already carries the fine-tuned weights; only the first session starts from WARM
+    w = glob.glob(f"/kaggle/input/**/{WARM}", recursive=True)
+    assert w, f"warm-start checkpoint {WARM} not attached"
+    args += ["--warm", w[0]]
 sph = glob.glob("/kaggle/input/**/run_young_*/view.json", recursive=True)
 if sph:                # rendered GI discs attached (kernel source sph-cubes): train on the train split, score the held-out simulations
     args += ["--sph-dir", os.path.dirname(os.path.dirname(sph[0])), "--eval-sph"]

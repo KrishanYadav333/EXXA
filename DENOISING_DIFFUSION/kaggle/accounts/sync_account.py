@@ -23,7 +23,7 @@ DATASETS = {                                   # slug -> list of (local path, na
 }
 CODE_FILES = ["src/data/analytic_gi.py", "experiments/wiggle_scorecard.py", "experiments/make_analytic_gi_cubes.py",
               "experiments/train_wiggle_correction.py", "experiments/train_unified.py", "experiments/speedie_prep.py",
-              "src/data/sph_cube.py", "experiments/validate_sph_speedie.py"]
+              "src/data/sph_cube.py", "experiments/validate_sph_speedie.py", "experiments/alma_unified.py"]
 
 
 def stage(items, tmp):
