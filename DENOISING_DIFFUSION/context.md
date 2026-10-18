@@ -2,11 +2,31 @@
 ## Project Context File for Agentic IDE
 
 Local-only tracking doc, tracked in git as of `b6cdd79` (syncing across machines). Last
-updated: 2026-10-15 (week 20 of 22; final submission Oct 26 - Nov 3).
+updated: 2026-10-18 (week 21 of 22; Krishan submits on Nov 1).
 
-## 0. CURRENT STATE (2026-10-15) — read this first; older sections below are history
+## 0a. CURRENT STATE (2026-10-18), read this first; 0 below is the Oct 15 state
 
-- **Scope to the end:** final models, then exoALMA inference only (DSHARP / VLT out). Dated schedule: `PLAN.md`
+- **Plan to the end:** `results/PLAN.md` 0h (deliverables and day-by-day to Nov 1: project complete, final blog, a structured final-submission branch
+  like the midterm one, final email to Jason). Last mentor meeting assumed Fri Oct 23 (to confirm); the post-meeting email went out Oct 18.
+- **Model: recipe B, FROZEN 2026-10-18 03:00** (`results/final/RECIPES.md`): R4n-long seeds 3 / 11 / 23 + R8-from-R6 averaged, gate 40,120,0.25,
+  two-pass Wiener, size fix on noise-only cubes. No more model ideas. R6 s33b (`jensipaneliya/unified-r6-s33b`, resumed v2) runs only for the
+  one-or-two-checkpoints question. Five-size report: `results/final/RESULTS.md` (regenerated for B).
+- **Headline evidence (PROGRESS.md 2026-10-17 / 18):** one-time final test on Speedie r1.5 (wiggle rc_r 0.06 / 0.44 / 0.70 and PV r 0.16 / 0.35 / 0.71
+  at SNR 6 / 12 / 24, Wiener far lower); PV curves (`experiments/pv_curve.py`) in every evaluation; hydro ladder (9074 noise-limited plus a
+  generalisation gap; its minor-axis PV is no better than dirty or Wiener); 8 more Young discs (weak wiggles not recovered); planet check (Young M1
+  R100 7.6 o'clock feature not recovered; no isolated kink in run_0002_00560).
+- **Real ALMA, final runs (512 px field + zoom to a 10 px beam, `--target-beam-px`; PA from the literature compared with the fit):** DSHARP 5 / 5
+  done, exoALMA 14 / 15 done (`alma-exoalma-final-p0` still running). Tables: `python experiments/alma_table.py results/alma/<run dirs>`; failed
+  geometry fits rescored locally with `experiments/alma_refit.py`. Injection-recovery strong on MWC 758, DM Tau, LkCa 15, AS 209. Open: the flux
+  excess on faint discs (1.06 to 1.29 at blind SNR 6 to 9), decided by `chiragbhayal17/alma-aatau-s5flux` (truth-based flux test, running);
+  denoised PV curves on real discs are flatter than raw (a lower bound on minor-axis structure).
+- **Next:** RESULTS for ALMA, blog sections (`results/final/BLOG_SKELETON.md`), deck refresh, blog draft to Jason Thu Oct 22, final branch Oct 24 to 27.
+
+## 0. STATE ON 2026-10-15 (history)
+
+- **Oct 16 mentor meeting (newest):** Jason: models are good enough; next week = position-velocity curves along the minor axis (the field standard) and exoALMA with a cropped field of view and no second continuum subtraction. See `results/PLAN.md` 0e and `results/PROGRESS.md`.
+
+- **Scope to the end:** final models, then exoALMA and DSHARP inference only (VLT out; DSHARP back in on Oct 17, Krishan: 12CO fiducial images, 0.35 km/s channels, `results/PLAN.md` 0f row 16). Dated schedule: `PLAN.md`
   ("Revised timeline (2026-10-11)"); final-model bars and the wiggle plan: `results/PLAN.md` (0b, 0b2); ALMA design: `ALMA_PLAN.md`.
   The model freeze moved from Oct 15 to about Oct 18 so the wiggle levers could be tested; blog draft to Jason Oct 27 is unchanged.
 - **Model line now:** `experiments/train_unified.py` (Wiener-fed U-Net correction, K=15 window, line emission + hydro +
@@ -567,6 +587,8 @@ starts 2026-09-24.
 ---
 
 ## 5. MENTOR FEEDBACK LOG (chronological, authoritative)
+
+**2026-10-16 (meeting, Jason):** models are good, no qualitative jump expected; the remaining work is post-inference analysis. (1) Position-velocity curves of the moment-1 (quadratic) along the minor axis (1 px or 4 to 5 px wide) are the field standard (Speedie 2024; Longarini et al., Elias 2-27); replicate them, highest priority for next week, no wiggle-fit or disc-fit routine. (2) exoALMA: crop the field of view, the beam is tiny. (3) exoALMA is already continuum subtracted: do not subtract it again. (4) Real ALMA is above about 15 to 20 peak SNR; SNR 6 is not relevant. (5) The size fix must keep the angular beam size (it does: only the pixel grid is resampled). Open with him: second GI cube, one checkpoint or two, publishing. Details: `results/PROGRESS.md` (2026-10-16 | meeting), plan: `results/PLAN.md` 0e.
 
 **Week 2 (meeting):** Feed channels one at a time (post-midterm, for cubes). Try hybrid
 loss (Tanmay's blog). Try VAE. Use Kaggle/Colab. Gradient accumulation for small batches.

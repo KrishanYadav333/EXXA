@@ -1,0 +1,30 @@
+{
+  "id": "x/eval-final-test",
+  "title": "eval-final-test",
+  "code_file": "kernel_final_test.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "keywords": [
+    "gpu"
+  ],
+  "dataset_sources": [
+    "krishanyadav333/exxa-sg-synth-pairs",
+    "krishanyadav333/exxa-wiggle-code",
+    "krishanyadav333/line-emission-data",
+    "krishanyadav333/self-gravitating-v2"
+  ],
+  "kernel_sources": [
+    "krishanyadav333/speedie-prep-fast",
+    "deepsceneloc/unified-r4n-k15-long",
+    "deepsceneloc/sph-cubes",
+    "aditisah11/unified-r4n-k15-long-s11",
+    "chiragbhayal/unified-r4n-k15-long-s23",
+    "chiragbhayal17/unified-r8-m1-r6"
+  ],
+  "competition_sources": [],
+  "model_sources": []
+}

@@ -27,6 +27,9 @@ TRAIN = ["M0.1_R50_Mu0.6", "M0.1_R100_Mu1.1", "M0.1_R200_Mu1.4", "M0.2_R50_Mu0.6
          "M0.3_R50_Mu0.4", "M0.3_R100_Mu0.8", "M0.3_R200_Mu0.7", "M0.5_R50_Mu0.3", "M0.5_R100_Mu0.5", "M0.5_R200_Mu0.8",
          "M0.7_R100_mu0.4", "M0.7_R200_mu0.6", "M1_R50_Mu0.2", "M1_R200_Mu0.5"]
 TEST = ["M0.1_R100_Mu1.0", "M0.2_R200_Mu1.0", "M0.3_R100_Mu0.7", "M0.5_R200_Mu0.5", "M0.7_R50_Mu0.3", "M1_R100_Mu0.4"]
+# 2026-10-18 (PLAN.md 0h): 8 more WHOLE simulations held out, never in TRAIN, so the GI tests do not rest on 9074: spread in M* (0.1 to 1), R (50 to 200 au) and
+# mu (0.3 to 1.4); M0.5_R100_Mu0.3 and M1_R100_Mu0.3 are low-mu controls (weak or no GI arms). Archives 470 to 660 MB (the 76 MB runs look truncated).
+TEST2 = ["M0.1_R100_Mu1.4", "M0.2_R100_Mu0.7", "M0.3_R200_Mu1.0", "M0.3_R50_Mu0.5", "M0.5_R100_Mu0.3", "M0.5_R200_Mu0.6", "M0.7_R200_mu0.5", "M1_R100_Mu0.3"]
 PC140_AU_PER_DEG = 140.0 * 3600.0           # au per degree at 140 pc (headers only; the trainer uses pixel ratios)
 
 
@@ -93,7 +96,7 @@ def main():
     os.makedirs(a.out, exist_ok=True)
     runs = [r for r in a.runs.split(",") if r] or TRAIN + TEST
     rng = np.random.default_rng(a.seed)
-    report = {"train": [r for r in runs if r in TRAIN], "test": [r for r in runs if r in TEST], "cubes": {}}
+    report = {"train": [r for r in runs if r in TRAIN], "test": [r for r in runs if r in TEST or r in TEST2], "cubes": {}}
     work = os.path.join(a.out, "_work")
     os.makedirs(work, exist_ok=True)
     for name in runs:
@@ -113,7 +116,7 @@ def main():
             continue
         meta.update(run=name, dump=os.path.basename(dump), n_dumps=ndump, n_gas=int(len(d["m"])), mstar=d["mstar"], mdisc=float(d["m"].sum()),
                     temperature_source=d.get("T_source", "dump"),
-                    mu=float(d["m"].sum() / d["mstar"]), split="test" if name in TEST else "train", minutes=(time.time() - t0) / 60)
+                    mu=float(d["m"].sum() / d["mstar"]), split="test" if (name in TEST or name in TEST2) else "train", minutes=(time.time() - t0) / 60)
         write_pair(a.out, name, clean, dirty, velax, meta)
         report["cubes"][name] = meta
         json.dump(report, open(os.path.join(a.out, "sph_cubes_report.json"), "w"), indent=1, default=float)

@@ -9,14 +9,19 @@ os.environ.setdefault("EXXA_T0", str(time.time()))
 REPO, BRANCH = "/tmp/EXXA", "midterm-prep"
 PKG = f"{REPO}/DENOISING_DIFFUSION"
 OUT = "/kaggle/working/alma"
-CKPT = "unified_r4n_k15_long.pth,unified_r4n_k15_long_s11.pth"   # R4n-long seeds 3 + 11 averaged (PROGRESS.md 2026-10-13)
+CKPT = "unified_r4n_k15_long.pth,unified_r4n_k15_long_s11.pth,unified_r4n_k15_long_s23.pth,unified_r8_m1_r6.pth"   # recipe B (results/final/RECIPES.md)
 # disk, line, inclination (deg), distance (pc): exoALMA I (Teague et al. 2025) values, for the S6 rotation-curve residual only
 # exoALMA I (Teague et al. 2025, arXiv:2504.18688): distance d from Table 1, |inclination| from Table 2 (discminer fits of 12CO); crop 512 px = 12.8 arcsec
-CUBES = [(disk, "13CO", inc, dist, 512) for disk, inc, dist in [
-    ("DM_Tau", 38.7, 144), ("AA_Tau", 58.7, 135), ("LkCa_15", 50.3, 157), ("HD_34282", 58.3, 309), ("CQ_Tau", 36.3, 149),
-    ("SY_Cha", 52.4, 182), ("PDS_66", 31.9, 98), ("HD_135344B", 16.1, 135), ("HD_143006", 16.9, 167), ("J1604", 6.0, 145),
-    ("J1615", 46.5, 156), ("V4046_Sgr", 34.1, 72), ("J1842", 39.4, 151), ("J1852", 32.7, 147)]]
-INJECT_FOR = set()                                 # S5 already done on MWC 758 (alma-exoalma-s5); add disks here to repeat it
+# disk, |i| (deg), PA (deg, discminer, Table 2), distance (pc, Table 1)
+CUBES = [(disk, "13CO", inc, dist, pa) for disk, inc, pa, dist in [
+    ("MWC_758", 19.4, 240.3, 156), ("DM_Tau", 38.7, 335.7, 144), ("AA_Tau", 58.7, 272.7, 135), ("LkCa_15", 50.3, 62.1, 157), ("HD_34282", 58.3, 117.4, 309),
+    ("CQ_Tau", 36.3, 235.1, 149), ("SY_Cha", 52.4, 346.2, 182), ("PDS_66", 31.9, 189.0, 98), ("HD_135344B", 16.1, 242.9, 135), ("HD_143006", 16.9, 168.9, 167),
+    ("J1604", 6.0, 258.1, 145), ("J1615", 46.5, 325.4, 156), ("V4046_Sgr", 34.1, 255.7, 72), ("J1842", 39.4, 205.9, 151), ("J1852", 32.7, 117.1, 147)]]
+PART, NPART = 0, 1                                   # the launcher sets these to split the discs over several kernels (CUBES[PART::NPART])
+CUBES = CUBES[PART::NPART]
+FIELD = ["--crop", "512"]                            # field of view (PLAN.md 0h: 512 px kept flux; set from the Oct 18 zoom test)
+ZOOM = ["--target-beam-px", "10"]                    # Jason 2026-10-16 "zoom in": beam to about 10 px, sky field and beam angle unchanged
+INJECT_FOR = {"MWC_758", "HD_135344B", "DM_Tau", "LkCa_15"}   # S5 injection-recovery on three discs spanning inclination 16 / 39 / 50 deg (PLAN.md 0f); MWC 758 done in alma-exoalma-s5
 DATAVERSE, DOI = "https://dataverse.harvard.edu", "doi:10.7910/DVN/CFHWNH"
 BUDGET_H = 11.0
 
@@ -34,13 +39,14 @@ for rel, info in man["files"].items():
     assert hashlib.sha256(open(src, "rb").read()).hexdigest() == info["sha256"], f"checksum mismatch {rel}"
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     shutil.copy(src, dst)
+assert "target-beam-px" in open(f"{PKG}/experiments/alma_unified.py").read(), "stale code overlay: alma_unified.py lacks --target-beam-px"
 ckpts = [(glob.glob(f"/kaggle/input/**/{c}", recursive=True) or [None])[0] for c in CKPT.split(",")]
 spd = glob.glob("/kaggle/input/**/GI_r0.5_clean.fits", recursive=True)      # S5 truth (Speedie, test-only), from the speedie-prep-fast Output
 assert None not in ckpts, f"checkpoint not attached: {CKPT}"
 os.chdir(PKG)
 env = dict(os.environ, PYTHONPATH=PKG, EXXA_ROOT=PKG, PYTHONWARNINGS="ignore")
 files = None
-for disk, line, incl, dist, crop in CUBES:
+for disk, line, incl, dist, pa in CUBES:
     name = f"{disk}_{line}_fiducial.image.fits"
     out = f"{OUT}/{disk}_{line}"
     prev = glob.glob(f"/kaggle/input/**/alma/{disk}_{line}/report.json", recursive=True)
@@ -60,7 +66,7 @@ for disk, line, incl, dist, crop in CUBES:
     assert os.path.getsize(dst) == files[name]["filesize"], f"{name}: truncated download"
     print(f"{name}: {os.path.getsize(dst) / 1e6:.0f} MB in {time.time() - t0:.0f} s", flush=True)
     r = sh([sys.executable, "-u", "experiments/alma_unified.py", "--cube", dst, "--ckpt", ",".join(ckpts), "--out", out,
-            "--incl", str(incl), "--dist", str(dist), "--crop", str(crop)] + (["--inject-dir", os.path.dirname(spd[0])] if spd and disk in INJECT_FOR else []), env=env)
+            "--incl", str(incl), "--dist", str(dist), "--pa", str(pa)] + FIELD + ZOOM + (["--inject-dir", os.path.dirname(spd[0])] if spd and disk in INJECT_FOR else []), env=env)
     print(f"{name}: exit {r.returncode}", flush=True)
     os.remove(dst)
 print("ALMA KERNEL DONE", flush=True)

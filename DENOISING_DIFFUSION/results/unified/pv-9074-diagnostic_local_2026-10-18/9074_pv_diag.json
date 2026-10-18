@@ -1,0 +1,81 @@
+{
+ "geom": {
+  "cx": 173.0608669705771,
+  "cy": 175.23558211852801,
+  "pa_deg": 0.15845338934444428,
+  "incl_deg": 20.0,
+  "vsys": 0.15166735011904178,
+  "mstar_msun": 1.0627621495486579,
+  "au_per_px": 1.9933559275536001,
+  "cost": 1356.126876352636,
+  "success": 1.0,
+  "n_dropped_nonfinite": 0.0,
+  "n_fit": 29100.0,
+  "incl_fixed": 1.0,
+  "mstar_at_bound": 0.0
+ },
+ "r_in": 55.144259847935146,
+ "r_out": 260.4183268695187,
+ "scores": {
+  "w1_poly2": {
+   "clean": 1.0,
+   "oracle": -0.128,
+   "dirty": 0.318
+  },
+  "w1_poly4": {
+   "clean": 1.0,
+   "oracle": 0.018,
+   "dirty": 0.121
+  },
+  "w1_poly6": {
+   "clean": 1.0,
+   "oracle": 0.347,
+   "dirty": 0.063
+  },
+  "w1_hp100au": {
+   "clean": 1.0,
+   "oracle": 0.34,
+   "dirty": 0.369
+  },
+  "w1_hp150au": {
+   "clean": 1.0,
+   "oracle": 0.435,
+   "dirty": 0.38
+  },
+  "w1_hp250au": {
+   "clean": 1.0,
+   "oracle": 0.507,
+   "dirty": 0.386
+  },
+  "w5_poly2": {
+   "clean": 1.0,
+   "oracle": 0.758,
+   "dirty": 0.386
+  },
+  "w5_poly4": {
+   "clean": 1.0,
+   "oracle": 0.51,
+   "dirty": 0.307
+  },
+  "w5_poly6": {
+   "clean": 1.0,
+   "oracle": 0.264,
+   "dirty": 0.138
+  },
+  "w5_hp100au": {
+   "clean": 1.0,
+   "oracle": 0.74,
+   "dirty": 0.324
+  },
+  "w5_hp150au": {
+   "clean": 1.0,
+   "oracle": 0.774,
+   "dirty": 0.325
+  },
+  "w5_hp250au": {
+   "clean": 1.0,
+   "oracle": 0.8,
+   "dirty": 0.321
+  }
+ }
+}

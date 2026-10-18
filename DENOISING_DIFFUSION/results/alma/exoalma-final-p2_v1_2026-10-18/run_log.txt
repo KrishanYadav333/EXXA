@@ -1,0 +1,119 @@
++ git clone --branch midterm-prep --depth 1 https://github.com/KrishanYadav333/EXXA.git /tmp/EXXA
+Cloning into '/tmp/EXXA'...
+Updating files:   1% (99/5933)Updating files:   2% (119/5933)Updating files:   3% (178/5933)Updating files:   4% (238/5933)Updating files:   5% (297/5933)Updating files:   5% (299/5933)Updating files:   6% (356/5933)Updating files:   7% (416/5933)Updating files:   8% (475/5933)Updating files:   9% (534/5933)Updating files:  10% (594/5933)Updating files:  11% (653/5933)Updating files:  12% (712/5933)Updating files:  13% (772/5933)Updating files:  13% (806/5933)Updating files:  14% (831/5933)Updating files:  15% (890/5933)Updating files:  16% (950/5933)Updating files:  17% (1009/5933)Updating files:  18% (1068/5933)Updating files:  19% (1128/5933)Updating files:  20% (1187/5933)Updating files:  21% (1246/5933)Updating files:  22% (1306/5933)Updating files:  23% (1365/5933)Updating files:  24% (1424/5933)Updating files:  25% (1484/5933)Updating files:  26% (1543/5933)Updating files:  27% (1602/5933)Updating files:  28% (1662/5933)Updating files:  29% (1721/5933)Updating files:  30% (1780/5933)Updating files:  31% (1840/5933)Updating files:  32% (1899/5933)Updating files:  33% (1958/5933)Updating files:  34% (2018/5933)Updating files:  35% (2077/5933)Updating files:  36% (2136/5933)Updating files:  37% (2196/5933)Updating files:  38% (2255/5933)Updating files:  39% (2314/5933)Updating files:  40% (2374/5933)Updating files:  41% (2433/5933)Updating files:  42% (2492/5933)Updating files:  43% (2552/5933)Updating files:  44% (2611/5933)Updating files:  45% (2670/5933)Updating files:  46% (2730/5933)Updating files:  47% (2789/5933)Updating files:  48% (2848/5933)Updating files:  49% (2908/5933)Updating files:  50% (2967/5933)Updating files:  51% (3026/5933)Updating files:  52% (3086/5933)Updating files:  53% (3145/5933)Updating files:  54% (3204/5933)Updating files:  55% (3264/5933)Updating files:  56% (3323/5933)Updating files:  57% (3382/5933)Updating files:  58% (3442/5933)Updating files:  59% (3501/5933)Updating files:  60% (3560/5933)Updating files:  61% (3620/5933)Updating files:  62% (3679/5933)Updating files:  63% (3738/5933)Updating files:  64% (3798/5933)Updating files:  65% (3857/5933)Updating files:  66% (3916/5933)Updating files:  67% (3976/5933)Updating files:  68% (4035/5933)Updating files:  69% (4094/5933)Updating files:  70% (4154/5933)Updating files:  71% (4213/5933)Updating files:  72% (4272/5933)Updating files:  73% (4332/5933)Updating files:  74% (4391/5933)Updating files:  75% (4450/5933)Updating files:  76% (4510/5933)Updating files:  77% (4569/5933)Updating files:  78% (4628/5933)Updating files:  79% (4688/5933)Updating files:  80% (4747/5933)Updating files:  81% (4806/5933)Updating files:  82% (4866/5933)Updating files:  83% (4925/5933)Updating files:  84% (4984/5933)Updating files:  85% (5044/5933)Updating files:  86% (5103/5933)Updating files:  87% (5162/5933)Updating files:  88% (5222/5933)Updating files:  89% (5281/5933)Updating files:  89% (5309/5933)Updating files:  90% (5340/5933)Updating files:  91% (5400/5933)Updating files:  92% (5459/5933)Updating files:  93% (5518/5933)Updating files:  93% (5564/5933)Updating files:  94% (5578/5933)Updating files:  95% (5637/5933)Updating files:  96% (5696/5933)Updating files:  97% (5756/5933)Updating files:  97% (5811/5933)Updating files:  98% (5815/5933)Updating files:  98% (5835/5933)Updating files:  98% (5870/5933)Updating files:  99% (5874/5933)Updating files: 100% (5933/5933)Updating files: 100% (5933/5933), done.
++ /usr/bin/python3 -m pip install -q --no-deps pytorch-msssim bettermoments
++ curl -sL --retry 5 --retry-delay 10 -C - -o /kaggle/temp/AA_Tau_13CO_fiducial.image.fits https://dataverse.harvard.edu/api/access/datafile/11120407
+AA_Tau_13CO_fiducial.image.fits: 1263 MB in 17 s
++ /usr/bin/python3 -u experiments/alma_unified.py --cube /kaggle/temp/AA_Tau_13CO_fiducial.image.fits --ckpt /kaggle/input/notebooks/deepsceneloc/unified-r4n-k15-long/unified_wiener_k15/unified_r4n_k15_long.pth,/kaggle/input/notebooks/aditisah11/unified-r4n-k15-long-s11/unified_wiener_k15/unified_r4n_k15_long_s11.pth,/kaggle/input/notebooks/chiragbhayal/unified-r4n-k15-long-s23/unified_wiener_k15/unified_r4n_k15_long_s23.pth,/kaggle/input/notebooks/chiragbhayal17/unified-r8-m1-r6/unified_wiener_k15/unified_r8_m1_r6.pth --out /kaggle/working/alma/AA_Tau_13CO --incl 58.7 --dist 135 --pa 272.7 --crop 512 --target-beam-px 10
+zoom: beam 6.0 px, scale 1.6667 (grid 512 to 853 px)
+continuum (auto): not subtracted; no continuum on both far sides (any leftover is near the line: line wings or noise); cube kept as delivered; line-free mean peak 7.1 sigma_mean, far planes blue 5.1 / red 4.8 sigma, each peak on the other side 0.6 / 1.8 sigma
+cube AA_Tau_13CO_fiducial.image.fits: 301 x 512 x 512, 25.0 mas/px, beam 0.150 x 0.150 arcsec (6.0 x 6.0 px), dv 100 m/s, line-free planes 198, rms 0.00369, residual continuum peak 7.1 sigma_mean
+models: 4 x arm wiener, K 15, base 48, norm robust, clip 10.0
+denoised in 27.1 min
+  AA_Tau_13CO_fiducial.image: denoised built [0s]
+  AA_Tau_13CO_fiducial.image: scored [4s]
+{
+ "S1": {
+  "offline_rms_raw": 0.003693405771628022,
+  "offline_rms_den": 4.5000851969234645e-05,
+  "noise_reduction": 82.07412993320797,
+  "m0_total_ratio": 1.089770793914795,
+  "mask_px": 3491,
+  "m1_shift_bright_median_ms": 156.3932546121869,
+  "m1_shift_bright_p95_ms": 1369.8810056976513
+ },
+ "S2": {
+  "frac_above_4sigma_raw_lineplanes": 6.916547062421086e-05,
+  "frac_above_4sigma_den_lineplanes": 9.633073903093434e-08
+ }
+}
+ALMA DONE
+AA_Tau_13CO_fiducial.image.fits: exit 0
++ curl -sL --retry 5 --retry-delay 10 -C - -o /kaggle/temp/SY_Cha_13CO_fiducial.image.fits https://dataverse.harvard.edu/api/access/datafile/11120569
+SY_Cha_13CO_fiducial.image.fits: 1263 MB in 18 s
++ /usr/bin/python3 -u experiments/alma_unified.py --cube /kaggle/temp/SY_Cha_13CO_fiducial.image.fits --ckpt /kaggle/input/notebooks/deepsceneloc/unified-r4n-k15-long/unified_wiener_k15/unified_r4n_k15_long.pth,/kaggle/input/notebooks/aditisah11/unified-r4n-k15-long-s11/unified_wiener_k15/unified_r4n_k15_long_s11.pth,/kaggle/input/notebooks/chiragbhayal/unified-r4n-k15-long-s23/unified_wiener_k15/unified_r4n_k15_long_s23.pth,/kaggle/input/notebooks/chiragbhayal17/unified-r8-m1-r6/unified_wiener_k15/unified_r8_m1_r6.pth --out /kaggle/working/alma/SY_Cha_13CO --incl 52.4 --dist 182 --pa 346.2 --crop 512 --target-beam-px 10
+zoom: beam 6.0 px, scale 1.6667 (grid 512 to 853 px)
+continuum (auto): not subtracted; no continuum on both far sides (any leftover is near the line: line wings or noise); cube kept as delivered; line-free mean peak 7.1 sigma_mean, far planes blue 4.8 / red 5.0 sigma, each peak on the other side 2.1 / 1.2 sigma
+cube SY_Cha_13CO_fiducial.image.fits: 301 x 512 x 512, 25.0 mas/px, beam 0.150 x 0.150 arcsec (6.0 x 6.0 px), dv 100 m/s, line-free planes 226, rms 0.00443, residual continuum peak 7.1 sigma_mean
+models: 4 x arm wiener, K 15, base 48, norm robust, clip 10.0
+denoised in 27.0 min
+  SY_Cha_13CO_fiducial.image: denoised built [0s]
+  SY_Cha_13CO_fiducial.image: scored [3s]
+{
+ "S1": {
+  "offline_rms_raw": 0.00443287892267108,
+  "offline_rms_den": 2.6766787414089777e-05,
+  "noise_reduction": 165.61116782874194,
+  "m0_total_ratio": 1.0728249549865723,
+  "mask_px": 1673,
+  "m1_shift_bright_median_ms": 103.47072517860934,
+  "m1_shift_bright_p95_ms": 485.84773932985985
+ },
+ "S2": {
+  "frac_above_4sigma_raw_lineplanes": 6.655465185114767e-05,
+  "frac_above_4sigma_den_lineplanes": 0.0
+ }
+}
+ALMA DONE
+SY_Cha_13CO_fiducial.image.fits: exit 0
++ curl -sL --retry 5 --retry-delay 10 -C - -o /kaggle/temp/J1604_13CO_fiducial.image.fits https://dataverse.harvard.edu/api/access/datafile/11120481
+J1604_13CO_fiducial.image.fits: 1258 MB in 14 s
++ /usr/bin/python3 -u experiments/alma_unified.py --cube /kaggle/temp/J1604_13CO_fiducial.image.fits --ckpt /kaggle/input/notebooks/deepsceneloc/unified-r4n-k15-long/unified_wiener_k15/unified_r4n_k15_long.pth,/kaggle/input/notebooks/aditisah11/unified-r4n-k15-long-s11/unified_wiener_k15/unified_r4n_k15_long_s11.pth,/kaggle/input/notebooks/chiragbhayal/unified-r4n-k15-long-s23/unified_wiener_k15/unified_r4n_k15_long_s23.pth,/kaggle/input/notebooks/chiragbhayal17/unified-r8-m1-r6/unified_wiener_k15/unified_r8_m1_r6.pth --out /kaggle/working/alma/J1604_13CO --incl 6.0 --dist 145 --pa 258.1 --crop 512 --target-beam-px 10
+zoom: beam 6.0 px, scale 1.6667 (grid 512 to 853 px)
+continuum (auto): not subtracted; no continuum on both far sides (any leftover is near the line: line wings or noise); cube kept as delivered; line-free mean peak 7.1 sigma_mean, far planes blue 6.0 / red 5.5 sigma, each peak on the other side -0.9 / 2.6 sigma
+cube J1604_13CO_fiducial.image.fits: 300 x 512 x 512, 25.0 mas/px, beam 0.150 x 0.150 arcsec (6.0 x 6.0 px), dv 100 m/s, line-free planes 271, rms 0.00393, residual continuum peak 7.1 sigma_mean
+models: 4 x arm wiener, K 15, base 48, norm robust, clip 10.0
+denoised in 26.9 min
+  J1604_13CO_fiducial.image: denoised built [0s]
+  J1604_13CO_fiducial.image: scored [4s]
+{
+ "S1": {
+  "offline_rms_raw": 0.003929697442799807,
+  "offline_rms_den": 1.7544392903801054e-05,
+  "noise_reduction": 223.98594607103357,
+  "m0_total_ratio": 0.9921339750289917,
+  "mask_px": 8713,
+  "m1_shift_bright_median_ms": 41.353646576462125,
+  "m1_shift_bright_p95_ms": 116.92789831337032
+ },
+ "S2": {
+  "frac_above_4sigma_raw_lineplanes": 6.318884142210562e-05,
+  "frac_above_4sigma_den_lineplanes": 0.0
+ }
+}
+ALMA DONE
+J1604_13CO_fiducial.image.fits: exit 0
++ curl -sL --retry 5 --retry-delay 10 -C - -o /kaggle/temp/J1852_13CO_fiducial.image.fits https://dataverse.harvard.edu/api/access/datafile/11120515
+J1852_13CO_fiducial.image.fits: 1263 MB in 14 s
++ /usr/bin/python3 -u experiments/alma_unified.py --cube /kaggle/temp/J1852_13CO_fiducial.image.fits --ckpt /kaggle/input/notebooks/deepsceneloc/unified-r4n-k15-long/unified_wiener_k15/unified_r4n_k15_long.pth,/kaggle/input/notebooks/aditisah11/unified-r4n-k15-long-s11/unified_wiener_k15/unified_r4n_k15_long_s11.pth,/kaggle/input/notebooks/chiragbhayal/unified-r4n-k15-long-s23/unified_wiener_k15/unified_r4n_k15_long_s23.pth,/kaggle/input/notebooks/chiragbhayal17/unified-r8-m1-r6/unified_wiener_k15/unified_r8_m1_r6.pth --out /kaggle/working/alma/J1852_13CO --incl 32.7 --dist 147 --pa 117.1 --crop 512 --target-beam-px 10
+zoom: beam 6.0 px, scale 1.6667 (grid 512 to 853 px)
+continuum (auto): not subtracted; no continuum on both far sides (any leftover is near the line: line wings or noise); cube kept as delivered; line-free mean peak 7.1 sigma_mean, far planes blue 5.1 / red 5.4 sigma, each peak on the other side 1.2 / 1.0 sigma
+cube J1852_13CO_fiducial.image.fits: 301 x 512 x 512, 25.0 mas/px, beam 0.150 x 0.150 arcsec (6.0 x 6.0 px), dv 100 m/s, line-free planes 221, rms 0.00309, residual continuum peak 7.1 sigma_mean
+models: 4 x arm wiener, K 15, base 48, norm robust, clip 10.0
+denoised in 27.0 min
+  J1852_13CO_fiducial.image: denoised built [0s]
+  J1852_13CO_fiducial.image: scored [3s]
+{
+ "S1": {
+  "offline_rms_raw": 0.003092843806371093,
+  "offline_rms_den": 2.1675743482774124e-05,
+  "noise_reduction": 142.6868614139579,
+  "m0_total_ratio": 1.064819097518921,
+  "mask_px": 3641,
+  "m1_shift_bright_median_ms": 43.74355375132222,
+  "m1_shift_bright_p95_ms": 152.02714083373513
+ },
+ "S2": {
+  "frac_above_4sigma_raw_lineplanes": 6.415941057162048e-05,
+  "frac_above_4sigma_den_lineplanes": 3.452214720022625e-08
+ }
+}
+ALMA DONE
+J1852_13CO_fiducial.image.fits: exit 0
+ALMA KERNEL DONE
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __script__.ipynb to html
+[NbConvertApp] Writing 303402 bytes to __results__.html

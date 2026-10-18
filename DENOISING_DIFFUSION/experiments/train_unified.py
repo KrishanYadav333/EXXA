@@ -71,6 +71,7 @@ NORM = "wiener"      # --norm: "wiener" = divide by the Wiener cube's peak (all 
 INFER_BEAM = 0.0     # --infer-beam-px: run the network where the beam spans this many px (see infer); 0 = on the cube as given (all runs to 2026-10-14)
 INFER_MODE = "corr"  # --infer-mode
 WIENER2 = False      # --wiener2: evaluation, second pass with prior_wiener (noise-only cases)
+SAVE_PRED = ("", set())  # --save-pred DIR --save-pred-cases a,b: M1 maps and the central channels of clean / dirty / Wiener / model for those cases (planet check)
 CLIP_IN = 0.0        # --clip-in: clamp the network input to +-CLIP_IN (k15 v3: inputs of +-35-40 vs the usual +-4 overflowed fp16 and the run diverged)
 HYDRO_TRAIN = ["9015", "9019", "9025", "9032"]
 ANALYTIC_TRAIN = ["an01", "an02", "an03", "an04", "an05", "an06"]
@@ -704,6 +705,22 @@ def eval_cases(args):
                 white = np.random.default_rng(777).standard_normal(cl.shape, dtype=np.float32)
                 noise = sfft.irfft2(sfft.rfft2(white, workers=-1) * amp[None], s=(n, n), workers=-1).astype(np.float32)
                 yield (name + "_ai", fam + "_ai", cl, cl + noise, d["velax"], d["au"], d["incl"], d["beam_au"], hdr_beam, None, slice(None))
+            if args.sg_ladder and name in [x for x in args.sg_ladder_base.split(",") if x]:
+                # hydro SNR ladder (PROGRESS.md 2026-10-18): the same disc with its own measured noise rescaled, so peak SNR AFTER the beam = each target.
+                # Both regimes: deconvolution (dirty = beam (*) clean + f * the pair's own noise) and noise-only (_ai: clean + f * noise of the pair's spectrum).
+                # Answers whether a disc the model fails at its native SNR (9074, about 11) is recovered at ALMA-like SNR, and, run on a TRAINING disc (9025),
+                # whether a failure is the noise or a generalisation gap. A training disc's scores are a diagnostic, never a held-out result.
+                cl, n = d["clean"].astype(np.float32), d["clean"].shape[-1]
+                conv = sfft.ifft2(sfft.fft2(cl, workers=-1) * beam_otf(n)[None], workers=-1).real.astype(np.float32)
+                nz_dec = (d["dirty"] - conv).astype(np.float32)
+                amp = pair_noise_amp(cl, d["dirty"], conv)
+                white = np.random.default_rng(778).standard_normal(cl.shape, dtype=np.float32)
+                nz_ai = sfft.irfft2(sfft.rfft2(white, workers=-1) * amp[None], s=(n, n), workers=-1).astype(np.float32)
+                for snr in [float(v) for v in args.sg_ladder.split(",") if v]:
+                    f_dec = float(conv.max()) / snr / max(float(nz_dec.std()), 1e-30)
+                    f_ai = float(cl.max()) / snr / max(float(nz_ai.std()), 1e-30)
+                    yield (f"{name}_ladder_snr{snr:g}", fam, cl, conv + f_dec * nz_dec, d["velax"], d["au"], d["incl"], d["beam_au"], hdr_beam, None, slice(None))
+                    yield (f"{name}_ai_ladder_snr{snr:g}", fam + "_ai", cl, cl + f_ai * nz_ai, d["velax"], d["au"], d["incl"], d["beam_au"], hdr_beam, None, slice(None))
 
 
 _NATIVE = {}
@@ -733,6 +750,12 @@ def score_case(model, arm, case, S, figdir):
         if WIENER2 and is_ai(kind) and arm == "wiener":   # second pass from a Wiener built on the first pass (prior_wiener); the "wiener" row stays the blind one
             pred = infer(model, arm, dS, prior_wiener(dS, pred), dv, beam_au / (au * n / S), True)
     cS, dS, pred, w, v = cS[sl], dS[sl], pred[sl], w[sl], velax[sl]
+    if SAVE_PRED[0] and name in SAVE_PRED[1]:     # float16 central +-40 channels (+-4 km/s at 0.1 km/s) and every method's quadratic M1
+        c0, h = cS.shape[0] // 2, 40
+        np.savez_compressed(os.path.join(SAVE_PRED[0], f"{name}_{S}.npz"), velax=v, au_px=au * n / S, incl=incl if incl is not None else np.nan,
+                            beam_au=beam_au, **{f"m1_{k}": ws.quad_m1(c, v).astype(np.float32) for k, c in (("clean", cS), ("dirty", dS), ("wiener", w), ("model", pred))},
+                            m0_clean=cS.sum(0).astype(np.float32), chan_lo=max(0, c0 - h),
+                            **{f"ch_{k}": c[max(0, c0 - h):c0 + h + 1].astype(np.float16) for k, c in (("clean", cS), ("dirty", dS), ("model", pred))})
     # 1) PSNR / SSIM / M0 / M1 / M2 / artifacts: checkpoint_eval, the nb16 definitions
     case_ce = ce.Case(f"{name}@{S}", "line_emission" if is_ai(kind) else "sg", cS.copy(), dS.copy(), v * 1000.0,
                       au * n / S, beam_vec, incl, {})
@@ -847,12 +870,16 @@ def main():
     ap.add_argument("--sph-dir", default="", help="folder of make_sph_cubes.py output (run_young_*); train split trained on, test split scored with --eval-sph")
     ap.add_argument("--sph-max", type=int, default=0, help="at most this many sph folders (0 = all)")
     ap.add_argument("--eval-sph", action="store_true", help="score the held-out sph simulations")
+    ap.add_argument("--save-pred", default="", help="folder: save M1 maps and central channels of the --save-pred-cases (npz)")
+    ap.add_argument("--save-pred-cases", default="", help="comma list of case names for --save-pred")
     ap.add_argument("--norm", default="wiener", choices=["wiener", "robust"], help="cube normalisation (robust: needed for training SNR down to 3)")
     ap.add_argument("--gate", default="", help="do-no-harm gate lo,hi,floor (e.g. 40,120,0.25); empty = off")
     ap.add_argument("--gate-sweep", default="", help="evaluation: comma list of mix levels a; scores a * model + (1 - a) * Wiener for each")
     ap.add_argument("--tta", action="store_true", help="evaluation: average over the 4 sky-plane flips")
     ap.add_argument("--eval-ladder", default="", help="peak-SNR targets for the Speedie SNR ladder, e.g. 3,6,12,24 (empty: off)")
     ap.add_argument("--ladder-base", default="GI_r0.5,Kep_r0.5")
+    ap.add_argument("--sg-ladder", default="", help="peak-SNR targets (after the beam) for a hydro / analytic disc ladder, e.g. 11,20,40,80 (empty: off)")
+    ap.add_argument("--sg-ladder-base", default="9074", help="discs from --eval-sg that get the ladder; a training disc (e.g. 9025) is a diagnostic, not a held-out result")
     ap.add_argument("--train-sgv2", action="store_true", help="add SG v2 (Terry setup, q 0.75) to the training set; it is then NOT held out")
     ap.add_argument("--clip-in", type=float, default=0.0, help="clamp the network input to +-this (0 = off)")
     ap.add_argument("--beam-max", type=float, default=1.0, help="max beam broadening factor in the noise-only tasks (1 = off)")
@@ -870,11 +897,14 @@ def main():
         args.rounds, args.steps, args.batch, args.crop, args.base = 2, 4, 2, 64, 8
         args.sizes, args.hydro, args.analytic, args.n_line, args.n_line_eval = "128,160", "9015", "an01", 1, 1
         args.eval_sg, args.before_sizes, args.before_cases = "an07", "128", "run_0002_00560_rt_00,an07_ai"
-    global K, CLIP_IN, NORM, DEADLINE, GATE_SWEEP, GATE, INFER_BEAM, INFER_MODE, WIENER2
+    global K, CLIP_IN, NORM, DEADLINE, GATE_SWEEP, GATE, INFER_BEAM, INFER_MODE, WIENER2, SAVE_PRED
     K, CLIP_IN, NORM = args.k, args.clip_in, args.norm
     INFER_BEAM, INFER_MODE, WIENER2 = args.infer_beam_px, args.infer_mode, args.wiener2
     GATE = tuple(float(x) for x in args.gate.split(",")) if args.gate else None
     GATE_SWEEP = [float(x) for x in args.gate_sweep.split(",") if x]
+    if args.save_pred:
+        os.makedirs(args.save_pred, exist_ok=True)
+    SAVE_PRED = (args.save_pred, set(x for x in args.save_pred_cases.split(",") if x))
     DEADLINE = float(os.environ.get("EXXA_T0", time.time())) + args.budget_h * 3600
     if args.fp32_stream:
         _enable_fp32_stream()

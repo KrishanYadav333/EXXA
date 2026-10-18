@@ -9,7 +9,7 @@ os.environ.setdefault("EXXA_T0", str(time.time()))
 REPO, BRANCH = "/tmp/EXXA", "midterm-prep"
 PKG = f"{REPO}/DENOISING_DIFFUSION"
 OUT = "/kaggle/working/alma"
-CKPT = "unified_r4n_k15_long.pth,unified_r4n_k15_long_s11.pth"   # R4n-long seeds 3 + 11 averaged (PROGRESS.md 2026-10-13)
+CKPT = "unified_r4n_k15_long.pth,unified_r4n_k15_long_s11.pth,unified_r4n_k15_long_s23.pth,unified_r8_m1_r6.pth"   # recipe B (results/final/RECIPES.md)
 # disk, line, inclination (deg), distance (pc): exoALMA I (Teague et al. 2025) values, for the S6 rotation-curve residual only
 CUBES = [("MWC_758", "13CO", 21.0, 155.9, 512)]   # + crop (px at 25 mas): 256 px = 6.4 arcsec = ~1000 au, the disc fills it; the full 1024 px field
                                                   # (25.6 arcsec) is >95 % empty sky, which made the S6 geometry fit and spine run on noise (v1, 2026-10-13)

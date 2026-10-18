@@ -1,6 +1,7 @@
 # Local checkpoint store
 
-Every trained model this project has produced, one copy each, 68 files. Gitignored
+Every trained model this project has produced, one copy each: 88 unique files, 16.5 GB, counted by inode on 2026-10-18 (68 before the unified model line;
+`unified/` holds the 15 of that line kept locally, the rest of its runs' weights are in their Kaggle Outputs, see `results/RUNS.md`). Gitignored
 (`*.pth` is ignored repo-wide) and never committed, so this is the only place they exist
 outside Kaggle.
 
@@ -27,6 +28,8 @@ models/
   11-loo/       10 U-Nets, leave-one-out over the five SG disks, notebook 11
   12-spectral/   4 U-Nets, spectral-context sweep on SG training, notebook 12
   13-checkpoint-loss-sweep/  28 models, MAE/wavelet/starlet/gradient sweep on kin/sg/ddpm/ddrm, notebook 13
+  unified/      15 unified-model checkpoints: R4n seeds 3 / 11 / 23 and R8-from-R6 (= recipe B), R6 seeds 31 / 32 and s33 (partial, round 67), R7 seeds 41-43,
+                 R8 from R4n, R8-from-R6 weights 0.003 / 0.03, R9 seeds 61 / 62
   best_models/   4 wiggle-confirmed picks + DDRM (kept as a negative result) + untested/
                  (2 best-PSNR checkpoints never scored on the wiggle), all hardlinks
 ```
@@ -294,4 +297,10 @@ before early stopping, worth remembering before reading anything into their rank
 | `unified/unified_r4n_k15_long.pth`, `unified/unified_r4n_k15_long_s11.pth`, `unified/unified_r4n_k15_long_s23.pth` | local copy 2026-10-15; kernels `deepsceneloc/unified-r4n-k15-long`, `aditisah11/unified-r4n-k15-long-s11`, `chiragbhayal/unified-r4n-k15-long-s23` Outputs, `unified_wiener_k15/` | R4n-long seeds 3 / 11 / 23 (K=15, SNR 3-150, robust norm, 24000 steps): THE FROZEN MODEL is their average with the gate (40, 120, 0.25), `results/final/RESULTS.md`. s23 is the full-state file (optimizer included) |
 | `unified/unified_r6_k15_crop256.pth` | local copy 2026-10-15; kernel `chiragbhayal/unified-r6-k15-crop256` v2 Output | R6: R4n recipe on 256 px crops, seed 31; best real-GI wiggle (9074 0.43-0.47) but more invented wiggle on the Keplerian twin; warm start of R8 |
 | `unified/unified_r8_m1_r4n.pth`, `unified/unified_r8_m1_r6.pth` | local copy 2026-10-15; kernels `chiragbhayal17/unified-r8-m1-r4n`, `chiragbhayal17/unified-r8-m1-r6` Outputs | R8: line-centre (M1) loss fine-tunes (w 0.01, 6000 steps) of R4n seed 3 and of R6; from R4n refuted (SNR-12 wiggle 0.35), from R6 a small gain in invented wiggle; full-state files |
+| `unified/unified_r9_k15_s61.pth` | local copy 2026-10-17; kernel `anshi2904/unified-r9-s61` Output | R9: R6 recipe with `--train-beam-px 8,12` (beam 8 to 12 px in training), seed 61; evaluated with the levers; not adopted (9074 worse); full-state file |
+| `unified/unified_r9_k15_s62.pth` | local copy 2026-10-17; kernel `deepsceneloc/unified-r9-s62` Output (v2) | R9 seed 62 (second R9 seed); Speedie SNR 12 wiggle 0.32 vs 0.61 for seed 61: large seed spread; not adopted; full-state file |
+| `unified/unified_r6_k15_s32.pth` | local copy 2026-10-17; kernel `anshi2904/unified-r6-s32` Output (v2) | R6 recipe seed 32 (second R6 seed); 9074 gain not repeated at 600 px; not adopted; full-state file |
+| `unified/unified_r6_k15_s33_round67.pth` | local copy 2026-10-17 (kernel `krishanyadav333/unified-r6-s33` v1 Output) | R6 recipe seed 33, PARTIAL: round 67 of 80 (deadline stop; the resumes failed); never evaluated; kept per RULES.md 12 |
+| `unified/unified_r6_k15_s33b_round65.pth` | local copy 2026-10-18 12:41 (kernel `jensipaneliya/unified-r6-s33b` v1 Output) | R6 recipe seed 33 (restart), PARTIAL: round 65 of 80 (deadline stop, resumed as v2); never evaluated; kept per RULES.md 12 |
+| `unified/unified_r8_m1_r6_w003.pth`, `unified/unified_r8_m1_r6_w030.pth` | local copy 2026-10-17; kernels `chiragbhayal/unified-r8-w003`, `chiragbhayal/unified-r8-w030` Outputs | R8 from R6 with M1 loss weight 0.003 and 0.03 (recipe B's R8-from-R6 uses 0.01); both worse at Speedie SNR 12 (0.30, 0.42 vs 0.64); not adopted; full-state files |
 | `unified/unified_r7_k15_snr40_s{41,42,43}.pth` | local copy 2026-10-15; kernels `jensipaneliya/unified-r7-k15-snr40-s{41,42,43}` Outputs | R7 (training SNR 3-40): s42 / s43 complete, no wiggle gain; s41 stopped at its budget (partial, not resumed: dropped) |

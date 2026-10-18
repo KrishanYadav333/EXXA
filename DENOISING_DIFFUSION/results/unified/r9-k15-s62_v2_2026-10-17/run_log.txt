@@ -1,0 +1,597 @@
++ git clone --branch midterm-prep --depth 1 https://github.com/KrishanYadav333/EXXA.git /tmp/EXXA
+Cloning into '/tmp/EXXA'...
+Updating files:   1% (99/5933)Updating files:   2% (119/5933)Updating files:   3% (178/5933)Updating files:   4% (238/5933)Updating files:   5% (297/5933)Updating files:   5% (300/5933)Updating files:   6% (356/5933)Updating files:   7% (416/5933)Updating files:   8% (475/5933)Updating files:   9% (534/5933)Updating files:  10% (594/5933)Updating files:  11% (653/5933)Updating files:  12% (712/5933)Updating files:  13% (772/5933)Updating files:  14% (831/5933)Updating files:  14% (839/5933)Updating files:  15% (890/5933)Updating files:  16% (950/5933)Updating files:  17% (1009/5933)Updating files:  18% (1068/5933)Updating files:  19% (1128/5933)Updating files:  20% (1187/5933)Updating files:  21% (1246/5933)Updating files:  22% (1306/5933)Updating files:  23% (1365/5933)Updating files:  24% (1424/5933)Updating files:  25% (1484/5933)Updating files:  26% (1543/5933)Updating files:  27% (1602/5933)Updating files:  28% (1662/5933)Updating files:  29% (1721/5933)Updating files:  30% (1780/5933)Updating files:  31% (1840/5933)Updating files:  32% (1899/5933)Updating files:  33% (1958/5933)Updating files:  34% (2018/5933)Updating files:  35% (2077/5933)Updating files:  36% (2136/5933)Updating files:  37% (2196/5933)Updating files:  38% (2255/5933)Updating files:  39% (2314/5933)Updating files:  40% (2374/5933)Updating files:  41% (2433/5933)Updating files:  42% (2492/5933)Updating files:  43% (2552/5933)Updating files:  44% (2611/5933)Updating files:  45% (2670/5933)Updating files:  46% (2730/5933)Updating files:  47% (2789/5933)Updating files:  48% (2848/5933)Updating files:  49% (2908/5933)Updating files:  50% (2967/5933)Updating files:  51% (3026/5933)Updating files:  52% (3086/5933)Updating files:  53% (3145/5933)Updating files:  54% (3204/5933)Updating files:  55% (3264/5933)Updating files:  56% (3323/5933)Updating files:  57% (3382/5933)Updating files:  58% (3442/5933)Updating files:  59% (3501/5933)Updating files:  60% (3560/5933)Updating files:  61% (3620/5933)Updating files:  62% (3679/5933)Updating files:  63% (3738/5933)Updating files:  64% (3798/5933)Updating files:  65% (3857/5933)Updating files:  66% (3916/5933)Updating files:  67% (3976/5933)Updating files:  68% (4035/5933)Updating files:  69% (4094/5933)Updating files:  70% (4154/5933)Updating files:  71% (4213/5933)Updating files:  72% (4272/5933)Updating files:  73% (4332/5933)Updating files:  74% (4391/5933)Updating files:  75% (4450/5933)Updating files:  76% (4510/5933)Updating files:  77% (4569/5933)Updating files:  78% (4628/5933)Updating files:  79% (4688/5933)Updating files:  80% (4747/5933)Updating files:  81% (4806/5933)Updating files:  82% (4866/5933)Updating files:  83% (4925/5933)Updating files:  84% (4984/5933)Updating files:  85% (5044/5933)Updating files:  86% (5103/5933)Updating files:  87% (5162/5933)Updating files:  88% (5222/5933)Updating files:  89% (5281/5933)Updating files:  90% (5340/5933)Updating files:  90% (5351/5933)Updating files:  91% (5400/5933)Updating files:  92% (5459/5933)Updating files:  93% (5518/5933)Updating files:  94% (5578/5933)Updating files:  94% (5613/5933)Updating files:  95% (5637/5933)Updating files:  96% (5696/5933)Updating files:  97% (5756/5933)Updating files:  97% (5812/5933)Updating files:  98% (5815/5933)Updating files:  98% (5836/5933)Updating files:  98% (5871/5933)Updating files:  99% (5874/5933)Updating files: 100% (5933/5933)Updating files: 100% (5933/5933), done.
++ /usr/bin/python3 -m pip install -q --no-deps pytorch-msssim bettermoments
+a2b49b6 results: final report, combos, size / two-pass Wiener tests, R6-R8, oracle, MWC 758 recheck; docs
+
+overlaid ['src/data/analytic_gi.py', 'experiments/wiggle_scorecard.py', 'experiments/make_analytic_gi_cubes.py', 'experiments/train_wiggle_correction.py', 'experiments/train_unified.py', 'experiments/speedie_prep.py', 'src/data/sph_cube.py', 'experiments/validate_sph_speedie.py', 'experiments/alma_unified.py', 'experiments/pv_curve.py'] | staged from a2b49b6 results: final report, combos, size / two-pass Wiener tests, R6-R8, oracle, MWC 758 recheck; docs (+ uncommitted files)
+sg_synth -> /kaggle/input/datasets/krishanyadav333/exxa-sg-synth-pairs/kaggle-sg-training-dataset | v2 -> /kaggle/input/datasets/krishanyadav333/self-gravitating-v2/kinematic_data_v2 | line emission -> /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data (14 cubes)
++ /usr/bin/python3 experiments/make_analytic_gi_cubes.py
+an01 md=0.15 m=2 beta=5.0 pitch=13 i=20: rmsdiff/rms = 0.501 (sg_synth 0.41-0.57)
+an02 md=0.35 m=2 beta=5.0 pitch=13 i=30: rmsdiff/rms = 0.510 (sg_synth 0.41-0.57)
+an03 md=0.6 m=2 beta=5.0 pitch=13 i=20: rmsdiff/rms = 0.500 (sg_synth 0.41-0.57)
+an04 md=0.35 m=3 beta=5.0 pitch=18 i=20: rmsdiff/rms = 0.467 (sg_synth 0.41-0.57)
+an05 md=0.35 m=2 beta=3.0 pitch=13 i=30: rmsdiff/rms = 0.495 (sg_synth 0.41-0.57)
+an06 md=0.6 m=2 beta=3.0 pitch=20 i=20: rmsdiff/rms = 0.449 (sg_synth 0.41-0.57)
+an07 md=0.45 m=2 beta=4.0 pitch=15 i=25: rmsdiff/rms = 0.546 (sg_synth 0.41-0.57)
+an08 md=0.25 m=3 beta=3.0 pitch=18 i=30: rmsdiff/rms = 0.501 (sg_synth 0.41-0.57)
++ /usr/bin/python3 -u experiments/train_unified.py --arm wiener --k 15 --out /kaggle/working/unified_wiener_k15 --snr 3,150 --chan-corr 0.5 --beam-max 1.6 --lr 1.5e-4 --clip-in 10 --fp32-stream --norm robust --crop 256 --batch 4 --rounds 80 --eval-ladder 3,6,12,24 --seed 62 --train-beam-px 8,12 --tag r9_s62 --infer-beam-px 10 --infer-mode full --wiener2 --speedie-dir /kaggle/input/notebooks/krishanyadav333/speedie-prep-fast/speedie --eval-speedie GI_r0.5,Kep_r0.5,GI_r1.5,Kep_r1.5
+device cuda  {'arm': 'wiener', 'init': '', 'fresh': False, 'eval_only': False, 'eval_ckpt': '', 'tag': 'r9_s62', 'k': 15, 'rounds': 80, 'steps': 300, 'batch': 4, 'crop': 256, 'base': 48, 'lr': 0.00015, 'sizes': '256,300,320,480,600', 'hydro': '9015,9019,9025,9032', 'analytic': 'an01,an02,an03,an04,an05,an06', 'p_ai': 0.5, 'n_line': 0, 'n_line_eval': 0, 'eval_sg': '9074,sgv2,an07,an08', 'eval_ai': True, 'speedie_dir': '/kaggle/input/notebooks/krishanyadav333/speedie-prep-fast/speedie', 'eval_speedie': 'GI_r0.5,Kep_r0.5,GI_r1.5,Kep_r1.5', 'before': False, 'before_cases': 'run_0002_00560_rt_00,run_0026_00005_rt_04,9074,9074_ai,an07,an07_ai,sgv2', 'before_sizes': '300,600', 'refresh': 3, 'seed': 62, 'out': '/kaggle/working/unified_wiener_k15', 'smoke': False, 'snr': '3,150', 'chan_corr': 0.5, 'fp32_stream': True, 'budget_h': 11.0, 'eval_reserve_h': 1.5, 'resume': '', 'sph_dir': '', 'sph_max': 0, 'eval_sph': False, 'norm': 'robust', 'gate': '', 'gate_sweep': '', 'tta': False, 'eval_ladder': '3,6,12,24', 'ladder_base': 'GI_r0.5,Kep_r0.5', 'train_sgv2': False, 'clip_in': 10.0, 'beam_max': 1.6, 'infer_beam_px': 10.0, 'infer_mode': 'full', 'wiener2': True, 'train_beam_px': '8,12', 'warm': '', 'w_m1': 0.0, 'm1_band': 10, 'm1_crops': 2, 'm1_crop': 96}
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+  line  run_0006_00170_rt_00  (201, 600, 600)
+  line  run_0010_00125_rt_01  (201, 600, 600)
+  line  run_0010_00125_rt_02  (201, 600, 600)
+  line  run_0020_01000_rt_02  (201, 600, 600)
+  line  run_0022_00155_rt_03  (201, 600, 600)
+  line  run_0030_00015_rt_00  (201, 600, 600)
+  line  run_0035_00025_rt_01  (201, 600, 600)
+  line  run_0016_00550_rt_01  (201, 600, 600)
+  line  run_0036_00350_rt_03  (201, 600, 600)
+  hydro    9015  (172, 301, 301)
+  hydro    9019  (512, 600, 600)
+  hydro    9025  (172, 301, 301)
+  hydro    9032  (157, 301, 301)
+  analytic an01  (161, 301, 301)
+  analytic an02  (161, 301, 301)
+  analytic an03  (161, 301, 301)
+  analytic an04  (161, 301, 301)
+  analytic an05  (161, 301, 301)
+  analytic an06  (161, 301, 301)
+19 training cubes (analytic: 6, hydro: 4, line: 9), loaded in 84s
+step 1: L1 0.01112 vs base 0.01112 (equal: zero-init identity)
+round 1/80 step 300  L1 0.01650  d1 0.01746  d2 0.01787  redraw 115s  sizes [64, 72, 88, 104, 112, 144, 192, 200, 208, 272, 280, 320, 336]  8.6 min
+round 2/80 step 600  L1 0.01390  d1 0.01674  d2 0.01952  redraw 21s  sizes [64, 72, 88, 104, 112, 144, 192, 200, 208, 232, 280, 320, 368]  14.1 min
+round 3/80 step 900  L1 0.01022  d1 0.01039  d2 0.01129  redraw 12s  sizes [64, 72, 104, 112, 144, 200, 208, 232, 248, 280, 320, 368]  19.8 min
+round 4/80 step 1200  L1 0.00660  d1 0.00454  d2 0.00342  redraw 12s  sizes [64, 72, 96, 104, 112, 144, 200, 208, 216, 232, 248, 280, 368]  25.3 min
+round 5/80 step 1500  L1 0.00624  d1 0.00433  d2 0.00310  redraw 5s  sizes [64, 72, 80, 96, 104, 112, 144, 200, 208, 216, 232, 248, 280, 368]  30.1 min
+round 6/80 step 1800  L1 0.00430  d1 0.00306  d2 0.00196  redraw 21s  sizes [64, 72, 80, 96, 104, 112, 144, 200, 208, 232, 248, 280, 304, 368]  35.8 min
+round 7/80 step 2100  L1 0.00391  d1 0.00284  d2 0.00180  redraw 26s  sizes [64, 72, 80, 96, 104, 112, 144, 216, 232, 248, 272, 280, 304, 368]  41.7 min
+round 8/80 step 2400  L1 0.00324  d1 0.00245  d2 0.00160  redraw 24s  sizes [64, 80, 96, 104, 112, 144, 168, 216, 232, 248, 272, 280, 304, 368]  47.7 min
+round 9/80 step 2700  L1 0.00347  d1 0.00249  d2 0.00161  redraw 18s  sizes [64, 72, 80, 96, 104, 112, 144, 152, 168, 216, 232, 272, 280, 304, 368]  53.1 min
+round 10/80 step 3000  L1 0.00323  d1 0.00237  d2 0.00152  redraw 12s  sizes [72, 80, 88, 96, 104, 112, 144, 152, 168, 216, 232, 272, 280, 288, 368]  58.5 min
+round 11/80 step 3300  L1 0.00378  d1 0.00325  d2 0.00260  redraw 23s  sizes [72, 80, 88, 96, 112, 144, 152, 216, 232, 272, 280, 288, 368]  63.9 min
+round 12/80 step 3600  L1 0.00325  d1 0.00268  d2 0.00203  redraw 18s  sizes [72, 80, 88, 96, 112, 144, 152, 208, 216, 232, 272, 280, 288, 368]  69.4 min
+round 13/80 step 3900  L1 0.00320  d1 0.00260  d2 0.00188  redraw 19s  sizes [72, 80, 88, 96, 112, 152, 200, 208, 216, 232, 272, 280, 288, 312]  75.1 min
+round 14/80 step 4200  L1 0.00360  d1 0.00284  d2 0.00199  redraw 12s  sizes [80, 88, 96, 104, 112, 152, 200, 208, 216, 232, 280, 288, 312]  80.5 min
+round 15/80 step 4500  L1 0.00388  d1 0.00293  d2 0.00214  redraw 36s  sizes [80, 88, 96, 104, 112, 136, 168, 200, 208, 216, 232, 264, 280, 288, 312]  86.1 min
+round 16/80 step 4800  L1 0.00430  d1 0.00329  d2 0.00224  redraw 26s  sizes [80, 88, 96, 112, 136, 168, 176, 200, 216, 232, 264, 280, 288, 312]  91.4 min
+round 17/80 step 5100  L1 0.00404  d1 0.00310  d2 0.00228  redraw 13s  sizes [80, 88, 96, 136, 168, 176, 200, 216, 232, 264, 280, 296, 312]  96.5 min
+round 18/80 step 5400  L1 0.00405  d1 0.00339  d2 0.00256  redraw 27s  sizes [80, 88, 96, 160, 176, 200, 216, 232, 264, 280, 296, 312]  102.3 min
+round 19/80 step 5700  L1 0.00399  d1 0.00304  d2 0.00219  redraw 12s  sizes [80, 88, 96, 160, 176, 200, 216, 240, 264, 280, 296, 312]  107.6 min
+round 20/80 step 6000  L1 0.00363  d1 0.00280  d2 0.00213  redraw 12s  sizes [72, 80, 88, 96, 160, 176, 184, 200, 216, 240, 280, 296, 312]  112.7 min
+round 21/80 step 6300  L1 0.00341  d1 0.00271  d2 0.00204  redraw 21s  sizes [72, 80, 88, 96, 160, 176, 184, 200, 216, 240, 296, 312, 336]  118.1 min
+round 22/80 step 6600  L1 0.00334  d1 0.00259  d2 0.00179  redraw 13s  sizes [72, 80, 88, 96, 160, 176, 184, 200, 216, 240, 296, 312, 328]  123.2 min
+round 23/80 step 6900  L1 0.00328  d1 0.00266  d2 0.00203  redraw 11s  sizes [64, 72, 80, 88, 96, 160, 176, 184, 200, 216, 296, 312, 328]  128.1 min
+round 24/80 step 7200  L1 0.00289  d1 0.00221  d2 0.00165  redraw 12s  sizes [64, 80, 88, 96, 160, 176, 184, 200, 216, 288, 312, 328]  133.1 min
+round 25/80 step 7500  L1 0.00312  d1 0.00262  d2 0.00209  redraw 24s  sizes [64, 80, 88, 96, 104, 160, 176, 184, 200, 216, 288, 312, 328]  138.1 min
+round 26/80 step 7800  L1 0.00335  d1 0.00272  d2 0.00211  redraw 25s  sizes [64, 80, 88, 96, 104, 160, 176, 184, 192, 200, 272, 288, 312]  143.1 min
+round 27/80 step 8100  L1 0.00292  d1 0.00258  d2 0.00210  redraw 12s  sizes [64, 80, 88, 96, 104, 160, 176, 184, 192, 200, 288, 312, 328]  148.0 min
+round 28/80 step 8400  L1 0.00330  d1 0.00276  d2 0.00209  redraw 12s  sizes [64, 80, 88, 96, 104, 160, 176, 184, 192, 200, 240, 288, 328]  152.6 min
+round 29/80 step 8700  L1 0.00327  d1 0.00264  d2 0.00191  redraw 14s  sizes [64, 80, 96, 104, 160, 176, 184, 192, 200, 240, 288, 304]  157.2 min
+round 30/80 step 9000  L1 0.00316  d1 0.00277  d2 0.00213  redraw 26s  sizes [64, 80, 88, 96, 104, 152, 160, 176, 184, 192, 200, 240, 288, 304]  162.1 min
+round 31/80 step 9300  L1 0.00333  d1 0.00284  d2 0.00216  redraw 14s  sizes [64, 80, 88, 96, 104, 152, 160, 176, 184, 192, 200, 288, 304, 376]  166.8 min
+round 32/80 step 9600  L1 0.00312  d1 0.00275  d2 0.00219  redraw 31s  sizes [64, 80, 88, 96, 104, 144, 160, 176, 184, 192, 200, 264, 288, 304]  171.7 min
+round 33/80 step 9900  L1 0.00348  d1 0.00305  d2 0.00225  redraw 13s  sizes [64, 80, 88, 96, 104, 144, 160, 176, 184, 192, 208, 264, 288, 304]  176.2 min
+round 34/80 step 10200  L1 0.00365  d1 0.00324  d2 0.00235  redraw 21s  sizes [64, 80, 88, 96, 104, 144, 160, 176, 184, 192, 208, 288, 328, 352]  181.0 min
+round 35/80 step 10500  L1 0.00296  d1 0.00256  d2 0.00190  redraw 19s  sizes [80, 88, 96, 104, 144, 160, 176, 184, 192, 232, 256, 288, 328, 352]  186.4 min
+round 36/80 step 10800  L1 0.00295  d1 0.00250  d2 0.00177  redraw 18s  sizes [80, 88, 96, 104, 144, 160, 184, 224, 232, 256, 264, 288, 328, 352]  191.9 min
+round 37/80 step 11100  L1 0.00278  d1 0.00244  d2 0.00186  redraw 20s  sizes [80, 88, 104, 144, 160, 184, 224, 232, 240, 256, 264, 320, 352]  197.5 min
+round 38/80 step 11400  L1 0.00275  d1 0.00214  d2 0.00148  redraw 12s  sizes [64, 80, 88, 104, 144, 160, 184, 192, 224, 232, 240, 264, 320, 352]  202.7 min
+round 39/80 step 11700  L1 0.00267  d1 0.00200  d2 0.00122  redraw 6s  sizes [64, 80, 88, 104, 112, 144, 160, 184, 192, 224, 232, 240, 264, 320, 352]  207.9 min
+round 40/80 step 12000  L1 0.00271  d1 0.00224  d2 0.00142  redraw 20s  sizes [64, 80, 88, 104, 112, 144, 160, 168, 184, 224, 232, 248, 264, 320, 352]  213.2 min
+round 41/80 step 12300  L1 0.00239  d1 0.00182  d2 0.00111  redraw 12s  sizes [64, 72, 80, 88, 104, 112, 144, 160, 168, 224, 232, 248, 264, 272, 320, 352]  218.7 min
+round 42/80 step 12600  L1 0.00231  d1 0.00189  d2 0.00122  redraw 12s  sizes [64, 72, 80, 96, 104, 112, 144, 168, 224, 232, 248, 264, 272, 320, 352]  224.2 min
+round 43/80 step 12900  L1 0.00232  d1 0.00185  d2 0.00119  redraw 19s  sizes [64, 72, 80, 96, 104, 112, 144, 160, 168, 200, 224, 248, 264, 272, 320, 352]  229.5 min
+round 44/80 step 13200  L1 0.00207  d1 0.00160  d2 0.00098  redraw 22s  sizes [64, 72, 80, 88, 96, 104, 112, 144, 160, 168, 224, 248, 264, 272, 288, 320, 384]  235.2 min
+round 45/80 step 13500  L1 0.00192  d1 0.00150  d2 0.00096  redraw 21s  sizes [64, 72, 80, 88, 96, 104, 112, 144, 168, 224, 248, 264, 272, 288, 320, 344]  240.7 min
+round 46/80 step 13800  L1 0.00197  d1 0.00158  d2 0.00102  redraw 20s  sizes [64, 80, 88, 96, 104, 112, 144, 168, 224, 240, 264, 272, 288, 344]  246.2 min
+round 47/80 step 14100  L1 0.00171  d1 0.00132  d2 0.00086  redraw 20s  sizes [64, 72, 80, 88, 96, 104, 112, 144, 168, 176, 224, 240, 248, 264, 288, 344]  251.6 min
+round 48/80 step 14400  L1 0.00189  d1 0.00151  d2 0.00102  redraw 25s  sizes [64, 72, 80, 88, 96, 104, 112, 144, 176, 192, 208, 240, 248, 256, 264, 288, 344]  257.3 min
+round 49/80 step 14700  L1 0.00179  d1 0.00142  d2 0.00093  redraw 20s  sizes [64, 72, 80, 88, 96, 104, 112, 144, 176, 192, 200, 208, 248, 256, 264, 304, 344]  262.9 min
+round 50/80 step 15000  L1 0.00175  d1 0.00139  d2 0.00090  redraw 22s  sizes [64, 72, 88, 96, 104, 112, 144, 176, 192, 200, 208, 248, 256, 304, 384]  268.5 min
+round 51/80 step 15300  L1 0.00189  d1 0.00154  d2 0.00107  redraw 32s  sizes [72, 88, 96, 104, 112, 136, 176, 192, 200, 208, 248, 256, 304, 384]  274.2 min
+round 52/80 step 15600  L1 0.00202  d1 0.00174  d2 0.00118  redraw 35s  sizes [72, 88, 96, 104, 112, 160, 176, 192, 200, 208, 240, 248, 256, 304, 384]  279.9 min
+round 53/80 step 15900  L1 0.00188  d1 0.00167  d2 0.00127  redraw 13s  sizes [72, 88, 96, 112, 160, 176, 192, 200, 208, 248, 256, 296, 304, 384]  285.5 min
+round 54/80 step 16200  L1 0.00191  d1 0.00175  d2 0.00133  redraw 12s  sizes [72, 80, 88, 112, 160, 176, 184, 192, 200, 248, 256, 296, 304, 384]  291.0 min
+round 55/80 step 16500  L1 0.00217  d1 0.00190  d2 0.00140  redraw 21s  sizes [72, 80, 88, 112, 160, 184, 192, 200, 248, 256, 288, 304, 312, 384]  296.5 min
+round 56/80 step 16800  L1 0.00190  d1 0.00171  d2 0.00122  redraw 6s  sizes [72, 88, 96, 112, 160, 184, 192, 200, 248, 256, 288, 304, 312, 384]  302.1 min
+round 57/80 step 17100  L1 0.00166  d1 0.00151  d2 0.00112  redraw 12s  sizes [72, 88, 96, 112, 160, 184, 192, 200, 248, 256, 288, 304, 312]  307.9 min
+round 58/80 step 17400  L1 0.00168  d1 0.00148  d2 0.00115  redraw 21s  sizes [72, 80, 88, 112, 184, 192, 200, 248, 256, 288, 304, 312]  313.7 min
+round 59/80 step 17700  L1 0.00169  d1 0.00155  d2 0.00131  redraw 21s  sizes [72, 80, 88, 96, 112, 184, 200, 248, 256, 272, 288, 304, 312, 320]  320.0 min
+round 60/80 step 18000  L1 0.00164  d1 0.00154  d2 0.00127  redraw 13s  sizes [72, 80, 88, 96, 112, 184, 200, 256, 272, 288, 304, 312, 320]  326.0 min
+round 61/80 step 18300  L1 0.00165  d1 0.00147  d2 0.00123  redraw 13s  sizes [64, 72, 80, 88, 96, 104, 112, 184, 200, 256, 264, 272, 288, 312, 320]  332.1 min
+round 62/80 step 18600  L1 0.00166  d1 0.00147  d2 0.00115  redraw 22s  sizes [64, 72, 80, 88, 96, 104, 112, 184, 200, 232, 256, 264, 288, 312, 480]  338.3 min
+round 63/80 step 18900  L1 0.00144  d1 0.00131  d2 0.00112  redraw 21s  sizes [64, 72, 88, 96, 104, 112, 184, 200, 232, 256, 288, 312, 336]  344.6 min
+round 64/80 step 19200  L1 0.00145  d1 0.00121  d2 0.00089  redraw 33s  sizes [64, 72, 80, 88, 96, 104, 112, 184, 200, 232, 256, 288, 312, 440]  350.6 min
+round 65/80 step 19500  L1 0.00142  d1 0.00130  d2 0.00100  redraw 31s  sizes [64, 72, 80, 88, 96, 104, 112, 144, 184, 200, 232, 256, 288, 312, 384, 440]  356.6 min
+round 66/80 step 19800  L1 0.00124  d1 0.00111  d2 0.00084  redraw 19s  sizes [64, 72, 80, 88, 96, 104, 112, 144, 160, 184, 200, 232, 248, 256, 288, 384, 440]  362.1 min
+round 67/80 step 20100  L1 0.00114  d1 0.00106  d2 0.00081  redraw 27s  sizes [64, 72, 80, 88, 96, 104, 112, 144, 184, 224, 232, 248, 256, 288, 296, 440]  367.9 min
+round 68/80 step 20400  L1 0.00118  d1 0.00107  d2 0.00082  redraw 26s  sizes [64, 72, 80, 88, 96, 104, 112, 144, 184, 200, 232, 248, 256, 296, 440]  373.8 min
+round 69/80 step 20700  L1 0.00102  d1 0.00090  d2 0.00070  redraw 28s  sizes [64, 72, 80, 88, 96, 104, 112, 144, 184, 232, 248, 256, 288, 320, 440]  379.7 min
+round 70/80 step 21000  L1 0.00113  d1 0.00100  d2 0.00078  redraw 29s  sizes [64, 72, 80, 88, 96, 104, 184, 192, 224, 248, 256, 288, 320, 440]  385.6 min
+round 71/80 step 21300  L1 0.00099  d1 0.00088  d2 0.00066  redraw 19s  sizes [64, 72, 80, 88, 96, 104, 152, 184, 192, 224, 248, 256, 288, 320, 440]  391.4 min
+round 72/80 step 21600  L1 0.00120  d1 0.00107  d2 0.00085  redraw 12s  sizes [64, 72, 80, 96, 104, 152, 184, 192, 224, 240, 248, 256, 288, 440]  396.8 min
+round 73/80 step 21900  L1 0.00112  d1 0.00100  d2 0.00076  redraw 19s  sizes [64, 72, 80, 96, 104, 152, 184, 192, 200, 240, 248, 256, 440]  402.2 min
+round 74/80 step 22200  L1 0.00117  d1 0.00104  d2 0.00083  redraw 28s  sizes [64, 72, 80, 96, 104, 152, 184, 200, 248, 256, 440]  407.5 min
+round 75/80 step 22500  L1 0.00126  d1 0.00117  d2 0.00086  redraw 30s  sizes [64, 72, 80, 96, 104, 152, 160, 168, 184, 248, 256, 440]  413.1 min
+round 76/80 step 22800  L1 0.00130  d1 0.00119  d2 0.00089  redraw 20s  sizes [64, 80, 96, 104, 152, 160, 168, 184, 240, 248, 440]  418.4 min
+round 77/80 step 23100  L1 0.00132  d1 0.00126  d2 0.00094  redraw 20s  sizes [64, 72, 80, 96, 104, 160, 168, 176, 184, 240, 248, 288, 440]  424.0 min
+round 78/80 step 23400  L1 0.00143  d1 0.00129  d2 0.00093  redraw 5s  sizes [64, 72, 80, 88, 96, 104, 160, 168, 176, 184, 240, 248, 288, 440]  429.2 min
+round 79/80 step 23700  L1 0.00176  d1 0.00157  d2 0.00107  redraw 19s  sizes [64, 80, 88, 96, 104, 152, 160, 168, 184, 240, 248, 288, 304, 440]  434.7 min
+round 80/80 step 24000  L1 0.00186  d1 0.00162  d2 0.00112  redraw 20s  sizes [64, 80, 88, 96, 104, 152, 168, 184, 200, 248, 288, 304, 328, 440]  440.5 min
+TRAINED 24000 steps in 440.5 min -> /kaggle/working/unified_wiener_k15/unified_r9_s62.pth
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+  run_0002_00560_rt_00_256: dirty built [0s]
+  run_0002_00560_rt_00_256: wiener built [0s]
+  run_0002_00560_rt_00_256: model built [0s]
+  run_0002_00560_rt_00_256: scored [4s]
+run_0002_00560_rt_00@256       PSNR dirty 22.55 wiener 32.46 MODEL 46.18 | M0/M1/M2 % wiener 16/31/21 MODEL 52/73/89 | rc_r dirty 0.749 wiener 0.697 MODEL 0.897 | dv_med 112/135/55 m/s | 41s
+  run_0002_00560_rt_00_300: dirty built [0s]
+  run_0002_00560_rt_00_300: wiener built [0s]
+  run_0002_00560_rt_00_300: model built [0s]
+  run_0002_00560_rt_00_300: scored [3s]
+run_0002_00560_rt_00@300       PSNR dirty 22.55 wiener 32.47 MODEL 46.62 | M0/M1/M2 % wiener 17/32/22 MODEL 51/75/90 | rc_r dirty 0.779 wiener 0.697 MODEL 0.918 | dv_med 112/135/53 m/s | 51s
+  run_0002_00560_rt_00_320: dirty built [0s]
+  run_0002_00560_rt_00_320: wiener built [0s]
+  run_0002_00560_rt_00_320: model built [0s]
+  run_0002_00560_rt_00_320: scored [3s]
+run_0002_00560_rt_00@320       PSNR dirty 22.56 wiener 32.47 MODEL 46.75 | M0/M1/M2 % wiener 17/32/22 MODEL 52/76/91 | rc_r dirty 0.761 wiener 0.699 MODEL 0.924 | dv_med 112/135/54 m/s | 56s
+  infer: beam 14.9 px > 1.2 x 10: network on a 320 px grid (image 480 px, mode full)
+  infer: beam 14.9 px > 1.2 x 10: network on a 320 px grid (image 480 px, mode full)
+  run_0002_00560_rt_00_480: dirty built [0s]
+  run_0002_00560_rt_00_480: wiener built [0s]
+  run_0002_00560_rt_00_480: model built [0s]
+  run_0002_00560_rt_00_480: scored [5s]
+run_0002_00560_rt_00@480       PSNR dirty 22.56 wiener 32.48 MODEL 46.71 | M0/M1/M2 % wiener 17/32/23 MODEL 52/76/90 | rc_r dirty 0.772 wiener 0.693 MODEL 0.921 | dv_med 112/136/55 m/s | 73s
+  infer: beam 18.6 px > 1.2 x 10: network on a 320 px grid (image 600 px, mode full)
+  infer: beam 18.6 px > 1.2 x 10: network on a 320 px grid (image 600 px, mode full)
+  run_0002_00560_rt_00_600: dirty built [0s]
+  run_0002_00560_rt_00_600: wiener built [0s]
+  run_0002_00560_rt_00_600: model built [0s]
+  run_0002_00560_rt_00_600: scored [7s]
+run_0002_00560_rt_00@600       PSNR dirty 22.57 wiener 32.49 MODEL 46.85 | M0/M1/M2 % wiener 17/33/23 MODEL 52/76/91 | rc_r dirty 0.764 wiener 0.691 MODEL 0.923 | dv_med 112/136/54 m/s | 92s
+  run_0002_00560_rt_01_256: dirty built [0s]
+  run_0002_00560_rt_01_256: wiener built [0s]
+  run_0002_00560_rt_01_256: model built [0s]
+  run_0002_00560_rt_01_256: scored [3s]
+run_0002_00560_rt_01@256       PSNR dirty 19.19 wiener 30.19 MODEL 52.08 | M0/M1/M2 % wiener 21/66/64 MODEL 61/94/92 | rc_r dirty 0.047 wiener 0.155 MODEL 0.881 | dv_med 62/40/17 m/s | 40s
+  run_0002_00560_rt_01_300: dirty built [0s]
+  run_0002_00560_rt_01_300: wiener built [0s]
+  run_0002_00560_rt_01_300: model built [0s]
+  run_0002_00560_rt_01_300: scored [3s]
+run_0002_00560_rt_01@300       PSNR dirty 19.20 wiener 30.21 MODEL 52.30 | M0/M1/M2 % wiener 21/67/65 MODEL 60/94/92 | rc_r dirty 0.045 wiener 0.157 MODEL 0.874 | dv_med 62/40/19 m/s | 49s
+  run_0002_00560_rt_01_320: dirty built [0s]
+  run_0002_00560_rt_01_320: wiener built [0s]
+  run_0002_00560_rt_01_320: model built [0s]
+  run_0002_00560_rt_01_320: scored [3s]
+run_0002_00560_rt_01@320       PSNR dirty 19.20 wiener 30.20 MODEL 52.09 | M0/M1/M2 % wiener 21/67/64 MODEL 59/94/92 | rc_r dirty 0.046 wiener 0.160 MODEL 0.864 | dv_med 62/40/21 m/s | 55s
+  infer: beam 17.6 px > 1.2 x 10: network on a 272 px grid (image 480 px, mode full)
+  infer: beam 17.6 px > 1.2 x 10: network on a 272 px grid (image 480 px, mode full)
+  run_0002_00560_rt_01_480: dirty built [0s]
+  run_0002_00560_rt_01_480: wiener built [0s]
+  run_0002_00560_rt_01_480: model built [0s]
+  run_0002_00560_rt_01_480: scored [4s]
+run_0002_00560_rt_01@480       PSNR dirty 19.21 wiener 30.22 MODEL 52.31 | M0/M1/M2 % wiener 21/67/65 MODEL 59/94/92 | rc_r dirty 0.041 wiener 0.070 MODEL 0.850 | dv_med 62/40/17 m/s | 61s
+  infer: beam 22.0 px > 1.2 x 10: network on a 272 px grid (image 600 px, mode full)
+  infer: beam 22.0 px > 1.2 x 10: network on a 272 px grid (image 600 px, mode full)
+  run_0002_00560_rt_01_600: dirty built [0s]
+  run_0002_00560_rt_01_600: wiener built [0s]
+  run_0002_00560_rt_01_600: model built [0s]
+  run_0002_00560_rt_01_600: scored [6s]
+run_0002_00560_rt_01@600       PSNR dirty 19.22 wiener 30.23 MODEL 52.27 | M0/M1/M2 % wiener 22/67/65 MODEL 59/95/94 | rc_r dirty 0.042 wiener 0.082 MODEL 0.860 | dv_med 62/40/17 m/s | 77s
+  run_0002_00560_rt_04_256: dirty built [0s]
+  run_0002_00560_rt_04_256: wiener built [0s]
+  run_0002_00560_rt_04_256: model built [0s]
+  run_0002_00560_rt_04_256: scored [2s]
+run_0002_00560_rt_04@256       PSNR dirty 18.95 wiener 30.38 MODEL 57.69 | M0/M1/M2 % wiener 11/75/66 MODEL 69/96/94 | rc_r dirty 0.232 wiener 0.948 MODEL 0.996 | dv_med 44/28/13 m/s | 39s
+  run_0002_00560_rt_04_300: dirty built [0s]
+  run_0002_00560_rt_04_300: wiener built [0s]
+  run_0002_00560_rt_04_300: model built [0s]
+  run_0002_00560_rt_04_300: scored [2s]
+run_0002_00560_rt_04@300       PSNR dirty 18.96 wiener 30.40 MODEL 57.43 | M0/M1/M2 % wiener 11/75/66 MODEL 70/96/94 | rc_r dirty 0.223 wiener 0.947 MODEL 0.995 | dv_med 45/28/14 m/s | 49s
+  run_0002_00560_rt_04_320: dirty built [0s]
+  run_0002_00560_rt_04_320: wiener built [0s]
+  run_0002_00560_rt_04_320: model built [0s]
+  run_0002_00560_rt_04_320: scored [3s]
+run_0002_00560_rt_04@320       PSNR dirty 18.96 wiener 30.39 MODEL 56.97 | M0/M1/M2 % wiener 11/75/66 MODEL 69/97/95 | rc_r dirty 0.026 wiener 0.067 MODEL 0.565 | dv_med 45/28/15 m/s | 56s
+  infer: beam 14.4 px > 1.2 x 10: network on a 336 px grid (image 480 px, mode full)
+  infer: beam 14.4 px > 1.2 x 10: network on a 336 px grid (image 480 px, mode full)
+  run_0002_00560_rt_04_480: dirty built [0s]
+  run_0002_00560_rt_04_480: wiener built [0s]
+  run_0002_00560_rt_04_480: model built [0s]
+  run_0002_00560_rt_04_480: scored [5s]
+run_0002_00560_rt_04@480       PSNR dirty 18.97 wiener 30.41 MODEL 57.81 | M0/M1/M2 % wiener 11/75/66 MODEL 68/97/95 | rc_r dirty 0.036 wiener 0.021 MODEL 0.444 | dv_med 45/28/15 m/s | 78s
+  infer: beam 18.0 px > 1.2 x 10: network on a 336 px grid (image 600 px, mode full)
+  infer: beam 18.0 px > 1.2 x 10: network on a 336 px grid (image 600 px, mode full)
+  run_0002_00560_rt_04_600: dirty built [0s]
+  run_0002_00560_rt_04_600: wiener built [0s]
+  run_0002_00560_rt_04_600: model built [0s]
+  run_0002_00560_rt_04_600: scored [7s]
+run_0002_00560_rt_04@600       PSNR dirty 18.98 wiener 30.43 MODEL 57.80 | M0/M1/M2 % wiener 11/75/66 MODEL 66/97/95 | rc_r dirty 0.031 wiener 0.071 MODEL 0.577 | dv_med 45/28/15 m/s | 95s
+  run_0025_01000_rt_04_256: dirty built [0s]
+  run_0025_01000_rt_04_256: wiener built [0s]
+  run_0025_01000_rt_04_256: model built [0s]
+  run_0025_01000_rt_04_256: scored [5s]
+run_0025_01000_rt_04@256       PSNR dirty 20.17 wiener 29.15 MODEL 51.49 | M0/M1/M2 % wiener -11/52/40 MODEL 66/94/92 | rc_r dirty 0.097 wiener 0.329 MODEL 0.755 | dv_med 35/19/10 m/s | 43s
+  run_0025_01000_rt_04_300: dirty built [0s]
+  run_0025_01000_rt_04_300: wiener built [0s]
+  run_0025_01000_rt_04_300: model built [0s]
+  run_0025_01000_rt_04_300: scored [4s]
+run_0025_01000_rt_04@300       PSNR dirty 20.18 wiener 29.18 MODEL 51.83 | M0/M1/M2 % wiener -11/52/40 MODEL 65/94/94 | rc_r dirty 0.079 wiener 0.227 MODEL 0.682 | dv_med 35/19/11 m/s | 54s
+  run_0025_01000_rt_04_320: dirty built [0s]
+  run_0025_01000_rt_04_320: wiener built [0s]
+  run_0025_01000_rt_04_320: model built [0s]
+  run_0025_01000_rt_04_320: scored [6s]
+run_0025_01000_rt_04@320       PSNR dirty 20.18 wiener 29.17 MODEL 51.77 | M0/M1/M2 % wiener -11/52/40 MODEL 66/94/93 | rc_r dirty 0.067 wiener 0.241 MODEL 0.694 | dv_med 35/19/11 m/s | 62s
+  infer: beam 16.7 px > 1.2 x 10: network on a 288 px grid (image 480 px, mode full)
+  infer: beam 16.7 px > 1.2 x 10: network on a 288 px grid (image 480 px, mode full)
+  run_0025_01000_rt_04_480: dirty built [0s]
+  run_0025_01000_rt_04_480: wiener built [0s]
+  run_0025_01000_rt_04_480: model built [0s]
+  run_0025_01000_rt_04_480: scored [10s]
+run_0025_01000_rt_04@480       PSNR dirty 20.19 wiener 29.19 MODEL 51.96 | M0/M1/M2 % wiener -11/52/40 MODEL 65/94/94 | rc_r dirty 0.084 wiener 0.275 MODEL 0.721 | dv_med 35/19/10 m/s | 77s
+  infer: beam 20.8 px > 1.2 x 10: network on a 288 px grid (image 600 px, mode full)
+  infer: beam 20.8 px > 1.2 x 10: network on a 288 px grid (image 600 px, mode full)
+  run_0025_01000_rt_04_600: dirty built [0s]
+  run_0025_01000_rt_04_600: wiener built [0s]
+  run_0025_01000_rt_04_600: model built [0s]
+  run_0025_01000_rt_04_600: scored [14s]
+run_0025_01000_rt_04@600       PSNR dirty 20.19 wiener 29.20 MODEL 51.92 | M0/M1/M2 % wiener -11/52/40 MODEL 65/94/93 | rc_r dirty 0.083 wiener 0.256 MODEL 0.700 | dv_med 35/19/10 m/s | 98s
+  run_0026_00005_rt_04_256: dirty built [0s]
+  run_0026_00005_rt_04_256: wiener built [0s]
+  run_0026_00005_rt_04_256: model built [0s]
+  run_0026_00005_rt_04_256: scored [3s]
+run_0026_00005_rt_04@256       PSNR dirty 19.38 wiener 30.51 MODEL 45.24 | M0/M1/M2 % wiener 48/68/61 MODEL 55/87/83 | rc_r dirty 0.144 wiener 0.846 MODEL 0.772 | dv_med 194/130/84 m/s | 40s
+  run_0026_00005_rt_04_300: dirty built [0s]
+  run_0026_00005_rt_04_300: wiener built [0s]
+  run_0026_00005_rt_04_300: model built [0s]
+  run_0026_00005_rt_04_300: scored [3s]
+run_0026_00005_rt_04@300       PSNR dirty 19.38 wiener 30.52 MODEL 45.68 | M0/M1/M2 % wiener 48/69/61 MODEL 56/90/83 | rc_r dirty 0.146 wiener 0.845 MODEL 0.721 | dv_med 195/131/82 m/s | 50s
+  run_0026_00005_rt_04_320: dirty built [0s]
+  run_0026_00005_rt_04_320: wiener built [0s]
+  run_0026_00005_rt_04_320: model built [0s]
+  run_0026_00005_rt_04_320: scored [3s]
+run_0026_00005_rt_04@320       PSNR dirty 19.39 wiener 30.52 MODEL 45.63 | M0/M1/M2 % wiener 48/68/60 MODEL 55/90/83 | rc_r dirty 0.148 wiener 0.845 MODEL 0.707 | dv_med 195/130/82 m/s | 56s
+  infer: beam 17.6 px > 1.2 x 10: network on a 272 px grid (image 480 px, mode full)
+  infer: beam 17.6 px > 1.2 x 10: network on a 272 px grid (image 480 px, mode full)
+  run_0026_00005_rt_04_480: dirty built [0s]
+  run_0026_00005_rt_04_480: wiener built [0s]
+  run_0026_00005_rt_04_480: model built [0s]
+  run_0026_00005_rt_04_480: scored [7s]
+run_0026_00005_rt_04@480       PSNR dirty 19.39 wiener 30.53 MODEL 45.22 | M0/M1/M2 % wiener 48/69/61 MODEL 54/88/83 | rc_r dirty 0.155 wiener 0.845 MODEL 0.765 | dv_med 195/130/85 m/s | 67s
+  infer: beam 22.0 px > 1.2 x 10: network on a 272 px grid (image 600 px, mode full)
+  infer: beam 22.0 px > 1.2 x 10: network on a 272 px grid (image 600 px, mode full)
+  run_0026_00005_rt_04_600: dirty built [0s]
+  run_0026_00005_rt_04_600: wiener built [0s]
+  run_0026_00005_rt_04_600: model built [0s]
+  run_0026_00005_rt_04_600: scored [8s]
+run_0026_00005_rt_04@600       PSNR dirty 19.40 wiener 30.54 MODEL 45.18 | M0/M1/M2 % wiener 48/69/61 MODEL 54/88/83 | rc_r dirty 0.149 wiener 0.845 MODEL 0.751 | dv_med 195/131/85 m/s | 87s
+  speedie_GI_r0.5_1024: dirty built [0s]
+  speedie_GI_r0.5_1024: wiener built [0s]
+  speedie_GI_r0.5_1024: model built [0s]
+  speedie_GI_r0.5_1024: scored [23s]
+speedie_GI_r0.5@1024           PSNR dirty 24.30 wiener 34.68 MODEL 48.25 | M0/M1/M2 % wiener 23/55/49 MODEL 28/79/85 | rc_r dirty 0.361 wiener 0.588 MODEL 0.877 | dv_med 37/38/21 m/s | 605s
+  speedie_Kep_r0.5_1024: dirty built [0s]
+  speedie_Kep_r0.5_1024: wiener built [0s]
+  speedie_Kep_r0.5_1024: model built [0s]
+  speedie_Kep_r0.5_1024: scored [23s]
+speedie_Kep_r0.5@1024          PSNR dirty 24.65 wiener 34.83 MODEL 48.04 | M0/M1/M2 % wiener 21/67/51 MODEL 31/88/94 | rc_r dirty 0.218 wiener 0.121 MODEL 0.539 | dv_med 30/13/13 m/s | 595s
+  infer: beam 19.5 px > 1.2 x 10: network on a 528 px grid (image 1024 px, mode full)
+  infer: beam 19.5 px > 1.2 x 10: network on a 528 px grid (image 1024 px, mode full)
+  speedie_GI_r1.5_1024: dirty built [0s]
+  speedie_GI_r1.5_1024: wiener built [0s]
+  speedie_GI_r1.5_1024: model built [0s]
+  speedie_GI_r1.5_1024: scored [23s]
+speedie_GI_r1.5@1024           PSNR dirty 28.29 wiener 32.35 MODEL 44.94 | M0/M1/M2 % wiener -4/25/40 MODEL -47/26/34 | rc_r dirty 0.935 wiener 0.882 MODEL 0.912 | dv_med 13/22/18 m/s | 295s
+  infer: beam 19.5 px > 1.2 x 10: network on a 528 px grid (image 1024 px, mode full)
+  infer: beam 19.5 px > 1.2 x 10: network on a 528 px grid (image 1024 px, mode full)
+  speedie_Kep_r1.5_1024: dirty built [0s]
+  speedie_Kep_r1.5_1024: wiener built [0s]
+  speedie_Kep_r1.5_1024: model built [0s]
+  speedie_Kep_r1.5_1024: scored [21s]
+speedie_Kep_r1.5@1024          PSNR dirty 28.77 wiener 32.77 MODEL 45.59 | M0/M1/M2 % wiener -9/30/27 MODEL -39/61/66 | rc_r dirty 0.748 wiener 0.645 MODEL 0.829 | dv_med 10/9/9 m/s | 292s
+  speedie_ladder_GI_r0.5_snr3_1024: dirty built [0s]
+  speedie_ladder_GI_r0.5_snr3_1024: wiener built [0s]
+  speedie_ladder_GI_r0.5_snr3_1024: model built [0s]
+  speedie_ladder_GI_r0.5_snr3_1024: scored [22s]
+speedie_ladder_GI_r0.5_snr3@1024 PSNR dirty 18.98 wiener 44.21 MODEL 51.10 | M0/M1/M2 % wiener 46/89/24 MODEL 42/90/79 | rc_r dirty -0.024 wiener -0.002 MODEL 0.031 | dv_med 1555/71/86 m/s | 593s
+  speedie_ladder_GI_r0.5_snr6_1024: dirty built [0s]
+  speedie_ladder_GI_r0.5_snr6_1024: wiener built [0s]
+  speedie_ladder_GI_r0.5_snr6_1024: model built [0s]
+  speedie_ladder_GI_r0.5_snr6_1024: scored [21s]
+speedie_ladder_GI_r0.5_snr6@1024 PSNR dirty 19.62 wiener 39.77 MODEL 49.48 | M0/M1/M2 % wiener 76/89/29 MODEL 74/95/86 | rc_r dirty -0.018 wiener 0.072 MODEL 0.099 | dv_med 215/58/47 m/s | 579s
+  speedie_ladder_GI_r0.5_snr12_1024: dirty built [0s]
+  speedie_ladder_GI_r0.5_snr12_1024: wiener built [0s]
+  speedie_ladder_GI_r0.5_snr12_1024: model built [0s]
+  speedie_ladder_GI_r0.5_snr12_1024: scored [21s]
+speedie_ladder_GI_r0.5_snr12@1024 PSNR dirty 20.98 wiener 37.28 MODEL 48.19 | M0/M1/M2 % wiener 72/83/38 MODEL 69/93/88 | rc_r dirty 0.012 wiener 0.181 MODEL 0.317 | dv_med 79/49/32 m/s | 573s
+  speedie_ladder_GI_r0.5_snr24_1024: dirty built [0s]
+  speedie_ladder_GI_r0.5_snr24_1024: wiener built [0s]
+  speedie_ladder_GI_r0.5_snr24_1024: model built [0s]
+  speedie_ladder_GI_r0.5_snr24_1024: scored [21s]
+speedie_ladder_GI_r0.5_snr24@1024 PSNR dirty 22.92 wiener 35.37 MODEL 48.23 | M0/M1/M2 % wiener 41/66/42 MODEL 45/86/89 | rc_r dirty 0.137 wiener 0.431 MODEL 0.816 | dv_med 48/42/24 m/s | 574s
+  speedie_ladder_Kep_r0.5_snr3_1024: dirty built [0s]
+  speedie_ladder_Kep_r0.5_snr3_1024: wiener built [0s]
+  speedie_ladder_Kep_r0.5_snr3_1024: model built [0s]
+  speedie_ladder_Kep_r0.5_snr3_1024: scored [22s]
+speedie_ladder_Kep_r0.5_snr3@1024 PSNR dirty 19.12 wiener 44.92 MODEL 50.78 | M0/M1/M2 % wiener 39/90/31 MODEL 29/90/85 | rc_r dirty 0.005 wiener 0.003 MODEL 0.002 | dv_med 1570/55/73 m/s | 575s
+  speedie_ladder_Kep_r0.5_snr6_1024: dirty built [0s]
+  speedie_ladder_Kep_r0.5_snr6_1024: wiener built [0s]
+  speedie_ladder_Kep_r0.5_snr6_1024: model built [0s]
+  speedie_ladder_Kep_r0.5_snr6_1024: scored [21s]
+speedie_ladder_Kep_r0.5_snr6@1024 PSNR dirty 19.81 wiener 39.74 MODEL 48.89 | M0/M1/M2 % wiener 73/92/45 MODEL 71/96/91 | rc_r dirty -0.005 wiener -0.017 MODEL 0.047 | dv_med 180/24/33 m/s | 576s
+  speedie_ladder_Kep_r0.5_snr12_1024: dirty built [0s]
+  speedie_ladder_Kep_r0.5_snr12_1024: wiener built [0s]
+  speedie_ladder_Kep_r0.5_snr12_1024: model built [0s]
+  speedie_ladder_Kep_r0.5_snr12_1024: scored [21s]
+speedie_ladder_Kep_r0.5_snr12@1024 PSNR dirty 21.23 wiener 37.21 MODEL 47.70 | M0/M1/M2 % wiener 68/86/43 MODEL 70/95/94 | rc_r dirty -0.008 wiener -0.023 MODEL 0.255 | dv_med 63/16/21 m/s | 572s
+  speedie_ladder_Kep_r0.5_snr24_1024: dirty built [0s]
+  speedie_ladder_Kep_r0.5_snr24_1024: wiener built [0s]
+  speedie_ladder_Kep_r0.5_snr24_1024: model built [0s]
+  speedie_ladder_Kep_r0.5_snr24_1024: scored [21s]
+speedie_ladder_Kep_r0.5_snr24@1024 PSNR dirty 23.27 wiener 35.40 MODEL 47.88 | M0/M1/M2 % wiener 37/73/48 MODEL 47/91/96 | rc_r dirty 0.040 wiener 0.046 MODEL 0.428 | dv_med 38/14/15 m/s | 572s
+  9074_256: dirty built [0s]
+  9074_256: wiener built [0s]
+  9074_256: model built [0s]
+  9074_256: beam_oracle built [0s]
+  9074_256: scored [4s]
+9074@256                       PSNR dirty 21.15 wiener 33.97 MODEL 32.79 | M0/M1/M2 % wiener 38/9/51 MODEL 55/56/70 | rc_r dirty 0.131 wiener 0.071 MODEL 0.379 | dv_med 308/304/189 m/s | 25s
+  9074_300: dirty built [0s]
+  9074_300: wiener built [0s]
+  9074_300: model built [0s]
+  9074_300: beam_oracle built [0s]
+  9074_300: scored [4s]
+9074@300                       PSNR dirty 21.15 wiener 33.95 MODEL 32.82 | M0/M1/M2 % wiener 35/7/49 MODEL 50/53/65 | rc_r dirty 0.134 wiener 0.074 MODEL 0.369 | dv_med 308/304/192 m/s | 32s
+  9074_320: dirty built [0s]
+  9074_320: wiener built [0s]
+  9074_320: model built [0s]
+  9074_320: beam_oracle built [0s]
+  9074_320: scored [4s]
+9074@320                       PSNR dirty 21.15 wiener 33.89 MODEL 32.86 | M0/M1/M2 % wiener 34/8/49 MODEL 47/54/62 | rc_r dirty 0.132 wiener 0.076 MODEL 0.356 | dv_med 308/303/192 m/s | 35s
+  9074_480: dirty built [0s]
+  9074_480: wiener built [0s]
+  9074_480: model built [0s]
+  9074_480: beam_oracle built [0s]
+  9074_480: scored [8s]
+9074@480                       PSNR dirty 21.16 wiener 33.90 MODEL 32.91 | M0/M1/M2 % wiener 35/7/49 MODEL 45/48/56 | rc_r dirty 0.129 wiener 0.074 MODEL 0.323 | dv_med 307/303/187 m/s | 77s
+  9074_600: dirty built [0s]
+  9074_600: wiener built [0s]
+  9074_600: model built [0s]
+  9074_600: beam_oracle built [0s]
+  9074_600: scored [13s]
+9074@600                       PSNR dirty 21.16 wiener 33.90 MODEL 32.89 | M0/M1/M2 % wiener 35/8/49 MODEL 50/47/58 | rc_r dirty 0.133 wiener 0.077 MODEL 0.322 | dv_med 308/303/184 m/s | 124s
+  9074_ai_256: dirty built [0s]
+  9074_ai_256: wiener built [0s]
+  9074_ai_256: model built [0s]
+  9074_ai_256: scored [3s]
+9074_ai@256                    PSNR dirty 22.97 wiener 37.73 MODEL 35.32 | M0/M1/M2 % wiener 47/-17/67 MODEL -49/11/50 | rc_r dirty 0.310 wiener 0.127 MODEL 0.427 | dv_med 259/299/171 m/s | 37s
+  infer: beam 13.8 px > 1.2 x 10: network on a 216 px grid (image 300 px, mode full)
+  infer: beam 13.8 px > 1.2 x 10: network on a 216 px grid (image 300 px, mode full)
+  9074_ai_300: dirty built [0s]
+  9074_ai_300: wiener built [0s]
+  9074_ai_300: model built [0s]
+  9074_ai_300: scored [3s]
+9074_ai@300                    PSNR dirty 22.97 wiener 37.73 MODEL 34.86 | M0/M1/M2 % wiener 44/-19/66 MODEL -72/7/48 | rc_r dirty 0.311 wiener 0.131 MODEL 0.464 | dv_med 258/300/169 m/s | 32s
+  infer: beam 14.7 px > 1.2 x 10: network on a 216 px grid (image 320 px, mode full)
+  infer: beam 14.7 px > 1.2 x 10: network on a 216 px grid (image 320 px, mode full)
+  9074_ai_320: dirty built [0s]
+  9074_ai_320: wiener built [0s]
+  9074_ai_320: model built [0s]
+  9074_ai_320: scored [4s]
+9074_ai@320                    PSNR dirty 22.97 wiener 37.74 MODEL 34.93 | M0/M1/M2 % wiener 42/-18/65 MODEL -71/6/51 | rc_r dirty 0.309 wiener 0.129 MODEL 0.457 | dv_med 258/300/169 m/s | 34s
+  infer: beam 22.1 px > 1.2 x 10: network on a 216 px grid (image 480 px, mode full)
+  infer: beam 22.1 px > 1.2 x 10: network on a 216 px grid (image 480 px, mode full)
+  9074_ai_480: dirty built [0s]
+  9074_ai_480: wiener built [0s]
+  9074_ai_480: model built [0s]
+  9074_ai_480: scored [7s]
+9074_ai@480                    PSNR dirty 22.97 wiener 37.75 MODEL 34.83 | M0/M1/M2 % wiener 43/-19/65 MODEL -73/8/48 | rc_r dirty 0.312 wiener 0.126 MODEL 0.459 | dv_med 257/300/167 m/s | 52s
+  infer: beam 27.6 px > 1.2 x 10: network on a 216 px grid (image 600 px, mode full)
+  infer: beam 27.6 px > 1.2 x 10: network on a 216 px grid (image 600 px, mode full)
+  9074_ai_600: dirty built [0s]
+  9074_ai_600: wiener built [0s]
+  9074_ai_600: model built [0s]
+  9074_ai_600: scored [11s]
+9074_ai@600                    PSNR dirty 22.97 wiener 37.75 MODEL 34.79 | M0/M1/M2 % wiener 43/-19/65 MODEL -76/4/47 | rc_r dirty 0.314 wiener 0.131 MODEL 0.475 | dv_med 257/300/169 m/s | 71s
+  sgv2_256: dirty built [0s]
+  sgv2_256: wiener built [0s]
+  sgv2_256: model built [0s]
+  sgv2_256: beam_oracle built [0s]
+  sgv2_256: scored [5s]
+sgv2@256                       PSNR dirty 28.38 wiener 24.54 MODEL 28.95 | M0/M1/M2 % wiener 15/-17/-10 MODEL -3/6/11 | rc_r dirty 0.884 wiener 0.773 MODEL 0.887 | dv_med 43/66/47 m/s | 34s
+  sgv2_300: dirty built [0s]
+  sgv2_300: wiener built [0s]
+  sgv2_300: model built [0s]
+  sgv2_300: beam_oracle built [0s]
+  sgv2_300: scored [6s]
+sgv2@300                       PSNR dirty 27.74 wiener 24.04 MODEL 28.17 | M0/M1/M2 % wiener 9/-12/-8 MODEL -10/6/9 | rc_r dirty 0.849 wiener 0.718 MODEL 0.853 | dv_med 51/77/54 m/s | 34s
+  sgv2_320: dirty built [0s]
+  sgv2_320: wiener built [0s]
+  sgv2_320: model built [0s]
+  sgv2_320: beam_oracle built [0s]
+  sgv2_320: scored [7s]
+sgv2@320                       PSNR dirty 28.05 wiener 24.29 MODEL 28.51 | M0/M1/M2 % wiener 10/-13/-10 MODEL -9/6/9 | rc_r dirty 0.872 wiener 0.757 MODEL 0.874 | dv_med 49/73/52 m/s | 38s
+  sgv2_480: dirty built [0s]
+  sgv2_480: wiener built [0s]
+  sgv2_480: model built [0s]
+  sgv2_480: beam_oracle built [0s]
+  sgv2_480: scored [11s]
+sgv2@480                       PSNR dirty 27.83 wiener 24.08 MODEL 28.22 | M0/M1/M2 % wiener 6/-11/-10 MODEL -12/6/8 | rc_r dirty 0.846 wiener 0.710 MODEL 0.844 | dv_med 55/81/57 m/s | 82s
+  sgv2_600: dirty built [0s]
+  sgv2_600: wiener built [0s]
+  sgv2_600: model built [0s]
+  sgv2_600: beam_oracle built [0s]
+  sgv2_600: scored [15s]
+sgv2@600                       PSNR dirty 27.32 wiener 23.76 MODEL 27.59 | M0/M1/M2 % wiener 6/-7/-7 MODEL -12/7/8 | rc_r dirty 0.846 wiener 0.716 MODEL 0.847 | dv_med 59/87/59 m/s | 125s
+  an07_256: dirty built [0s]
+  an07_256: wiener built [0s]
+  an07_256: model built [0s]
+  an07_256: beam_oracle built [0s]
+  an07_256: scored [3s]
+an07@256                       PSNR dirty 19.13 wiener 27.77 MODEL 42.16 | M0/M1/M2 % wiener 32/43/51 MODEL 51/64/77 | rc_r dirty 0.593 wiener 0.588 MODEL 0.748 | dv_med 58/43/31 m/s | 20s
+  an07_300: dirty built [0s]
+  an07_300: wiener built [0s]
+  an07_300: model built [0s]
+  an07_300: beam_oracle built [0s]
+  an07_300: scored [4s]
+an07@300                       PSNR dirty 19.13 wiener 27.76 MODEL 42.13 | M0/M1/M2 % wiener 32/43/51 MODEL 54/65/78 | rc_r dirty 0.593 wiener 0.586 MODEL 0.766 | dv_med 59/43/32 m/s | 26s
+  an07_320: dirty built [0s]
+  an07_320: wiener built [0s]
+  an07_320: model built [0s]
+  an07_320: beam_oracle built [0s]
+  an07_320: scored [4s]
+an07@320                       PSNR dirty 19.13 wiener 27.78 MODEL 42.12 | M0/M1/M2 % wiener 32/43/51 MODEL 55/66/79 | rc_r dirty 0.594 wiener 0.588 MODEL 0.772 | dv_med 59/43/32 m/s | 30s
+  an07_480: dirty built [0s]
+  an07_480: wiener built [0s]
+  an07_480: model built [0s]
+  an07_480: beam_oracle built [0s]
+  an07_480: scored [7s]
+an07@480                       PSNR dirty 19.14 wiener 27.79 MODEL 41.51 | M0/M1/M2 % wiener 32/43/51 MODEL 57/66/76 | rc_r dirty 0.591 wiener 0.588 MODEL 0.755 | dv_med 59/43/36 m/s | 65s
+  an07_600: dirty built [0s]
+  an07_600: wiener built [0s]
+  an07_600: model built [0s]
+  an07_600: beam_oracle built [0s]
+  an07_600: scored [8s]
+an07@600                       PSNR dirty 19.14 wiener 27.79 MODEL 40.78 | M0/M1/M2 % wiener 32/43/51 MODEL 57/66/75 | rc_r dirty 0.592 wiener 0.587 MODEL 0.741 | dv_med 59/43/38 m/s | 99s
+  infer: beam 13.7 px > 1.2 x 10: network on a 184 px grid (image 256 px, mode full)
+  infer: beam 13.7 px > 1.2 x 10: network on a 184 px grid (image 256 px, mode full)
+  an07_ai_256: dirty built [0s]
+  an07_ai_256: wiener built [0s]
+  an07_ai_256: model built [0s]
+  an07_ai_256: scored [3s]
+an07_ai@256                    PSNR dirty 21.02 wiener 29.98 MODEL 48.09 | M0/M1/M2 % wiener 45/43/53 MODEL 58/70/82 | rc_r dirty 0.617 wiener 0.837 MODEL 0.822 | dv_med 49/24/24 m/s | 20s
+  infer: beam 16.0 px > 1.2 x 10: network on a 184 px grid (image 300 px, mode full)
+  infer: beam 16.0 px > 1.2 x 10: network on a 184 px grid (image 300 px, mode full)
+  an07_ai_300: dirty built [0s]
+  an07_ai_300: wiener built [0s]
+  an07_ai_300: model built [0s]
+  an07_ai_300: scored [3s]
+an07_ai@300                    PSNR dirty 21.02 wiener 29.98 MODEL 48.02 | M0/M1/M2 % wiener 45/43/52 MODEL 58/70/81 | rc_r dirty 0.617 wiener 0.837 MODEL 0.825 | dv_med 49/24/24 m/s | 22s
+  infer: beam 17.1 px > 1.2 x 10: network on a 184 px grid (image 320 px, mode full)
+  infer: beam 17.1 px > 1.2 x 10: network on a 184 px grid (image 320 px, mode full)
+  an07_ai_320: dirty built [0s]
+  an07_ai_320: wiener built [0s]
+  an07_ai_320: model built [0s]
+  an07_ai_320: scored [4s]
+an07_ai@320                    PSNR dirty 21.02 wiener 29.99 MODEL 48.12 | M0/M1/M2 % wiener 45/43/52 MODEL 58/70/81 | rc_r dirty 0.619 wiener 0.837 MODEL 0.826 | dv_med 49/24/24 m/s | 24s
+  infer: beam 25.7 px > 1.2 x 10: network on a 184 px grid (image 480 px, mode full)
+  infer: beam 25.7 px > 1.2 x 10: network on a 184 px grid (image 480 px, mode full)
+  an07_ai_480: dirty built [0s]
+  an07_ai_480: wiener built [0s]
+  an07_ai_480: model built [0s]
+  an07_ai_480: scored [6s]
+an07_ai@480                    PSNR dirty 21.03 wiener 30.00 MODEL 47.95 | M0/M1/M2 % wiener 45/43/53 MODEL 57/69/80 | rc_r dirty 0.616 wiener 0.837 MODEL 0.826 | dv_med 49/24/24 m/s | 39s
+  infer: beam 32.1 px > 1.2 x 10: network on a 184 px grid (image 600 px, mode full)
+  infer: beam 32.1 px > 1.2 x 10: network on a 184 px grid (image 600 px, mode full)
+  an07_ai_600: dirty built [0s]
+  an07_ai_600: wiener built [0s]
+  an07_ai_600: model built [0s]
+  an07_ai_600: scored [6s]
+an07_ai@600                    PSNR dirty 21.03 wiener 30.00 MODEL 47.93 | M0/M1/M2 % wiener 45/43/53 MODEL 57/70/80 | rc_r dirty 0.617 wiener 0.837 MODEL 0.825 | dv_med 49/24/24 m/s | 51s
+  an08_256: dirty built [0s]
+  an08_256: wiener built [0s]
+  an08_256: model built [0s]
+  an08_256: beam_oracle built [0s]
+  an08_256: scored [4s]
+an08@256                       PSNR dirty 19.59 wiener 27.07 MODEL 39.59 | M0/M1/M2 % wiener 34/35/37 MODEL 46/52/74 | rc_r dirty 0.496 wiener 0.461 MODEL 0.675 | dv_med 54/33/27 m/s | 22s
+  an08_300: dirty built [0s]
+  an08_300: wiener built [0s]
+  an08_300: model built [0s]
+  an08_300: beam_oracle built [0s]
+  an08_300: scored [3s]
+an08@300                       PSNR dirty 19.59 wiener 27.05 MODEL 39.65 | M0/M1/M2 % wiener 34/36/38 MODEL 47/53/75 | rc_r dirty 0.949 wiener 0.945 MODEL 0.971 | dv_med 55/33/29 m/s | 26s
+  an08_320: dirty built [0s]
+  an08_320: wiener built [0s]
+  an08_320: model built [0s]
+  an08_320: beam_oracle built [0s]
+  an08_320: scored [3s]
+an08@320                       PSNR dirty 19.60 wiener 27.07 MODEL 39.69 | M0/M1/M2 % wiener 34/36/38 MODEL 48/53/76 | rc_r dirty 0.949 wiener 0.945 MODEL 0.972 | dv_med 55/33/29 m/s | 29s
+  an08_480: dirty built [0s]
+  an08_480: wiener built [0s]
+  an08_480: model built [0s]
+  an08_480: beam_oracle built [0s]
+  an08_480: scored [9s]
+an08@480                       PSNR dirty 19.60 wiener 27.07 MODEL 39.09 | M0/M1/M2 % wiener 34/36/38 MODEL 49/54/77 | rc_r dirty 0.494 wiener 0.455 MODEL 0.660 | dv_med 55/33/33 m/s | 73s
+  an08_600: dirty built [0s]
+  an08_600: wiener built [0s]
+  an08_600: model built [0s]
+  an08_600: beam_oracle built [0s]
+  an08_600: scored [10s]
+an08@600                       PSNR dirty 19.60 wiener 27.08 MODEL 38.17 | M0/M1/M2 % wiener 34/36/38 MODEL 49/54/77 | rc_r dirty 0.496 wiener 0.464 MODEL 0.652 | dv_med 55/33/36 m/s | 104s
+  infer: beam 13.7 px > 1.2 x 10: network on a 184 px grid (image 256 px, mode full)
+  infer: beam 13.7 px > 1.2 x 10: network on a 184 px grid (image 256 px, mode full)
+  an08_ai_256: dirty built [0s]
+  an08_ai_256: wiener built [0s]
+  an08_ai_256: model built [0s]
+  an08_ai_256: scored [3s]
+an08_ai@256                    PSNR dirty 22.08 wiener 30.43 MODEL 45.84 | M0/M1/M2 % wiener 42/33/46 MODEL 52/67/77 | rc_r dirty 0.561 wiener 0.790 MODEL 0.784 | dv_med 47/20/22 m/s | 21s
+  infer: beam 16.0 px > 1.2 x 10: network on a 184 px grid (image 300 px, mode full)
+  infer: beam 16.0 px > 1.2 x 10: network on a 184 px grid (image 300 px, mode full)
+  an08_ai_300: dirty built [0s]
+  an08_ai_300: wiener built [0s]
+  an08_ai_300: model built [0s]
+  an08_ai_300: scored [3s]
+an08_ai@300                    PSNR dirty 22.08 wiener 30.42 MODEL 45.84 | M0/M1/M2 % wiener 42/33/46 MODEL 52/68/77 | rc_r dirty 0.984 wiener 0.991 MODEL 0.986 | dv_med 47/20/22 m/s | 22s
+  infer: beam 17.1 px > 1.2 x 10: network on a 184 px grid (image 320 px, mode full)
+  infer: beam 17.1 px > 1.2 x 10: network on a 184 px grid (image 320 px, mode full)
+  an08_ai_320: dirty built [0s]
+  an08_ai_320: wiener built [0s]
+  an08_ai_320: model built [0s]
+  an08_ai_320: scored [3s]
+an08_ai@320                    PSNR dirty 22.09 wiener 30.44 MODEL 45.89 | M0/M1/M2 % wiener 42/33/46 MODEL 52/68/78 | rc_r dirty 0.984 wiener 0.991 MODEL 0.986 | dv_med 47/20/21 m/s | 23s
+  infer: beam 25.7 px > 1.2 x 10: network on a 184 px grid (image 480 px, mode full)
+  infer: beam 25.7 px > 1.2 x 10: network on a 184 px grid (image 480 px, mode full)
+  an08_ai_480: dirty built [0s]
+  an08_ai_480: wiener built [0s]
+  an08_ai_480: model built [0s]
+  an08_ai_480: scored [10s]
+an08_ai@480                    PSNR dirty 22.10 wiener 30.44 MODEL 45.79 | M0/M1/M2 % wiener 42/34/46 MODEL 52/68/77 | rc_r dirty 0.559 wiener 0.788 MODEL 0.789 | dv_med 47/20/21 m/s | 48s
+  infer: beam 32.1 px > 1.2 x 10: network on a 184 px grid (image 600 px, mode full)
+  infer: beam 32.1 px > 1.2 x 10: network on a 184 px grid (image 600 px, mode full)
+  an08_ai_600: dirty built [0s]
+  an08_ai_600: wiener built [0s]
+  an08_ai_600: model built [0s]
+  an08_ai_600: scored [9s]
+an08_ai@600                    PSNR dirty 22.10 wiener 30.44 MODEL 45.77 | M0/M1/M2 % wiener 42/34/46 MODEL 52/68/77 | rc_r dirty 0.562 wiener 0.792 MODEL 0.790 | dv_med 47/20/21 m/s | 59s
+EVAL DONE
+UNIFIED wiener DONE in 603.7 min
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __script__.ipynb to html
+[NbConvertApp] Writing 305410 bytes to __results__.html

@@ -1,0 +1,8 @@
+{
+ "tag": "r8_w030",
+ "train_complete": true,
+ "eval_complete": true,
+ "round": 20,
+ "rounds": 20,
+ "checkpoint": "unified_r8_w030.pth"
+}

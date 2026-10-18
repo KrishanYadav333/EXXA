@@ -1,0 +1,133 @@
++ git clone --branch midterm-prep --depth 1 https://github.com/KrishanYadav333/EXXA.git /tmp/EXXA
+Cloning into '/tmp/EXXA'...
+Updating files:   1% (98/5933)Updating files:   2% (119/5933)Updating files:   2% (141/5933)Updating files:   3% (178/5933)Updating files:   4% (238/5933)Updating files:   5% (297/5933)Updating files:   6% (356/5933)Updating files:   7% (416/5933)Updating files:   8% (475/5933)Updating files:   8% (499/5933)Updating files:   9% (534/5933)Updating files:  10% (594/5933)Updating files:  11% (653/5933)Updating files:  12% (712/5933)Updating files:  13% (772/5933)Updating files:  14% (831/5933)Updating files:  15% (890/5933)Updating files:  16% (950/5933)Updating files:  17% (1009/5933)Updating files:  18% (1068/5933)Updating files:  19% (1128/5933)Updating files:  20% (1187/5933)Updating files:  21% (1246/5933)Updating files:  22% (1306/5933)Updating files:  23% (1365/5933)Updating files:  24% (1424/5933)Updating files:  25% (1484/5933)Updating files:  26% (1543/5933)Updating files:  27% (1602/5933)Updating files:  28% (1662/5933)Updating files:  29% (1721/5933)Updating files:  30% (1780/5933)Updating files:  31% (1840/5933)Updating files:  32% (1899/5933)Updating files:  33% (1958/5933)Updating files:  34% (2018/5933)Updating files:  35% (2077/5933)Updating files:  36% (2136/5933)Updating files:  37% (2196/5933)Updating files:  38% (2255/5933)Updating files:  39% (2314/5933)Updating files:  40% (2374/5933)Updating files:  41% (2433/5933)Updating files:  42% (2492/5933)Updating files:  43% (2552/5933)Updating files:  44% (2611/5933)Updating files:  45% (2670/5933)Updating files:  46% (2730/5933)Updating files:  47% (2789/5933)Updating files:  48% (2848/5933)Updating files:  49% (2908/5933)Updating files:  50% (2967/5933)Updating files:  51% (3026/5933)Updating files:  52% (3086/5933)Updating files:  53% (3145/5933)Updating files:  54% (3204/5933)Updating files:  55% (3264/5933)Updating files:  56% (3323/5933)Updating files:  57% (3382/5933)Updating files:  58% (3442/5933)Updating files:  59% (3501/5933)Updating files:  60% (3560/5933)Updating files:  61% (3620/5933)Updating files:  62% (3679/5933)Updating files:  63% (3738/5933)Updating files:  64% (3798/5933)Updating files:  65% (3857/5933)Updating files:  66% (3916/5933)Updating files:  67% (3976/5933)Updating files:  68% (4035/5933)Updating files:  69% (4094/5933)Updating files:  70% (4154/5933)Updating files:  71% (4213/5933)Updating files:  72% (4272/5933)Updating files:  73% (4332/5933)Updating files:  74% (4391/5933)Updating files:  75% (4450/5933)Updating files:  76% (4510/5933)Updating files:  77% (4569/5933)Updating files:  78% (4628/5933)Updating files:  79% (4688/5933)Updating files:  80% (4747/5933)Updating files:  81% (4806/5933)Updating files:  82% (4866/5933)Updating files:  83% (4925/5933)Updating files:  84% (4984/5933)Updating files:  85% (5044/5933)Updating files:  86% (5103/5933)Updating files:  86% (5155/5933)Updating files:  87% (5162/5933)Updating files:  88% (5222/5933)Updating files:  89% (5281/5933)Updating files:  90% (5340/5933)Updating files:  91% (5400/5933)Updating files:  91% (5437/5933)Updating files:  92% (5459/5933)Updating files:  93% (5518/5933)Updating files:  94% (5578/5933)Updating files:  95% (5637/5933)Updating files:  95% (5670/5933)Updating files:  96% (5696/5933)Updating files:  97% (5756/5933)Updating files:  97% (5812/5933)Updating files:  98% (5815/5933)Updating files:  98% (5835/5933)Updating files:  98% (5856/5933)Updating files:  99% (5874/5933)Updating files:  99% (5922/5933)Updating files:  99% (5923/5933)Updating files: 100% (5933/5933)Updating files: 100% (5933/5933), done.
++ /usr/bin/python3 -m pip install -q --no-deps pytorch-msssim bettermoments
+a2b49b6 results: final report, combos, size / two-pass Wiener tests, R6-R8, oracle, MWC 758 recheck; docs
+
+overlaid ['src/data/analytic_gi.py', 'experiments/wiggle_scorecard.py', 'experiments/make_analytic_gi_cubes.py', 'experiments/train_wiggle_correction.py', 'experiments/train_unified.py', 'experiments/speedie_prep.py', 'src/data/sph_cube.py', 'experiments/validate_sph_speedie.py', 'experiments/alma_unified.py', 'experiments/pv_curve.py'] | staged from a2b49b6 results: final report, combos, size / two-pass Wiener tests, R6-R8, oracle, MWC 758 recheck; docs (+ uncommitted files)
+sg_synth -> /kaggle/input/datasets/krishanyadav333/exxa-sg-synth-pairs/kaggle-sg-training-dataset | v2 -> /kaggle/input/datasets/krishanyadav333/self-gravitating-v2/kinematic_data_v2 | line emission -> /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data (14 cubes)
++ /usr/bin/python3 experiments/make_analytic_gi_cubes.py
+an01 md=0.15 m=2 beta=5.0 pitch=13 i=20: rmsdiff/rms = 0.501 (sg_synth 0.41-0.57)
+an02 md=0.35 m=2 beta=5.0 pitch=13 i=30: rmsdiff/rms = 0.510 (sg_synth 0.41-0.57)
+an03 md=0.6 m=2 beta=5.0 pitch=13 i=20: rmsdiff/rms = 0.500 (sg_synth 0.41-0.57)
+an04 md=0.35 m=3 beta=5.0 pitch=18 i=20: rmsdiff/rms = 0.467 (sg_synth 0.41-0.57)
+an05 md=0.35 m=2 beta=3.0 pitch=13 i=30: rmsdiff/rms = 0.495 (sg_synth 0.41-0.57)
+an06 md=0.6 m=2 beta=3.0 pitch=20 i=20: rmsdiff/rms = 0.449 (sg_synth 0.41-0.57)
+an07 md=0.45 m=2 beta=4.0 pitch=15 i=25: rmsdiff/rms = 0.546 (sg_synth 0.41-0.57)
+an08 md=0.25 m=3 beta=3.0 pitch=18 i=30: rmsdiff/rms = 0.501 (sg_synth 0.41-0.57)
++ /usr/bin/python3 -u experiments/train_unified.py --arm wiener --k 15 --out /kaggle/working/unified_wiener_k15 --snr 3,150 --chan-corr 0.5 --beam-max 1.6 --lr 1.5e-4 --clip-in 10 --fp32-stream --norm robust --crop 256 --batch 4 --rounds 80 --eval-ladder 3,6,12,24 --seed 33 --tag r6_s33 --speedie-dir /kaggle/input/notebooks/krishanyadav333/speedie-prep-fast/speedie --eval-speedie GI_r0.5,Kep_r0.5,GI_r1.5,Kep_r1.5
+device cuda  {'arm': 'wiener', 'init': '', 'fresh': False, 'eval_only': False, 'eval_ckpt': '', 'tag': 'r6_s33', 'k': 15, 'rounds': 80, 'steps': 300, 'batch': 4, 'crop': 256, 'base': 48, 'lr': 0.00015, 'sizes': '256,300,320,480,600', 'hydro': '9015,9019,9025,9032', 'analytic': 'an01,an02,an03,an04,an05,an06', 'p_ai': 0.5, 'n_line': 0, 'n_line_eval': 0, 'eval_sg': '9074,sgv2,an07,an08', 'eval_ai': True, 'speedie_dir': '/kaggle/input/notebooks/krishanyadav333/speedie-prep-fast/speedie', 'eval_speedie': 'GI_r0.5,Kep_r0.5,GI_r1.5,Kep_r1.5', 'before': False, 'before_cases': 'run_0002_00560_rt_00,run_0026_00005_rt_04,9074,9074_ai,an07,an07_ai,sgv2', 'before_sizes': '300,600', 'refresh': 3, 'seed': 33, 'out': '/kaggle/working/unified_wiener_k15', 'smoke': False, 'snr': '3,150', 'chan_corr': 0.5, 'fp32_stream': True, 'budget_h': 11.0, 'eval_reserve_h': 1.5, 'resume': '', 'sph_dir': '', 'sph_max': 0, 'eval_sph': False, 'norm': 'robust', 'gate': '', 'gate_sweep': '', 'tta': False, 'eval_ladder': '3,6,12,24', 'ladder_base': 'GI_r0.5,Kep_r0.5', 'train_sgv2': False, 'clip_in': 10.0, 'beam_max': 1.6, 'infer_beam_px': 0.0, 'infer_mode': 'corr', 'wiener2': False, 'train_beam_px': '', 'warm': '', 'w_m1': 0.0, 'm1_band': 10, 'm1_crops': 2, 'm1_crop': 96}
+======================================================================
+CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)
+======================================================================
+  data_dir          : /kaggle/input/datasets/krishanyadav333/line-emission-data/Line Emission Data
+  total cubes       : 14  across 11 distinct RunIDs
+  seed=42  n_holdout=3  val_fraction=0.2
+----------------------------------------------------------------------
+  TRAIN   :  7 cubes | RunIDs ['0006', '0010', '0020', '0022', '0030', '0035']
+  VAL     :  2 cubes | RunIDs ['0016', '0036']
+  HOLDOUT :  5 cubes | RunIDs ['0002', '0025', '0026']  <-- inference only, NEVER trained/validated
+----------------------------------------------------------------------
+  HOLDOUT cube folders (reserved for moment-map evaluation):
+    - run_0002_00560_rt_00
+    - run_0002_00560_rt_01
+    - run_0002_00560_rt_04
+    - run_0025_01000_rt_04
+    - run_0026_00005_rt_04
+======================================================================
+  line  run_0006_00170_rt_00  (201, 600, 600)
+  line  run_0010_00125_rt_01  (201, 600, 600)
+  line  run_0010_00125_rt_02  (201, 600, 600)
+  line  run_0020_01000_rt_02  (201, 600, 600)
+  line  run_0022_00155_rt_03  (201, 600, 600)
+  line  run_0030_00015_rt_00  (201, 600, 600)
+  line  run_0035_00025_rt_01  (201, 600, 600)
+  line  run_0016_00550_rt_01  (201, 600, 600)
+  line  run_0036_00350_rt_03  (201, 600, 600)
+  hydro    9015  (172, 301, 301)
+  hydro    9019  (512, 600, 600)
+  hydro    9025  (172, 301, 301)
+  hydro    9032  (157, 301, 301)
+  analytic an01  (161, 301, 301)
+  analytic an02  (161, 301, 301)
+  analytic an03  (161, 301, 301)
+  analytic an04  (161, 301, 301)
+  analytic an05  (161, 301, 301)
+  analytic an06  (161, 301, 301)
+19 training cubes (analytic: 6, hydro: 4, line: 9), loaded in 869s
+step 1: L1 0.05031 vs base 0.05031 (equal: zero-init identity)
+round 1/80 step 300  L1 0.03764  d1 0.04569  d2 0.06041  redraw 178s  sizes [256, 300, 320, 480, 600]  25.7 min
+round 2/80 step 600  L1 0.02193  d1 0.02237  d2 0.02709  redraw 42s  sizes [256, 300, 320, 480, 600]  34.4 min
+round 3/80 step 900  L1 0.01710  d1 0.01519  d2 0.01666  redraw 36s  sizes [256, 300, 320, 480, 600]  43.0 min
+round 4/80 step 1200  L1 0.01507  d1 0.01240  d2 0.01246  redraw 20s  sizes [256, 300, 320, 480, 600]  51.2 min
+round 5/80 step 1500  L1 0.01416  d1 0.01036  d2 0.00905  redraw 26s  sizes [256, 300, 320, 480, 600]  59.4 min
+round 6/80 step 1800  L1 0.01358  d1 0.01015  d2 0.00907  redraw 32s  sizes [256, 300, 320, 480, 600]  67.6 min
+round 7/80 step 2100  L1 0.01362  d1 0.00968  d2 0.00796  redraw 12s  sizes [256, 300, 320, 480, 600]  75.7 min
+round 8/80 step 2400  L1 0.01261  d1 0.00922  d2 0.00767  redraw 30s  sizes [256, 300, 320, 480, 600]  83.9 min
+round 9/80 step 2700  L1 0.01268  d1 0.00923  d2 0.00755  redraw 32s  sizes [256, 300, 320, 480, 600]  92.3 min
+round 10/80 step 3000  L1 0.01063  d1 0.00861  d2 0.00791  redraw 9s  sizes [256, 300, 320, 480, 600]  100.2 min
+round 11/80 step 3300  L1 0.01103  d1 0.00813  d2 0.00664  redraw 23s  sizes [256, 300, 320, 480, 600]  108.4 min
+round 12/80 step 3600  L1 0.01174  d1 0.00787  d2 0.00517  redraw 13s  sizes [256, 300, 320, 480, 600]  116.4 min
+round 13/80 step 3900  L1 0.01094  d1 0.00759  d2 0.00500  redraw 44s  sizes [256, 300, 320, 480, 600]  125.0 min
+round 14/80 step 4200  L1 0.01115  d1 0.00738  d2 0.00467  redraw 39s  sizes [256, 300, 320, 480, 600]  133.5 min
+round 15/80 step 4500  L1 0.01280  d1 0.00836  d2 0.00519  redraw 23s  sizes [256, 300, 320, 480, 600]  141.8 min
+round 16/80 step 4800  L1 0.01208  d1 0.00865  d2 0.00590  redraw 48s  sizes [256, 300, 320, 480, 600]  150.6 min
+round 17/80 step 5100  L1 0.01089  d1 0.00763  d2 0.00529  redraw 31s  sizes [300, 320, 480, 600]  158.9 min
+round 18/80 step 5400  L1 0.01085  d1 0.00714  d2 0.00441  redraw 35s  sizes [300, 320, 480, 600]  167.3 min
+round 19/80 step 5700  L1 0.00990  d1 0.00683  d2 0.00430  redraw 20s  sizes [300, 320, 480, 600]  175.5 min
+round 20/80 step 6000  L1 0.00958  d1 0.00658  d2 0.00410  redraw 36s  sizes [300, 320, 480, 600]  183.9 min
+round 21/80 step 6300  L1 0.00948  d1 0.00631  d2 0.00413  redraw 32s  sizes [300, 320, 480, 600]  192.1 min
+round 22/80 step 6600  L1 0.01064  d1 0.00683  d2 0.00408  redraw 18s  sizes [300, 320, 480, 600]  200.2 min
+round 23/80 step 6900  L1 0.00917  d1 0.00638  d2 0.00416  redraw 18s  sizes [256, 300, 320, 480, 600]  208.3 min
+round 24/80 step 7200  L1 0.00986  d1 0.00770  d2 0.00582  redraw 26s  sizes [256, 300, 320, 480, 600]  216.5 min
+round 25/80 step 7500  L1 0.00902  d1 0.00621  d2 0.00407  redraw 32s  sizes [256, 300, 320, 480, 600]  224.8 min
+round 26/80 step 7800  L1 0.00981  d1 0.00706  d2 0.00447  redraw 24s  sizes [256, 300, 320, 480, 600]  233.0 min
+round 27/80 step 8100  L1 0.00896  d1 0.00648  d2 0.00434  redraw 45s  sizes [256, 300, 320, 480, 600]  241.6 min
+round 28/80 step 8400  L1 0.00978  d1 0.00690  d2 0.00441  redraw 34s  sizes [256, 300, 320, 480, 600]  249.9 min
+round 29/80 step 8700  L1 0.00935  d1 0.00640  d2 0.00405  redraw 31s  sizes [256, 300, 320, 480, 600]  258.4 min
+round 30/80 step 9000  L1 0.00783  d1 0.00560  d2 0.00353  redraw 30s  sizes [256, 300, 320, 480, 600]  266.8 min
+round 31/80 step 9300  L1 0.00855  d1 0.00624  d2 0.00403  redraw 27s  sizes [256, 300, 320, 480, 600]  275.0 min
+round 32/80 step 9600  L1 0.00751  d1 0.00545  d2 0.00348  redraw 24s  sizes [256, 300, 320, 480, 600]  283.2 min
+round 33/80 step 9900  L1 0.00741  d1 0.00540  d2 0.00352  redraw 30s  sizes [256, 300, 320, 480, 600]  291.3 min
+round 34/80 step 10200  L1 0.00760  d1 0.00562  d2 0.00345  redraw 44s  sizes [256, 300, 320, 480, 600]  299.8 min
+round 35/80 step 10500  L1 0.00725  d1 0.00522  d2 0.00341  redraw 32s  sizes [256, 300, 320, 480, 600]  308.0 min
+round 36/80 step 10800  L1 0.00923  d1 0.00786  d2 0.00537  redraw 44s  sizes [256, 300, 320, 480, 600]  316.4 min
+round 37/80 step 11100  L1 0.00750  d1 0.00658  d2 0.00524  redraw 27s  sizes [256, 300, 320, 480, 600]  324.5 min
+round 38/80 step 11400  L1 0.00721  d1 0.00597  d2 0.00501  redraw 8s  sizes [256, 300, 320, 480, 600]  332.3 min
+round 39/80 step 11700  L1 0.00632  d1 0.00509  d2 0.00444  redraw 23s  sizes [256, 300, 320, 480, 600]  340.2 min
+round 40/80 step 12000  L1 0.00593  d1 0.00484  d2 0.00410  redraw 18s  sizes [256, 300, 320, 480, 600]  348.1 min
+round 41/80 step 12300  L1 0.00650  d1 0.00536  d2 0.00449  redraw 29s  sizes [256, 300, 320, 480, 600]  356.1 min
+round 42/80 step 12600  L1 0.00561  d1 0.00464  d2 0.00392  redraw 16s  sizes [256, 300, 320, 480, 600]  364.0 min
+round 43/80 step 12900  L1 0.00528  d1 0.00411  d2 0.00325  redraw 17s  sizes [256, 300, 320, 480, 600]  371.8 min
+round 44/80 step 13200  L1 0.00443  d1 0.00350  d2 0.00279  redraw 27s  sizes [256, 300, 320, 480, 600]  379.8 min
+round 45/80 step 13500  L1 0.00527  d1 0.00395  d2 0.00300  redraw 29s  sizes [256, 300, 320, 480, 600]  387.8 min
+round 46/80 step 13800  L1 0.00507  d1 0.00403  d2 0.00300  redraw 12s  sizes [256, 300, 320, 480, 600]  395.6 min
+round 47/80 step 14100  L1 0.00475  d1 0.00374  d2 0.00291  redraw 35s  sizes [256, 300, 320, 480, 600]  403.8 min
+round 48/80 step 14400  L1 0.00462  d1 0.00359  d2 0.00276  redraw 17s  sizes [256, 300, 320, 480, 600]  411.6 min
+round 49/80 step 14700  L1 0.00449  d1 0.00357  d2 0.00272  redraw 36s  sizes [256, 300, 320, 480, 600]  419.8 min
+round 50/80 step 15000  L1 0.00416  d1 0.00334  d2 0.00254  redraw 25s  sizes [256, 300, 320, 480, 600]  427.8 min
+round 51/80 step 15300  L1 0.00518  d1 0.00381  d2 0.00249  redraw 16s  sizes [256, 300, 320, 480, 600]  435.7 min
+round 52/80 step 15600  L1 0.00450  d1 0.00332  d2 0.00191  redraw 43s  sizes [256, 300, 320, 480, 600]  444.2 min
+round 53/80 step 15900  L1 0.00462  d1 0.00335  d2 0.00198  redraw 32s  sizes [256, 300, 320, 480, 600]  452.3 min
+round 54/80 step 16200  L1 0.00502  d1 0.00388  d2 0.00220  redraw 34s  sizes [256, 300, 320, 480, 600]  460.4 min
+round 55/80 step 16500  L1 0.00447  d1 0.00359  d2 0.00249  redraw 11s  sizes [256, 300, 320, 480, 600]  468.1 min
+round 56/80 step 16800  L1 0.00487  d1 0.00380  d2 0.00246  redraw 19s  sizes [256, 300, 320, 480, 600]  475.9 min
+round 57/80 step 17100  L1 0.00430  d1 0.00346  d2 0.00238  redraw 24s  sizes [256, 300, 320, 480, 600]  483.9 min
+round 58/80 step 17400  L1 0.00478  d1 0.00385  d2 0.00299  redraw 22s  sizes [256, 300, 320, 480, 600]  492.0 min
+round 59/80 step 17700  L1 0.00564  d1 0.00441  d2 0.00297  redraw 25s  sizes [256, 300, 320, 480, 600]  500.0 min
+round 60/80 step 18000  L1 0.00619  d1 0.00432  d2 0.00259  redraw 18s  sizes [256, 300, 320, 480, 600]  508.0 min
+round 61/80 step 18300  L1 0.00570  d1 0.00376  d2 0.00198  redraw 24s  sizes [256, 300, 320, 480, 600]  516.0 min
+round 62/80 step 18600  L1 0.00591  d1 0.00410  d2 0.00219  redraw 30s  sizes [256, 300, 320, 480, 600]  524.2 min
+round 63/80 step 18900  L1 0.00617  d1 0.00464  d2 0.00277  redraw 27s  sizes [256, 300, 320, 480, 600]  532.4 min
+round 64/80 step 19200  L1 0.00522  d1 0.00389  d2 0.00239  redraw 40s  sizes [256, 300, 320, 480, 600]  540.7 min
+round 65/80 step 19500  L1 0.00480  d1 0.00375  d2 0.00258  redraw 47s  sizes [256, 300, 320, 480, 600]  549.2 min
+round 66/80 step 19800  L1 0.00412  d1 0.00378  d2 0.00325  redraw 14s  sizes [256, 300, 320, 480, 600]  557.1 min
+round 67/80 step 20100  L1 0.00398  d1 0.00359  d2 0.00300  redraw 30s  sizes [256, 300, 320, 480, 600]  565.1 min
+DEADLINE: training stopped after round 67/80 (92 min left, a round takes 8.2 min, eval reserve 1.5 h); checkpoint /kaggle/working/unified_wiener_k15/unified_r6_s33.pth; RESUME_NEEDED
+UNIFIED wiener DONE in 565.4 min
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __script__.ipynb to html
+[NbConvertApp] Writing 304992 bytes to __results__.html

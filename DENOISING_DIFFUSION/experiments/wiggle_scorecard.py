@@ -46,6 +46,8 @@ from astropy.io import fits
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 spec = importlib.util.spec_from_file_location("gi_wiggle", os.path.join(ROOT, "src/evaluation/gi_wiggle.py"))
 gw = importlib.util.module_from_spec(spec); spec.loader.exec_module(gw)
+_pvs = importlib.util.spec_from_file_location("pv_curve", os.path.join(ROOT, "experiments/pv_curve.py"))
+pv = importlib.util.module_from_spec(_pvs); _pvs.loader.exec_module(pv)
 
 DATA = os.path.join(ROOT, "self-gravitating cube and dirty cube")
 BEAM = os.path.join(ROOT, "results/self-gravitating/dirty_beam_recovered_v2.fits")
@@ -262,7 +264,7 @@ def wiggle_fourier(y, dr):
     return float(A[k]), float(len(y) * dr / k)
 
 
-def score_cube(name, d, methods, outdir):
+def score_cube(name, d, methods, outdir, ref_label="clean"):
     t0 = time.time()
     crop, velax = d["crop"], d["velax"][d["crop"]]
     au = d["au"]
@@ -274,6 +276,12 @@ def score_cube(name, d, methods, outdir):
     m0 = d["clean"][crop].sum(0)
     mask = np.isfinite(m0) & (np.abs(m0) > FRAC * np.abs(m0).max())
     geom = gw.fit_keplerian(m1["clean"], mask, au, m0=m0, fix_incl_deg=d["incl"])
+    if d.get("pa_inits"):          # extra starts (e.g. a published PA, both redshifted sides); the lowest-cost fit wins, the default start included
+        base = gw.disk_geometry_from_m0(m0, mask)
+        for p in d["pa_inits"]:
+            g = gw.fit_keplerian(m1["clean"], mask, au, m0=m0, fix_incl_deg=d["incl"], init=dict(base, pa_deg=float(p)))
+            if g["cost"] < geom["cost"]:
+                geom = g
     res = {k: gw.wiggle_residual(v, geom) for k, v in m1.items()}
 
     # spine geometry: R_out holds 95% of clean M0 (deprojected radius), R_in = 2 beam FWHM
@@ -333,7 +341,29 @@ def score_cube(name, d, methods, outdir):
     for k in cubes:
         rows[k]["A_ratio"] = rows[k]["A_wiggle_au"] / rows["clean"]["A_wiggle_au"]
         rows[k]["lam_ratio"] = rows[k]["lam_wiggle_au"] / rows["clean"]["lam_wiggle_au"]
+    # position-velocity curve along the minor axis (Jason Terry 2026-10-16: the field standard); slit 1 px and 5 px, same radii as the spine.
+    # Fail-soft: a problem here must never cost a case its other scores (the keys become NaN and the figure is skipped).
+    try:
+        pv_prof = {wd: {k: pv.pv_profile(m1[k], geom, au, r_in, r_out, width_px=wd, mask=mask)[1] for k in cubes} for wd in (1, 5)}
+        pv_r_grid = pv.pv_profile(m1["clean"], geom, au, r_in, r_out)[0]
+        pv_sc = {wd: pv.pv_scores(pv_prof[wd]) for wd in pv_prof}
+        # hydro discs (9074): clean M1 on the minor axis jumps by hundreds of m/s over less than two beams (two velocity components inside a spiral),
+        # which no beam-limited observation keeps; the noise-free beam-convolved clean is then the fair PV truth (PROGRESS.md 2026-10-18).
+        pv_bo = {wd: pv.pv_scores(pv_prof[wd], ref="beam_oracle") for wd in pv_prof} if "beam_oracle" in cubes else None
+        pv.plot_pv(os.path.join(outdir, f"{name}_pv.png"), pv_r_grid, pv_prof, pv_sc,
+                   f"{name}: M1 along the minor axis, i={d['incl']:.0f} deg, {au:.2f} au/px, R {r_in:.0f}-{r_out:.0f} au", ref_label=ref_label)
+    except Exception as e:
+        print(f"  {name}: PV curve failed ({type(e).__name__}: {e}); pv keys are NaN", flush=True)
+        pv_sc = {wd: {k: {"pv_r": float("nan"), "pv_rms_ms": float("nan"), "pv_mag_ms": float("nan")} for k in cubes} for wd in (1, 5)}
+        pv_bo = None
+    for k in cubes:
+        if pv_bo is not None:
+            rows[k]["pv_r_vs_beam"], rows[k]["pv5_r_vs_beam"] = pv_bo[1][k]["pv_r"], pv_bo[5][k]["pv_r"]
+        rows[k]["pv_r"], rows[k]["pv_rms_ms"] = pv_sc[1][k]["pv_r"], pv_sc[1][k]["pv_rms_ms"]
+        rows[k]["pv5_r"], rows[k]["pv5_rms_ms"] = pv_sc[5][k]["pv_r"], pv_sc[5][k]["pv_rms_ms"]
+        rows[k]["pv_mag_ms"], rows[k]["pv5_mag_ms"] = pv_sc[1][k]["pv_mag_ms"], pv_sc[5][k]["pv_mag_ms"]
     meta = {"au_per_px": au, "incl": d["incl"], "mstar": geom["mstar_msun"], "mstar_at_bound": geom["mstar_at_bound"],
+            "pa_deg_fit": float(geom["pa_deg"]), "fit_cost": float(geom["cost"]), "vsys_fit": float(geom["vsys"]), "cx_fit": float(geom["cx"]), "cy_fit": float(geom["cy"]),
             "r_in_au": r_in, "r_out_au": r_out, "n_tracks": len(tracks["clean"]), "n_spine_channels": int(len(sel)),
             "dv_kms": float(full_v[1] - full_v[0]), "seen_in_training": sorted(m for m, v in SEEN.items() if name in v)}
     figure(name, cubes, m0, m1, rres, mask, geom, tracks, r_grid, sel, rows, meta, outdir)

@@ -1,0 +1,8 @@
+{
+ "tag": "r6_s33",
+ "train_complete": false,
+ "eval_complete": false,
+ "round": 65,
+ "rounds": 80,
+ "checkpoint": "unified_r6_s33.pth"
+}

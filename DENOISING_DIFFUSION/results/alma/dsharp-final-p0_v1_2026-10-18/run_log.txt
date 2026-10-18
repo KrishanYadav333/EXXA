@@ -1,0 +1,152 @@
++ git clone --branch midterm-prep --depth 1 https://github.com/KrishanYadav333/EXXA.git /tmp/EXXA
+Cloning into '/tmp/EXXA'...
+Updating files:   1% (99/5933)Updating files:   2% (119/5933)Updating files:   3% (178/5933)Updating files:   4% (238/5933)Updating files:   5% (297/5933)Updating files:   5% (319/5933)Updating files:   6% (356/5933)Updating files:   7% (416/5933)Updating files:   8% (475/5933)Updating files:   9% (534/5933)Updating files:  10% (594/5933)Updating files:  11% (653/5933)Updating files:  12% (712/5933)Updating files:  13% (772/5933)Updating files:  14% (831/5933)Updating files:  15% (890/5933)Updating files:  16% (950/5933)Updating files:  16% (989/5933)Updating files:  17% (1009/5933)Updating files:  18% (1068/5933)Updating files:  19% (1128/5933)Updating files:  20% (1187/5933)Updating files:  21% (1246/5933)Updating files:  22% (1306/5933)Updating files:  23% (1365/5933)Updating files:  24% (1424/5933)Updating files:  25% (1484/5933)Updating files:  26% (1543/5933)Updating files:  27% (1602/5933)Updating files:  28% (1662/5933)Updating files:  29% (1721/5933)Updating files:  30% (1780/5933)Updating files:  31% (1840/5933)Updating files:  32% (1899/5933)Updating files:  33% (1958/5933)Updating files:  34% (2018/5933)Updating files:  35% (2077/5933)Updating files:  36% (2136/5933)Updating files:  37% (2196/5933)Updating files:  38% (2255/5933)Updating files:  39% (2314/5933)Updating files:  40% (2374/5933)Updating files:  41% (2433/5933)Updating files:  42% (2492/5933)Updating files:  43% (2552/5933)Updating files:  44% (2611/5933)Updating files:  45% (2670/5933)Updating files:  46% (2730/5933)Updating files:  47% (2789/5933)Updating files:  48% (2848/5933)Updating files:  49% (2908/5933)Updating files:  50% (2967/5933)Updating files:  51% (3026/5933)Updating files:  52% (3086/5933)Updating files:  53% (3145/5933)Updating files:  54% (3204/5933)Updating files:  55% (3264/5933)Updating files:  56% (3323/5933)Updating files:  57% (3382/5933)Updating files:  58% (3442/5933)Updating files:  59% (3501/5933)Updating files:  60% (3560/5933)Updating files:  61% (3620/5933)Updating files:  62% (3679/5933)Updating files:  63% (3738/5933)Updating files:  64% (3798/5933)Updating files:  65% (3857/5933)Updating files:  66% (3916/5933)Updating files:  67% (3976/5933)Updating files:  68% (4035/5933)Updating files:  69% (4094/5933)Updating files:  70% (4154/5933)Updating files:  71% (4213/5933)Updating files:  72% (4272/5933)Updating files:  73% (4332/5933)Updating files:  74% (4391/5933)Updating files:  75% (4450/5933)Updating files:  76% (4510/5933)Updating files:  77% (4569/5933)Updating files:  78% (4628/5933)Updating files:  79% (4688/5933)Updating files:  80% (4747/5933)Updating files:  81% (4806/5933)Updating files:  82% (4866/5933)Updating files:  83% (4925/5933)Updating files:  84% (4984/5933)Updating files:  85% (5044/5933)Updating files:  86% (5103/5933)Updating files:  87% (5162/5933)Updating files:  88% (5222/5933)Updating files:  89% (5281/5933)Updating files:  90% (5340/5933)Updating files:  90% (5371/5933)Updating files:  91% (5400/5933)Updating files:  92% (5459/5933)Updating files:  93% (5518/5933)Updating files:  94% (5578/5933)Updating files:  94% (5636/5933)Updating files:  95% (5637/5933)Updating files:  96% (5696/5933)Updating files:  97% (5756/5933)Updating files:  97% (5812/5933)Updating files:  98% (5815/5933)Updating files:  98% (5836/5933)Updating files:  99% (5874/5933)Updating files:  99% (5918/5933)Updating files: 100% (5933/5933)Updating files: 100% (5933/5933), done.
++ /usr/bin/python3 -m pip install -q --no-deps pytorch-msssim bettermoments
++ curl -sL --retry 5 --retry-delay 10 -C - -o /kaggle/temp/HD143006_CO.fits https://bulk.cv.nrao.edu/almadata/lp/DSHARP/images/HD143006_CO.fits
+HD143006_CO.fits: 1316 MB in 13 s
++ /usr/bin/python3 -u experiments/alma_unified.py --cube /kaggle/temp/HD143006_CO.fits --ckpt /kaggle/input/notebooks/deepsceneloc/unified-r4n-k15-long/unified_wiener_k15/unified_r4n_k15_long.pth,/kaggle/input/notebooks/aditisah11/unified-r4n-k15-long-s11/unified_wiener_k15/unified_r4n_k15_long_s11.pth,/kaggle/input/notebooks/chiragbhayal/unified-r4n-k15-long-s23/unified_wiener_k15/unified_r4n_k15_long_s23.pth,/kaggle/input/notebooks/chiragbhayal17/unified-r8-m1-r6/unified_wiener_k15/unified_r8_m1_r6.pth --out /kaggle/working/dsharp/HD_143006_interp01 --incl 18.6 --dist 165.0 --pa 169.0 --crop 512 --target-beam-px 10 --max-scaled-px 1024 --spec-interp 0.1 --inject-snr 6,8,12,24 --inject-dir /kaggle/input/notebooks/krishanyadav333/speedie-prep-fast/speedie
+zoom: beam 16.5 px, scale 1.0000 (grid 512 to 512 px)
+continuum (auto): not subtracted; no continuum on both far sides (any leftover is near the line: line wings or noise); cube kept as delivered; line-free mean peak 16.9 sigma_mean, far planes blue 6.0 / red 11.6 sigma, each peak on the other side -1.2 / 1.0 sigma
+cube HD143006_CO.fits: 65 x 512 x 512, 4.0 mas/px, beam 0.066 x 0.049 arcsec (16.5 x 12.3 px), dv 320 m/s, line-free planes 40, rms 0.00112, residual continuum peak 16.9 sigma_mean
+models: 4 x arm wiener, K 15, base 48, norm robust, clip 10.0
+  infer: beam 16.5 px > 1.2 x 10: network on a 312 px grid (image 512 px, mode full)
+  infer: beam 16.5 px > 1.2 x 10: network on a 312 px grid (image 512 px, mode full)
+denoised in 3.0 min
+  HD143006_CO: denoised built [0s]
+  HD143006_CO: scored [3s]
+  infer: beam 16.5 px > 1.2 x 10: network on a 312 px grid (image 512 px, mode full)
+  infer: beam 16.5 px > 1.2 x 10: network on a 312 px grid (image 512 px, mode full)
+  S5_GI_r0.5_snr6: dirty built [0s]
+  S5_GI_r0.5_snr6: wiener built [0s]
+  S5_GI_r0.5_snr6: model built [0s]
+  S5_GI_r0.5_snr6: scored [6s]
+  S5 GI_r0.5 SNR 6: rc_r dirty -0.13 wiener -0.16 MODEL -0.20 | line-centre error vs truth dirty 36 MODEL 24 m/s | |M1 model - M1 dirty| on bright px 14 m/s
+  infer: beam 16.5 px > 1.2 x 10: network on a 312 px grid (image 512 px, mode full)
+  infer: beam 16.5 px > 1.2 x 10: network on a 312 px grid (image 512 px, mode full)
+  S5_GI_r0.5_snr8: dirty built [0s]
+  S5_GI_r0.5_snr8: wiener built [0s]
+  S5_GI_r0.5_snr8: model built [0s]
+  S5_GI_r0.5_snr8: scored [6s]
+  S5 GI_r0.5 SNR 8: rc_r dirty -0.15 wiener -0.18 MODEL -0.21 | line-centre error vs truth dirty 26 MODEL 19 m/s | |M1 model - M1 dirty| on bright px 9 m/s
+  infer: beam 16.5 px > 1.2 x 10: network on a 312 px grid (image 512 px, mode full)
+  infer: beam 16.5 px > 1.2 x 10: network on a 312 px grid (image 512 px, mode full)
+  S5_GI_r0.5_snr12: dirty built [0s]
+  S5_GI_r0.5_snr12: wiener built [0s]
+  S5_GI_r0.5_snr12: model built [0s]
+  S5_GI_r0.5_snr12: scored [6s]
+  S5 GI_r0.5 SNR 12: rc_r dirty -0.17 wiener -0.18 MODEL -0.19 | line-centre error vs truth dirty 17 MODEL 13 m/s | |M1 model - M1 dirty| on bright px 6 m/s
+  infer: beam 16.5 px > 1.2 x 10: network on a 312 px grid (image 512 px, mode full)
+  infer: beam 16.5 px > 1.2 x 10: network on a 312 px grid (image 512 px, mode full)
+  S5_GI_r0.5_snr24: dirty built [0s]
+  S5_GI_r0.5_snr24: wiener built [0s]
+  S5_GI_r0.5_snr24: model built [0s]
+  S5_GI_r0.5_snr24: scored [6s]
+  S5 GI_r0.5 SNR 24: rc_r dirty -0.14 wiener -0.13 MODEL -0.15 | line-centre error vs truth dirty 8 MODEL 8 m/s | |M1 model - M1 dirty| on bright px 3 m/s
+  infer: beam 16.5 px > 1.2 x 10: network on a 312 px grid (image 512 px, mode full)
+  infer: beam 16.5 px > 1.2 x 10: network on a 312 px grid (image 512 px, mode full)
+  S5_Kep_r0.5_snr6: dirty built [0s]
+  S5_Kep_r0.5_snr6: wiener built [0s]
+  S5_Kep_r0.5_snr6: model built [0s]
+  S5_Kep_r0.5_snr6: scored [11s]
+  S5 Kep_r0.5 SNR 6: rc_r dirty -0.20 wiener -0.28 MODEL -0.29 | line-centre error vs truth dirty 35 MODEL 24 m/s | |M1 model - M1 dirty| on bright px 13 m/s
+  infer: beam 16.5 px > 1.2 x 10: network on a 312 px grid (image 512 px, mode full)
+  infer: beam 16.5 px > 1.2 x 10: network on a 312 px grid (image 512 px, mode full)
+  S5_Kep_r0.5_snr8: dirty built [0s]
+  S5_Kep_r0.5_snr8: wiener built [0s]
+  S5_Kep_r0.5_snr8: model built [0s]
+  S5_Kep_r0.5_snr8: scored [12s]
+  S5 Kep_r0.5 SNR 8: rc_r dirty -0.22 wiener -0.29 MODEL -0.29 | line-centre error vs truth dirty 25 MODEL 19 m/s | |M1 model - M1 dirty| on bright px 9 m/s
+  infer: beam 16.5 px > 1.2 x 10: network on a 312 px grid (image 512 px, mode full)
+  infer: beam 16.5 px > 1.2 x 10: network on a 312 px grid (image 512 px, mode full)
+  S5_Kep_r0.5_snr12: dirty built [0s]
+  S5_Kep_r0.5_snr12: wiener built [0s]
+  S5_Kep_r0.5_snr12: model built [0s]
+  S5_Kep_r0.5_snr12: scored [10s]
+  S5 Kep_r0.5 SNR 12: rc_r dirty -0.23 wiener -0.29 MODEL -0.28 | line-centre error vs truth dirty 16 MODEL 13 m/s | |M1 model - M1 dirty| on bright px 5 m/s
+  infer: beam 16.5 px > 1.2 x 10: network on a 312 px grid (image 512 px, mode full)
+  infer: beam 16.5 px > 1.2 x 10: network on a 312 px grid (image 512 px, mode full)
+  S5_Kep_r0.5_snr24: dirty built [0s]
+  S5_Kep_r0.5_snr24: wiener built [0s]
+  S5_Kep_r0.5_snr24: model built [0s]
+  S5_Kep_r0.5_snr24: scored [10s]
+  S5 Kep_r0.5 SNR 24: rc_r dirty -0.22 wiener -0.22 MODEL -0.25 | line-centre error vs truth dirty 8 MODEL 8 m/s | |M1 model - M1 dirty| on bright px 3 m/s
+{
+ "S1": {
+  "offline_rms_raw": 0.0011241590837016702,
+  "offline_rms_den": 0.000513646169565618,
+  "noise_reduction": 2.1885865218314637,
+  "m0_total_ratio": 1.0062389373779297,
+  "mask_px": 5684,
+  "m1_shift_bright_median_ms": 147.74608375874544,
+  "m1_shift_bright_p95_ms": 1549.6527917342505
+ },
+ "S2": {
+  "frac_above_4sigma_raw_lineplanes": 0.004718780517578125,
+  "frac_above_4sigma_den_lineplanes": 0.0036454200744628906
+ }
+}
+ALMA DONE
+HD_143006 interp01: exit 0
++ curl -sL --retry 5 --retry-delay 10 -C - -o /kaggle/temp/HD142666_CO.fits https://bulk.cv.nrao.edu/almadata/lp/DSHARP/images/HD142666_CO.fits
+HD142666_CO.fits: 540 MB in 5 s
++ /usr/bin/python3 -u experiments/alma_unified.py --cube /kaggle/temp/HD142666_CO.fits --ckpt /kaggle/input/notebooks/deepsceneloc/unified-r4n-k15-long/unified_wiener_k15/unified_r4n_k15_long.pth,/kaggle/input/notebooks/aditisah11/unified-r4n-k15-long-s11/unified_wiener_k15/unified_r4n_k15_long_s11.pth,/kaggle/input/notebooks/chiragbhayal/unified-r4n-k15-long-s23/unified_wiener_k15/unified_r4n_k15_long_s23.pth,/kaggle/input/notebooks/chiragbhayal17/unified-r8-m1-r6/unified_wiener_k15/unified_r8_m1_r6.pth --out /kaggle/working/dsharp/HD_142666_interp01 --incl 62.22 --dist 148.0 --pa 162.11 --crop 512 --target-beam-px 10 --max-scaled-px 1024 --spec-interp 0.1 --inject-snr 6,8,12,24
+zoom: beam 7.7 px, scale 1.2942 (grid 512 to 663 px)
+continuum (auto): not subtracted; no continuum on both far sides (any leftover is near the line: line wings or noise); cube kept as delivered; line-free mean peak 11.7 sigma_mean, far planes blue 8.3 / red 7.4 sigma, each peak on the other side 1.5 / 0.7 sigma
+cube HD142666_CO.fits: 60 x 512 x 512, 10.0 mas/px, beam 0.077 x 0.061 arcsec (7.7 x 6.1 px), dv 350 m/s, line-free planes 12, rms 0.0013, residual continuum peak 11.7 sigma_mean
+models: 4 x arm wiener, K 15, base 48, norm robust, clip 10.0
+denoised in 9.0 min
+  HD142666_CO: denoised built [0s]
+  HD142666_CO: scored [2s]
+{
+ "S1": {
+  "offline_rms_raw": 0.0012984442291781306,
+  "offline_rms_den": 0.00013403828779701144,
+  "noise_reduction": 9.687114409761069,
+  "m0_total_ratio": 1.030409812927246,
+  "mask_px": 1372,
+  "m1_shift_bright_median_ms": 198.659472159499,
+  "m1_shift_bright_p95_ms": 3373.1328693910355
+ },
+ "S2": {
+  "frac_above_4sigma_raw_lineplanes": 0.0002079010009765625,
+  "frac_above_4sigma_den_lineplanes": 0.00011380513509114583
+ }
+}
+ALMA DONE
+HD_142666 interp01: exit 0
++ curl -sL --retry 5 --retry-delay 10 -C - -o /kaggle/temp/IMLup_CO.fits https://bulk.cv.nrao.edu/almadata/lp/DSHARP/images/IMLup_CO.fits
+IMLup_CO.fits: 960 MB in 9 s
++ /usr/bin/python3 -u experiments/alma_unified.py --cube /kaggle/temp/IMLup_CO.fits --ckpt /kaggle/input/notebooks/deepsceneloc/unified-r4n-k15-long/unified_wiener_k15/unified_r4n_k15_long.pth,/kaggle/input/notebooks/aditisah11/unified-r4n-k15-long-s11/unified_wiener_k15/unified_r4n_k15_long_s11.pth,/kaggle/input/notebooks/chiragbhayal/unified-r4n-k15-long-s23/unified_wiener_k15/unified_r4n_k15_long_s23.pth,/kaggle/input/notebooks/chiragbhayal17/unified-r8-m1-r6/unified_wiener_k15/unified_r8_m1_r6.pth --out /kaggle/working/dsharp/IM_Lup_interp01 --incl 47.5 --dist 158.0 --pa 144.5 --crop 1280 --target-beam-px 10 --max-scaled-px 1024 --spec-interp 0.1 --inject-snr 6,8,12,24
+zoom: beam 12.2 px, scale 1.0000 (grid 1280 to 1280 px)
+continuum (auto): not subtracted; no continuum on both far sides (any leftover is near the line: line wings or noise); cube kept as delivered; line-free mean peak 7.3 sigma_mean, far planes blue 6.6 / red 5.5 sigma, each peak on the other side 0.8 / 0.5 sigma
+cube IMLup_CO.fits: 60 x 1280 x 1280, 10.0 mas/px, beam 0.122 x 0.115 arcsec (12.2 x 11.5 px), dv 350 m/s, line-free planes 16, rms 0.00193, residual continuum peak 7.3 sigma_mean
+models: 4 x arm wiener, K 15, base 48, norm robust, clip 10.0
+  infer: beam 12.2 px > 1.2 x 10: network on a 1048 px grid (image 1280 px, mode full)
+  infer: beam 12.2 px > 1.2 x 10: network on a 1048 px grid (image 1280 px, mode full)
+denoised in 22.6 min
+  IMLup_CO: denoised built [0s]
+  IMLup_CO: scored [8s]
+{
+ "S1": {
+  "offline_rms_raw": 0.0019325786270201206,
+  "offline_rms_den": 4.2553041566861793e-05,
+  "noise_reduction": 45.41575774280533,
+  "m0_total_ratio": 0.9766026139259338,
+  "mask_px": 29642,
+  "m1_shift_bright_median_ms": 67.96286850894262,
+  "m1_shift_bright_p95_ms": 316.20897917667304
+ },
+ "S2": {
+  "frac_above_4sigma_raw_lineplanes": 5.6915283203125e-05,
+  "frac_above_4sigma_den_lineplanes": 0.0
+ }
+}
+ALMA DONE
+IM_Lup interp01: exit 0
+DSHARP KERNEL DONE
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __script__.ipynb to html
+[NbConvertApp] Writing 299848 bytes to __results__.html
