@@ -126,3 +126,11 @@ with tempfile.TemporaryDirectory() as d:
     h = fits.Header(); h["BMAJ"], h["BMIN"] = 0.15 / 3600, 0.1 / 3600
     assert np.allclose(au.beam_of(p, h), (0.15, 0.1))
 print("beam_of ok")
+
+# clean_noise_planes: a line-free plane with a compact source is dropped, pure-noise planes are kept
+rng2 = np.random.default_rng(5)
+nc = rng2.standard_normal((6, 128, 128)).astype(np.float32)
+nc[2, 60:66, 60:66] += 6.0                                  # a compact 6-sigma-per-pixel knot (about 30 sigma beam-smoothed)
+keep = au.clean_noise_planes(nc, np.arange(6), 4.0)
+assert list(keep) == [0, 1, 3, 4, 5], keep
+print("clean_noise_planes ok")

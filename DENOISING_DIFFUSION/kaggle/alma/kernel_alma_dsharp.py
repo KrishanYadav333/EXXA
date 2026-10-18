@@ -37,7 +37,7 @@ for rel, info in man["files"].items():
     assert hashlib.sha256(open(src, "rb").read()).hexdigest() == info["sha256"], f"checksum mismatch {rel}"
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     shutil.copy(src, dst)
-assert "synth_noise" in open(f"{PKG}/experiments/alma_unified.py").read() and "spec-interp" in open(f"{PKG}/experiments/alma_unified.py").read() and "target-beam-px" in open(f"{PKG}/experiments/alma_unified.py").read() and "def beam_of" in open(f"{PKG}/experiments/alma_unified.py").read(), "stale code overlay: alma_unified.py lacks --spec-interp / synth_noise (the exxa-wiggle-code dataset version attached is old)"
+assert "synth_noise" in open(f"{PKG}/experiments/alma_unified.py").read() and "spec-interp" in open(f"{PKG}/experiments/alma_unified.py").read() and "target-beam-px" in open(f"{PKG}/experiments/alma_unified.py").read() and "def beam_of" in open(f"{PKG}/experiments/alma_unified.py").read() and "def clean_noise_planes" in open(f"{PKG}/experiments/alma_unified.py").read(), "stale code overlay: alma_unified.py lacks --spec-interp / synth_noise (the exxa-wiggle-code dataset version attached is old)"
 ckpts = [(glob.glob(f"/kaggle/input/**/{c}", recursive=True) or [None])[0] for c in CKPT.split(",")]
 spd = glob.glob("/kaggle/input/**/GI_r0.5_clean.fits", recursive=True)      # S5 truth (Speedie, test-only), from the speedie-prep-fast Output
 assert None not in ckpts, f"checkpoint not attached: {CKPT}"
@@ -45,7 +45,7 @@ os.chdir(PKG)
 env = dict(os.environ, PYTHONPATH=PKG, EXXA_ROOT=PKG, PYTHONWARNINGS="ignore")
 files = None
 NRAO = "https://bulk.cv.nrao.edu/almadata/lp/DSHARP/images"
-MODES = [("interp01", ["--spec-interp", "0.1", "--inject-snr", "6,8,12,24"])]   # native 0.35 km/s channels FAILED the S5 test (PROGRESS.md 2026-10-17); only the interpolated mode runs
+MODES = [("interp01", ["--spec-interp", "0.1", "--inject-snr", "6,8,12,24", "--inject-field-frac", "0.625"])]   # field-frac: S5 truth framed as in exoALMA (2026-10-18: at 4 mas pixels the angular-size truth filled 10x the field)   # native 0.35 km/s channels FAILED the S5 test (PROGRESS.md 2026-10-17); only the interpolated mode runs
 for disk, stem, incl, dist, crop, pa in CUBES:
     name = f"{stem}_CO.fits"
     dst = f"/kaggle/temp/{name}"; os.makedirs("/kaggle/temp", exist_ok=True)

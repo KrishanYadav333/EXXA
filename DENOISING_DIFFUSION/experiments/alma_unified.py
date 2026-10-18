@@ -246,6 +246,17 @@ def run_model(a, model, arm, d, w, dv, beam_px):
     return pred
 
 
+def clean_noise_planes(cube, lf, beam_px, nsig=5.5):
+    """The line-free planes that hold no compact source: beam-smoothed peak below `nsig` times the smoothed noise (median over the planes). DSHARP
+    HD 143006 (2026-10-18): planes 35 to 53 of its 12CO cube, classed line-free, carry a 7 to 11 sigma central source (fast inner-disc gas, red side
+    only); used as S5 noise they put a knot of the real disc into every injected cube. Pure noise in a 512 px field peaks at about 4 sigma."""
+    from scipy import ndimage
+    sm = np.stack([ndimage.gaussian_filter(cube[k].astype(np.float64), beam_px / 2.355) for k in lf])
+    s = float(np.median(sm.std(axis=(1, 2))))
+    keep = [k for k, p in zip(lf, sm.max(axis=(1, 2))) if p < nsig * s]
+    return np.asarray(keep, dtype=int)
+
+
 def synth_noise(cube, lf, C, seed=0):
     """C planes of noise with the real cube's own statistics, for S5 on cubes whose line fills most of the band (DSHARP HD 142666: 12 line-free planes of 60, the
     injected disc needs 35). Spatial power spectrum = the mean over the line-free planes (white noise convolved with it, as in training: pair_noise_amp), channel
@@ -273,7 +284,10 @@ def inject(a, model, arm, cube, lf, velax_real, pix, beam):
     out = {}
     dv = float(velax_real[1] - velax_real[0])
     n_real = cube.shape[-1]
-    noise_planes = cube[lf]
+    lf_clean = clean_noise_planes(cube, lf, beam[0] / pix)
+    if len(lf_clean) < len(lf):
+        print(f"  S5: {len(lf) - len(lf_clean)} of {len(lf)} line-free planes hold a compact source (> 5.5 sigma, beam-smoothed); noise taken from the other {len(lf_clean)}", flush=True)
+    noise_planes = cube[lf_clean]
     sig = float(noise_planes.std())
     for name in [x for x in a.inject_cases.split(",") if x]:
         base = os.path.join(a.inject_dir, f"{name}_clean.fits")
@@ -282,7 +296,12 @@ def inject(a, model, arm, cube, lf, velax_real, pix, beam):
         tr, v = regrid_velocity(tr, v, dv)
         occ = np.where(tr.sum((1, 2)) > 1e-3 * tr.sum((1, 2)).max())[0]       # empty edge channels carry no signal; keep the truth short enough for the real cube's line-free planes
         tr, v = tr[occ.min():occ.max() + 1], v[occ.min():occ.max() + 1]
-        S = int(round(tr.shape[-1] * abs(float(h["CDELT1"])) * 3600 / pix)); S -= S % 2
+        truth_field = tr.shape[-1] * abs(float(h["CDELT1"])) * 3600          # arcsec
+        S = int(round(truth_field / pix))                                   # default: the truth keeps its angular size
+        if getattr(a, "inject_field_frac", 0):                              # or: the cube's field shows this fraction of the truth's width (exoALMA 512 px: 0.625)
+            S = int(round(n_real / a.inject_field_frac))
+        S -= S % 2
+        au_px = truth_field * 155.9 / S                                     # Speedie's distance; equals pix * 155.9 when the angular size is kept
         tr = tu.resample(tr, S)
         if S >= n_real:
             o = (S - n_real) // 2; tr = tr[:, o:o + n_real, o:o + n_real]
@@ -293,7 +312,7 @@ def inject(a, model, arm, cube, lf, velax_real, pix, beam):
         v = np.r_[v[0] - dv * np.arange(pad, 0, -1), v, v[-1] + dv * np.arange(1, pad + 1)]
         C = tr.shape[0]
         if len(noise_planes) < C:      # the line fills the band: synthetic noise with the cube's own spectrum and channel correlation, not a skip
-            nz, rho = synth_noise(cube, lf, C)
+            nz, rho = synth_noise(cube, lf_clean, C)
             print(f"  S5 {name}: only {len(noise_planes)} line-free planes for {C} needed; noise drawn from their measured spectrum (lag-1 channel correlation {rho:.2f})", flush=True)
         else:
             nz = noise_planes[:C]
@@ -305,7 +324,7 @@ def inject(a, model, arm, cube, lf, velax_real, pix, beam):
             # subtracting each injected cube's own line-free mean again was a second subtraction, applied to the model's input but not to the dirty row (2026-10-17)
             w = tu.native_wiener(dirty, "line", lf_i)
             pred = run_scaled(a, model, arm, dirty, w, dv, beam[0] / pix)
-            d = {"clean": truth, "dirty": dirty, "velax": v, "au": pix * 155.9, "incl": 23.2, "crop": slice(None), "beam_au": beam[0] * 155.9}
+            d = {"clean": truth, "dirty": dirty, "velax": v, "au": au_px, "incl": 23.2, "crop": slice(None), "beam_au": beam[0] / pix * au_px}
             ws.METHODS["wiener"] = lambda _d, w=w: w; ws.METHODS["model"] = lambda _d, p=pred: p
             sc = ws.score_cube(f"S5_{name}_snr{snr:g}", d, ["dirty", "wiener", "model"], a.out)["methods"]
             m1d, m1p = ws.quad_m1(dirty, v), ws.quad_m1(pred, v)
@@ -322,6 +341,7 @@ def inject(a, model, arm, cube, lf, velax_real, pix, beam):
             s1m = m0d_ > 5 * sig_i * dv_ * math.sqrt(max(1, C - len(lf_i)))
             row["s1_flux_ratio_model_vs_dirty"] = float(m0p_[s1m].sum() / max(m0d_[s1m].sum(), 1e-30)) if s1m.any() else None
             row["s1_flux_ratio_truth_vs_dirty"] = float(moments(truth, v, 3.0, sig_i)[0][s1m].sum() / max(m0d_[s1m].sum(), 1e-30)) if s1m.any() else None
+            row["truth_field_frac"] = float(n_real / S); row["au_px"] = float(au_px); row["noise_planes"] = int(len(noise_planes))
             out[f"{name}@snr{snr:g}"] = row
             print(f"  S5 {name} SNR {snr:g}: rc_r dirty {row['dirty']['rc_r']:.2f} wiener {row['wiener']['rc_r']:.2f} MODEL {row['model']['rc_r']:.2f} | "
                   f"line-centre error vs truth dirty {row['dirty']['dv_med_ms']:.0f} MODEL {row['model']['dv_med_ms']:.0f} m/s | "
@@ -394,6 +414,8 @@ def main():
     ap.add_argument("--inject-dir", default="", help="S5: folder with speedie_prep clean cubes (GI_r0.5_clean.fits ...); empty = skip")
     ap.add_argument("--inject-cases", default="GI_r0.5,Kep_r0.5")
     ap.add_argument("--inject-snr", default="12,24,36")
+    ap.add_argument("--inject-field-frac", type=float, default=0.0, help="S5: scale the truth so the cube's field shows this fraction of its width "
+                    "(0 = keep its angular size; 0.625 = the exoALMA 512 px framing, for small DSHARP fields)")
     a = ap.parse_args()
     tu.GATE = tuple(float(x) for x in a.gate.split(",")) if a.gate else None
     tu.INFER_BEAM, tu.INFER_MODE = a.infer_beam_px, "full"

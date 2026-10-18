@@ -1,0 +1,78 @@
++ git clone --branch midterm-prep --depth 1 https://github.com/KrishanYadav333/EXXA.git /tmp/EXXA
+Cloning into '/tmp/EXXA'...
+Updating files:   1% (99/6258)Updating files:   2% (126/6258)Updating files:   3% (188/6258)Updating files:   4% (251/6258)Updating files:   4% (309/6258)Updating files:   5% (313/6258)Updating files:   6% (376/6258)Updating files:   7% (439/6258)Updating files:   8% (501/6258)Updating files:   9% (564/6258)Updating files:  10% (626/6258)Updating files:  11% (689/6258)Updating files:  11% (731/6258)Updating files:  12% (751/6258)Updating files:  13% (814/6258)Updating files:  14% (877/6258)Updating files:  15% (939/6258)Updating files:  16% (1002/6258)Updating files:  17% (1064/6258)Updating files:  18% (1127/6258)Updating files:  19% (1190/6258)Updating files:  20% (1252/6258)Updating files:  21% (1315/6258)Updating files:  22% (1377/6258)Updating files:  23% (1440/6258)Updating files:  24% (1502/6258)Updating files:  25% (1565/6258)Updating files:  26% (1628/6258)Updating files:  27% (1690/6258)Updating files:  28% (1753/6258)Updating files:  29% (1815/6258)Updating files:  30% (1878/6258)Updating files:  31% (1940/6258)Updating files:  32% (2003/6258)Updating files:  33% (2066/6258)Updating files:  34% (2128/6258)Updating files:  35% (2191/6258)Updating files:  36% (2253/6258)Updating files:  37% (2316/6258)Updating files:  38% (2379/6258)Updating files:  39% (2441/6258)Updating files:  40% (2504/6258)Updating files:  41% (2566/6258)Updating files:  42% (2629/6258)Updating files:  43% (2691/6258)Updating files:  44% (2754/6258)Updating files:  45% (2817/6258)Updating files:  46% (2879/6258)Updating files:  47% (2942/6258)Updating files:  48% (3004/6258)Updating files:  49% (3067/6258)Updating files:  50% (3129/6258)Updating files:  51% (3192/6258)Updating files:  52% (3255/6258)Updating files:  53% (3317/6258)Updating files:  54% (3380/6258)Updating files:  55% (3442/6258)Updating files:  56% (3505/6258)Updating files:  57% (3568/6258)Updating files:  58% (3630/6258)Updating files:  59% (3693/6258)Updating files:  60% (3755/6258)Updating files:  61% (3818/6258)Updating files:  62% (3880/6258)Updating files:  63% (3943/6258)Updating files:  64% (4006/6258)Updating files:  65% (4068/6258)Updating files:  66% (4131/6258)Updating files:  67% (4193/6258)Updating files:  68% (4256/6258)Updating files:  69% (4319/6258)Updating files:  70% (4381/6258)Updating files:  71% (4444/6258)Updating files:  72% (4506/6258)Updating files:  73% (4569/6258)Updating files:  74% (4631/6258)Updating files:  75% (4694/6258)Updating files:  76% (4757/6258)Updating files:  77% (4819/6258)Updating files:  78% (4882/6258)Updating files:  79% (4944/6258)Updating files:  80% (5007/6258)Updating files:  81% (5069/6258)Updating files:  82% (5132/6258)Updating files:  83% (5195/6258)Updating files:  84% (5257/6258)Updating files:  85% (5320/6258)Updating files:  86% (5382/6258)Updating files:  87% (5445/6258)Updating files:  87% (5459/6258)Updating files:  88% (5508/6258)Updating files:  89% (5570/6258)Updating files:  90% (5633/6258)Updating files:  91% (5695/6258)Updating files:  92% (5758/6258)Updating files:  92% (5767/6258)Updating files:  93% (5820/6258)Updating files:  94% (5883/6258)Updating files:  95% (5946/6258)Updating files:  96% (6008/6258)Updating files:  96% (6021/6258)Updating files:  97% (6071/6258)Updating files:  98% (6133/6258)Updating files:  98% (6150/6258)Updating files:  98% (6161/6258)Updating files:  99% (6196/6258)Updating files:  99% (6243/6258)Updating files: 100% (6258/6258)Updating files: 100% (6258/6258), done.
++ /usr/bin/python3 -m pip install -q --no-deps pytorch-msssim bettermoments
++ curl -sL --retry 5 --retry-delay 10 -C - -o /kaggle/temp/AA_Tau_13CO_fiducial.image.fits https://dataverse.harvard.edu/api/access/datafile/11120407
+AA_Tau_13CO_fiducial.image.fits: 1263 MB in 15 s
++ /usr/bin/python3 -u experiments/alma_unified.py --cube /kaggle/temp/AA_Tau_13CO_fiducial.image.fits --ckpt /kaggle/input/notebooks/deepsceneloc/unified-r4n-k15-long/unified_wiener_k15/unified_r4n_k15_long.pth,/kaggle/input/notebooks/aditisah11/unified-r4n-k15-long-s11/unified_wiener_k15/unified_r4n_k15_long_s11.pth,/kaggle/input/notebooks/chiragbhayal/unified-r4n-k15-long-s23/unified_wiener_k15/unified_r4n_k15_long_s23.pth,/kaggle/input/notebooks/chiragbhayal17/unified-r8-m1-r6/unified_wiener_k15/unified_r8_m1_r6.pth --out /kaggle/working/alma/AA_Tau_13CO --incl 58.7 --dist 135 --pa 272.7 --crop 512 --target-beam-px 10 --inject-snr 6,8,12,24 --inject-dir /kaggle/input/notebooks/krishanyadav333/speedie-prep-fast/speedie
+zoom: beam 6.0 px, scale 1.6667 (grid 512 to 853 px)
+continuum (auto): not subtracted; no continuum on both far sides (any leftover is near the line: line wings or noise); cube kept as delivered; line-free mean peak 7.1 sigma_mean, far planes blue 5.1 / red 4.8 sigma, each peak on the other side 0.6 / 1.8 sigma
+cube AA_Tau_13CO_fiducial.image.fits: 301 x 512 x 512, 25.0 mas/px, beam 0.150 x 0.150 arcsec (6.0 x 6.0 px), dv 100 m/s, line-free planes 198, rms 0.00369, residual continuum peak 7.1 sigma_mean
+models: 4 x arm wiener, K 15, base 48, norm robust, clip 10.0
+denoised in 25.0 min
+  AA_Tau_13CO_fiducial.image: denoised built [0s]
+  AA_Tau_13CO_fiducial.image: scored [4s]
+  S5_GI_r0.5_snr6: dirty built [0s]
+  S5_GI_r0.5_snr6: wiener built [0s]
+  S5_GI_r0.5_snr6: model built [0s]
+  S5_GI_r0.5_snr6: scored [7s]
+  S5 GI_r0.5 SNR 6: rc_r dirty 0.01 wiener 0.12 MODEL 0.16 | line-centre error vs truth dirty 170 MODEL 36 m/s | |M1 model - M1 dirty| on bright px 76 m/s | flux / truth dirty 0.988 MODEL 1.085, S1-style model / dirty 0.6378352046012878
+  S5_GI_r0.5_snr8: dirty built [0s]
+  S5_GI_r0.5_snr8: wiener built [0s]
+  S5_GI_r0.5_snr8: model built [0s]
+  S5_GI_r0.5_snr8: scored [7s]
+  S5 GI_r0.5 SNR 8: rc_r dirty 0.03 wiener 0.13 MODEL 0.30 | line-centre error vs truth dirty 105 MODEL 31 m/s | |M1 model - M1 dirty| on bright px 62 m/s | flux / truth dirty 0.991 MODEL 1.039, S1-style model / dirty 0.8153079748153687
+  S5_GI_r0.5_snr12: dirty built [0s]
+  S5_GI_r0.5_snr12: wiener built [0s]
+  S5_GI_r0.5_snr12: model built [0s]
+  S5_GI_r0.5_snr12: scored [7s]
+  S5 GI_r0.5 SNR 12: rc_r dirty 0.05 wiener 0.19 MODEL 0.72 | line-centre error vs truth dirty 66 MODEL 25 m/s | |M1 model - M1 dirty| on bright px 47 m/s | flux / truth dirty 0.994 MODEL 1.016, S1-style model / dirty 0.9018623232841492
+  S5_GI_r0.5_snr24: dirty built [0s]
+  S5_GI_r0.5_snr24: wiener built [0s]
+  S5_GI_r0.5_snr24: model built [0s]
+  S5_GI_r0.5_snr24: scored [7s]
+  S5 GI_r0.5 SNR 24: rc_r dirty 0.18 wiener 0.51 MODEL 0.87 | line-centre error vs truth dirty 37 MODEL 18 m/s | |M1 model - M1 dirty| on bright px 30 m/s | flux / truth dirty 0.997 MODEL 1.017, S1-style model / dirty 0.973266065120697
+  S5_Kep_r0.5_snr6: dirty built [0s]
+  S5_Kep_r0.5_snr6: wiener built [0s]
+  S5_Kep_r0.5_snr6: model built [0s]
+  S5_Kep_r0.5_snr6: scored [8s]
+  S5 Kep_r0.5 SNR 6: rc_r dirty 0.00 wiener 0.05 MODEL 0.16 | line-centre error vs truth dirty 138 MODEL 19 m/s | |M1 model - M1 dirty| on bright px 65 m/s | flux / truth dirty 0.981 MODEL 1.103, S1-style model / dirty 0.6386099457740784
+  S5_Kep_r0.5_snr8: dirty built [0s]
+  S5_Kep_r0.5_snr8: wiener built [0s]
+  S5_Kep_r0.5_snr8: model built [0s]
+  S5_Kep_r0.5_snr8: scored [8s]
+  S5 Kep_r0.5 SNR 8: rc_r dirty 0.01 wiener 0.04 MODEL 0.35 | line-centre error vs truth dirty 84 MODEL 16 m/s | |M1 model - M1 dirty| on bright px 53 m/s | flux / truth dirty 0.985 MODEL 1.060, S1-style model / dirty 0.8235461115837097
+  S5_Kep_r0.5_snr12: dirty built [0s]
+  S5_Kep_r0.5_snr12: wiener built [0s]
+  S5_Kep_r0.5_snr12: model built [0s]
+  S5_Kep_r0.5_snr12: scored [8s]
+  S5 Kep_r0.5 SNR 12: rc_r dirty 0.01 wiener 0.05 MODEL 0.44 | line-centre error vs truth dirty 52 MODEL 13 m/s | |M1 model - M1 dirty| on bright px 40 m/s | flux / truth dirty 0.990 MODEL 1.025, S1-style model / dirty 0.9100885987281799
+  S5_Kep_r0.5_snr24: dirty built [0s]
+  S5_Kep_r0.5_snr24: wiener built [0s]
+  S5_Kep_r0.5_snr24: model built [0s]
+  S5_Kep_r0.5_snr24: scored [8s]
+  S5 Kep_r0.5 SNR 24: rc_r dirty 0.09 wiener 0.22 MODEL 0.61 | line-centre error vs truth dirty 29 MODEL 9 m/s | |M1 model - M1 dirty| on bright px 25 m/s | flux / truth dirty 0.995 MODEL 1.023, S1-style model / dirty 0.9775428771972656
+{
+ "S1": {
+  "offline_rms_raw": 0.003693405771628022,
+  "offline_rms_den": 4.5000851969234645e-05,
+  "noise_reduction": 82.07412993320797,
+  "m0_total_ratio": 1.089770793914795,
+  "mask_px": 3491,
+  "m1_shift_bright_median_ms": 156.3932546121869,
+  "m1_shift_bright_p95_ms": 1369.8810056976513
+ },
+ "S2": {
+  "frac_above_4sigma_raw_lineplanes": 6.916547062421086e-05,
+  "frac_above_4sigma_den_lineplanes": 9.633073903093434e-08
+ }
+}
+ALMA DONE
+AA_Tau_13CO_fiducial.image.fits: exit 0
+ALMA KERNEL DONE
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __script__.ipynb to html
+[NbConvertApp] Writing 303969 bytes to __results__.html

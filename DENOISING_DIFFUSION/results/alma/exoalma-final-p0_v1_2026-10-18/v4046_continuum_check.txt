@@ -1,0 +1,9 @@
+alma/HD_34282_13CO/HD_34282_13CO_fiducial_denoised.fits ('got', 315624960)
+['HD_34282_13CO_fiducial.image: original fit PA 77.40345753181774 M* 7.156005587630516 cost None | refit PA 27.10983968058079 M* 1.6754246681985485 cost 351.92937827413436 | S6 0.8499840234066025 PV5 r 0.5126853659496435']
+{'blue_far_planes': 28, 'red_far_planes': 25, 'blue_peak_sigma': 5.660262954747966, 'red_peak_sigma': 5.4652691197719045, 'blue_peak_on_red_sigma': 3.39670650528787, 'red_peak_on_blue_sigma': 4.141206276665442, 'blue_red_corr': 0.04681516354060733, 'decision': 'subtract', 'reason': 'the same structure on both far sides of the line: continuum left in the cube; removed once'}
+far blue 36 planes, far red 30; smoothed peaks blue 6.9, red 5.2 (in units of their smoothed rms)
+centre box mean: blue +0.6 sigma_mean, red +0.4
+corr(blue, red) smoothed, whole field 0.057; inner 3 beams 0.499
+peak positions blue (257,255), red (259,254), centre 256
+
+[exited with code 0]
