@@ -1,7 +1,7 @@
 # Local checkpoint store
 
-Every trained model this project has produced, one copy each: 88 unique files, 16.5 GB, counted by inode on 2026-10-18 (68 before the unified model line;
-`unified/` holds the 15 of that line kept locally, the rest of its runs' weights are in their Kaggle Outputs, see `results/RUNS.md`). Gitignored
+Every trained model this project has produced, one copy each: 90 unique files, 17.2 GB, counted by inode on 2026-10-18 (68 before the unified model line;
+`unified/` holds the 17 of that line kept locally (the two R6 s33b files added 2026-10-18 afternoon), the rest of its runs' weights are in their Kaggle Outputs, see `results/RUNS.md`). Gitignored
 (`*.pth` is ignored repo-wide) and never committed, so this is the only place they exist
 outside Kaggle.
 

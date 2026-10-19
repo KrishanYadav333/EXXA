@@ -5,7 +5,8 @@ python experiments/final_report.py --final recipeB=<json> --ladder recipeB=<json
 The SNR ladder below is the Speedie r0.5 SELECTION disc: the reported wiggle-vs-SNR curve is the one-time final test on r1.5
 (results/unified/eval-final-test_v1_2026-10-18/, PROGRESS.md 2026-10-18: rc_r 0.06 / 0.44 / 0.70 at SNR 6 / 12 / 24).
 PV curves, the hydro ladder, the 8 extra Young discs and the real-ALMA tables are in PROGRESS.md 2026-10-17 / 18 and results/alma/; the blog's headline
-numbers are collected in results/final/BLOG_SKELETON.md. -->
+numbers are collected in results/final/BLOG_SKELETON.md. The analysis results (final test, PV, ladder, Young, planet check, R6, ALMA) are in
+results/final/ANALYSIS.md. -->
 
 # Final model `recipeB`: results at all five sizes
 
