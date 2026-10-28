@@ -1,6 +1,6 @@
 # Inference recipes (Krishan, 2026-10-16: store A, use B)
 
-Both use the same inference flags; they differ only in which checkpoints are averaged. Evidence: `results/unified/combo-{a,b}_v1_2026-10-15/`, PROGRESS.md 2026-10-15 / 16.
+Both use the same inference flags; they differ only in which checkpoints are averaged.
 
 | | B (USED: the deliverable) | A (STORED: the 3-model alternative) |
 |---|---|---|
@@ -22,4 +22,4 @@ After this line the one-time final test (Speedie r1.5 ladder at SNR 6 / 12 / 24,
 
 ## DECISION 2026-10-19 (Krishan): ship one recipe, B
 
-Recipe B (four averaged checkpoints, gate, two-pass Wiener, size fix) is the single deliverable; the blog, figures and all real-data results use it. Recipe A is stored and documented as the 3-network alternative (S3: on four real exoALMA discs A agrees with B to 3 to 4 m/s, flux within 1.6 percent); R6 (three seeds) is documented as the kinematics alternative, not shipped (46.9 vs 51.7 dB, 9074 noise-only 0.38 vs 0.45, its 9074 deconvolution gain not reproduced across seeds). Evidence: PROGRESS.md 2026-10-18 (R6 three seeds) and 2026-10-19 (S3 / S4), results/final/ANALYSIS.md sections 6 and 8.
+Recipe B (four averaged checkpoints, gate, two-pass Wiener, size fix) is the single deliverable; the figures and all real-data results use it. Recipe A is stored and documented as the 3-network alternative (S3: on four real exoALMA discs A agrees with B to 3 to 4 m/s, flux within 1.6 percent); R6 (three seeds) is documented as the kinematics alternative, not shipped (46.9 vs 51.7 dB, 9074 noise-only 0.38 vs 0.45, its 9074 deconvolution gain not reproduced across seeds). Evidence: (R6 three seeds) and 2026-10-19 (S3 / S4), results/final/ANALYSIS.md sections 6 and 8.

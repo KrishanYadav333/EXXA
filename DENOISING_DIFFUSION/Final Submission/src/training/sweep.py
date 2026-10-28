@@ -285,7 +285,7 @@ def train_unet(
         # kinematic_gamma>0 keeps HybridLoss regardless of loss_name: KinematicLoss
         # is only defined as a HybridLoss + M1 term, not as a wrapper around every
         # LOSS_REGISTRY entry, and swapping its pixel term is a separate question
-        # from this sweep (RULES.md #4 -- one objective at a time).
+        # from this sweep.
         if loss_name not in LOSS_REGISTRY:
             raise ValueError(f"unknown loss_name {loss_name!r}, expected one of {list(LOSS_REGISTRY)}")
         criterion = LOSS_REGISTRY[loss_name](alpha=alpha, beta=1.0 - alpha)
@@ -299,7 +299,7 @@ def train_unet(
     # was added 2026-09-20 as the fix for a host-RAM leak, on a fork-storm theory. That
     # theory is REFUTED: 05 v38 (2026-09-24) ran with it on and still lost 0.29 GB/epoch at
     # 480px, the same as before, growing with image size and never returned between arms
-    # (PROGRESS.md 2026-09-24). Kept because it is harmless and avoids respawn cost, not
+    #. Kept because it is harmless and avoids respawn cost, not
     # because it fixes anything. The per-epoch `main/workers/cache` split in
     # _host_ram_note() is what will locate the real cause.
     persist_workers = num_workers > 0

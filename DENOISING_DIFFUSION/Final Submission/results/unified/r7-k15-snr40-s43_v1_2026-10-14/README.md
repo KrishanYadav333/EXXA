@@ -5,4 +5,4 @@ Kaggle version: see `results/RUNS.md` (author to confirm).
 
 **What:** R7 seed 43.
 
-**Result:** complete; ladder SNR 12 0.50, no gain; seed 41 dropped (quota, no gain). Numbers and interpretation: `results/PROGRESS.md`.
+**Result:** complete; ladder SNR 12 0.50, no gain; seed 41 dropped (quota, no gain).

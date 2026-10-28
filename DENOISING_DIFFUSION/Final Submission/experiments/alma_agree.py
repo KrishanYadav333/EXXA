@@ -1,5 +1,5 @@
 """
-S3 / S4 (ALMA_PLAN, PLAN.md 0h): agreement between two runs of alma_unified.py on the same real cube, the reference being recipe B's final run.
+S3 / S4: agreement between two runs of alma_unified.py on the same real cube, the reference being recipe B's final run.
 S3 compares model recipes (A, R6 against B), S4 the pixel scale (beam at 7.5 / 12.5 px against 10). No truth on real data, so this measures how much
 the answer depends on the choice, next to the size of the effect being measured.
 

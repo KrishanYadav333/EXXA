@@ -1,5 +1,5 @@
 """
-Phase 0 of PHYSICS_INFORMED_PLAN.md: what actually produced the dirty cubes?
+Phase 0 of the physics-informed plan: what actually produced the dirty cubes?
 
 DDRM constrains the reverse diffusion chain with a known forward operator `A` such that
 `dirty = A(clean) + noise`. The method is only worth building if `A` is a non-trivial
@@ -348,7 +348,7 @@ def phase0_report(clean, dirty, header=None, n_bins: int = 60) -> dict:
     # spectrum and two orders below anything with a beam in it.
     if fit["residual_no_convolution"] < NO_BEAM_TOL:
         # ...unless the band never reached where the header's own beam would act, in which
-        # case the null is uninformative rather than negative (RULES.md #8).
+        # case the null is uninformative rather than negative.
         if sigma_hdr and out["band_k_max"] < out["k_half_from_header"]:
             out["verdict"] = "indeterminate"
             out["reason"] = (

@@ -5,4 +5,4 @@ Kaggle version: see `results/RUNS.md` (author to confirm).
 
 **What:** Network on a ~10 px-beam grid (--infer-beam-px), seeds 3 + 11, variants plain / b10 corr / b10 full / b8 corr at 480 / 600 px.
 
-**Result:** complete; line wiggle @600 0.67 -> 0.77, Young M0 12 -> 29 %, 9074 0.31 -> 0.25. Numbers and interpretation: `results/PROGRESS.md`.
+**Result:** complete; line wiggle @600 0.67 -> 0.77, Young M0 12 -> 29 %, 9074 0.31 -> 0.25.

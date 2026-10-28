@@ -12,8 +12,7 @@ molecule. An optically thick line therefore shows the velocity of the layer faci
 what makes the GI wiggle visible in the channel maps (Terry et al. 2022). kappa is set from the target optical depth `tau0`
 (median peak tau over the disc), so the physical abundance is not needed. What it leaves out: SPH kernel smoothing inside a pixel
 (particles are binned; pixel size should be about the emitting layer's smoothing length or larger, and the beam is applied
-afterwards), dust, freeze-out / photodissociation, non-LTE. Validated against Speedie et al.'s own MCFOST cube of the same dump
-(PLAN.md B2) before any training use.
+afterwards), dust, freeze-out / photodissociation, non-LTE. Validated against Speedie et al.'s own MCFOST cube of the same dump before any training use.
 
 Units of the dumps: au, Msun, G = 1 (velocity unit 29.78 km/s).
 """

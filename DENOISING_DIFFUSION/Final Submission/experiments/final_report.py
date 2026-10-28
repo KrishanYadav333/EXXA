@@ -1,12 +1,11 @@
 """
-One report for the FROZEN final model (PLAN.md: final models, all 5 sizes, wiggle and moments, seed spread), from eval JSONs written by train_unified.py.
+One report for the FROZEN final model, from eval JSONs written by train_unified.py.
 
   python experiments/final_report.py --final final=eval_final.json --seeds s3=a.json s11=b.json s23=c.json --out results/final/RESULTS.md
          [--ladder final=eval_final.json] [--gate gate=eval_gate.json] [--apply-gate 40,120,0.25]
 
 For each of the five sizes: the final (averaged) model next to dirty and Wiener (their rows come from the final file), per group (line, hydro, analytic, sgv2,
-young_test, speedie); then, per group and size, the RANGE of every metric across the individual seeds (min .. max), because a single seed is not evidence
-(PROGRESS.md 2026-10-11/12: seed spread on the SNR-12 wiggle alone is 0.41-0.62). The SNR ladder (3 / 6 / 12 / 24) comes from ladder_report.py's table,
+young_test, speedie); then, per group and size, the RANGE of every metric across the individual seeds (min .. max), because a single seed is not evidence. The SNR ladder (3 / 6 / 12 / 24) comes from ladder_report.py's table,
 and the gate sweep (a * model + (1 - a) * Wiener) is printed per case if the file has it. Every number is a mean over the cubes of the group, never over seeds.
 """
 import argparse, json, os, subprocess, sys, statistics as st
@@ -58,7 +57,7 @@ def main():
         seeds = {}                                  # per-seed files have no mixes: their range is for the PLAIN model, say so in the table
         fname = fname + "+gate"
     L = [f"# Final model `{fname}`: results at all five sizes", "",
-         "Moments are signal-masked, noise-clipped improvements over dirty (RULES.md #6). `model` = the averaged final model; dirty and Wiener rows are computed on the same cubes.", ""]
+         "Moments are signal-masked, noise-clipped improvements over dirty. `model` = the averaged final model; dirty and Wiener rows are computed on the same cubes.", ""]
     for size in SIZES:
         refs = {"dirty": cm.summarise(fres, size, "dirty"), "wiener": cm.summarise(fres, size, "wiener"), fname: cm.summarise(fres, size, "model")}
         L += [f"## {size} px", ""]

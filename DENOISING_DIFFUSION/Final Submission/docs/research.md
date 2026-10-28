@@ -1,13 +1,12 @@
 # Research log
 
 Every literature search, paper read and the conclusion drawn from it goes here, newest first,
-in the same session it happened (rule in `/CLAUDE.md`). `results/PROGRESS.md` records what we
+in the same session it happened (rule in `/CLAUDE.md`). `results/ records what we
 ran; this file records what we read and what it means for the project.
 
 Entry format: **date | topic**, then *Question*, *Read* (linked), *Findings* (what the source
 actually says, with numbers), *Measured here* (our own check, if any), *Decision / next step*.
 A claim from a paper is marked as the paper's; a claim we measured links to the script or
-PROGRESS.md entry.
 
 ---
 
@@ -27,19 +26,19 @@ circled in dv = -1.40 km/s (figure 2), localised, outside the continuum disc; a 
 reproduces it (figure 3; strongest in the simulated -2.3 km/s channel, the offset put down to finite time sampling). Location read off the figures
 only (no table): near the disc centre on the north-west side; the planet marker sits about 0.25 arcsec north of the star.
 
-*Measured here.* Nothing yet: PLAN.md 0i-4 K fixes the test (Keplerian mirror asymmetry in the -1.40 / -1.75 km/s channels, aperture radius 0.30
+*Measured here.* Nothing yet: fixes the test (Keplerian mirror asymmetry in the -1.40 / -1.75 km/s channels, aperture radius 0.30
 arcsec at (-0.03, +0.15) arcsec, readings PRESERVED / PARTIAL / LOST / not testable) before any number; `experiments/kink_check.py`, synthetic
 self-check passes (blind axis 119.9 vs 120 deg; Keplerian disc "not testable", kinked disc PRESERVED r 0.99). Run: `kaggle-acct-b/final-kink-hd142666`.
 
 *Decision.* Test the kink on recipe B's existing denoised HD 142666 cube (no new denoising) and report the reading whatever it is. Our blind SNR for
 this cube is 6.6 to 7, at the edge of what the model recovers; "not testable" or LOST are the likely outcomes and are reported as such.
 
-## 2026-10-22 | blog citations: the analytic GI model, exoALMA I / VI; a related denoising paper
+## 2026-10-22 | citations for the final report: the analytic GI model, exoALMA I / VI; a related denoising paper
 
-**Question.** The final blog's reference list had three [check] items: which Longarini paper the analytic GI model comes from, and the exoALMA I and VI citations. Also: is the midterm Medium post findable for the link?
+**Question.** The final report's reference list had three [check] items: which Longarini paper the analytic GI model comes from, and the exoALMA I and VI citations. Also: is the midterm Medium post findable for the link?
 **Read.** Web search (abstract / metadata level only): [Longarini et al. 2021, ApJL 920, L41, "Investigating Protoplanetary Disk Cooling through Kinematics: Analytical GI Wiggle" (arXiv:2108.11387, doi:10.3847/2041-8213/ac2df6)](https://iopscience.iop.org/article/10.3847/2041-8213/ac2df6). exoALMA I (Teague et al. 2025, arXiv:2504.18688) and VI (Stadler et al. 2025, arXiv:2504.20036) were already read (entries 2026-10-08 and 2026-10-19). Found in passing: [arXiv:2605.14971, "Denoising Interferometric Observations Using Visibility-Informed Neural Networks"](https://arxiv.org/pdf/2605.14971) (search snippet only: denoisers trained on about 1,489 simulated gas-only discs from PHANTOM + MCFOST).
 **Findings (the papers').** Longarini et al. 2021 is the analytic linear response of a self-gravitating disc to a spiral perturbation, with the velocity perturbation (the GI wiggle, Hall et al. 2020) across the whole disc; authors Longarini, Lodato, Toci, Veronesi, Hall, Dong, Terry. This is the model behind `src/data/analytic_gi.py` (code received from C. Longarini). Longarini et al. 2024 (A&A 686, L6) is the Elias 2-27 PV paper read on 2026-10-17. The Medium midterm post did not come up in search.
-**Decision.** Blog cites Longarini et al. 2021 for the analytic model and 2024 for the minor-axis PV method; exoALMA I / VI with their arXiv numbers. The midterm link must come from Krishan. arXiv:2605.14971 is related work (denoising, visibility-informed, disc simulations): not read beyond the snippet; to be read before the final blog is published so it is cited correctly or not at all.
+**Decision.** The report cites Longarini et al. 2021 for the analytic model and 2024 for the minor-axis PV method; exoALMA I / VI with their arXiv numbers. The midterm link must come from Krishan. arXiv:2605.14971 is related work (denoising, visibility-informed, disc simulations): not read beyond the snippet; to be read before the final blog is published so it is cited correctly or not at all.
 
 ---
 
@@ -48,14 +47,14 @@ this cube is 6.6 to 7, at the edge of what the model recovers; "not testable" or
 **Question.** S6 promised a comparison with the published exoALMA kinematic analyses. What is actually released?
 **Read.** [exoALMA data page](https://www.exoalma.com/data); [exoALMA VI, Stadler et al. 2025, arXiv:2504.20036](https://arxiv.org/abs/2504.20036) (rotation curves, pressure variations) and its Dataverse set [doi:10.7910/DVN/FIDKQV](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/FIDKQV); [exoALMA VIII, arXiv:2504.19416](https://arxiv.org/abs/2504.19416) (probabilistic moment maps, Dataverse doi:10.7910/DVN/UFLGIG); [exoALMA XII, arXiv:2504.18726](https://arxiv.org/abs/2504.18726) (rotation-curve masses, doi:10.7910/DVN/PMTD0D); the fiducial image release (doi:10.7910/DVN/CFHWNH: cubes, masks, PSFs only, no velocity maps).
 **Findings.** exoALMA VI releases, for every disc, 12CO and 13CO rotation curves as text (radius au, v_rot, deviation from Keplerian, its error), from fits with an elevated emission surface. exoALMA VIII releases 12CO peak-velocity maps with uncertainties for three discs only (HD 135344B, CQ Tau, MWC 758; 5 GB of samples). XII releases mass posteriors. No released 13CO velocity maps.
-**Decision / measured.** S6 uses exoALMA VI's 13CO rotation curves for all 15 discs (our runs are 13CO); VIII's 12CO maps are not used (different line, three discs). Result: PROGRESS.md 2026-10-19 (S6 against exoALMA VI).
+**Decision / measured.** S6 uses exoALMA VI's 13CO rotation curves for all 15 discs (our runs are 13CO); VIII's 12CO maps are not used (different line, three discs).
 
 ## 2026-10-18 | JvM correction and flux in the exoALMA images (why the denoised faint discs read about 10 percent high)
 
-**Question.** On faint exoALMA discs (AA Tau, SY Cha, J1852; blind SNR 6 to 13) the denoised line flux is 6.5 to 10 percent above the delivered image's (PROGRESS.md 2026-10-18; AA Tau +9.9 +- 0.9 percent unclipped, located in the emission). The headers say the images are JvM-corrected (`exoALMA: Epsilon = 0.233`). Does that make the delivered image a biased flux reference?
+**Question.** On faint exoALMA discs (AA Tau, SY Cha, J1852; blind SNR 6 to 13) the denoised line flux is 6.5 to 10 percent above the delivered image's. The headers say the images are JvM-corrected (`exoALMA: Epsilon = 0.233`). Does that make the delivered image a biased flux reference?
 **Read.** [Czekala et al. 2021, MAPS II, ApJS 257, 2, arXiv:2109.06188](https://arxiv.org/abs/2109.06188) (HTML full text, the JvM section, first 100k characters); [Cataldi et al. 2021, MAPS X appendix, arXiv:2109.06462](https://arxiv.org/pdf/2109.06462) (search summary only).
 **Findings (the papers').** The CLEAN model is in Jy / CLEAN beam, the residual in Jy / dirty beam; adding them unscaled gives inconsistent units (the "JvM effect", Jorsater and van Moorsel 1995). The JvM correction multiplies the residual by epsilon = CLEAN-beam volume / dirty-beam volume (to the first null; their Eq. 15) before adding it, which puts it in CLEAN-beam units; the result is the image with accurate flux. It matters most for faint lines, where 50 percent or more of the flux can sit in the residual (AS 209 DCN, epsilon 0.359: residual 70 to 25 mJy, total 103 to 58 mJy). RMS values are quoted from JvM-corrected emission-free channels.
-**What it means here.** The delivered exoALMA image is the flux-accurate reference, not a biased one: hypothesis "(b) the raw image under-represents faint emission" in its first form is withdrawn. What remains: the faint emission that CLEAN left in the residual has a dirty-beam shape scaled by epsilon (0.233 on AA Tau) and the noise is likewise residual-like; a denoiser trained on clean-beam emission could read that structure at the wrong amplitude. That and (a), a plain low-SNR amplitude bias of the model, are what the truth-based S5 flux test (injection into AA Tau's own noise, PROGRESS.md) checks for the model; the injected truth is clean-beam emission, so it tests (a) and not the residual-shape effect, which is reported as a limit if (a) is excluded.
+**What it means here.** The delivered exoALMA image is the flux-accurate reference, not a biased one: hypothesis "(b) the raw image under-represents faint emission" in its first form is withdrawn. What remains: the faint emission that CLEAN left in the residual has a dirty-beam shape scaled by epsilon (0.233 on AA Tau) and the noise is likewise residual-like; a denoiser trained on clean-beam emission could read that structure at the wrong amplitude. That and (a), a plain low-SNR amplitude bias of the model, are what the truth-based S5 flux test checks for the model; the injected truth is clean-beam emission, so it tests (a) and not the residual-shape effect, which is reported as a limit if (a) is excluded.
 **Decision.** No flux number from faint exoALMA discs is quoted until the S5 flux test is in; the delivered JvM-corrected images stay the reference.
 
 ## 2026-10-18 | DSHARP disc geometry for the PV curves and S6 (Huang et al. 2018, Table 2)
@@ -73,7 +72,7 @@ this cube is 6.6 to 7, at the edge of what the model recovers; "not testable" or
 **Findings.** (the pages') 20 discs, one fiducial CO image each, `images/<Target>_CO.fits`, 12CO J=2-1 only (no 13CO or C18O products listed), 518 MB for most, 920 MB for IM Lup and Elias 27, 1.3 GB for HD 143006, 1.6 GB for HD 163296 (reachable, HTTP 200). The page says the CO measurement sets exist "with and without continuum subtraction" and does not say which the images use.
 (Our own read of the HD 142666 header) 1500 x 1500 px, 60 channels, pixel 10 mas, beam 0.077 x 0.061 arcsec (about 7.7 x 6.1 px, close to MWC 758's 6 px), channel width 269 kHz = 0.350 km/s at 230.538 GHz, FREQ axis with RESTFRQ (our `read_cube` handles it). The continuum state is not in the header.
 **What it needs.** Our models were trained on 0.1 km/s channels. `offsets(dv)` uses `round(0.1/|dv|)` = a 1 channel step at 0.35 km/s, so the K=15 window spans 31 x 0.35 = +-5.3 km/s, 3.5 times the trained +-1.5 km/s, and a 12CO line about 0.4 km/s wide covers about 1 channel instead of the 4 it did in training. This is out of distribution; whether the model copes is not known and is measured, not assumed: S5 injection of the Speedie disc binned to 0.35 km/s into the DSHARP cube's own noise, the model as it is vs the cube interpolated to 0.1 km/s and decimated back. Retraining on binned data is the fallback and would be a new model idea (after the Oct 18 rule): Krishan's decision if the S5 test fails.
-**Used.** Nothing run yet. HD 142666 is the disc of Terry, Hall, Abreu and Gleyzer (2023, planet kink; `context.md` section 4 lists it): the natural scientific check (does the kink survive denoising?). HD 143006 is also in exoALMA (13CO), so the same disc in two surveys.
+**Used.** Nothing run yet. HD 142666 is the disc of Terry, Hall, Abreu and Gleyzer: the natural scientific check (does the kink survive denoising?). HD 143006 is also in exoALMA (13CO), so the same disc in two surveys.
 
 ## 2026-10-17 | How the field extracts the minor-axis position-velocity (PV) wiggle (Jason's priority from the Oct 16 meeting)
 
@@ -89,7 +88,7 @@ this cube is 6.6 to 7, at the edge of what the model recovers; "not testable" or
 - Neither paper states a slit width in pixels; Jason's "straight slice or 4 to 5 px" is his guidance, not theirs.
 **Measured here.** Nothing on real data yet. `experiments/pv_curve.py` (M1 quadratic, both minor-axis halves, slice 1 px and slit 5 px, quadratic detrend, magnitude as standard deviation of the detrended profile) recovers a synthetic 60 m/s wiggle to 0.9 m/s and its magnitude to 38.9 m/s (`tests/test_pv_curve.py`).
 **Decision / next step.** (1) Our M1 is already the quadratic line centre, so the profile is the same quantity; add `pv_mag_ms`, the Speedie magnitude, next to `pv_r` so our numbers compare with 37 to 44 m/s directly. (2) Detrend with a quadratic, as they do. (3) Keep both halves (no cloud in simulations); for real data use the southern half only if the northern one is contaminated.
-(4) Savitzky-Golay smoothing of the spectra before the line fit is a choice they made for observed cubes; we do not do it, and noise in the line centre will show on the dirty row: decide after seeing the first real PV figures (PLAN.md 0f, Oct 19). (5) Mask the inner two beams: our radial grid already starts at 2 beams (`r_in`).
+(4) Savitzky-Golay smoothing of the spectra before the line fit is a choice they made for observed cubes; we do not do it, and noise in the line centre will show on the dirty row: decide after seeing the first real PV figures. (5) Mask the inner two beams: our radial grid already starts at 2 beams (`r_in`).
 
 ## 2026-10-13 | exoALMA sample: which cubes exist and the geometry needed to score them
 
@@ -145,7 +144,7 @@ stellar mass (velocities by sqrt(M/R)) to match ALMA disc sizes; the Young runs 
 
 ## 2026-10-10 | Where else to get GI hydro simulations (not from the mentors, not exoALMA)
 
-**Question.** The wiggle gap on real hydro disks is data coverage (PROGRESS.md 2026-10-10). Are there public GI hydro simulations or synthetic cubes beyond Speedie et al. 2024?
+**Question.** The wiggle gap on real hydro disks is data coverage. Are there public GI hydro simulations or synthetic cubes beyond Speedie et al. 2024?
 
 **Searched / read.** Zenodo search results; the records [5567886](https://zenodo.org/records/5567886) and [10205110](https://zenodo.org/records/10205110) (file lists via the API); the setup files of
 [Zenodo 11668694](https://zenodo.org/records/11668694) (`sg.setup`, `sg.discparams`, `sg.in`, `GIdisk_13C16O_mcfost.para`); the arXiv abstract pages of Andrews et al. 2024 ([2405.19574](https://arxiv.org/abs/2405.19574)) and
@@ -172,7 +171,7 @@ Xu et al. 2025 ([2504.18751](https://arxiv.org/abs/2504.18751)); search summarie
 
 ## 2026-10-09 | How to get one denoiser that is best on PSNR, M0/M1/M2 and the GI wiggle (literature behind the training plan)
 
-**Question.** Our models score well on PSNR and moments and lose the wiggle (PROGRESS.md 2026-10-08/09). What do the papers say about
+**Question.** Our models score well on PSNR and moments and lose the wiggle. What do the papers say about
 (a) how big the real signal is, (b) architectures for spectral cubes, (c) learned imaging that stays faithful to the data, (d) training
 without clean truth, (e) what to expect from learned denoisers on real cubes, (f) losses that keep fine structure?
 
@@ -202,7 +201,7 @@ without clean truth, (e) what to expect from learned denoisers on real cubes, (f
 5. *Losses.* Networks trained by gradient descent favour low frequencies (spectral bias); frequency-domain losses (focal, log-focal, guided) improved PSNR/SSIM in
    super-resolution and bioimage restoration. Caveat from the same literature: preserving high frequencies helps only when they are signal.
 
-**Measured here that bears on it (all in PROGRESS.md 2026-10-08/09).**
+**Measured here that bears on it.**
 - Noise, not the beam, kills the wiggle: rc_r noise-free beam 0.885 vs dirty 0.34 on the 5 hydro disks. 3D Wiener is at the LINEAR ceiling (oracle linear 0.923 vs 0.925 on SG v2) and does
   not beat dirty on rc_r on the hydro disks (0.349 vs 0.341). So the missing information has to come from a learned prior over disk structure.
 - Line-centre error is 76-135 m/s median on the hydro disks for dirty and every method: larger than the real 39 m/s wiggle. A denoiser that does not get to ~10 m/s cannot
@@ -218,7 +217,7 @@ without clean truth, (e) what to expect from learned denoisers on real cubes, (f
 3. Feed the data residual (dirty minus beam (*) estimate) and run 2 unrolled passes, R2D2 style, as a later experiment; use the residual's whiteness as a hallucination check.
 4. Put the finger signal in the training data (hydro, Speedie GI disk, ~30 randomised analytic disks) and the Keplerian twin in the evaluation, so false fingers are measured.
 5. Condition on the beam size in pixels (the U-Net already has a beam_dim path) because resampling to 256-600 px changes the beam in pixels.
-6. Judge by rc_r, line-centre error in m/s, finger-scale coherence and M0/M1/M2; never select on PSNR (RULES.md #4). Test any derivative or frequency loss as an ablation, not as a default.
+6. Judge by rc_r, line-centre error in m/s, finger-scale coherence and M0/M1/M2; never select on PSNR. Test any derivative or frequency loss as an ablation, not as a default.
 7. For real ALMA data without truth: a channel-wise blind-spot (Noise2Self) fine-tune is plausible because noise is independent between channels, but real cubes can have correlated adjacent channels,
    so first test it on our synthetic pairs, where the true error is known, to see whether the self-supervised loss tracks it.
 
@@ -227,7 +226,7 @@ without clean truth, (e) what to expect from learned denoisers on real cubes, (f
 ## 2026-10-09 | Non-exoALMA data for training a wiggle-aware, ALMA-ready denoiser
 
 **Question.** Jason does not want models trained on exoALMA data. What other public data can supply (a) realistic GI-wiggle disks with a
-clean truth, and (b) real ALMA noise, for the unified model (PROGRESS.md 2026-10-09)?
+clean truth, and (b) real ALMA noise, for the unified model?
 
 **Read / searched.** Zenodo record 11668694 (README read in full); CDS J/A+A/666/A168 ReadMe; Zenodo 3928862 and 7430257 file lists; MAPS data
 pages (via search results only; archive not reached).
@@ -283,16 +282,16 @@ Presumably it implements the analytic GI-wiggle theory behind Longarini et al. 2
 Sigma ~ r^p between rin and rout. Perturbations of an m-armed log spiral of pitch alpha: azimuthal amplitude ~ sqrt(G ms/r) beta^(-1/2) (md/ms) / 2, radial amplitude
 2 m chi beta^(-1/2) q(r)^2 Omega r with the local Q = 1 mass ratio q(r); the observed M1 is (u_phi cos(phi) + u_r sin(phi)) sin(i). So the wiggle amplitude
 scales with md/ms and beta^(-1/2), the same direction as Terry et al. 2022's A_wiggle(q); the disc term makes M1 non-Keplerian, which is the axisymmetric part our
-Keplerian resid_r was scoring (PROGRESS.md 2026-10-08).
+Keplerian resid_r was scoring.
 
-**Measured here** (PROGRESS.md 2026-10-09, `tests/test_analytic_gi.py`): runs after two import fixes; the Keplerian limit holds; the quadratic estimator recovers the
+**Measured here**: runs after two import fixes; the Keplerian limit holds; the quadratic estimator recovers the
 exact v_los to 0.1 m/s; with it six test disks were built and scored (3D Wiener rc_r 0.557 vs dirty 0.421 on them, but 0.349 vs 0.341 on hydro disks).
 
 **Decision / next step.**
 1. Use the model as a source of unlimited clean disks with exact velocity truth (training volume, unit tests for the metric), not as a replacement for hydro
    validation: its spiral is a single smooth mode.
 2. The deck's slides 2, 4 and 6 quote Keplerian resid_r numbers (dirty 0.664, 3D Wiener 0.925 on SG v2, 0.628 vs 0.733 on five disks); these are superseded by the
-   rotation-curve metric (PROGRESS.md 2026-10-08) and the deck needs a revision before the next mentor meeting.
+   rotation-curve metric and the deck needs a revision before the next mentor meeting.
 3. Ask Cristiano for a fixed version, the paper the amplitudes come from, and the emission model he uses with it.
 
 ---
@@ -318,7 +317,7 @@ read through the PDF reader instead.)
   the beam barely changes either. Example q = 0.5, systemic channel: lambda = 74 au, A = 18.7 au. Wavelength scales with H (k H ~ 1), amplitude with q.
 - Moment-1 (intensity-weighted, their Eq. 4) with Keplerian subtracted shows the fingers for q = 0.25 and 0.75, much stronger at 0.75.
 
-**Measured here** (PROGRESS.md 2026-10-08, `experiments/wiggle_scorecard.py`, `results/wiggle-scorecard/2026-10-08/`).
+**Measured here**.
 - Our SG v2 cube is this paper's configuration: q = 0.75 (`lines_13CO_q075_sg_00019.para`), i = 30 deg, 140 pc, 1.33 au/px; the fitted M_* is 0.59 Msun (truth 0.6).
 - Eq. 3 implemented on both halves of the spine in every channel within 1 km/s of v_sys. Self-test: a 12 au, 80 au-wavelength sinusoid returns A = 10.6 au,
   lambda = 73.6 au (the Fourier grid is coarse on a 220 au track).
@@ -359,7 +358,7 @@ Zawadzki and Czekala (exoALMA IX, RML imaging), none re-read here.
 - RML imaging (exoALMA IX) is used as an independent check of CLEAN-based features; both are image-plane products built from the visibilities.
 
 **Measured here.** Line-emission cube `run_0002_00560_rt_00` (clean and dirty): header beam 0.185 x 0.126" at 0.01"/px on **both** cubes; the clean channel's spatial power is
-band-limited like a beam-smoothed image and the dirty-minus-clean noise is band-limited too (numbers in PROGRESS.md 2026-10-02, correction 2026-10-08). Channel spacing 0.1 km/s,
+band-limited like a beam-smoothed image and the dirty-minus-clean noise is band-limited too. Channel spacing 0.1 km/s,
 per-channel peak SNR about 29. SG v2: beam 0.160 x 0.100" in both headers at 0.0095"/px, channel spacing 33 m/s (close to the spectral resolution, which is consistent with
 the 0.53 channel-to-channel noise correlation we measured; the part that did not decay with lag was a static pattern).
 
@@ -449,7 +448,7 @@ to clean?
 - SG v2 cube, wiggle resid_r vs clean: dirty 0.892, U-Net 0.805, Wiener (2D, beam) 0.900,
   static-noise removal + 3D Wiener 0.925, oracle linear ceiling 0.923, noise-free beam-only 0.920.
   Per-scale: the U-Net is worst exactly at 25-100 px (coherence 0.73-0.77 against dirty 0.85-0.94).
-  `experiments/wiggle_wiener_deconv.py`, `experiments/wiggle_wiener3d.py`, PROGRESS.md 2026-10-02,
+  `experiments/wiggle_wiener_deconv.py`, `experiments/wiggle_wiener3d.py`,,
   figures `results/self-gravitating/wiggle_wiener_vs_unet.png`, `wiggle_3d_wiener.png`.
 - SG dirty noise is 0.53 correlated between channels at every lag (a static pattern, 54% of the
   per-channel noise variance); the clean cube has none of it.
@@ -460,8 +459,7 @@ to clean?
 - Line-emission cube `run_0002_00560_rt_00`: noise independent between channels (lag corr
   about 0), no static part, beam-correlated spatially; no beam on the signal (A = I). 3D Wiener with
   a noise spectrum from a different cube: PSNR 29.36 -> 38.75, M1 corr 0.9812 -> 0.9895.
-- Resolution: training at native 600 px has a measured ceiling of +0.029 on the wiggle
-  (context.md, Phase J).
+- Resolution: training at native 600 px has a measured ceiling of +0.029 on the wiggle.
 
 **Decision / next step.**
 1. Stage 0 classical: continuum/static subtraction, then 3D Wiener (deconvolve the beam on SG and
@@ -478,13 +476,10 @@ to clean?
 6. Evaluation in nb16: per-scale coherence, Terry-style wavelength/amplitude, channel-map sheets,
    leave-one-out over all disks, selection by finger-scale coherence not PSNR.
 7. Stop queuing native-600 work after the current nb14 session; spend the GPU on 2 and 3.
-
-(Superseded 2026-10-08: these r values are Keplerian resid_r, mostly the axisymmetric rotation curve. On the
-rotation-curve residual rc_r, Wiener 0.349 vs dirty 0.341. See the Terry et al. 2022 entry and PROGRESS.md 2026-10-08.)
 Update (same day, 5 SG synth disks): 3D Wiener alpha=2, no training, mean wiggle r 0.733 vs dirty 0.628
 (4/5 wins, 1 tie), PSNR +4 to +14 dB on every disk; alpha=1 fails on all 5; gains are small on the two hard
 disks (9025: 0.334 -> 0.657, 9074: 0.245 -> 0.288). So the classical stage is a good input but not the
-answer for the wiggle; the learned correction is still needed. PROGRESS.md 2026-10-02.
+answer for the wiggle; the learned correction is still needed.
 
 Open: the 5 line-emission holdouts not run with the wiggle metric yet; alpha selection rule not done. "Identical to clean" is limited below the beam scale (about 6 px on SG, oracle
 coherence about 0.35 there); anything crisper than that is prior-driven and must be reported as such.

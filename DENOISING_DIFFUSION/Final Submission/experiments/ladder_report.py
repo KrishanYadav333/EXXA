@@ -1,5 +1,5 @@
 """
-SNR-ladder table from eval JSONs written by train_unified.py --eval-ladder (PLAN.md phase 1).
+SNR-ladder table from eval JSONs written by train_unified.py --eval-ladder.
   python experiments/ladder_report.py name=eval_x.json [name2=...]
 Per peak SNR: GI disc PSNR / M0 / M1 / M2 / rc_r (dirty and Wiener of that file for reference) and the Keplerian twin's spurious rotation-curve rms.
 Moments are signal-masked, noise-clipped improvements over dirty. One simulation, so no spread; the Wiener row is the one stored in the same file.

@@ -5,4 +5,4 @@ Kaggle version: see `results/RUNS.md` (author to confirm).
 
 **What:** R8: fine-tune of R4n seed 3 with the line-centre (M1) loss, w 0.01, 20 rounds, lr 5e-5.
 
-**Result:** complete; ladder SNR 12 0.35 (worse); not adopted. Numbers and interpretation: `results/PROGRESS.md`.
+**Result:** complete; ladder SNR 12 0.35 (worse); not adopted.

@@ -25,7 +25,7 @@ COPY = [
     ("13_IMLup_real_PV.png", f"{A}/dsharp-final-p0_v1_2026-10-18/dsharp/IM_Lup_interp01/IMLup_CO_pv.png"),
     ("14_LkCa15_moments.png", f"{A}/exoalma-final-p3_v1_2026-10-18/alma/LkCa_15_13CO/LkCa_15_13CO_fiducial_moments.png"),
     ("15_planet_check_young_sector.png", f"{U}/eval-planet_v1_2026-10-18/planet_check/run_young_M1_R100_Mu0.4_600_sector6.5-8.5_planet.png"),
-    # fresh set (PLAN.md 0i): discs never used for any choice
+    # fresh set: discs never used for any choice
     ("19_fresh_young_M1R100_maps.png", f"{U}/eval-fresh-young_v1_2026-10-21/eval_fresh_young/figs_fresh_young_B/run_young_M1_R100_Mu0.5_600.png"),
     ("20_fresh_young_M1R100_PV.png", f"{U}/eval-fresh-young_v1_2026-10-21/eval_fresh_young/figs_fresh_young_B/run_young_M1_R100_Mu0.5_600_pv.png"),
     ("21_fresh_an10_deconv_PV.png", f"{U}/eval-fresh-b_v2_2026-10-21/eval_fresh/figs_fresh_B/an10_600_pv.png"),

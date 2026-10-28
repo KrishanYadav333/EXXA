@@ -1,7 +1,7 @@
 # Recipe B: analysis results (final model, frozen 2026-10-18 03:00)
 
 The companion of `RESULTS.md` (the generated five-size tables). Every number here is copied from the run archive named next to it and from the
-`results/PROGRESS.md` entry of that day; the metric is named each time (RULES.md 6). rc_r = correlation of the rotation-curve-subtracted M1 residual
+ rc_r = correlation of the rotation-curve-subtracted M1 residual
 with the truth's (the 2D wiggle score); PV r = correlation of the quadratically detrended minor-axis M1 curve with the truth's (`experiments/pv_curve.py`,
 the Speedie et al. 2024 measurement; 1 px slice or 5 px slit); PV magnitude = standard deviation of that detrended curve (m/s). Peak SNR = peak of the
 clean cube over the noise rms. Model = recipe B (`RECIPES.md`).
@@ -125,7 +125,7 @@ raw M1, 49 m/s from the denoised M1 (closer on 11 of 15); rotation-curve substru
 The remaining offset grows with inclination (thin-disc fit against exoALMA VI's elevated surface) and is the same raw or denoised.
 **Flux by radius:** den / raw 1.16 to 1.66 within 1 beam of the star, 1.05 to 1.24 at 1 to 3 beams, 0.94 to 1.03 outside 3 beams (all 15 discs). The
 excess is the unresolved centre; flux from the denoised cube is used only outside 3 beams. V4046 Sgr: 1.022 outside 3 beams.
-**Pass marks** (ALMA_PLAN.md, revised 2026-10-19): truth-based line-centre error at most half of dirty's at SNR 12+ (exoALMA all pass; DSHARP HD 143006
+**Pass marks**: truth-based line-centre error at most half of dirty's at SNR 12+ (exoALMA all pass; DSHARP HD 143006
 fails); flux within 5 percent outside 3 beams (13 / 15; DM Tau 0.946, HD 143006 0.938 fail); S2 all pass; S3 / S4 pass.
 
 ## 7c. Flux root cause, S7, error bars, cross-survey (2026-10-21)
@@ -150,7 +150,7 @@ Sources: `results/alma/alma-s3-recipes_v1_2026-10-18/`, `alma-s4-pixscale_v1_202
 
 Reading: the real-data result barely depends on the recipe (A) or on the zoom (plus or minus 25 percent); R6 differs more and recovers less of an injected wiggle. Where PV agreement falls to 0.81 to 0.84 the disc's PV curve is noise-dominated (PV against raw 0.54 to 0.65 for B).
 
-## 9. Improvement track: fresh test set (PLAN.md 0i, 2026-10-21)
+## 9. Improvement track: fresh test set
 
 Source: `results/unified/eval-fresh-b_v2_2026-10-21/fresh_tables.md`, `results/alma/alma-kepc-cfix_v1_2026-10-21/`. Discs never used for any choice; 600 px; gate inactive.
 

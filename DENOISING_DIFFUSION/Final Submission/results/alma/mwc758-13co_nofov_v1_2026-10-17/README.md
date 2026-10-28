@@ -2,4 +2,4 @@
 
 Kaggle kernel `kaggle-acct-d/alma-mwc758-nofov` v1 (account account D), 2026-10-17. MWC 758 13CO fiducial, recipe B (results/final/RECIPES.md), inference only.
 Configuration: 512 px centre crop, no continuum subtraction (control). S5 injection: Speedie GI r0.5 and Keplerian twin at SNR 12 / 24 / 36.
-Figures and the denoised FITS stay in the kernel Output. Comparison of the four configurations: results/PROGRESS.md 2026-10-17.
+Figures and the denoised FITS stay in the kernel Output.

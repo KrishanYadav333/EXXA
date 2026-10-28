@@ -1,4 +1,4 @@
-"""PLAN.md 0i-2 step 1: score candidate runs against the control (R4n-long s3 / s11 / s23, single network) on the fresh set.
+"""Step 1: score candidate runs against the control (three seeds, single network) on the fresh set.
 "Fresh mean" = an09 to an16 noise-only (_ai) + the 8 Young TEST3 discs; twins = an09k / an12k / an15k, both regimes, invented PV5 magnitude.
 Run from DENOISING_DIFFUSION: python experiments/cand_step1.py [CAND_NAME=eval1.json,eval2.json ...]"""
 import glob, json, sys, numpy as np

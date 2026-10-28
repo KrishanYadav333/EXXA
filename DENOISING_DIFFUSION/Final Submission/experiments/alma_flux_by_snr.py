@@ -1,7 +1,6 @@
 """
 Where does the denoised-over-raw flux excess (S1 M0 ratio) come from? Splits the ratio by each pixel's own M0 signal-to-noise (raw M0 over the M0
-noise S1 uses: sigma_raw * dv * sqrt(line channels)), inside S1's mask (raw M0 above 5 times that noise). The truth-based test (AA Tau injection,
-PROGRESS 2026-10-18) says the model adds about 2 percent at peak SNR 12 and above and up to 10 percent at SNR 6; a disc whose flux sits mostly in faint
+noise S1 uses: sigma_raw * dv * sqrt(line channels)), inside S1's mask (raw M0 above 5 times that noise). The truth-based test says the model adds about 2 percent at peak SNR 12 and above and up to 10 percent at SNR 6; a disc whose flux sits mostly in faint
 pixels should then read high even at a high peak SNR. Light: 2D M0 maps only.
 Usage: python experiments/alma_flux_by_snr.py <maps dir with alma/<disc>_13CO/>
 """

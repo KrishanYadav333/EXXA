@@ -5,4 +5,4 @@ Kaggle version: see `results/RUNS.md` (author to confirm).
 
 **What:** R8 from R6, same fine-tune.
 
-**Result:** complete; SNR 12 0.64, twin SNR 6 293 -> 60 m/s, 9074 0.38-0.40. Numbers and interpretation: `results/PROGRESS.md`.
+**Result:** complete; SNR 12 0.64, twin SNR 6 293 -> 60 m/s, 9074 0.38-0.40.

@@ -133,7 +133,7 @@ class FITSChannelDataset(Dataset):
         # original notebook behavior is unchanged; the continuum notebook flips it on.
         self.subtract_continuum = subtract_continuum
         self.continuum_n = continuum_n
-        # 2.5D spectral context (PHYSICS_INFORMED_PLAN.md Phase 3a). k>0 makes an item's
+        # 2.5D spectral context (the physics-informed plan Phase 3a). k>0 makes an item's
         # dirty tensor (2k+1, H, W): the sampled channel plus k neighbours each side along
         # velocity. The clean target stays (1, H, W) -- the centre channel only.
         #

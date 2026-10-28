@@ -33,7 +33,7 @@ DISKS = {"an01": (0.15, 2, 5.0, 13, 20), "an02": (0.35, 2, 5.0, 13, 30), "an03":
          "an04": (0.35, 3, 5.0, 18, 20), "an05": (0.35, 2, 3.0, 13, 30), "an06": (0.60, 2, 3.0, 20, 20),
          # held out of every training set (train_wiggle_correction.py): different mass, arm number, cooling, pitch, inclination
          "an07": (0.45, 2, 4.0, 15, 25), "an08": (0.25, 3, 3.0, 18, 30),
-         # FRESH test set of the improvement track (PLAN.md 0i, locked 2026-10-21 before any challenger): never trained or selected on; m = 4 and
+         # FRESH test set of the improvement track: never trained or selected on; m = 4 and
          # i = 35-40 deg lie outside the training ranges on purpose. The "k" entries are no-wiggle twins (same disc, no spiral): invented ripple.
          "an09": (0.30, 2, 4.0, 16, 22), "an10": (0.50, 3, 5.0, 14, 28), "an11": (0.20, 2, 3.5, 11, 35), "an12": (0.55, 2, 6.0, 17, 40),
          "an13": (0.40, 3, 3.5, 21, 18), "an14": (0.28, 2, 4.5, 19, 32), "an15": (0.48, 4, 4.0, 15, 26), "an16": (0.65, 2, 3.0, 12, 24),
@@ -49,7 +49,7 @@ def apply_beam(cube, beam):
 
 
 def extra_disks(n, seed=700):
-    """Candidate C (PLAN.md 0i): `n` extra TRAINING discs anx01.. with fresh random parameters, wider than an01-an06 (m 2 to 4, incl 12 to 45 deg)
+    """Candidate C: `n` extra TRAINING discs anx01.. with fresh random parameters, wider than an01-an06 (m 2 to 4, incl 12 to 45 deg)
     and every other one with a compact bright centre (rin 2 to 4 au instead of 10). Seed 700 is used nowhere else; none equals a test disc."""
     g = np.random.default_rng(seed)
     out = {}
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--native600", action="store_true")
     ap.add_argument("--out", default="")
-    ap.add_argument("--extra", type=int, default=0, help="candidate C (PLAN.md 0i): also render this many extra training discs anx01..")
+    ap.add_argument("--extra", type=int, default=0, help="candidate C: also render this many extra training discs anx01..")
     args = ap.parse_args()
     if args.extra:
         _x = extra_disks(args.extra)

@@ -2,5 +2,5 @@
 
 Kaggle kernel `kaggle-acct-d/alma-mwc758-zoom512-v2` v1 (account account D), 2026-10-18 04:55 IST, 67 min. MWC 758 13CO, recipe B, 512 px field
 (12.8 arcsec) + `--scale 1.6667` (beam 6 to 10 px, Jason's "zoom in"), continuum auto (none found), S5 GI + twin at SNR 12 / 24 / 36.
-The `-v2` is because v1 of `alma-mwc758-zoom512` ran the wrong code (bash 3.2 bug, PROGRESS.md 2026-10-18). Denoised / moment FITS stay in the kernel Output.
-Decision it made (512 field + zoom for the final ALMA runs): results/PROGRESS.md 2026-10-18.
+The `-v2` is because v1 of `alma-mwc758-zoom512` ran the wrong code. Denoised / moment FITS stay in the kernel Output.
+

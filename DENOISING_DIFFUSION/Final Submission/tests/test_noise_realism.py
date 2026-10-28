@@ -1,4 +1,4 @@
-"""Realistic-noise training pieces of experiments/train_unified.py (PLAN.md workstream A).
+"""Realistic-noise training pieces of experiments/train_unified.py.
 
 Run: PYTHONPATH=. python3 tests/test_noise_realism.py
 """

@@ -1,5 +1,5 @@
 """
-2.5D spectral context (PHYSICS_INFORMED_PLAN.md Phase 3a, option ii).
+2.5D spectral context (the physics-informed plan Phase 3a, option ii).
 
 The dataset can hand the model a channel plus k neighbours along velocity instead of one
 isolated channel. M1 and M2 are spectral SHAPE statistics and lag M0 badly, and the reason

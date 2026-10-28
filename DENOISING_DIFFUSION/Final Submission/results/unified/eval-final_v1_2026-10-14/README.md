@@ -5,6 +5,6 @@ Kaggle version: see `results/RUNS.md` (author to confirm).
 
 **What:** Final evaluation of R4n-long seeds 3 + 11 + 23 averaged, gate scored from stored mixes; report `results/final/RESULTS.md`.
 
-**Result:** complete, 97 cases, 362 min. Numbers and interpretation: `results/PROGRESS.md`.
+**Result:** complete, 97 cases, 362 min.
 
 Figures (figs/, 155 MB) are kept locally and in the kernel Output, not committed (size).

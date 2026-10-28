@@ -1,6 +1,6 @@
 # Trained models
 
-The final denoiser is an average of four U-Net checkpoints (see the report in `BLOG.md`, section "Method"). Each was trained as a correction on top of a 3D Wiener filter, with spectral context K = 15 channels.
+The final denoiser is an average of four U-Net checkpoints. Each was trained as a correction on top of a 3D Wiener filter, with spectral context K = 15 channels.
 
 | file | what it is |
 |---|---|

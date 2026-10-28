@@ -4,7 +4,7 @@ Plain script: PYTHONPATH=. python3 tests/test_checkpoint_eval.py
 Fast checks on src/evaluation/checkpoint_eval.py that need no GPU and no data cubes: naming, discovery, and that
 `describe` reads architecture from a checkpoint's own metadata. The full-cube validation (winner_aug_seed43 on
 run_0002_00560_rt_00 reproducing the published v20 M0 +31.3 / M1 +77.2 / M2 +84.6) takes ~4 minutes on CPU and is
-recorded in PROGRESS.md 2026-09-25 rather than run here.
+
 """
 import os, sys
 

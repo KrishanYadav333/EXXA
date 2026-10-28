@@ -1,10 +1,10 @@
 """
-Real exoALMA cube -> the unified denoiser (Wiener + learned correction, train_unified.py) -> denoised cube, moment maps, checks. ALMA_PLAN.md.
+Real exoALMA cube -> the unified denoiser (Wiener + learned correction, train_unified.py) -> denoised cube, moment maps, checks. 
 
 INFERENCE ONLY: exoALMA data are never trained on (Jason). There is no truth on a real cube, so this measures what the model CHANGES and whether
-it invents anything (ALMA_PLAN.md section 6):
+it invents anything:
   S1  noise off the line (rms of line-free planes, raw vs denoised), M0 total ratio inside the signal mask, M1 shift on the brightest pixels (m/s)
-  S2  invented structure: fraction of line-free-plane pixels above 4 sigma_raw, raw vs denoised (the raw rate is the denominator; RULES.md #8)
+  S2  invented structure: fraction of line-free-plane pixels above 4 sigma_raw, raw vs denoised
   S6  kinematics: rotation-curve residual of M1 (wiggle_scorecard), raw vs denoised: correlation and rms
 Same preprocessing as training and the synthetic tests (continuum is NOT removed again unless --cont-sub: exoALMA is already subtracted), the velocity-aware Wiener on the native grid
 with its noise from the line-free planes, the model's own normalisation (--norm and --clip-in read back from the checkpoint), optional resampling to
@@ -231,7 +231,7 @@ def run_scaled(a, model, arm, d, w, dv, beam_px):
 
 
 def _central_fix(a, pred, d, beam_px):
-    """Candidate A (PLAN.md 0i), off unless --central-fix: train_unified.central_flux_fix on the cube's own grid."""
+    """Candidate A, off unless --central-fix: train_unified.central_flux_fix on the cube's own grid."""
     if not getattr(a, "central_fix", False):
         return pred
     out, info = tu.central_flux_fix(pred, d, beam_px)
@@ -240,7 +240,7 @@ def _central_fix(a, pred, d, beam_px):
 
 
 def run_model(a, model, arm, d, w, dv, beam_px):
-    """The frozen inference recipe (PLAN.md 0b2): the network on a ~INFER_BEAM-px-beam grid when the beam is wider (train_unified.infer; exoALMA fiducial beams are
+    """The frozen inference recipe: the network on a ~INFER_BEAM-px-beam grid when the beam is wider (train_unified.infer; exoALMA fiducial beams are
     ~6 px, so this is inert there), then a second pass from a Wiener built on the first pass's output (train_unified.prior_wiener), gate inside denoise()."""
     r = int(round(abs(dv) / a.spec_interp)) if getattr(a, "spec_interp", 0) and abs(dv) > 1.5 * a.spec_interp else 1
     if r > 1:      # channels coarser than the 0.1 km/s the models were trained on (DSHARP: 0.35 km/s): run on a velocity grid r times finer, then average back
@@ -415,7 +415,7 @@ def inject(a, model, arm, cube, lf, velax_real, pix, beam):
 
 
 def bootstrap_m1(a, model, arm, cube, pred, lf, velax, pix, beam, mask, sigma_raw):
-    """PLAN.md 0i-4 U: parametric bootstrap of the M1 error. The denoised cube stands in for the sky; each draw adds a new realisation of this cube's own
+    """Parametric bootstrap of the M1 error. The denoised cube stands in for the sky; each draw adds a new realisation of this cube's own
     noise (synth_noise: its measured spatial spectrum and lag-1 channel correlation, as S5 when the line fills the band) and goes through the same
     denoising path. The per-pixel std of M1 over the draws is a LOWER bound on the error: it holds the noise term, not the model's bias."""
     C = cube.shape[0]
@@ -504,11 +504,11 @@ def main():
     ap.add_argument("--inject-dir", default="", help="S5: folder with speedie_prep clean cubes (GI_r0.5_clean.fits ...); empty = skip")
     ap.add_argument("--inject-cases", default="GI_r0.5,Kep_r0.5")
     ap.add_argument("--inject-snr", default="12,24,36")
-    ap.add_argument("--central-fix", action="store_true", help="candidate A (PLAN.md 0i): rescale the denoised flux within 2 to 4 beams of the centre to the input cube's")
+    ap.add_argument("--central-fix", action="store_true", help="candidate A: rescale the denoised flux within 2 to 4 beams of the centre to the input cube's")
     ap.add_argument("--inject-seeds", type=int, default=1, help="S5: noise realisations per SNR (the real noise shifted relative to the signal, roll_noise); 1 = as before")
     ap.add_argument("--inject-field-frac", type=float, default=0.0, help="S5: scale the truth so the cube's field shows this fraction of its width "
                     "(0 = keep its angular size; 0.625 = the exoALMA 512 px framing, for small DSHARP fields)")
-    ap.add_argument("--boot", type=int, default=0, help="PLAN.md 0i-4 U: empirical M1 error map from this many re-denoised copies of the denoised cube "
+    ap.add_argument("--boot", type=int, default=0, help="empirical M1 error map from this many re-denoised copies of the denoised cube "
                     "plus new realisations of the cube's own noise (0 = off)")
     a = ap.parse_args()
     tu.GATE = tuple(float(x) for x in a.gate.split(",")) if a.gate else None

@@ -1,6 +1,6 @@
 # unified-wiener-real v1 (Kaggle, R3), FAILED at step 2242 (round 7/40)
 
-R3 of results/PLAN.md: K=3, lr 3e-4, realistic noise (peak SNR 10-150, channel kernel a ~ U(0, 0.5), beam x U(1, 1.6)), velocity-aware Wiener,
+R3 of K=3, lr 3e-4, realistic noise (peak SNR 10-150, channel kernel a ~ U(0, 0.5), beam x U(1, 1.6)), velocity-aware Wiener,
 12000 steps planned, 19 training cubes. Rounds 1-6 healthy and better than unified-wiener v1 (L1 0.0139 at round 6 against 0.018-0.025 there).
 Step 2013: first non-finite loss on ORDINARY inputs (range -1..2.8); round 7: 70 non-finite steps of 300, L1 0.0257; then 51 in a row, abort.
 

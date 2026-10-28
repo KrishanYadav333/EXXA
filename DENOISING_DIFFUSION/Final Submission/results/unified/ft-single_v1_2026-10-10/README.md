@@ -27,7 +27,7 @@ Scoring failures: the same 6 cases for every model (run_0002_00560_rt_04 at 256/
 `TypeError: expected non-empty vector for x` in `wiggle_fourier`'s polyfit. This kernel ran a code-dataset version
 from before the `len(y) < 8` guard; the current code has it. Re-score those cases if they are needed.
 
-Checkpoints (RULES.md #12): `unified_ft_nb05_winner_aug_res480_seed43.pth`, `unified_ft_nb14_sweep_winner_p10_600.pth`,
+Checkpoints: `unified_ft_nb05_winner_aug_res480_seed43.pth`, `unified_ft_nb14_sweep_winner_p10_600.pth`,
 `unified_ft_sg_k3_fresh.pth` in the kernel Output, `ft_<name>/`.
 
 Files: `run_log.txt`, the six eval JSONs, `kernel_unified_ft.py` as it ran (GROUP = "single"), comparison tables.

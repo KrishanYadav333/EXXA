@@ -2,4 +2,4 @@
 
 Kaggle kernel `alma-s4-pixscale` v1 (account account D), launched 2026-10-18 ~21:33 IST, finished before 17:30 on Oct 19. Four discs (MWC 758 with S5, LkCa 15, HD 135344B,
 J1615), the final exoALMA setting. Compared with recipe B's own final runs by `experiments/alma_agree.py` (the 2D maps stay in the kernel Output; the reports
-and `agreement_table.md` are here). Reading: results/PROGRESS.md 2026-10-19.
+and `agreement_table.md` are here).

@@ -1,6 +1,6 @@
 """
 Where the denoised-over-raw flux excess (S1 M0 ratio) sits radially: flux share and den / raw ratio within 1, 1-3, 3-6 and beyond 6 beams of the
-fitted disc centre (the refit geometry where the kernel's fit failed), inside S1's mask, plus the ratio outside 3 beams. Finding (PROGRESS 2026-10-19):
+fitted disc centre (the refit geometry where the kernel's fit failed), inside S1's mask, plus the ratio outside 3 beams. Finding:
 the excess is concentrated on the unresolved centre, which the truth-based injection (Speedie disc, central cavity) does not cover.
 Light: 2D M0 maps only. Usage: python experiments/alma_flux_by_radius.py <maps dir with alma/<disc>_13CO/> <archive dir with refits>
 """

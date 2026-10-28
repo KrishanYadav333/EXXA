@@ -10,4 +10,4 @@ Output (needed for the local geometry refit). Table (`experiments/alma_table.py`
 | HD_143006_interp01 | 8 | 16.5 (1.00) | 1.006 | 2x | 4e-03 | 0.84 | 0.88 | 12 / 44 | 165.1 / 169.0 (3.9) | 1.56 | -0.20 / -0.21 / -0.19 / -0.15 | False |
 | IM_Lup_interp01 | 13 | 12.2 (1.00) | 0.977 | 45x | 0e+00 | 0.93 | 0.94 | 49 / 87 | 144.4 / 144.5 (0.1) | 1.02 | - | False |
 
-HD 142666's geometry fit failed (M* 10.3, PA 66 deg off); HD 143006's S5 rc_r is negative for every method including dirty (scoring geometry, see PROGRESS.md).
+HD 142666's geometry fit failed (M* 10.3, PA 66 deg off); HD 143006's S5 rc_r is negative for every method including dirty.

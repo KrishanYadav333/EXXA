@@ -26,7 +26,7 @@ notebook 12 `subtract_continuum=False`) is fed the same continuum-subtracted cub
 ~0 so this is a no-op there, and on line-emission cubes it is the closest available input. State this
 wherever such a cross-domain number is quoted.
 
-Nothing here decides which loss is best. RULES.md #4: `val_loss` differs by objective and is never compared.
+Nothing here decides which loss is best. 
 """
 from __future__ import annotations
 
@@ -306,7 +306,7 @@ def line_emission_cases(data_dir: str, limit: Optional[int] = None, channels: Op
     `fix_incl`: hold the Keplerian fit's inclination at the true value from the cube's `.para` file. That is what
     `fit_keplerian`'s own docstring prescribes whenever inclination is known independently, because mass and
     inclination are nearly degenerate. The free fit used by `score_08_kinematic.py` was degenerate on two of these
-    five cubes (PROGRESS.md 2026-09-25); False reproduces it.
+    five cubes; False reproduces it.
     """
     from src.data.cube_split import split_cubes
     from src.data.fits_cube_dataset import beam_features_of
@@ -439,7 +439,7 @@ def match_amplitude(case: Case) -> float:
     """
     Put CLEAN in the input's units when the two cubes are on different intensity scales, and return the factor (1.0 = untouched).
 
-    The SG v2 cube's dirty is ~110 to 340x its clean (PROGRESS.md; `kinematic_data_v2_amplitude_check.png`). A model returns values in
+    The SG v2 cube's dirty is ~110 to 340x its clean. A model returns values in
     its INPUT's units, so any amplitude comparison against an unscaled clean (PSNR, M0, channel and M0 errors, calibration, invented
     structure, overshoot) measures the data's units, not the model. Velocity quantities (M1, the wiggle) are scale-free and unaffected.
     The factor is the least-squares scale of dirty on clean over the whole cube. It is applied only outside `AMP_TOL`, so a cube whose
@@ -475,7 +475,7 @@ def prepare(case: Case) -> Prepared:
     cen = (float((wgt * wx).sum() / wgt.sum()), float((wgt * wy).sum() / wgt.sum())) if wgt.sum() > 0 else (geom["cx"], geom["cy"])
     offset = float(np.hypot(geom["cx"] - cen[0], geom["cy"] - cen[1]))
     extent = float(np.hypot(*(np.argwhere(mask) - np.array([cen[1], cen[0]])).T).max()) if mask.any() else 1.0
-    # A pinned mass, a non-converged fit, or a centre far from the emission is a failed fit, not a measurement (RULES.md #8).
+    # A pinned mass, a non-converged fit, or a centre far from the emission is a failed fit, not a measurement.
     geom_ok = bool(geom.get("success", True)) and not geom.get("mstar_at_bound", False) and offset < 0.1 * extent
     ref_resid = wiggle_residual(m1c, geom)
     m1d = quadratic_moment1(dirty, case.velax)[0] / 1000.0
@@ -647,7 +647,7 @@ def evaluate_case(case: Case, specs: Sequence[Spec], device: str, done: set, on_
                   deadline: Optional[float] = None, batch: int = 8, log=print) -> int:
     """
     Score every compatible checkpoint on one case. `done` holds (label, case) pairs already scored;
-    `on_row(row)` is called the moment a row exists, so a killed run loses nothing (RULES.md #1).
+    `on_row(row)` is called the moment a row exists, so a killed run loses nothing.
     Stops cleanly at `deadline` (epoch seconds) instead of dying mid-arm. Returns rows written.
     """
     todo = [s for s in specs if (s.label, case.name) not in done]

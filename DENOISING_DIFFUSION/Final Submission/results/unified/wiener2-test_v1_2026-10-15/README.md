@@ -5,4 +5,4 @@ Kaggle version: see `results/RUNS.md` (author to confirm).
 
 **What:** Second pass from a Wiener built on the first pass (--wiener2), seeds 3 + 11.
 
-**Result:** complete; line PSNR +2-3 dB, M0 +10, ladder SNR 12 0.50 -> 0.57. Numbers and interpretation: `results/PROGRESS.md`.
+**Result:** complete; line PSNR +2-3 dB, M0 +10, ladder SNR 12 0.50 -> 0.57.

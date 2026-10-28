@@ -73,7 +73,7 @@ def sidelobed_blur(img, sigma=SIGMA):
     return np.real(np.fft.ifft2(np.fft.fft2(img) * np.fft.fft2(pad)))
 
 
-HEADER = {  # the example header recorded in PHYSICS_INFORMED_PLAN.md
+HEADER = {  # the example header recorded in the physics-informed plan
     "BMAJ": 4.2629e-5, "BMIN": 3.2923e-5, "BPA": 16.9333, "CDELT2": 0.01 / 3600.0,
 }
 MATCHED = {  # a header describing SIGMA exactly, at 0.01"/px

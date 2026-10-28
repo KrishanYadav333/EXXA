@@ -362,7 +362,7 @@ def score_cube(name, d, methods, outdir, ref_label="clean"):
         pv_r_grid = pv.pv_profile(m1["clean"], geom, au, r_in, r_out)[0]
         pv_sc = {wd: pv.pv_scores(pv_prof[wd]) for wd in pv_prof}
         # hydro discs (9074): clean M1 on the minor axis jumps by hundreds of m/s over less than two beams (two velocity components inside a spiral),
-        # which no beam-limited observation keeps; the noise-free beam-convolved clean is then the fair PV truth (PROGRESS.md 2026-10-18).
+        # which no beam-limited observation keeps; the noise-free beam-convolved clean is then the fair PV truth.
         pv_bo = {wd: pv.pv_scores(pv_prof[wd], ref="beam_oracle") for wd in pv_prof} if "beam_oracle" in cubes else None
         pv.plot_pv(os.path.join(outdir, f"{name}_pv.png"), pv_r_grid, pv_prof, pv_sc,
                    f"{name}: M1 along the minor axis, i={d['incl']:.0f} deg, {au:.2f} au/px, R {r_in:.0f}-{r_out:.0f} au", ref_label=ref_label)

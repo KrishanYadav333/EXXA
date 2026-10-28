@@ -5,4 +5,4 @@ Kaggle version: see `results/RUNS.md` (author to confirm).
 
 **What:** R6: R4n recipe on 256 px crops (batch 4), seed 31; v1 stopped at the 11 h budget, v2 resumed and evaluated.
 
-**Result:** complete; 9074 0.43-0.47, twin spurious SNR 12 11.9 m/s, line@600 45.8 dB. Numbers and interpretation: `results/PROGRESS.md`.
+**Result:** complete; 9074 0.43-0.47, twin spurious SNR 12 11.9 m/s, line@600 45.8 dB.

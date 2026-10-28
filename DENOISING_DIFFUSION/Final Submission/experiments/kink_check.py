@@ -1,5 +1,5 @@
 """
-PLAN.md 0i-4 K: does the HD 142666 planet kink (Terry et al. 2023, arXiv:2301.05075) survive denoising? Rules fixed in PLAN.md before any number.
+ 2023, arXiv:2301.05075) survive denoising? Rules fixed before any number.
 
 Statistic: Keplerian mirror asymmetry. An axisymmetric rotating disc, whatever its vertical structure, is unchanged by (reflection across the minor
 axis, v_sys + dv -> v_sys - dv). So A(dv) = I(dv) - R I(-dv) is noise only for such a disc, and a localised kink shows up in it. Both channel maps
@@ -61,7 +61,7 @@ def stats(Ar, Ad, ap, sig):
 
 
 def verdict(st):
-    """PLAN.md 0i-4 K readings, in order."""
+    """readings, in order."""
     if st["S_raw"] < 3:
         return "not testable"
     r, q = st["pearson_r"], st["amp_ratio_debiased"]

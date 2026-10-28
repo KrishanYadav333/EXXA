@@ -106,7 +106,7 @@ def fit_keplerian(m1: np.ndarray, mask: np.ndarray, au_per_px: float,
 
     So pass `fix_incl_deg` whenever inclination is known independently (a `.para` file,
     continuum imaging, the literature). Check `mstar_at_bound` in the result before quoting
-    a mass: a fit that pinned is a failure, not a measurement (RULES.md #8).
+    a mass: a fit that pinned is a failure, not a measurement.
 
     `m0` supplies the initial geometry. Without it this falls back to the mask's own shape,
     which for a roughly circular mask implies inclination ~0 and starts the optimiser at the
@@ -213,8 +213,7 @@ def quadratic_moment1(data: np.ndarray, velax: np.ndarray, rms: Optional[float] 
     intensity-weighted mean `collapse_first` uses.
 
     Why this matters here specifically: `collapse_first`'s weighted average is unstable on
-    the dirty cube, which is 51.55% negative pixels (RULES.md's Phase 0 finding -- a real
-    interferometric dirty beam, not restored). A negative "weight" in an intensity-weighted
+    the dirty cube, which is 51.55% negative pixels. A negative "weight" in an intensity-weighted
     sum is not a small perturbation, it can flip the sign of the average or divide by a total
     near zero, and that is what pinned `fit_keplerian`'s mass at its bound on the dirty cube
     even after both known init bugs were fixed. The quadratic estimator only looks at the

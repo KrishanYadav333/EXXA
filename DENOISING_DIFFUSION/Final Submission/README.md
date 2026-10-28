@@ -3,15 +3,25 @@
 **Final submission, Google Summer of Code 2026 · ML4Sci · EXXA**
 Student: Krishan Yadav. Mentors: Jason Terry and Sergei Gleyzer.
 
-A denoiser for ALMA line-emission cubes of protoplanetary disks that preserves the small velocity perturbations astronomers look for (the gravitational-instability "wiggle", planet kinks). It is judged on moment maps and on the velocity residual after subtracting the rotation curve, not on pixel metrics alone. The full write-up, with every method, result and failure case, is in [BLOG.md](BLOG.md).
+A denoiser for ALMA line-emission cubes of protoplanetary disks that preserves the small velocity perturbations astronomers look for (the gravitational-instability "wiggle", planet kinks). It is judged on moment maps and on the velocity residual after subtracting the rotation curve, not on pixel metrics alone.
 
 ## Method in one paragraph
 
-A blind 3D Wiener filter, estimated from the cube itself, is the baseline. A U-Net learns a correction that is zero at initialisation, so the untrained model equals the Wiener filter. Four networks are averaged; a gate blends the output back toward the Wiener result on cubes that need little denoising; the Wiener filter is recomputed from the first pass; and the cube is resampled so that the beam spans about 10 pixels. Details: [BLOG.md](BLOG.md), section "Method".
+A blind 3D Wiener filter, estimated from the cube itself, is the baseline. A U-Net learns a correction that is zero at initialisation, so the untrained model equals the Wiener filter. Four networks are averaged; a gate blends the output back toward the Wiener result on cubes that need little denoising; the Wiener filter is recomputed from the first pass; and the cube is resampled so that the beam spans about 10 pixels.
+
+## Metrics
+
+All scores lie between 1 (identical to the noise-free truth) and 0 (no relation).
+
+- **Wiggle score** (`rc_r` in the code): the azimuthally averaged rotation curve is subtracted from the velocity map (M1), and the Pearson correlation of the residual map with the truth's residual is computed.
+- **PV r:** the correlation between the denoised cube's position-velocity (PV) curve along the disk's minor axis and the truth's (1 px slice or 5 px slit, quadratic trend removed). The curve's standard deviation is the **PV magnitude** in m/s, always reported next to the correlation, since a correlation ignores scale.
+- **Peak SNR:** the peak of the noise-free cube divided by the noise standard deviation.
+- **Twin test:** the same disk with the spiral switched off. Its true minor-axis curve is flat, so the PV magnitude the denoiser produces on it measures the spurious wiggle it introduces (the detection limit is set by this).
+- **M0, M1, M2:** integrated intensity, mean velocity and line width of the cube, and PSNR (in dB) of the reconstruction; improvements are quoted over the noisy cube under a signal mask and noise clip.
 
 ## Results
 
-"Wiggle score" is the correlation between the velocity residual of the denoised cube (rotation curve subtracted) and the noise-free truth, from 0 to 1. The Wiener filter is the classical baseline the model starts from. Definitions of all metrics are in the report.
+"Wiggle score" is the correlation between the velocity residual of the denoised cube (rotation curve subtracted) and the noise-free truth, from 0 to 1. The Wiener filter is the classical baseline the model starts from.
 
 | test (never used for training or tuning) | model | Wiener filter |
 |---|---|---|
@@ -23,13 +33,13 @@ A blind 3D Wiener filter, estimated from the cube itself, is the baseline. A U-N
 | 20 real disks (15 exoALMA, 5 DSHARP): position angle within 0 to 3.9 degrees of published | 19 of 20 | |
 | injected GI disk in MWC 758 noise: wiggle score at SNR 12 / 24 | 0.84 / 0.93 | 0.64 / 0.83 |
 
-**Limits** (evidence in the report): nothing is recovered below peak SNR of about 6 or for wiggles below about 15 to 20 m/s; the model draws about 18 to 27 m/s of spurious wiggle on disks that have none; amplitudes are underestimated; flux within one beam of the star is over-estimated; nearly face-on disks and compact beam-sized features are not recovered; no per-pixel uncertainty is produced by default.
+**Limits** (evidence in `results/final/ANALYSIS.md`): nothing is recovered below peak SNR of about 6 or for wiggles below about 15 to 20 m/s; the model draws about 18 to 27 m/s of spurious wiggle on disks that have none; amplitudes are underestimated; flux within one beam of the star is over-estimated; nearly face-on disks and compact beam-sized features are not recovered; no per-pixel uncertainty is produced by default.
 
 ## Repository layout
 
 ```text
 Final Submission/
-├── README.md  BLOG.md  MODELS.md   overview, the full report, the trained models and their availability
+├── README.md  MODELS.md             overview, the trained models and their availability
 ├── requirements.txt                dependencies (numpy >= 2 is required by bettermoments)
 ├── src/                            library: data loading, analytic GI disk model, U-Net, training, evaluation
 ├── experiments/                    training and evaluation (train_unified.py), real-cube pipeline (alma_unified.py),
@@ -39,7 +49,7 @@ Final Submission/
 ├── docs/                           ALMA_CHECKS.md (the seven real-data checks), research.md (papers read and decisions)
 └── results/
     ├── RUNS.md                     index: which run produced which number
-    ├── final/                      RESULTS.md, ANALYSIS.md, RECIPES.md, detection_limit.md, figs/ (all figures of the report)
+    ├── final/                      RESULTS.md, ANALYSIS.md, RECIPES.md, detection_limit.md, figs/ (the figures)
     ├── alma/                       reports of the real-disk runs and the injection tests (JSON and Markdown; no images)
     └── unified/                    result files of the evaluation runs and the four improvement attempts; training runs have a README only
 ```
@@ -84,7 +94,7 @@ The training data (line-emission cubes and self-gravitating simulations) was pro
 
 ## Reproducing the numbers
 
-Every number in the report is traced to an archived run in [results/RUNS.md](results/RUNS.md). The training and evaluation runs were executed as Kaggle kernels; the scripts they call are in `experiments/`, and the reports they produced are under `results/`.
+Every number reported here and in `results/final/` is traced to an archived run in [results/RUNS.md](results/RUNS.md). The training and evaluation runs were executed as Kaggle kernels; the scripts they call are in `experiments/`, and the reports they produced are under `results/`.
 
 ## License
 
@@ -92,4 +102,4 @@ To be added.
 
 ## Acknowledgements
 
-Simulation data: Jason Terry and the ML4Sci EXXA mentors. External data and models used for evaluation: Young et al. (2026) GI simulations, Speedie et al. (2024), the exoALMA large program (Teague et al. 2025), DSHARP (Andrews et al. 2018). References are listed in [BLOG.md](BLOG.md).
+Simulation data: Jason Terry and the ML4Sci EXXA mentors. External data and models used for evaluation: Young et al. (2026) GI simulations, Speedie et al. (2024), the exoALMA large program (Teague et al. 2025), DSHARP (Andrews et al. 2018).

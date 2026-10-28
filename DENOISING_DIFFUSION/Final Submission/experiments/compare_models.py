@@ -9,7 +9,7 @@ One table for every model the project has trained, from the eval_*.json files th
   speedie   GI disk and its Keplerian twin at native pixels (the twin must stay WIGGLE-FREE: reported as the model's excess rotation-curve rms)
 
 For every model the same file also holds dirty and Wiener on the same cubes, so those are added as reference rows once.
-Selection rule (RULES.md #4, PROGRESS.md 2026-10-09): by wiggle, line-centre error and M0/M1/M2 on held-out cubes, never by PSNR alone.
+Selection rule: by wiggle, line-centre error and M0/M1/M2 on held-out cubes, never by PSNR alone.
 
 Usage: python experiments/compare_models.py --size 600 name=path/eval_x.json [name2=path2.json ...] [--out results/comparison.md]
 """
@@ -42,7 +42,7 @@ def pick(v, who, k):
     return None if g is None else g.get(k)
 
 
-METRICS = [("psnr", "PSNR"), ("M0", "M0%"), ("M1", "M1%"), ("M2", "M2%"), ("rc_r", "rc_r"), ("spine_r", "spine_r"), ("dv_med_ms", "dv m/s")]   # spine_r: Terry et al. 2022 channel-map spine (PROGRESS.md 2026-10-15)
+METRICS = [("psnr", "PSNR"), ("M0", "M0%"), ("M1", "M1%"), ("M2", "M2%"), ("rc_r", "rc_r"), ("spine_r", "spine_r"), ("dv_med_ms", "dv m/s")]   # spine_r: Terry et al. 2022 channel-map spine
 
 
 def summarise(res, size, who):

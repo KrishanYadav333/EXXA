@@ -1,7 +1,7 @@
 """
 Position-velocity (PV) curve along the minor axis: the moment-1 (quadratic) value along the line where a purely rotating disc has v_los = vsys.
 There the Keplerian / axisymmetric rotation contributes nothing, so M1 - vsys IS the non-axisymmetric motion, the GI wiggle. This is the
-measurement Speedie et al. 2024 and Longarini et al. (Elias 2-27) fit, and the one Jason Terry named the field standard (PROGRESS.md 2026-10-16).
+measurement Speedie et al. 2024 and Longarini et al. (Elias 2-27) fit, and the one Jason Terry named the field standard.
 
 pv_profile  M1 map + disc geometry -> (R grid in au, [profile on the +minor half, profile on the -minor half]) in m/s, optional slit width in px
 pv_scores   profiles of several methods -> pv_r (correlation with clean after removing a quadratic trend, per half, pooled), pv_rms_ms and

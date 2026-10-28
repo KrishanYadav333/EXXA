@@ -1,5 +1,5 @@
 """
-Young et al. 2026 Phantom GI discs (Zenodo 22045440, CC-BY-4.0; research.md 2026-10-10) -> line-emission training / test cubes (PLAN.md B3).
+Young et al. 2026 Phantom GI discs (Zenodo 22045440, CC-BY-4.0; research.md 2026-10-10) -> line-emission training / test cubes.
 
 Per simulation: the LAST dump in its archive (the first is the pre-instability initial condition), one random view (inclination 10-60 deg, PA, in-plane
 rotation, spin direction), 13CO with optical depth tau0 log-uniform 3-50, rendered by src/data/sph_cube.py on a 301 px grid sized so the disc (R95 of the
@@ -27,10 +27,10 @@ TRAIN = ["M0.1_R50_Mu0.6", "M0.1_R100_Mu1.1", "M0.1_R200_Mu1.4", "M0.2_R50_Mu0.6
          "M0.3_R50_Mu0.4", "M0.3_R100_Mu0.8", "M0.3_R200_Mu0.7", "M0.5_R50_Mu0.3", "M0.5_R100_Mu0.5", "M0.5_R200_Mu0.8",
          "M0.7_R100_mu0.4", "M0.7_R200_mu0.6", "M1_R50_Mu0.2", "M1_R200_Mu0.5"]
 TEST = ["M0.1_R100_Mu1.0", "M0.2_R200_Mu1.0", "M0.3_R100_Mu0.7", "M0.5_R200_Mu0.5", "M0.7_R50_Mu0.3", "M1_R100_Mu0.4"]
-# 2026-10-18 (PLAN.md 0h): 8 more WHOLE simulations held out, never in TRAIN, so the GI tests do not rest on 9074: spread in M* (0.1 to 1), R (50 to 200 au) and
+# 2026-10-18: 8 more WHOLE simulations held out, never in TRAIN, so the GI tests do not rest on 9074: spread in M* (0.1 to 1), R (50 to 200 au) and
 # mu (0.3 to 1.4); M0.5_R100_Mu0.3 and M1_R100_Mu0.3 are low-mu controls (weak or no GI arms). Archives 470 to 660 MB (the 76 MB runs look truncated).
 TEST2 = ["M0.1_R100_Mu1.4", "M0.2_R100_Mu0.7", "M0.3_R200_Mu1.0", "M0.3_R50_Mu0.5", "M0.5_R100_Mu0.3", "M0.5_R200_Mu0.6", "M0.7_R200_mu0.5", "M1_R100_Mu0.3"]
-# 2026-10-21 (PLAN.md 0i): the FRESH test set of the improvement track, locked before any challenger: 8 runs never rendered, spread in M*, R, mu, full-size archives
+# 2026-10-21: the FRESH test set of the improvement track, locked before any challenger: 8 runs never rendered, spread in M*, R, mu, full-size archives
 TEST3 = ["M0.1_R50_Mu0.9", "M0.3_R200_Mu1.1", "M0.3_R50_Mu0.3", "M0.7_R100_mu0.3", "M0.5_R200_Mu0.9", "M0.7_R50_Mu0.2", "M1_R100_Mu0.5", "M1_R200_Mu0.6"]
 PC140_AU_PER_DEG = 140.0 * 3600.0           # au per degree at 140 pc (headers only; the trainer uses pixel ratios)
 

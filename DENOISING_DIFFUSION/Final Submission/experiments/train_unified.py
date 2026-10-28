@@ -2,7 +2,7 @@
 One denoiser for all three kinds of data the project has, judged on everything at once: PSNR, M0/M1/M2 (signal-masked),
 and the GI wiggle (rc_r, Terry spine), at 256 / 300 / 320 / 480 / 600 px.
 
-Why (PROGRESS.md 2026-10-08/09): the line-emission models score well on PSNR and moments but lose the GI wiggle; on the
+Why: the line-emission models score well on PSNR and moments but lose the GI wiggle; on the
 wiggle metric that scores the fingers (rc_r) no checkpoint gets near the noise-free beam, and on high-SNR SG v2 every learned
 model falls below dirty. They were trained on one kind of cube at one resolution, one channel at a time.
 
@@ -60,18 +60,18 @@ dev = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_a
 rdev = "cuda" if dev == "cuda" else "cpu"        # resampling: MPS cannot area-pool 600 -> 256 (non-divisible)
 LE_DIR = os.environ.get("LE_DIR") or os.path.join(ROOT, "Line Emission Data")
 SG_DIR = os.path.join(ROOT, "self-gravitating cube and dirty cube")
-# Realistic-noise training (PLAN.md workstream A; --snr / --chan-corr / --beam-max, all off by default so older runs reproduce):
+# Realistic-noise training:
 # peak SNR drawn log-uniform in REAL["snr"], neighbouring-channel noise correlation [a, 1, a] with a ~ U(0, chan_a) (a = 0.5 is
 # Hanning: lag-1 +0.67, lag-2 +0.17; Speedie measured +0.64 / +0.15), beam broadened by r ~ U(1, beam_max) in the A = I tasks.
 REAL = {"snr": None, "chan_a": 0.0, "beam_max": 1.0, "beam_px": None}   # beam_px: --train-beam-px (lo, hi)
 DEADLINE = float("inf")   # wall-clock time (epoch s) by which this session must have saved everything: EXXA_T0 (kernel start) + --budget-h
 GATE = None          # --gate lo,hi,floor: do-no-harm gate (see gate_alpha). None = off, so every earlier run reproduces
-GATE_SWEEP = []      # --gate-sweep: mix levels a in [0, 1] of  a * model + (1 - a) * Wiener  scored next to the plain model (PLAN.md: do-no-harm gate)
+GATE_SWEEP = []      # --gate-sweep: mix levels a in [0, 1] of  a * model + (1 - a) * Wiener  scored next to the plain model
 NORM = "wiener"      # --norm: "wiener" = divide by the Wiener cube's peak (all runs to 2026-10-11); "robust" = see scale_of
 INFER_BEAM = 0.0     # --infer-beam-px: run the network where the beam spans this many px (see infer); 0 = on the cube as given (all runs to 2026-10-14)
 INFER_MODE = "corr"  # --infer-mode
 WIENER2 = False      # --wiener2: evaluation, second pass with prior_wiener (noise-only cases)
-CENTRAL_FIX = False  # --central-fix: candidate A of PLAN.md 0i (central_flux_fix after inference); off = recipe B as frozen
+CENTRAL_FIX = False  # --central-fix: candidate A (central_flux_fix after inference); off = recipe B as frozen
 SAVE_PRED = ("", set())  # --save-pred DIR --save-pred-cases a,b: M1 maps and the central channels of clean / dirty / Wiener / model for those cases (planet check)
 CLIP_IN = 0.0        # --clip-in: clamp the network input to +-CLIP_IN (k15 v3: inputs of +-35-40 vs the usual +-4 overflowed fp16 and the run diverged)
 HYDRO_TRAIN = ["9015", "9019", "9025", "9032"]
@@ -197,7 +197,7 @@ def scale_of(dS, wS):
 
 
 def gate_alpha(snr_est, gate=None):
-    """Do-no-harm gate (PLAN.md 0b item 2). Mix of the model and the Wiener output, a * model + (1 - a) * Wiener, chosen from the blind peak-SNR estimate:
+    """Do-no-harm gate. Mix of the model and the Wiener output, a * model + (1 - a) * Wiener, chosen from the blind peak-SNR estimate:
     a = 1 up to `lo`, falling linearly to `floor` at `hi`, `floor` above. Measured (eval-gate, 2026-10-13, R4n-long seeds 3 + 11): at estimate 121-133 (true peak SNR
     ~135) the plain model damages M0 / M2 (-76 / -257 %); a = 0.25 gives -4 / +50 % with the wiggle at dirty's level; at estimates 9-27 (true SNR 12-36 and SG v2)
     the plain model has the best wiggle, so a stays 1. The ramp between 40 and 120 is an interpolation: no cube of that estimate was measured."""
@@ -540,7 +540,7 @@ def loss_m1(corr, b0, cc, n, band, thr=0.05):
 
 
 def loss_amp(corr, b0, cc, n, band, thr=0.05, box=31):
-    """Candidate D (PLAN.md 0i): wiggle-amplitude term. The model keeps only 60 to 70 percent of a wiggle's amplitude (9074; an15 23 of 93 m/s), which an
+    """Candidate D: wiggle-amplitude term. The model keeps only 60 to 70 percent of a wiggle's amplitude (9074; an15 23 of 93 m/s), which an
     L1 loss favours under uncertainty. Same crops and line centres as loss_m1; the smooth part of each M1 map (masked `box` px mean) is removed and the
     rms of what is left is matched to clean's: |rms_pred / rms_clean - 1|, on crops where at least 20 percent of pixels carry a line. Symmetric, so an
     over-strong (invented) ripple costs as much as a lost one."""
@@ -670,7 +670,7 @@ def eval_cases(args):
                float(hdr["BMAJ"]) * 3600 * dist, beam_features_of(hdr), None, slice(None))
     for folder in (sorted(glob.glob(os.path.join(args.sph_dir, "run_young_*"))) if args.sph_dir and args.eval_sph else []):
         meta = json.load(open(os.path.join(folder, "view.json")))     # held-out WHOLE simulations (Young et al. 2026), never trained on
-        if meta["split"] != args.eval_sph_split:                        # "test" (and TEST2) by default; "test3" = the fresh set of PLAN.md 0i
+        if meta["split"] != args.eval_sph_split:                        # "test" (and TEST2) by default; "test3" = the fresh set
             continue
         base = os.path.join(folder, os.path.basename(folder))
         h = fits.getheader(base + "_clean.fits")
@@ -688,7 +688,7 @@ def eval_cases(args):
         dist, incl = 155.9, 23.2           # the release's own MCFOST parameter file; the first prep kernel wrote 162.9 pc / 23.5 deg into the header
         yield (f"speedie_{name}", "line", cl, dr, velax, abs(hdr["CDELT1"]) * 3600 * dist, incl,
                float(hdr["BMAJ"]) * 3600 * dist, np.zeros(4, np.float32), None, slice(None))
-    # SNR ladder (PLAN.md phase 1): the Speedie cubes with their own measured noise (dirty - clean, so its spatial and Hanning channel
+    # SNR ladder: the Speedie cubes with their own measured noise (dirty - clean, so its spatial and Hanning channel
     # correlation are kept) rescaled so that peak(clean) / rms(noise) = each target. Truth, geometry and beam are unchanged: the same disc seen
     # at exoALMA's SNR range (fiducial 13-50, high-resolution 3-10). Native pixels, like the Speedie cases.
     for name in [x for x in args.ladder_base.split(",") if x and args.eval_ladder]:
@@ -732,7 +732,7 @@ def eval_cases(args):
                 noise = sfft.irfft2(sfft.rfft2(white, workers=-1) * amp[None], s=(n, n), workers=-1).astype(np.float32)
                 yield (name + "_ai", fam + "_ai", cl, cl + noise, d["velax"], d["au"], d["incl"], d["beam_au"], hdr_beam, None, slice(None))
             if args.sg_ladder and name in [x for x in args.sg_ladder_base.split(",") if x]:
-                # hydro SNR ladder (PROGRESS.md 2026-10-18): the same disc with its own measured noise rescaled, so peak SNR AFTER the beam = each target.
+                # hydro SNR ladder: the same disc with its own measured noise rescaled, so peak SNR AFTER the beam = each target.
                 # Both regimes: deconvolution (dirty = beam (*) clean + f * the pair's own noise) and noise-only (_ai: clean + f * noise of the pair's spectrum).
                 # Answers whether a disc the model fails at its native SNR (9074, about 11) is recovered at ALMA-like SNR, and, run on a TRAINING disc (9025),
                 # whether a failure is the noise or a generalisation gap. A training disc's scores are a diagnostic, never a held-out result.
@@ -750,7 +750,7 @@ def eval_cases(args):
 
 
 def central_flux_fix(pred, dirty, beam_px, r_in=2.0, r_out=4.0):
-    """Candidate A (PLAN.md 0i): the model over-brightens a compact bright centre by 30 to 40 percent (KepC injection, PROGRESS 2026-10-21) while
+    """Candidate A: the model over-brightens a compact bright centre by 30 to 40 percent while
     the noisy cube's flux there is unbiased. Within r_in beams of the disc centre, rescale each pixel's denoised spectrum so its line flux matches the
     beam-smoothed flux of the input cube; taper to no change at r_out beams. Only amplitudes change, so the line centre (M1) and the wiggle are untouched.
     Centre: the peak of the beam-smoothed denoised M0 within the central half of the image. Returns (corrected cube, info dict)."""
@@ -796,7 +796,7 @@ def score_case(model, arm, case, S, figdir):
         pred = infer(model, arm, dS, w, dv, beam_au / (au * n / S), is_ai(kind))
         if WIENER2 and is_ai(kind) and arm == "wiener":   # second pass from a Wiener built on the first pass (prior_wiener); the "wiener" row stays the blind one
             pred = infer(model, arm, dS, prior_wiener(dS, pred), dv, beam_au / (au * n / S), True)
-    if CENTRAL_FIX:                                # candidate A (PLAN.md 0i): central flux matched to the input cube within 2 beams of the centre
+    if CENTRAL_FIX:                                # candidate A: central flux matched to the input cube within 2 beams of the centre
         pred, _cf = central_flux_fix(pred, dS, beam_au / (au * n / S))
     cS, dS, pred, w, v = cS[sl], dS[sl], pred[sl], w[sl], velax[sl]
     if SAVE_PRED[0] and name in SAVE_PRED[1]:     # float16 central +-40 channels (+-4 km/s at 0.1 km/s) and every method's quadratic M1
@@ -854,7 +854,7 @@ def run_eval(model, arm, args, sizes, res_path, figdir, only=None):
             key = f"{case[0]}@{S}"
             if key in allres and "failed" not in allres[key]:
                 continue
-            if time.time() + 1.5 * last > DEADLINE:          # RULES.md #14: save and stop before the session limit; the next session resumes here
+            if time.time() + 1.5 * last > DEADLINE:          # save and stop before the session limit; the next session resumes here
                 print(f"DEADLINE: evaluation stopped before {key} ({(DEADLINE - time.time()) / 60:.0f} min left); RESUME_NEEDED", flush=True)
                 return None
             te = time.time()
@@ -919,8 +919,8 @@ def main():
     ap.add_argument("--sph-dir", default="", help="folder of make_sph_cubes.py output (run_young_*); train split trained on, test split scored with --eval-sph")
     ap.add_argument("--sph-max", type=int, default=0, help="at most this many sph folders (0 = all)")
     ap.add_argument("--eval-sph", action="store_true", help="score the held-out sph simulations")
-    ap.add_argument("--eval-sph-split", default="test", help="which held-out sph split to score: test (TEST + TEST2) or test3 (the fresh set, PLAN.md 0i)")
-    ap.add_argument("--central-fix", action="store_true", help="candidate A (PLAN.md 0i): central_flux_fix after inference; off = recipe B")
+    ap.add_argument("--eval-sph-split", default="test", help="which held-out sph split to score: test (TEST + TEST2) or test3 (the fresh set)")
+    ap.add_argument("--central-fix", action="store_true", help="candidate A: central_flux_fix after inference; off = recipe B")
     ap.add_argument("--ladder-seeds", type=int, default=1, help="noise realisations per Speedie ladder SNR (error bars); 1 = as before")
     ap.add_argument("--save-pred", default="", help="folder: save M1 maps and central channels of the --save-pred-cases (npz)")
     ap.add_argument("--save-pred-cases", default="", help="comma list of case names for --save-pred")
@@ -942,7 +942,7 @@ def main():
     ap.add_argument("--warm", default="", help="start from this wiener-arm checkpoint's weights (K and base from it), fresh optimizer and schedule")
     ap.add_argument("--w-m1", type=float, default=0.0, help="weight of the line-centre (M1) loss, loss_m1 (0 = off)")
     ap.add_argument("--eval-sizes", default="", help="sizes the final evaluation scores (empty: --sizes); training sizes are not changed")
-    ap.add_argument("--w-amp", type=float, default=0.0, help="candidate D (PLAN.md 0i): weight of the wiggle-amplitude term loss_amp on the M1 crops (0 = off)")
+    ap.add_argument("--w-amp", type=float, default=0.0, help="candidate D: weight of the wiggle-amplitude term loss_amp on the M1 crops (0 = off)")
     ap.add_argument("--m1-band", type=int, default=10, help="M1 loss: half-width of the channel band, in 0.1 km/s steps")
     ap.add_argument("--m1-crops", type=int, default=2, help="M1 loss: crops per step (each carries 2 * band + 1 channels)")
     ap.add_argument("--m1-crop", type=int, default=96, help="M1 loss: crop size (px)")
@@ -1036,7 +1036,7 @@ def main():
     scaler = torch.cuda.amp.GradScaler(enabled=dev == "cuda")
     ckpt = os.path.join(args.out, f"unified_{tag}.pth")
     hist, step, n_bad, bad_run, start = [], 0, 0, 0, 0
-    if args.resume:                                      # RULES.md #14: continue exactly where the previous session stopped
+    if args.resume:                                      # continue exactly where the previous session stopped
         ck = torch.load(args.resume, map_location="cpu", weights_only=False)
         net.load_state_dict(ck["model_state_dict"], strict=True)
         if "opt" in ck:
@@ -1131,11 +1131,11 @@ def main():
                     "n_neighbors": kk if legacy else None, "out_channels": oc if legacy else 1, "in_channels": net.in_channels,
                     "base_channels": net.base_channels, "channel_multipliers": list(net.channel_multipliers),
                     "round": rnd + 1, "steps": step, "hist": hist, "args": vars(args),
-                    "opt": opt.state_dict(), "sched": sched.state_dict(), "scaler": scaler.state_dict(),          # RULES.md #14: full state,
+                    "opt": opt.state_dict(), "sched": sched.state_dict(), "scaler": scaler.state_dict(),          # full state,
                     "rng_np": rng.bit_generator.state, "rng_torch": torch.get_rng_state(),                       # so a resume is exact
                     "rng_cuda": torch.cuda.get_rng_state_all() if dev == "cuda" else None,
                     "complete": rnd + 1 == args.rounds}, ckpt + ".tmp")
-        os.replace(ckpt + ".tmp", ckpt)                  # RULES.md #1: every round; atomic, a kill mid-write keeps the previous round
+        os.replace(ckpt + ".tmp", ckpt)                  # every round; atomic, a kill mid-write keeps the previous round
     del cubes
     if stopped:
         status(train_complete=False, eval_complete=False, round=len(hist), rounds=args.rounds, checkpoint=os.path.basename(ckpt))

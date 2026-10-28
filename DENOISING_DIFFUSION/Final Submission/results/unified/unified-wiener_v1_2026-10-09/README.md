@@ -5,4 +5,4 @@ shipped in `exxa-wiggle-code` (not committed at launch). 12,000 steps in 163 min
 held out: 5 line cubes, 9074, SG v2, an07, an08. A first smoke version (v1 of `unified-smoke`) produced NaN losses because hydro 9019 is in different units (peak 1.4e10) and overflowed float16; fixed before this run.
 
 Files: `run_log.txt`, `eval_wiener.json` (every case at every size; 4 cases FAILED to score: run_0002_00560_rt_04 at 256 and 300, an08 at 300 and 320, an empty spine track, fixed afterwards).
-Checkpoint: `unified_wiener/unified_wiener.pth` in the kernel Output. Headline table: PROGRESS.md 2026-10-10.
+Checkpoint: `unified_wiener/unified_wiener.pth` in the kernel Output.

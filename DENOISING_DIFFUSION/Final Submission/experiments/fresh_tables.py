@@ -1,4 +1,4 @@
-"""Tables for the improvement track (PLAN.md 0i): fresh analytic set, B vs candidate A, and B2 (final-test noise realisations).
+"""Tables for the improvement track: fresh analytic set, B vs candidate A, and B2 (final-test noise realisations).
 Run from DENOISING_DIFFUSION: python experiments/fresh_tables.py [out.md]"""
 import json, sys, numpy as np
 B = json.load(open("results/unified/eval-fresh-b_v2_2026-10-21/eval_fresh_B.json")); A = json.load(open("results/unified/eval-fresh-b_v2_2026-10-21/eval_fresh_A_cfix.json"))

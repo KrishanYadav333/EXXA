@@ -1,5 +1,5 @@
 """
-S7 (ALMA_PLAN): is the denoised cube closer to an independent, lower-noise image of the same disc than the raw cube is? Reference: exoALMA's
+S7 (see docs/ALMA_CHECKS.md): is the denoised cube closer to an independent, lower-noise image of the same disc than the raw cube is? Reference: exoALMA's
 "High Surface Brightness Sensitivity" 13CO cubes (`<disc>_13CO_low-res.image.fits`, Harvard Dataverse doi:10.7910/DVN/EFBHNU, about 0.3" beam).
 The fiducial raw cube and recipe B's denoised cube (same crop) are smoothed to the low-res beam (Gaussian kernel of width sqrt(b_lr^2 - b_fid^2),
 Jy/beam rescaled by the beam-area ratio) and each compared with the low-res cube inside its own signal mask.

@@ -1,6 +1,6 @@
 # r6-k15-s32_v1-v2_2026-10-17
 
-Kaggle kernel `kaggle-acct-f/unified-r6-s32` (account account F). v1 (2026-10-16 15:40 IST) trained rounds 1-70 and stopped at its 12 h deadline (RESUME_NEEDED, as designed, RULES.md 14);
+Kaggle kernel `kaggle-acct-f/unified-r6-s32` (account account F). v1 (2026-10-16 15:40 IST) trained rounds 1-70 and stopped at its 12 h deadline;
 v2 (2026-10-17 02:30 IST, `orchestrator.py resume`, its own v1 output attached) resumed at round 70, finished 80 and evaluated (231 min). The log here is v2's; v1's ended at
 "DEADLINE: training stopped after round 70/80". Checkpoint `models/unified/unified_r6_k15_s32.pth` (349 MB, zip-verified). Evaluated WITHOUT the inference levers, like R6 seed 31 and R4n seed 3.
 
@@ -12,6 +12,6 @@ v2 (2026-10-17 02:30 IST, `orchestrator.py resume`, its own v1 output attached) 
 - line 600 px: PSNR 46.85 (45.76, 49.30); M0 / M1 / M2 48.4 / 83.9 / 81.6; rc_r 0.58 (0.64, 0.67).
 - Speedie ladder rc_r SNR 6 / 12 / 24: 0.18 / 0.57 / 0.78 (R4n 0.11 / 0.60 / 0.81); twin invented wiggle 31 / 7 / 0 m/s (R6 s31 293 / 12 / 5).
 
-**Verdict against the pre-set rule (PLAN.md 0f: R6 seeds join recipe B only if they repeat R6's 9074 gain, 0.43 per pixel at 600 px):** not met (0.38). Across two seeds R6's per-pixel gain on the
+**Verdict against the pre-set rule:** not met (0.38). Across two seeds R6's per-pixel gain on the
 deconvolution 9074 at 600 px is 0.40 vs R4n's 0.34, smaller than seed 31 alone suggested; at 300 px both seeds keep it (0.45, 0.42 vs 0.30). R6 stays the documented alternative, not part of B;
-seed 33 (main account, running) is the third look. Log: `results/PROGRESS.md` 2026-10-17.
+seed 33 (main account, running) is the third look.

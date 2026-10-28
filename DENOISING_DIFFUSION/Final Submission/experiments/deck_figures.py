@@ -1,7 +1,7 @@
 """
-Extra figures for the 23 October progress deck (results/final/figs/22_ to 28_): three charts made from archived numbers, plus copies of
+Extra figures (results/final/figs/22_ to 28_): three charts made from archived numbers, plus copies of
 the failure cases, so the deck shows the bad results next to the good ones. Run from DENOISING_DIFFUSION/ (needs matplotlib).
-Every plotted number is read from the archives, except the candidate rows, which are the seed values in results/PLAN.md 0i-3 and PROGRESS 2026-10-22.
+
 """
 import json, os, shutil
 import matplotlib; matplotlib.use("Agg")
