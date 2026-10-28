@@ -1,0 +1,16 @@
+# 04. The hard case: hydrodynamic disk 9074
+
+Disk 9074 is a self-gravitating hydrodynamic simulation held out from training. At its native SNR of 9.5 the model recovers the wavelength of the wiggle (spine spacing 167 to 178 au against 180 au) but not its pattern: wiggle score 0.45 against 0.31 for the noisy cube, and on the minor axis no better than the noisy cube or Wiener. A noise-free reference convolved only with the beam reaches 0.93, so the limit is noise, not resolution. The score rises with SNR (0.57 at SNR 40, 0.70 at SNR 80). A training disk at the same SNR scores about 0.2 higher, so part of the gap is generalisation. The model keeps 60 to 70 percent of the wiggle amplitude.
+
+## Figures
+
+![Minor-axis PV curves on disk 9074](../final/figs/07_9074_PV.png)
+*Minor-axis PV curves on disk 9074*
+
+## Runs in this folder
+
+- [`eval-ladder-sg_v1_2026-10-18/`](eval-ladder-sg_v1_2026-10-18/): 9074 and a training disk over an SNR ladder
+- [`eval-ladder-sg_v2_2026-10-18/`](eval-ladder-sg_v2_2026-10-18/): the same with the beam-matched PV score
+- [`pv-9074-diagnostic_local_2026-10-18/`](pv-9074-diagnostic_local_2026-10-18/): PV detrending diagnostics on 9074
+
+Where a run folder has its own README, it states the Kaggle run, its settings and its outcome. Kaggle accounts are anonymised.
