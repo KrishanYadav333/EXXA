@@ -1,0 +1,8 @@
+# r8-m1-r6_v1_2026-10-15
+
+Kaggle kernel `kaggle-acct-d/unified-r8-m1-r6` (script kernel; the kernel source as pushed and its full log are in this folder; figures stay in the kernel Output).
+Kaggle version: see `results/RUNS.md` (author to confirm).
+
+**What:** R8 from R6, same fine-tune.
+
+**Result:** complete; SNR 12 0.64, twin SNR 6 293 -> 60 m/s, 9074 0.38-0.40. Numbers and interpretation: `results/PROGRESS.md`.

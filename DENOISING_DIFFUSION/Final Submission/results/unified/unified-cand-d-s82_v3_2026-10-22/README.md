@@ -1,0 +1,6 @@
+# unified-cand-d-s82 v3, 2026-10-22 (resume, complete)
+
+Kaggle `kaggle-acct-g/unified-cand-d-s82` v3, pushed by `orchestrator.py resume` with its own v1 output attached. Log confirms `RESUMED ... round 59/80`;
+trained to round 80, then the fresh-set evaluation (`EVAL DONE`). Candidate D (results/PLAN.md 0i-2): R4n-long + `--w-amp 0.01`, seed 82.
+Checkpoint: `models/unified/unified_cand_d_s82.pth` (RULES.md 12). `kernel_unified.py` = the kernel source (same file as v1).
+Table: `python experiments/cand_step1.py`. Reading: results/PROGRESS.md 2026-10-22.
