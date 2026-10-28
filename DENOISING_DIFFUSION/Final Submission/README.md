@@ -96,10 +96,6 @@ The training data (line-emission cubes and self-gravitating simulations) was pro
 
 Every number reported here and in `results/final/` is traced to an archived run in [results/RUNS.md](results/RUNS.md). The training and evaluation runs were executed as Kaggle kernels; the scripts they call are in `experiments/`, and the reports they produced are under `results/`.
 
-## License
-
-To be added.
-
 ## Acknowledgements
 
 Simulation data: Jason Terry and the ML4Sci EXXA mentors. External data and models used for evaluation: Young et al. (2026) GI simulations, Speedie et al. (2024), the exoALMA large program (Teague et al. 2025), DSHARP (Andrews et al. 2018).
