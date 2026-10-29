@@ -2,7 +2,7 @@
 
 A denoiser for ALMA line-emission cubes of protoplanetary disks that keeps the small velocity perturbations astronomers look for: the "wiggle" a gravitationally unstable disk imprints on its velocity field, and the kinks of embedded planets. It is judged on moment maps and on the velocity residual after the rotation curve is removed, not on pixel error alone.
 
-Written by Krishan Yadav for Google Summer of Code 2026 with ML4Sci (EXXA), mentored by Jason Terry and Sergei Gleyzer. The midterm write-up is on Medium: [Denoising Astronomical Observations of Protoplanetary Disks](https://medium.com/@kryshan753/denoising-astronomical-observations-of-protoplanetary-disks-600403e036c8).
+Written by Krishan Yadav for Google Summer of Code 2026 with ML4Sci (EXXA), mentored by Jason Terry, PhD and Gaurav S. The midterm write-up is on Medium: [Denoising Astronomical Observations of Protoplanetary Disks](https://medium.com/@kryshan753/denoising-astronomical-observations-of-protoplanetary-disks-600403e036c8).
 
 This folder is the final submission. It holds the code, the scripts that trained the final networks and produced every number below, and the results behind them, grouped by result.
 
