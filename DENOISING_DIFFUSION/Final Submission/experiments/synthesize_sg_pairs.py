@@ -1,11 +1,9 @@
 """
 Build trainable (dirty, clean) pairs from the September self-gravitating clean cubes.
 
-Why this exists: the pairs Jason shipped cannot train a denoiser. Their dirty cubes differ
-from their clean ones by 0.4-7% RMS where the line-emission training set differs by ~50%, and
- What the batch DOES
-give us is five genuinely new self-gravitating disks as clean targets, with stated ground
-truth in the `.para` files.
+Why this exists: in the original run_sg_* pairs the dirty cubes differ from the clean ones by only 0.4 to 7 percent
+RMS (the line-emission training set differs by about 50 percent), too little noise to train a denoiser. The batch
+does provide five new self-gravitating disks as clean targets, with stated ground truth in the `.para` files.
 
 So we apply the corruption ourselves:
 
@@ -46,7 +44,7 @@ NOISE_FRAC = 0.35
 CHUNK = 40          # channels per pass, keeps the 601x600x600 cube off the heap
 SEED = 42
 
-# Synthetic run ids: 9xxx marks "not shipped by Jason, generated here". The trailing digits
+# Synthetic run ids: 9xxx marks a pair generated here. The trailing digits
 # keep the source run recognisable, and each disk gets a DIFFERENT id so cube_split's
 # leakage-safe grouping treats them as independent disks.
 NAME_MAP = {
@@ -143,7 +141,7 @@ for cpath in sorted(glob.glob(f"{SRC}/*/*clean*.fits")):
 
     hdr["CRPIX3"] = hdr.get("CRPIX3", 1.0) - lo      # keep the velocity axis honest after trim
     hdr["HISTORY"] = "dirty synthesized: beam*clean + beam*N(0,sigma)"
-    hdr["SYNTHSRC"] = (src_run, "source run from Jason's September batch")
+    hdr["SYNTHSRC"] = (src_run, "source run of the September batch")
     hdr["SYNTHBM"] = (os.path.basename(BEAM), "forward operator applied")
     hdr["SYNTHNRM"] = (_raw_sum, "beam divided by this to give unit DC gain")
     hdr["SYNTHSIG"] = (float(sigma), "target noise sigma AFTER beam convolution")

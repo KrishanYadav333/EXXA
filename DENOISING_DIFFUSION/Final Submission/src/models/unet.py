@@ -167,8 +167,7 @@ class UNet(nn.Module):
         num_res_blocks: Number of residual blocks per level (default 2)
         groups: Number of groups for group normalization (default 32)
         beam_dim: Length of an optional per-image metadata vector (e.g. the 4-feature
-            FITS beam vector [sin(2*BPA), cos(2*BPA), BMAJ*3600, BMIN*3600] — mentor
-            suggestion 2026-07-20). When > 0 the vector is embedded and ADDED to the
+            FITS beam vector [sin(2*BPA), cos(2*BPA), BMAJ*3600, BMIN*3600], 2026-07-20). When > 0 the vector is embedded and ADDED to the
             time embedding, so every residual block (encoder, bottleneck, and the
             upsampling path) is conditioned on it. 0 (default) = no extra params,
             existing checkpoints load unchanged.

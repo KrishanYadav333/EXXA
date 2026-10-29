@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Smoke tests for beam conditioning + the sweep harness:
-  1. beam_features_of produces the mentor's 4-vector from a FITS-like header.
+  1. beam_features_of produces the 4-vector from a FITS-like header.
   2. UNet(beam_dim=4) forward accepts a beam vector; beam actually changes output.
   3. train_unet runs end-to-end with early stopping on a tiny synthetic dataset.
   4. run_sweep completes runs and writes the CSV.
@@ -21,7 +21,7 @@ print("=" * 60)
 print("Beam + Sweep Smoke Test")
 print("=" * 60)
 
-# [1] beam features from the example header Jason shared (BPA deg, BMAJ/BMIN deg)
+# [1] beam features from an example header (BPA deg, BMAJ/BMIN deg)
 hdr = {"BPA": 16.933288583074418, "BMAJ": 4.26294365362412e-05, "BMIN": 3.29226140071572e-05}
 feat = beam_features_of(hdr)
 bpa = np.deg2rad(hdr["BPA"])

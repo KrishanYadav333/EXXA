@@ -4,7 +4,7 @@ src/data/channel_sampler.py
 ===========================
 Velocity-channel sampling for line-emission cubes.
 
-Mentor (Jason Terry, 2026-06-18): don't train on every channel. Sample channels
+Design decision (2026-06-18): don't train on every channel. Sample channels
 from a Gaussian centered near index 100 with ~75% of samples in [50, 150], and
 avoid extreme high-velocity channels (near 0 and near n_channels) which are mostly
 continuum with little signal and "will confuse the model."
@@ -22,7 +22,7 @@ from typing import List, Optional
 
 import numpy as np
 
-BAND_LOW, BAND_HIGH = 50, 150          # the [50, 150] target band (mentor-specified)
+BAND_LOW, BAND_HIGH = 50, 150          # the [50, 150] target band (chosen band)
 TARGET_FRACTION = 0.75                  # ~75% of samples should land in the band
 
 
@@ -81,7 +81,7 @@ def sample_channel_indices(
     Args:
         n_channels: total channels in the cube (valid indices 0..n_channels-1).
         n_samples: number of unique channel indices to return.
-        center: mean of the sampling Gaussian (mentor: ~100).
+        center: mean of the sampling Gaussian (about 100).
         std: starting standard deviation. If `auto_adjust_std`, this is calibrated
             so ~`target_fraction` of samples land in [50, 150].
         low_cutoff / high_cutoff: if given, reject indices outside [low_cutoff,

@@ -4,7 +4,7 @@ src/evaluation/moment_maps.py
 =============================
 Moment-map generation for line-emission cubes via the `bettermoments` package.
 
-Moment maps are the actual scientific data product (mentor, 2026-06-18): an individual
+Moment maps are the actual scientific data product (2026-06-18): an individual
 denoised channel means little; the value is in the collapsed cube. We generate:
   - Moment 0 : integrated intensity            (collapse_zeroth)
   - Moment 1 : intensity-weighted velocity     (collapse_first)   -- the rotation/kinematics map

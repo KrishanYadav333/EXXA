@@ -1,6 +1,5 @@
 """
-The GI wiggle: a Keplerian-subtracted moment-1 residual, used across the literature Jason
-pointed at (Hall+2020 ApJ, Hall+2021 MNRAS, Hall+2022 ApJL, Terry+2024 A&A, Speedie+2024
+The GI wiggle: a Keplerian-subtracted moment-1 residual, used across the literature (Hall+2020 ApJ, Hall+2021 MNRAS, Hall+2022 ApJL, Terry+2024 A&A, Speedie+2024
 Nature) as the kinematic signature of gravitational instability in a self-gravitating disk.
 A planet leaves a localised "kink"; GI leaves a global "interlocking fingers" pattern across
 the whole disk. Fitting and subtracting the disk's own Keplerian rotation from its moment-1

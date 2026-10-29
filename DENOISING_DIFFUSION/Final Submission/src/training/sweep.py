@@ -2,7 +2,7 @@
 src/training/sweep.py
 =====================
 Training with early stopping + random hyperparameter sweep, across architectures
-(mentor direction, 2026-07-20 meeting):
+(design review, 2026-07-20):
 
   * random search first -- explore the space, gather statistics (a Bayesian
     sweep seeded with these runs can follow later; starting Bayesian risks
@@ -204,7 +204,7 @@ def train_unet(
     """
     Train one config with early stopping; return fixed metrics + history.
 
-    Early stopping (mentor, 2026-07-20): train at least `min_epochs`, at most
+    Early stopping (2026-07-20): train at least `min_epochs`, at most
     `max_epochs`, stop after `patience` epochs without val-loss improvement.
     Best-epoch weights are restored (and saved to `ckpt_path` if given) before
     the final fixed-metric evaluation.

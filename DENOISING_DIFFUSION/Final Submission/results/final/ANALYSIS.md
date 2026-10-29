@@ -56,7 +56,7 @@ Reading: noise-limited at native SNR (9.5) and also a generalisation gap of abou
 percent of the wiggle's amplitude at every SNR; in the deconvolution regime at high SNR it equals dirty. On 9074's minor axis the model is no better than
 dirty or Wiener (negative result): the PV advantage on GI discs does not carry over to this hydro disc. The beam-only oracle reaches rc_r 0.93.
 
-## 5. Planet check (Jason's two spots)
+## 5. Planet check (two spots flagged in the review)
 
 Source: `results/unified/eval-planet_v1_2026-10-18/planet_check/`. Young M1 R100 at 7.6 o'clock: a compact 171 m/s feature in clean (4.6 times the
 ring scatter, one beam wide) that no method recovers (model amplitude 0.03). run_0002_00560 (rendered with planets' emission off, gravity kept): no

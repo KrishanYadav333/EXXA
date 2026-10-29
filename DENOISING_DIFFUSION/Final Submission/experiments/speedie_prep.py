@@ -11,7 +11,7 @@ So  dirty = the synthetic ALMA cube (real-like noise, whatever spectral covarian
     clean = model, crop, beam-convolved with the synthetic cube's own beam, Jy/pixel -> Jy/beam, resampled to its velocity grid.
 This is the noise-only regime of a real ALMA CLEAN image (the beam is inside clean), and the Keplerian twin is the false-wiggle test.
 Geometry from the release's own MCFOST parameter file: distance 155.9 pc, inclination 23.2 deg, PA 236.7 deg (corrected 2026-10-10;
-the first version wrote 162.9 pc / 23.5 deg). Not exoALMA data (AB Aur program 2021.1.00690.S, PI Dong; simulated here), so allowed by Jason's rule (memory: no-exoalma-training).
+the first version wrote 162.9 pc / 23.5 deg). Not exoALMA data (AB Aur program 2021.1.00690.S, PI Dong; simulated here), so allowed by the project's rule of never training on exoALMA data.
 
 The disk is larger than 600 px at 0.02"/px (the systemic channel spans the whole 600 px vertically), so the default crop is 1024.
 The zips are deflate-compressed, so the synthetic cubes are STREAMED (3.2 GB each); the model cubes are read by range requests, one

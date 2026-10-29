@@ -18,8 +18,7 @@ Two kinds of figure, both built from what `checkpoint_eval` keeps:
       topk          a large-format detail figure for the best checkpoints by M0, one row each
 
   From the results table alone (no maps needed), for the whole run:
-      score tables as images, a scoreboard of every metric with error bars, the loss x source matrix (Jason's
-      asks 1 and 3), and a checkpoint x cube heatmap.
+      score tables as images, a scoreboard of every metric with error bars, the loss x source matrix, and a checkpoint x cube heatmap.
 
 Colour scales are shared within a sheet and come from CLEAN (or from DIRTY's error, for error maps), never from a
 checkpoint, so no tile can look better by being scaled differently.
@@ -647,7 +646,7 @@ _LOSS = re.compile(r"^winner_(mae|wavelet|starlet|gradient|hybrid)(?:_(p10|beam)
 
 
 def fig_loss_source(ok, path, domain="line_emission"):
-    """The loss x training-source matrix: Jason's asks 1 and 3 in one image. Mean across cubes; one seed per cell."""
+    """The loss x training-source matrix: two of the review questions in one image. Mean across cubes; one seed per cell."""
     plt = _plt()
     d = ok[ok.domain == domain]
     g = d.groupby("checkpoint")[["M0", "M1", "M2", "resid_r", "gradE_ratio", "psnr"]].mean()

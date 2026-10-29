@@ -15,4 +15,4 @@ Checkpoint format: a PyTorch dictionary holding the weights (`model_state_dict`)
 
 ## Availability
 
-The weights are not in this repository. They were trained on data provided by the project mentors and are released only with the mentors' permission.
+The weights are not in this repository. They were trained on synthetic disks that are not public, and will be released when that is permitted.

@@ -469,7 +469,7 @@ def load_pair(clean_path: str, dirty_path: str, max_channels: int = 8):
     Load a clean/dirty FITS pair and keep the `max_channels` channels with the most SIGNAL.
 
     Not evenly spaced channels. `np.linspace(0, n-1, k)` includes channel 0 and channel n-1,
-    the extreme high-velocity ends, which the mentor's own sampling note (2026-06-18) calls
+    the extreme high-velocity ends, which the sampling note (2026-06-18) calls
     "mostly continuum with little signal". In those the clean power is near zero, so
     P_d / P_c explodes for reasons that have nothing to do with a beam, and averaging them in
     with real channels destroys the fit. That is what made the third Phase 0 run return
@@ -630,7 +630,7 @@ def estimate_beam_from_pair(clean, dirty, crop: int = 129):
     `phase0_report` decides. For the line-emission training set (`A = I`) this returns a
     delta function and says nothing.
 
-    Measured on the mentor's self-gravitating pair (2026-08-21): peak 0.911 at the exact
+    Measured on the SG v2 self-gravitating pair (2026-08-21): peak 0.911 at the exact
     centre, sum ~0, FWHM 5 px, negative ring reaching -2.8% of peak from r ~ 26 px. Peak near
     1 with zero total flux is the signature of an interferometric DIRTY beam, and the negative
     ring is why a Gaussian `A` would be the wrong operator. Convolving the clean cube with it

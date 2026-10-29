@@ -119,7 +119,7 @@ def summarise(rows) -> Dict[str, float]:
     Aggregate `channel_artifacts` dicts into report-ready statistics.
 
     Splits the invented-structure and overshoot rates at the median SNR, which is
-    what answers the open question flagged to the mentor: is invented structure a
+    what answers the open question flagged in the review: is invented structure a
     low-SNR-specific failure, or does it happen everywhere?
     """
     if not rows:

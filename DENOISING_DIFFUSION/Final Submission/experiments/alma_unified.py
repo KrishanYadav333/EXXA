@@ -1,7 +1,7 @@
 """
 Real exoALMA cube -> the unified denoiser (Wiener + learned correction, train_unified.py) -> denoised cube, moment maps, checks. 
 
-INFERENCE ONLY: exoALMA data are never trained on (Jason). There is no truth on a real cube, so this measures what the model CHANGES and whether
+INFERENCE ONLY: exoALMA data are never trained on. There is no truth on a real cube, so this measures what the model CHANGES and whether
 it invents anything:
   S1  noise off the line (rms of line-free planes, raw vs denoised), M0 total ratio inside the signal mask, M1 shift on the brightest pixels (m/s)
   S2  invented structure: fraction of line-free-plane pixels above 4 sigma_raw, raw vs denoised
@@ -71,7 +71,7 @@ def beam_of(path, hdr):
 
 
 def fov_box(cube, lf, beam_px, margin_beams=2.0, factor=1.25, min_px=128, step=8):
-    """(y0, y1, x0, x1) of a square field around the disc, or None if no disc is found. Jason Terry 2026-10-16: the exoALMA field is huge and the beam tiny,
+    """(y0, y1, x0, x1) of a square field around the disc, or None if no disc is found. Review of 2026-10-16: the exoALMA field is huge and the beam tiny,
     so crop to the disc before the network, which sees features relative to the cube size. The disc is the connected region (around the brightest pixel) of the
     beam-smoothed line M0 above 5 robust sigma; the field is its larger extent x `factor` plus `margin_beams` beams, rounded up to a multiple of `step`
     (at least `min_px`), centred on it and kept inside the image."""
@@ -98,7 +98,7 @@ def fov_box(cube, lf, beam_px, margin_beams=2.0, factor=1.25, min_px=128, step=8
 
 
 def continuum_check(cube, lf, nsig=5.0, match_sig=3.0, min_planes=3):
-    """Is there continuum left in this cube? exoALMA images are already continuum subtracted, so the default is NOT to subtract (Jason Terry 2026-10-16:
+    """Is there continuum left in this cube? exoALMA images are already continuum subtracted, so the default is NOT to subtract (review of 2026-10-16:
     subtracting again double-subtracts). But a leftover in the line-free mean can be (a) real continuum (a cube that was never subtracted) or (b) faint line
     wings in planes we call line-free. Continuum is flat in frequency: it is the same in the line-free planes FAR from the line on BOTH sides. Line wings are
     not. So: mean of the farther half of the line-free planes on the blue side and on the red side, each in units of its own error; continuum = both peaks
@@ -219,7 +219,7 @@ def target_scale(beam_px, n, target, max_px):
 
 
 def run_scaled(a, model, arm, d, w, dv, beam_px):
-    """run_model on a pixel grid `a.scale` times the cube's (Jason Terry 2026-10-16, "zoom in": exoALMA's beam is about 6 px, below the 8 to 20 px the models
+    """run_model on a pixel grid `a.scale` times the cube's (review of 2026-10-16, "zoom in": exoALMA's beam is about 6 px, below the 8 to 20 px the models
     were trained on; --scale 1.67 puts it at about 10 px), then area / bilinear resampling back to the cube's grid. The sky field and the beam's angular size are
     unchanged, only the pixel size changes. Used for the real cube AND for S5, so the injection test measures the same pipeline."""
     n = d.shape[-1]
@@ -491,7 +491,7 @@ def main():
     ap.add_argument("--fov-arcsec", type=float, default=0.0, help="crop to this field (arcsec) centred on the disc instead of the automatic size")
     ap.add_argument("--cont-sub", nargs="?", const="on", default="auto", choices=["auto", "on", "off"],
                     help="continuum: auto (default) = subtract only if continuum_check finds the same structure on both far sides of the line (a cube that was never "
-                         "subtracted); off = never (exoALMA is already subtracted: subtracting again double-subtracts, Jason Terry 2026-10-16); on = always subtract "
+                         "subtracted); off = never (exoALMA is already subtracted: subtracting again double-subtracts, review of 2026-10-16); on = always subtract "
                          "the line-free mean (the old behaviour). The leftover is measured and reported in every mode.")
     ap.add_argument("--incl", type=float, default=None)
     ap.add_argument("--pa", type=float, default=None)

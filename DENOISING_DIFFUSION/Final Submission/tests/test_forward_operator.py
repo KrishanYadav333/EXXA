@@ -166,7 +166,7 @@ check("no absurd Gaussian RMS is reported",
 
 # --- case 7: channel selection must pick line-bright channels --------------------------
 # phase0_from_fits used evenly spaced channels, which includes the extreme high-velocity
-# ends. Those are "mostly continuum with little signal" (mentor, 2026-06-18): P_clean is
+# ends. Those are "mostly continuum with little signal" (2026-06-18): P_clean is
 # near zero there, so the ratio explodes for reasons unrelated to any beam.
 print("\ncase 7  channel selection")
 import tempfile
@@ -272,7 +272,7 @@ check("the two are separated by orders of magnitude",
 
 # --- case 10: recover the operator from a clean/dirty pair -----------------------------
 # When an operator DOES sit between two cubes, it can be measured rather than requested. On
-# the mentor's self-gravitating pair this recovered a dirty beam with peak 0.911, sum ~0 and
+# the SG v2 self-gravitating pair this recovered a dirty beam with peak 0.911, sum ~0 and
 # a -2.8% sidelobe ring, and convolving the clean cube with it reproduced HELD-OUT channels
 # at correlation 0.994. That removes "ask for the PSF image" from the DDRM critical path.
 print("\ncase 10  recovering the forward operator from a pair")

@@ -1,5 +1,5 @@
 """
-The GI wiggle diagnostic (Jason's reading list, 2026-08-27: Speedie+2024, Terry+2024,
+The GI wiggle diagnostic (reading list, 2026-08-27: Speedie+2024, Terry+2024,
 Hall+2020/2021/2022) fits a Keplerian model to a disk's moment-1 map and looks at what is
 left over. Getting that fit wrong is easy to do silently -- a diverged optimiser still
 returns a number -- so this is checked against synthetic cases with a known answer before it

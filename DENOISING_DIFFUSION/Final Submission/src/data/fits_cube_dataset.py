@@ -4,7 +4,7 @@ src/data/fits_cube_dataset.py
 =============================
 PyTorch Dataset for line-emission FITS cubes — full-image, channel-by-channel.
 
-Design (per 2026-06-18 mentor pivot):
+Design (2026-06-18 pivot to line emission):
   - Full-image input (no patches); downsample to `target_size` (default 256) for memory.
   - Train on individual velocity channels, sampled per cube via the Gaussian sampler
     (`channel_sampler.sample_channel_indices`): ~center 100, ~75% in [50,150], extremes avoided.
@@ -40,7 +40,7 @@ def _to_native_float32(arr: np.ndarray) -> np.ndarray:
 
 def beam_features_of(header) -> np.ndarray:
     """
-    4-feature beam vector from a FITS header (mentor suggestion, 2026-07-20):
+    4-feature beam vector from a FITS header (2026-07-20):
     [sin(2*BPA), cos(2*BPA), BMAJ*3600, BMIN*3600].
 
     BPA is stored in degrees (convert to radians before sin/cos; the 2x makes the
@@ -63,7 +63,7 @@ def continuum_of(cube: np.ndarray, n: int) -> np.ndarray:
     """
     2D continuum estimate = mean of the first `n` and last `n` (line-free, high-velocity)
     channels of an in-memory cube (C, H, W). Subtracting this from every channel removes the
-    static disk continuum and isolates the line emission (mentor suggestion, 2026-06-27).
+    static disk continuum and isolates the line emission (2026-06-27).
 
     Array-in variant of `FITSChannelDataset._compute_continuum` (which reads from a path), so
     notebooks that already hold the cube in memory can reuse the exact same definition.
@@ -82,7 +82,7 @@ class FITSChannelDataset(Dataset):
         cubes: list of cube dicts {folder, run_id, clean, dirty} (from `cube_split.split_cubes`),
             or a list of (clean_path, dirty_path) tuples.
         channel_sampler_fn: callable(n_channels, seed) -> list[int]. Defaults to a partial of
-            `sample_channel_indices` with the mentor's settings.
+            `sample_channel_indices` with the chosen settings.
         n_samples: channels to sample per cube (default 50).
         target_size: output H=W after bilinear downsample (default 256).
         seed: base seed; each cube gets a deterministic per-cube seed so the channel set is
@@ -123,11 +123,11 @@ class FITSChannelDataset(Dataset):
         # (V12 included) stays reproducible; TRAIN splits only, never val/holdout,
         # or the evaluation stops being deterministic. See `_augment_pair`.
         self.augment = augment
-        # Beam conditioning (mentor, 2026-07-20): expose the observation's beam
+        # Beam conditioning (2026-07-20): expose the observation's beam
         # (noise scale/orientation) as a 4-vector model input. OFF by default so
         # existing notebooks keep their (dirty, clean) item shape.
         self.return_beam = return_beam
-        # Continuum subtraction (mentor, 2026-06-27): the first/last high-velocity channels are
+        # Continuum subtraction (2026-06-27): the first/last high-velocity channels are
         # line-free, so their mean estimates the static continuum (disk dust behind the line).
         # Subtracting it before normalization isolates the line emission. OFF by default so the
         # original notebook behavior is unchanged; the continuum notebook flips it on.
@@ -257,7 +257,7 @@ class FITSChannelDataset(Dataset):
         """
         2D continuum estimate = mean of the first `n` and last `n` (line-free, high-velocity)
         channels. Subtracting this from every channel removes the static disk continuum and
-        isolates the line emission (mentor suggestion, 2026-06-27).
+        isolates the line emission (2026-06-27).
         """
         with fits.open(path, memmap=True) as hdul:
             return continuum_of(hdul[0].data, n)

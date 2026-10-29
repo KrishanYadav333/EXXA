@@ -1,5 +1,5 @@
 """
-Planet check (Jason Terry 2026-10-16: "a possible planet" in run_0002_00560 and in Young M1 R100 at 7 to 8 o'clock). Input: the npz files that
+Planet check (review of 2026-10-16: "a possible planet" in run_0002_00560 and in Young M1 R100 at 7 to 8 o'clock). Input: the npz files that
 train_unified.py --save-pred writes (M1 maps of clean / dirty / Wiener / model, clean M0, central channels of clean / dirty / model).
 
 A planet shows in the kinematics as a LOCALISED velocity deviation (a "kink", Pinte et al. 2018) on top of rotation, not as a ring or spiral that runs all
@@ -71,7 +71,7 @@ def analyse(z, name, sector=None):
     loc = {k: smooth_nan(localised((m1[k] - rc) * 1000.0, rdep, az, beam_au / 2, mask), sig) for k in METHODS}
     r_out = np.percentile(rdep[mask], 97)
     ok = mask & (rdep > 3 * beam_au) & (rdep < r_out) & np.isfinite(loc["clean"])
-    if sector is not None:                          # only clean features inside this clock range (e.g. Jason's "7 to 8 o'clock")
+    if sector is not None:                          # only clean features inside this clock range (e.g. the "7 to 8 o'clock" region)
         hr = (np.degrees(np.arctan2(dx, dy)) % 360.0) / 30.0
         hr = np.where(hr < 0.5, hr + 12.0, hr)
         ok = ok & (hr >= sector[0]) & (hr <= sector[1])

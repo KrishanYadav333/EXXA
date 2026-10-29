@@ -1,7 +1,7 @@
 """
 GI wiggle scorecard: score any denoising method on every GI cube we have, the same way.
 
-Cubes (the shipped run_sg_* pairs are left out: run_sg_00019's dirty equals its clean to 3e-12 and the
+Cubes (the original run_sg_* pairs are left out: run_sg_00019's dirty equals its clean to 3e-12 and the
 other four differ only by 0.3 to 30 % rms, i.e. very low noise (measured 2026-10-10); none can separate methods):
   - sg_synth, 5 disks: dirty = beam (*) clean + beam (*) noise (synthesize_sg_pairs.py),
     0.1 km/s channels, ~2 au/px, inclinations from the .para files.
@@ -355,7 +355,7 @@ def score_cube(name, d, methods, outdir, ref_label="clean"):
     for k in cubes:
         rows[k]["A_ratio"] = rows[k]["A_wiggle_au"] / rows["clean"]["A_wiggle_au"]
         rows[k]["lam_ratio"] = rows[k]["lam_wiggle_au"] / rows["clean"]["lam_wiggle_au"]
-    # position-velocity curve along the minor axis (Jason Terry 2026-10-16: the field standard); slit 1 px and 5 px, same radii as the spine.
+    # position-velocity curve along the minor axis (review of 2026-10-16: the field standard); slit 1 px and 5 px, same radii as the spine.
     # Fail-soft: a problem here must never cost a case its other scores (the keys become NaN and the figure is skipped).
     try:
         pv_prof = {wd: {k: pv.pv_profile(m1[k], geom, au, r_in, r_out, width_px=wd, mask=mask)[1] for k in cubes} for wd in (1, 5)}

@@ -4,14 +4,14 @@ src/data/cube_split.py
 ======================
 Cube-level (NOT channel-level) train / val / holdout split for line-emission data.
 
-Mentor (Jason Terry, 2026-06-18), authoritative:
+Design decision (2026-06-18):
   - Split at the CUBE level, never the channel level.
   - Hold out 3-4 ENTIRE cubes for inference only -- never in train OR val. These are
     reserved for end-to-end testing: denoise every channel, then build moment maps.
 
 Leakage guard — grouping by RunID:
   Each RunID can have several RT variants (e.g. run_0002 -> rt_00, rt_01, rt_04),
-  which the mentor described as "somewhat identical" parameter variants of the same
+  which are "somewhat identical" parameter variants of the same
   underlying simulation. To avoid train/holdout leakage, ALL cubes sharing a RunID are
   assigned to the SAME split (group-level split). So `n_holdout` counts RunID groups
   held out, and every cube under those RunIDs is reserved.

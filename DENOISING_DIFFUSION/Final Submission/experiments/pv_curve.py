@@ -1,7 +1,7 @@
 """
 Position-velocity (PV) curve along the minor axis: the moment-1 (quadratic) value along the line where a purely rotating disc has v_los = vsys.
 There the Keplerian / axisymmetric rotation contributes nothing, so M1 - vsys IS the non-axisymmetric motion, the GI wiggle. This is the
-measurement Speedie et al. 2024 and Longarini et al. (Elias 2-27) fit, and the one Jason Terry named the field standard.
+measurement Speedie et al. 2024 and Longarini et al. (Elias 2-27) fit, and the field standard.
 
 pv_profile  M1 map + disc geometry -> (R grid in au, [profile on the +minor half, profile on the -minor half]) in m/s, optional slit width in px
 pv_scores   profiles of several methods -> pv_r (correlation with clean after removing a quadratic trend, per half, pooled), pv_rms_ms and
@@ -11,7 +11,7 @@ plot_pv     one panel per half, clean in black, each method a colour
 
 Literature (research.md 2026-10-17): Speedie 2024 take line centres from a quadratic fit per pixel (bettermoments) and read them in a 0.5 deg wedge on the SOUTHERN
 minor axis, 1 to 5 arcsec, detrended with a quadratic (a linear trend fitted worse); Longarini 2024 (Elias 2-27) cut along the southern semi-minor axis of a
-Gaussian-fit velocity map and mask the inner two beams. Neither states a slit width; Jason Terry asked for a straight slice or a slit of about 4 to 5 px.
+Gaussian-fit velocity map and mask the inner two beams. Neither states a slit width; the review asked for a straight slice or a slit of about 4 to 5 px.
 Our M1 is already the quadratic line centre, so the profiles here are the same quantity. We score both halves (the scorecard has no cloud to avoid).
 
 Geometry: the same as wiggle_scorecard.spine_tracks (geom has cx, cy, pa_deg, incl_deg, vsys; the minor axis is m = (-sin pa, cos pa), a point at

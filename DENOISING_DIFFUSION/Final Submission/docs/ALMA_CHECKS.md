@@ -2,7 +2,7 @@
 
 A real cube has no truth, so no single number says "good". These seven checks were fixed before the final real-data runs and are applied by `experiments/alma_unified.py`.
 
-A real cube has no truth, so no single number says "good". The bar set by the mentors is qualitative: a pipeline that works
+A real cube has no truth, so no single number says "good". The bar is qualitative: a pipeline that works
 and gives scientific insight. These checks make that claim defensible. **S1, S6 and a visual inspection in DS9 were requested; S2 to S5
 are additions [added], there to stop an artefact being reported as science.**
 
