@@ -12,4 +12,4 @@ The scripts that produced the four final networks and the main evaluations, as t
 | `eval_fresh_set.py` | the fresh test set (`results/03-fresh-set/`) |
 | `alma_exoalma.py`, `alma_dsharp.py` | the real-data runs (`results/05-real-alma/`) |
 
-The scripts read the repository from the author's working branch, under its own folder layout, and code added after that branch's last push from a private Kaggle dataset; they are kept as the record of what ran, not as a turnkey recipe.
+The scripts read the repository from the author's working branch, under its own folder layout, and code added after that branch's last push from a private Kaggle dataset; they are kept as the record of what ran, not as a turnkey recipe. The branch they clone (`midterm-prep`) and the private Kaggle dataset `exxa-wiggle-code` are not part of this repository: the library they ran is `src/` and `experiments/` here, and the training data is described in the top-level README.

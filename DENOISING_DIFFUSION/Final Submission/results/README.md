@@ -17,4 +17,4 @@ Every number in the top-level README comes from a folder here. Each numbered fol
 
 Summaries across results: [`final/ANALYSIS.md`](final/ANALYSIS.md) (analysis with error bars), [`final/RESULTS.md`](final/RESULTS.md) (the five-size table), [`final/RECIPES.md`](final/RECIPES.md) (inference settings), [`final/detection_limit.md`](final/detection_limit.md). All figures are in [`final/figs/`](final/figs/). [`RUNS.md`](RUNS.md) lists every run of the final phase in launch order.
 
-The denoised cubes, moment-map FITS files and per-case images stayed in the Kaggle outputs; only reports and tables are kept here.
+The denoised cubes, moment-map FITS files and per-case images stayed in the Kaggle outputs; only reports and tables are kept here. Model checkpoints (the `unified_*.pth` files named in the run READMEs) are not committed either; see [`../MODELS.md`](../MODELS.md).
