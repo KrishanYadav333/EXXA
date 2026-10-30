@@ -23,6 +23,6 @@ In the 2D velocity residual the model introduces less spurious structure than Wi
 
 ## Runs in this folder
 
-- [`eval-ladder-twin_v1_2026-10-21/`](eval-ladder-twin_v1_2026-10-21/): the twin over four noise realisations at SNR 6, 12 and 24 (`eval_ladder_twin_B.json`)
+- [`eval-ladder-twin_v1_2026-10-21/`](eval-ladder-twin_v1_2026-10-21/): the twin over four noise realisations at SNR 6, 12 and 24 (`eval-ladder-twin_v1_2026-10-21/eval_ladder_twin_B.json`)
 
 Where a run folder has its own README, it states the Kaggle run, its settings and its outcome. Kaggle accounts are anonymised.

@@ -5,4 +5,4 @@ and the no-wiggle twins an09k / an12k / an15k at 600 px, deconvolution and noise
 blind SNR 14.8 to 33.5). **The Young TEST3 part did not run**: the in-kernel render failed (`sarracen` not installed, all 8 FAILED, the kernel did
 not stop); it is scored by `kaggle-acct-b/eval-fresh-young`. Tables: `fresh_tables.md` (from `experiments/fresh_tables.py`).
 
-Figures (fetched 2026-10-22): `eval_fresh/figs_fresh_B/` and `figs_fresh_A_cfix/`, a moment / wiggle panel and a minor-axis PV plot per case.
+Figures: a moment / wiggle panel and a minor-axis PV plot per case stayed in the kernel Output; a selection is in [`../../final/figs/`](../../final/figs/).

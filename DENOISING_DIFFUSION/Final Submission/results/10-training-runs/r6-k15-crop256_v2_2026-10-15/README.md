@@ -1,7 +1,7 @@
 # r6-k15-crop256_v2_2026-10-15
 
 Kaggle kernel `kaggle-acct-c/unified-r6-k15-crop256` (script kernel; the kernel source as pushed and its full log are in this folder; figures stay in the kernel Output).
-Kaggle version: see `results/RUNS.md` (author to confirm).
+Kaggle version: see [`RUNS.md`](../../RUNS.md).
 
 **What:** R6: R4n recipe on 256 px crops (batch 4), seed 31; v1 stopped at the 11 h budget, v2 resumed and evaluated.
 

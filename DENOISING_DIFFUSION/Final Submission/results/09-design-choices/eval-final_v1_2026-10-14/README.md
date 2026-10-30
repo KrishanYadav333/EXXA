@@ -1,7 +1,7 @@
 # eval-final_v1_2026-10-14
 
 Kaggle kernel `kaggle-acct-c/eval-final` (script kernel; the kernel source as pushed and its full log are in this folder; figures stay in the kernel Output).
-Kaggle version: see `results/RUNS.md` (author to confirm).
+Kaggle version: see [`RUNS.md`](../../RUNS.md).
 
 **What:** Final evaluation of R4n-long seeds 3 + 11 + 23 averaged, gate scored from stored mixes; report `results/final/RESULTS.md`.
 

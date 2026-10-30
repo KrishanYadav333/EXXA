@@ -23,7 +23,7 @@ ripple of about +-20 m/s plus inner-edge swings; at SNR 12 a PV magnitude alone 
 
 ## 2. PV curves on the other held-out GI discs (selection set, eval-final-b)
 
-Source: `results/07-image-sizes/eval-final-b_v1_2026-10-17/` (figures `figs_pv/`). PV r, model / Wiener / dirty, 1 px slice (5 px slit):
+Source: `results/07-image-sizes/eval-final-b_v1_2026-10-17/`. PV r, model / Wiener / dirty, 1 px slice (5 px slit):
 Speedie GI r0.5 0.87 / 0.81 / 0.23 (0.89 / 0.83 / 0.31); an07 at 600 px 0.90 / 0.03 / 0.07 (0.91 / 0.02 / 0.10); Young M1 R100 at 600 px 0.80 / 0.45 /
 0.73 (0.88 / 0.45 / 0.81): on Young M1 R100, a strong-wiggle disc at moderate SNR, the noisy cube's own PV curve is nearly as good as the model's, so the
 gain there is over Wiener, not over dirty. Invented wiggle on the no-wiggle twin (PV, SNR 12): about 20 m/s.
@@ -42,7 +42,7 @@ Source: `results/final/detection_limit.md`. **Statement.** Wiggles with a minor-
 
 ## 4. Hydro disc 9074: SNR ladder, PV, generalisation
 
-Sources: `results/04-hydro-9074/eval-ladder-sg_v1_2026-10-18/` (rc_r) and `_v2_2026-10-18/` (beam-matched PV). 9025 is a TRAINING disc (diagnostic only).
+Sources: `results/04-hydro-9074/eval-ladder-sg_v1_2026-10-18/` (rc_r) and `results/04-hydro-9074/eval-ladder-sg_v2_2026-10-18/` (beam-matched PV). 9025 is a TRAINING disc (diagnostic only).
 
 | rc_r, 600 px | native | SNR 11 | 20 | 40 | 80 |
 |---|---|---|---|---|---|
@@ -64,7 +64,7 @@ isolated kink stands out; the strongest localised feature on the 64 deg view is 
 
 ## 6. One checkpoint or two: R6 (three seeds) against B
 
-Sources: `results/10-training-runs/r6-k15-crop256_v2_2026-10-15/`, `r6-k15-s32_v1-v2_2026-10-17/`, `r6-k15-s33b_v2_2026-10-18/`, `eval-final-b_v1_2026-10-17/`.
+Sources: `results/10-training-runs/r6-k15-crop256_v2_2026-10-15/`, `results/10-training-runs/r6-k15-s32_v1-v2_2026-10-17/`, `results/10-training-runs/r6-k15-s33b_v2_2026-10-18/`, `results/07-image-sizes/eval-final-b_v1_2026-10-17/`.
 
 | | 9074 @600 rc_r deconv. | 9074 noise-only | line @600 PSNR | Speedie r0.5 SNR 12 / 24 | an07 @600 |
 |---|---|---|---|---|---|
@@ -77,7 +77,7 @@ Recommendation: one checkpoint (B); R6 documented as the alternative (decision o
 
 Setting: 512 px field, beam resampled to about 10 px (`--target-beam-px 10`; DSHARP capped at a 1024 px grid), DSHARP channels interpolated to 0.1 km/s;
 continuum subtracted only where both far sides of the line show the same structure (V4046 Sgr only: a 1 sigma per channel point source at the star).
-Sources: `results/05-real-alma/exoalma-final-p0..p3_v1_2026-10-18/`, `dsharp-final-p0 / p1 / hd163296_v1_2026-10-18/`; geometry refits (HD 142666, HD 143006
+Sources: `results/05-real-alma/exoalma-final-p0_v1_2026-10-18/` to `results/05-real-alma/exoalma-final-p3_v1_2026-10-18/`, `results/05-real-alma/dsharp-final-p0_v1_2026-10-18/`, `results/05-real-alma/dsharp-final-p1_v1_2026-10-18/`, `results/05-real-alma/dsharp-final-hd163296_v1_2026-10-18/` (all in `results/05-real-alma/`); geometry refits (HD 142666, HD 143006
 13CO, PDS 66, HD 34282) replace the kernel's S6 where present. Table from `experiments/alma_table.py` (PA difference modulo 180; M* with the inclination
 fixed at the published value; no truth on real data, so S6 and PV are agreement with the RAW cube):
 
@@ -130,7 +130,7 @@ fails); flux within 5 percent outside 3 beams (13 / 15; DM Tau 0.946, HD 143006 
 
 ## 7c. Flux root cause, S7, error bars, cross-survey (2026-10-21)
 
-Sources: `results/05-real-alma/alma-kepc-mwc758_v1_2026-10-19/`, `alma-s7-lowres_v1_2026-10-19/`, `alma-seeds-mwc758_v1_2026-10-19/`, `alma-hd143006-12co_v1_2026-10-19/`, `results/01-final-test/eval-ladder-seeds_v1_2026-10-20/`.
+Sources: `results/05-real-alma/alma-kepc-mwc758_v1_2026-10-19/`, `results/05-real-alma/alma-s7-lowres_v1_2026-10-19/`, `results/05-real-alma/alma-seeds-mwc758_v1_2026-10-19/`, `results/05-real-alma/alma-hd143006-12co_v1_2026-10-19/`, `results/01-final-test/eval-ladder-seeds_v1_2026-10-20/`.
 - **Central flux excess = model bias:** analytic compact-centre disc in MWC 758 noise: model / true flux within 1 beam 1.30 to 1.39 at SNR 6 / 12 / 24 (dirty 1.00); faint outer flux under-represented at low SNR (0.41 beyond 6 beams at SNR 6). Denoised flux is used only outside 3 beams of the star.
 - **S7 (independent 0.3 arcsec images, 4 discs): no improvement shown.** Denoised rms difference 1.2 to 1.6 sigma_low vs raw 0.9 to 1.1; M1 difference 14 to 37 vs 8 to 12 m/s; the test favours raw (shared visibilities), and the independent image agrees with raw at the star. Reported as inconclusive-to-unfavourable.
 - **Error bars:** MWC 758 injection (5 noise realisations): GI rc_r SNR 12 / 24 = 0.844 +- 0.004 / 0.926 +- 0.002 (Wiener 0.638 +- 0.008 / 0.831 +- 0.001); line-centre error 20.0 +- 0.2 / 14.6 +- 0.2 m/s. Speedie r0.5 selection ladder (GI, 8 / 8 / 6 realisations at SNR 6 / 12 / 24): rc_r 0.24 +- 0.11 / 0.68 +- 0.03 / 0.84 +- 0.01; PV 5 px r 0.53 +- 0.22 / 0.74 +- 0.15 / 0.88 +- 0.05. The one-time final test (r1.5) is a single realisation by design.
@@ -139,7 +139,7 @@ Sources: `results/05-real-alma/alma-kepc-mwc758_v1_2026-10-19/`, `alma-s7-lowres
 
 ## 8. S3 (recipes) and S4 (pixel scale) on four real exoALMA discs
 
-Sources: `results/05-real-alma/alma-s3-recipes_v1_2026-10-18/`, `alma-s4-pixscale_v1_2026-10-18/` (`agreement_table.md`). Discs: MWC 758, LkCa 15, HD 135344B, J1615. Agreement with B's final run:
+Sources: `results/05-real-alma/alma-s3-recipes_v1_2026-10-18/`, `results/05-real-alma/alma-s4-pixscale_v1_2026-10-18/`. Discs: MWC 758, LkCa 15, HD 135344B, J1615. Agreement with B's final run:
 
 | variant | flux var / B | median abs dM1 (m/s) | PV 5 px agreement (r) | MWC 758 S5 GI rc_r, SNR 12 / 24 / 36 |
 |---|---|---|---|---|
@@ -161,6 +161,6 @@ Source: `results/03-fresh-set/eval-fresh-b_v2_2026-10-21/fresh_tables.md`, `resu
 
 | Young TEST3, 8 discs (noise-only line cubes) | 0.561 / 0.333 / 0.246 | 0.52 / 0.44 | 51.1 / 32.6 |
 
-On fresh discs B keeps its wiggle advantage in the deconvolution regime and on the fresh Young simulations (without the two near face-on discs, which give nothing for any method: 0.74 vs 0.44); on the smooth analytic discs in the noise-only regime at blind SNR 19 to 34 it ties Wiener on the wiggle while staying 20 dB better in PSNR. Invented PV5 magnitude on the three twins: 8 to 17 m/s (deconvolution; Wiener 2 to 6), 6 to 9 m/s (noise-only; Wiener 4 to 7). Sources: `eval-fresh-b_v2_2026-10-21/`, `eval-fresh-young_v1_2026-10-21/`.
+On fresh discs B keeps its wiggle advantage in the deconvolution regime and on the fresh Young simulations (without the two near face-on discs, which give nothing for any method: 0.74 vs 0.44); on the smooth analytic discs in the noise-only regime at blind SNR 19 to 34 it ties Wiener on the wiggle while staying 20 dB better in PSNR. Invented PV5 magnitude on the three twins: 8 to 17 m/s (deconvolution; Wiener 2 to 6), 6 to 9 m/s (noise-only; Wiener 4 to 7). Sources: `results/03-fresh-set/eval-fresh-b_v2_2026-10-21/`, `results/03-fresh-set/eval-fresh-young_v1_2026-10-21/`.
 
 **Candidate A (central flux fix): does not replace B; effect depends on the disc.** Known-truth compact centre (KepC): flux within 1 beam / truth 0.91 to 1.03 (B 1.28 to 1.41). Fresh Young simulations: M0 +8.8 points over B, better on all 8, PSNR +0.7 dB. Fresh analytic discs, noise-only: M0 -6.5 (worst -11.4). M1, M2 and every wiggle score identical to B in all cases. It cannot meet adoption rule (1) (wiggle +0.05) by construction; rule (2) passes averaged over rule (1)'s set (+1.1 M0 points) and fails on the analytic group alone. It is shipped as the optional flag `--central-fix`; by default central flux is taken from the input cube.

@@ -1,7 +1,7 @@
 # r8-m1-r4n_v1_2026-10-15
 
 Kaggle kernel `kaggle-acct-d/unified-r8-m1-r4n` (script kernel; the kernel source as pushed and its full log are in this folder; figures stay in the kernel Output).
-Kaggle version: see `results/RUNS.md` (author to confirm).
+Kaggle version: see [`RUNS.md`](../../RUNS.md).
 
 **What:** R8: fine-tune of R4n seed 3 with the line-centre (M1) loss, w 0.01, 20 rounds, lr 5e-5.
 

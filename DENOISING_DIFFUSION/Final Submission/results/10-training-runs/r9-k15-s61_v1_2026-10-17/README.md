@@ -4,9 +4,9 @@ Kaggle kernel `kaggle-acct-f/unified-r9-s61` (account account F; script kernel: 
 Kaggle version: 1 (one session, 644 min, train and eval complete). Checkpoint: `unified_r9_k15_s61.pth` (349 MB, zip-verified).
 
 **What:** R9 = the R6 recipe (R4n flags, 256 px crops, batch 4, seed 61) with `--train-beam-px 8,12`: every redraw is resampled so the beam spans 8 to 12 px, the beam scale where the size fix runs the network. A training-side version of the size fix.
-**Evaluated WITH both inference levers** (`--infer-beam-px 10 --infer-mode full --wiener2`, no gate in the table; the log shows the size fix running on the 480 / 600 px line cubes). So the like-for-like baselines are recipes A and B (`results/unified/combo-*`), NOT the lever-free R4n / R6 evaluations.
+**Evaluated WITH both inference levers** (`--infer-beam-px 10 --infer-mode full --wiener2`, no gate in the table; the log shows the size fix running on the 480 / 600 px line cubes). So the like-for-like baselines are recipes A and B (`results/09-design-choices/combo-a_v1_2026-10-15/` and `combo-b`), NOT the lever-free R4n / R6 evaluations.
 
-**Result (`compare_models.py --size 600`; R9 s61 = ONE model, A = 3-seed average, B = 4-model average, both with the same levers):**
+**Result (`experiments/compare_models.py --size 600`; R9 s61 = ONE model, A = 3-seed average, B = 4-model average, both with the same levers):**
 - line, 600 px: PSNR 51.37 (A 51.40, B 51.74); M0 / M1 / M2 56.6 / 89.9 / 90.3 (A 60.9 / 88.2 / 90.8, B 61.8 / 88.6 / 90.9); rc_r 0.74 (0.77, 0.76); spine_r 0.72 (0.73, 0.75).
 - hydro (9074 and 9074_ai, 600 px): rc_r 0.40 (A 0.37, B 0.38); spine_r 0.41 (0.72, 0.72); M0 / M1 / M2 23 / 34 / 51 (42 / 46 / 65). Clearly worse.
 - analytic an07 / an08: M0 / M1 / M2 53.7 / 62.5 / 69.2 (61.4 / 71.1 / 83.0), rc_r 0.80 (0.84).

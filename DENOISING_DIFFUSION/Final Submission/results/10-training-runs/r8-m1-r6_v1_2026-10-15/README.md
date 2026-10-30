@@ -1,7 +1,7 @@
 # r8-m1-r6_v1_2026-10-15
 
 Kaggle kernel `kaggle-acct-d/unified-r8-m1-r6` (script kernel; the kernel source as pushed and its full log are in this folder; figures stay in the kernel Output).
-Kaggle version: see `results/RUNS.md` (author to confirm).
+Kaggle version: see [`RUNS.md`](../../RUNS.md).
 
 **What:** R8 from R6, same fine-tune.
 

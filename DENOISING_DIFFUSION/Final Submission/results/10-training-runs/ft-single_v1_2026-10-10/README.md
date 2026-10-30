@@ -2,7 +2,7 @@
 
 Fine-tune of three single-output nb16 checkpoints on the mixed data (line emission + hydro sg_synth + analytic GI disks,
 sizes 256/300/320/480/600, deconvolution and noise-only tasks, p_ai 0.5), each in its own I/O format ("legacy" arm of
-`train_unified.py`): lr 1e-4, 20 rounds x 300 steps = 6000 steps, ~81-85 min per model. Same recipe as `unified-ft-kin`.
+`experiments/train_unified.py`): lr 1e-4, 20 rounds x 300 steps = 6000 steps, ~81-85 min per model. Same recipe as `unified-ft-kin`.
 
 | checkpoint | start | final round L1 / d1 / d2 |
 |---|---|---|

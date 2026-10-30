@@ -5,4 +5,4 @@ inside the kernel (`sarracen` installed, 8 of 8 asserted; same command and seed 
 scored as noise-only line cubes at 600 px by recipe B (`fresh_young_B`) and candidate A = B + `--central-fix` (`fresh_young_A_cfix`). Figures stayed
 in the Kaggle output (download reset). Table: `../eval-fresh-b_v2_2026-10-21/fresh_tables.md`.
 
-Figures (fetched 2026-10-22): `eval_fresh_young/figs_fresh_young_B/` and `figs_fresh_young_A_cfix/`, a moment / wiggle panel and a minor-axis PV plot per disc.
+Figures: a moment / wiggle panel and a minor-axis PV plot per disc stayed in the kernel Output; a selection is in [`../../final/figs/`](../../final/figs/).

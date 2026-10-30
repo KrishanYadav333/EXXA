@@ -1,9 +1,9 @@
-<!-- Generated 2026-10-18 by experiments/final_report.py from results/unified/eval-final-b_v1_2026-10-17/eval_final_B.json (Kaggle kaggle-acct-d/eval-final-b v1),
+<!-- Generated 2026-10-18 by experiments/final_report.py from results/07-image-sizes/eval-final-b_v1_2026-10-17/eval_final_B.json (Kaggle kaggle-acct-d/eval-final-b v1),
 recipe B as frozen 2026-10-18 03:00 (results/final/RECIPES.md); gate applied at inference. Replaces the 2026-10-14 version (pre-recipe-B model "final+gate",
 from eval-final; kept in git at a2b49b6). Command:
 python experiments/final_report.py --final recipeB=<json> --ladder recipeB=<json> --gate recipeB=<json> --out results/final/RESULTS.md
 The SNR ladder below is the Speedie r0.5 SELECTION disc: the reported wiggle-vs-SNR curve is the one-time final test on r1.5.
-PV curves, the hydro ladder, the 8 extra Young discs, the planet check and the real-ALMA tables are in results/final/ANALYSIS.md and results/alma/. -->
+PV curves, the hydro ladder, the 8 extra Young discs, the planet check and the real-ALMA tables are in results/final/ANALYSIS.md and results/05-real-alma/. -->
 
 # Final model `recipeB`: results at all five sizes
 

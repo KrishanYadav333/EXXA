@@ -10,6 +10,6 @@ A planet-like feature of 171 m/s, one beam wide, placed in a Young simulation is
 ## Runs in this folder
 
 - [`eval-planet_v1_2026-10-18/`](eval-planet_v1_2026-10-18/): the planet-like feature in Young simulations
-- [`final-kink-hd142666_v1_2026-10-23/`](final-kink-hd142666_v1_2026-10-23/): the HD 142666 mirror-asymmetry test (`kink/kink.json`)
+- [`final-kink-hd142666_v1_2026-10-23/`](final-kink-hd142666_v1_2026-10-23/): the HD 142666 mirror-asymmetry test (`final-kink-hd142666_v1_2026-10-23/kink/kink.json`)
 
 Where a run folder has its own README, it states the Kaggle run, its settings and its outcome. Kaggle accounts are anonymised.

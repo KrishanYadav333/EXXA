@@ -12,7 +12,7 @@ Both use the same inference flags; they differ only in which checkpoints are ave
 | twin invented wiggle, SNR 6 | +25 m/s | +34 m/s |
 
 Flags (both): `--gate 40,120,0.25 --wiener2 --infer-beam-px 10 --infer-mode full`; the size fix applies to noise-only cubes only (`train_unified.infer(..., ai)`).
-ALMA (`alma_unified.py`): the same by default (`--infer-beam-px 10`, two-pass Wiener on, gate 40,120,0.25); pass the four checkpoints of B to `--ckpt`.
+ALMA (`experiments/alma_unified.py`): the same by default (`--infer-beam-px 10`, two-pass Wiener on, gate 40,120,0.25); pass the four checkpoints of B to `--ckpt`.
 The four checkpoints are described in [`MODELS.md`](../../MODELS.md). If the Oct 17 R6 seeds are adopted they join B's list; A stays as stored here.
 
 ## FROZEN 2026-10-18 03:00 IST: recipe B

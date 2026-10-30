@@ -23,9 +23,9 @@ The model was selected on one disk: the Speedie et al. (2024) GI disk at one rad
 
 ## Runs in this folder
 
-- [`eval-final-test_v1_2026-10-18/`](eval-final-test_v1_2026-10-18/): the one-time final test (`eval_final_test_B.json`); run once, not to be re-run
+- [`eval-final-test_v1_2026-10-18/`](eval-final-test_v1_2026-10-18/): the one-time final test (`eval-final-test_v1_2026-10-18/eval_final_test_B.json`); run once, not to be re-run
 - [`eval-final-test-seeds_v1_2026-10-21/`](eval-final-test-seeds_v1_2026-10-21/): the same disk with three further noise realisations
 - [`eval-ladder-seeds_v1_2026-10-20/`](eval-ladder-seeds_v1_2026-10-20/): the selection disk over several noise realisations
-- [`oracle-speedie_v2_2026-10-15/`](oracle-speedie_v2_2026-10-15/): the oracle linear filter on the selection disk (`oracle_speedie.json`)
+- [`oracle-speedie_v2_2026-10-15/`](oracle-speedie_v2_2026-10-15/): the oracle linear filter on the selection disk (`oracle-speedie_v2_2026-10-15/oracle_speedie.json`)
 
 Where a run folder has its own README, it states the Kaggle run, its settings and its outcome. Kaggle accounts are anonymised.
