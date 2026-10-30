@@ -1,6 +1,6 @@
 # 04. The hard case: hydrodynamic disk 9074
 
-Disk 9074 is a self-gravitating hydrodynamic simulation held out from training. At its native SNR of 9.5 the model recovers the wavelength of the wiggle (spine spacing 167 to 178 au against 180 au) but not its pattern: wiggle score 0.45 against 0.31 for the noisy cube, and on the minor axis no better than the noisy cube or Wiener. A noise-free reference convolved only with the beam reaches 0.93, so the limit is noise, not resolution. The score rises with SNR (0.57 at SNR 40, 0.70 at SNR 80). A training disk at the same SNR scores about 0.2 higher, so part of the gap is generalisation. The model keeps 60 to 70 percent of the wiggle amplitude.
+Disk 9074 is a self-gravitating hydrodynamic simulation held out from training. At its native SNR of 9.5 the model recovers the wavelength of the wiggle (spine spacing 167 to 178 au against 180 au) but not its pattern: wiggle score 0.45 against 0.31 for the noisy cube, and on the minor axis no better than the noisy cube or Wiener. A noise-free reference convolved only with the beam reaches 0.93, so the limit is noise, not resolution. The score rises with SNR (0.57 at SNR 40, 0.70 at SNR 80). A training disk at the same SNR scores about 0.2 higher, so part of the gap is generalisation. The model keeps 57 to 72 percent of the wiggle amplitude (amplitude ratio of the rotation-curve residual, all SNRs and both sizes).
 
 ## Figures
 

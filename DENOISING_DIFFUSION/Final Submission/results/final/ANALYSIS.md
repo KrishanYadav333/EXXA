@@ -52,7 +52,7 @@ Sources: `results/04-hydro-9074/eval-ladder-sg_v1_2026-10-18/` (rc_r) and `resul
 | 9074 PV 5 px vs beam-matched truth (deconv.): model / dirty | 0.45 / 0.51 | 0.47 / 0.53 | 0.37 / 0.46 | 0.33 / 0.45 | 0.21 / 0.40 |
 | 9074 PV 5 px vs truth (noise-only): model / Wiener | 0.27 / 0.77 | 0.36 / 0.34 | 0.43 / 0.62 | 0.53 / 0.51 | 0.80 / 0.78 |
 
-Reading: noise-limited at native SNR (9.5) and also a generalisation gap of about 0.2 against a training disc at the same SNR; the model keeps 60 to 70
+Reading: noise-limited at native SNR (9.5) and also a generalisation gap of about 0.2 against a training disc at the same SNR; the model keeps 57 to 72
 percent of the wiggle's amplitude at every SNR; in the deconvolution regime at high SNR it equals dirty. On 9074's minor axis the model is no better than
 dirty or Wiener (negative result): the PV advantage on GI discs does not carry over to this hydro disc. The beam-only oracle reaches rc_r 0.93.
 
@@ -123,7 +123,7 @@ otherwise at most 1e-4.
 **Published rotation curves** (exoALMA VI 13CO, all 15 discs; `results/05-real-alma/s6-published-rotation_2026-10-19/`): median |ours - published| 64 m/s from the
 raw M1, 49 m/s from the denoised M1 (closer on 11 of 15); rotation-curve substructure correlation median 0.43 raw, 0.57 denoised (higher on 11 of 15).
 The remaining offset grows with inclination (thin-disc fit against exoALMA VI's elevated surface) and is the same raw or denoised.
-**Flux by radius:** den / raw 1.16 to 1.66 within 1 beam of the star, 1.05 to 1.24 at 1 to 3 beams, 0.94 to 1.03 outside 3 beams (all 15 discs). The
+**Flux by radius:** den / raw 1.16 to 1.66 within 1 beam of the star, 0.97 to 1.24 at 1 to 3 beams, 0.94 to 1.03 outside 3 beams (all 15 discs). The
 excess is the unresolved centre; flux from the denoised cube is used only outside 3 beams. V4046 Sgr: 1.022 outside 3 beams.
 **Pass marks**: truth-based line-centre error at most half of dirty's at SNR 12+ (exoALMA all pass; DSHARP HD 143006
 fails); flux within 5 percent outside 3 beams (13 / 15; DM Tau 0.946, HD 143006 0.938 fail); S2 all pass; S3 / S4 pass.
@@ -131,7 +131,7 @@ fails); flux within 5 percent outside 3 beams (13 / 15; DM Tau 0.946, HD 143006 
 ## 7c. Flux root cause, S7, error bars, cross-survey (2026-10-21)
 
 Sources: `results/05-real-alma/alma-kepc-mwc758_v1_2026-10-19/`, `results/05-real-alma/alma-s7-lowres_v1_2026-10-19/`, `results/05-real-alma/alma-seeds-mwc758_v1_2026-10-19/`, `results/05-real-alma/alma-hd143006-12co_v1_2026-10-19/`, `results/01-final-test/eval-ladder-seeds_v1_2026-10-20/`.
-- **Central flux excess = model bias:** analytic compact-centre disc in MWC 758 noise: model / true flux within 1 beam 1.30 to 1.39 at SNR 6 / 12 / 24 (dirty 1.00); faint outer flux under-represented at low SNR (0.41 beyond 6 beams at SNR 6). Denoised flux is used only outside 3 beams of the star.
+- **Central flux excess = model bias:** analytic compact-centre disc in MWC 758 noise: model / true flux within 1 beam 1.30 to 1.39 on the first noise draw (1.28 to 1.41 over three draws) at SNR 6 / 12 / 24 (dirty 1.00); faint outer flux under-represented at low SNR (0.41 beyond 6 beams at SNR 6). Denoised flux is used only outside 3 beams of the star.
 - **S7 (independent 0.3 arcsec images, 4 discs): no improvement shown.** Denoised rms difference 1.2 to 1.6 sigma_low vs raw 0.9 to 1.1; M1 difference 14 to 37 vs 8 to 12 m/s; the test favours raw (shared visibilities), and the independent image agrees with raw at the star. Reported as inconclusive-to-unfavourable.
 - **Error bars:** MWC 758 injection (5 noise realisations): GI rc_r SNR 12 / 24 = 0.844 +- 0.004 / 0.926 +- 0.002 (Wiener 0.638 +- 0.008 / 0.831 +- 0.001); line-centre error 20.0 +- 0.2 / 14.6 +- 0.2 m/s. Speedie r0.5 selection ladder (GI, 8 / 8 / 6 realisations at SNR 6 / 12 / 24): rc_r 0.24 +- 0.11 / 0.68 +- 0.03 / 0.84 +- 0.01; PV 5 px r 0.53 +- 0.22 / 0.74 +- 0.15 / 0.88 +- 0.05. The one-time final test (r1.5) is a single realisation by design.
 - **Invented wiggle on the no-wiggle twin (Speedie r0.5 twin, 4 realisations, `results/02-spurious-wiggle/eval-ladder-twin_v1_2026-10-21/`):** PV 5 px magnitude of the model 27 +- 5 / 18 +- 3 m/s at SNR 12 / 24 (clean 11.4; Wiener 33 +- 11 / 14 +- 6; dirty 510 / 113); 2D residual above clean 22.2 +- 0.9 / 18.9 +- 0.3 m/s (Wiener 46.5 / 23.5). A PV magnitude below about 25 to 30 m/s at SNR 12 (20 at SNR 24) cannot be told from this ripple.

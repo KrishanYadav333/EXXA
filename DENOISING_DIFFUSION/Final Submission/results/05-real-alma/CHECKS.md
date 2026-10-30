@@ -34,7 +34,7 @@ the model.
    everywhere (0.17 to 0.40 of dirty at SNR 12, GI disc and twin). DSHARP: AS 209 passes (0.38 GI, 0.31 twin); HD 143006 fails on the GI
    disc at SNR 12 (20 vs 34 m/s, 0.59) and passes on the twin (0.43). The real-data shift stays in the reports as a description.
 2. **Flux: within 5 percent of 1, measured outside 3 beam FWHM of the star**, the inner 3 beams reported separately.
-   Reason: the excess is concentrated on the unresolved centre (den / raw 1.16 to 1.66 within 1 beam, 1.05 to 1.24 at
+   Reason: the excess is concentrated on the unresolved centre (den / raw 1.16 to 1.66 within 1 beam, 0.97 to 1.24 at
    1 to 3 beams), where the truth-based injection (a disc with a central cavity) gives no calibration
    (`experiments/alma_flux_by_radius.py`). Outside 3 beams: 13 of 15 exoALMA discs pass (0.965 to 1.034); DM Tau (0.946)
    and HD 143006 (0.938) fail by 0.4 and 1.2 points. Truth-based (S5 flux / true flux, whole disc): AA Tau 1.016 / 1.025 at

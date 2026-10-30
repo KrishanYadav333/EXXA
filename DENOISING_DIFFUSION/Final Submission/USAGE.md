@@ -6,7 +6,7 @@ One script, `experiments/alma_unified.py`, takes a line-emission cube in FITS th
 
 - Python 3.10 or newer and `pip install -r requirements.txt` (numpy 2 is required).
 - The four checkpoints of the final model (see [`MODELS.md`](MODELS.md)). They are passed together, comma-separated, and averaged.
-- A GPU for real cubes. A 301-channel exoALMA cube at 512 px took about 27 minutes on a Kaggle GPU, about 70 minutes with the injection test. CPU works for small cubes (the smoke test below runs a toy cube in about 30 s) but is impractical at full size.
+- A GPU for real cubes. A 301-channel exoALMA cube at 512 px took 26 to 27 minutes on a Kaggle GPU, about 70 minutes with the injection test. CPU works for small cubes (the smoke test below runs a toy cube in about 30 s) but is impractical at full size.
 - A CLEANed image cube (`.fits`, axes RA, Dec, velocity or frequency) with the beam in the header (`BMAJ`, `BMIN`). Any channel width and pixel size. Raw visibilities or a dirty image are not supported.
 
 Check the installation first; this runs every step of the pipeline on a synthetic cube with a random network and needs no data or checkpoints:
@@ -43,7 +43,7 @@ python experiments/alma_unified.py --cube MyDisk_13CO.fits --ckpt $CKPTS --out o
 | a large field or a large beam (GPU memory) | `--max-scaled-px 1024` caps the resampled grid (default 1024); lower it if the GPU runs out of memory |
 | noise rising toward the edge of the field (primary-beam corrected cubes) | `--auto-fov` crops a square around the disk automatically, or `--fov-arcsec 6.4` crops a fixed field; the output keeps the matching coordinates |
 | continuum | default `--cont-sub auto` subtracts only when continuum is found on both sides of the line. Use `--cont-sub off` for cubes that are already continuum subtracted (exoALMA); `--cont-sub on` always subtracts |
-| an uncertainty map for M1 | `--boot 4`: re-denoises four copies of the denoised cube with new realisations of the cube's own noise and writes the per-pixel spread of M1 (noise term only; MWC 758 with `--boot 4` took about 2 hours instead of 27 minutes) |
+| an uncertainty map for M1 | `--boot 4`: re-denoises four copies of the denoised cube with new realisations of the cube's own noise and writes the per-pixel spread of M1 (noise term only; MWC 758 with `--boot 4` took about 2 hours (125 minutes) instead of 26 minutes) |
 | flux near the star | `--central-fix` rescales the flux within 2 to 4 beams of the centre to the input's. Off by default: it improves M0 on hydrodynamic disks and worsens it on smooth ones |
 
 The model settings themselves (four networks averaged, gate `40,120,0.25`, second Wiener pass, beam at 10 px) are the defaults and should not be changed for results comparable to this project. `--gate ""` and `--no-wiener2` exist to switch the gate and the second pass off.

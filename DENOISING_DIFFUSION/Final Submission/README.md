@@ -62,7 +62,7 @@ The run records keep the working names they were written with:
 
 - Nothing is recovered below peak SNR of about 6, or for wiggles below about 15 to 20 m/s.
 - The model draws about 18 to 27 m/s of spurious wiggle on disks that have none.
-- Amplitudes are underestimated (60 to 70 percent kept on the hydrodynamic disk 9074).
+- Amplitudes are underestimated (57 to 72 percent of the wiggle amplitude kept on the hydrodynamic disk 9074).
 - Flux within one beam of the star is over-estimated; use flux only beyond 3 beams.
 - Nearly face-on disks and compact, beam-sized features are not recovered.
 - On DSHARP's coarse 0.35 km/s channels the model needs interpolation to 0.1 km/s, and at SNR 12 it can lose to Wiener.
