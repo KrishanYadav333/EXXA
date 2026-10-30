@@ -11,7 +11,7 @@ Both use the same inference flags; they differ only in which checkpoints are ave
 | Speedie GI native M0, spine | 39 %, 0.39 | 28 %, 0.34 |
 | twin invented wiggle, SNR 6 | +25 m/s | +34 m/s |
 
-The B column of the last three rows can be recomputed from `results/07-image-sizes/eval-final-b_v1_2026-10-17/`. The A column comes from the original comparison run (`results/09-design-choices/combo-a_v1_2026-10-15/`), whose evaluation file is not in this repository, so it is not independently checkable here.
+Both columns are recomputed from `results/09-design-choices/combo-a_v1_2026-10-15/eval_combo_A.json` and `combo-b_v1_2026-10-15/eval_combo_B.json` (the five line holdouts at 600 px, the Speedie r0.5 disk and its twin at SNR 6, where the invented wiggle is the model's rotation-curve rms minus the truth's).
 
 Flags (both): `--gate 40,120,0.25 --wiener2 --infer-beam-px 10 --infer-mode full`; the size fix applies to noise-only cubes only (`train_unified.infer(..., ai)`).
 ALMA (`experiments/alma_unified.py`): the same by default (`--infer-beam-px 10`, two-pass Wiener on, gate 40,120,0.25); pass the four checkpoints of B to `--ckpt`.
