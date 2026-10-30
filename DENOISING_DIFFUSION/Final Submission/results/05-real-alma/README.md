@@ -33,6 +33,7 @@ Inference only; no model was trained on these observations. Setting: 512 px fiel
 ## Runs in this folder
 
 - [`aatau-s5flux_v1_2026-10-18/`](aatau-s5flux_v1_2026-10-18/)
+- [`final-submission-realcube_v1_2026-10-31/`](final-submission-realcube_v1_2026-10-31/): the branch itself, run on MWC 758 and AS 209 with the commands in USAGE.md; reproduces the archived numbers
 - [`alma-hd143006-12co_v1_2026-10-19/`](alma-hd143006-12co_v1_2026-10-19/)
 - [`alma-kepc-mwc758_v1_2026-10-19/`](alma-kepc-mwc758_v1_2026-10-19/)
 - [`alma-s3-recipes_v1_2026-10-18/`](alma-s3-recipes_v1_2026-10-18/)

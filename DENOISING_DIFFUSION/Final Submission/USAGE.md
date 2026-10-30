@@ -87,7 +87,7 @@ python experiments/alma_unified.py --cube AS209_CO.fits --ckpt $CKPTS --out out/
 | HD163296 | 1024 | 46.7 | 101 | 133.33 |
 | IMLup | 1280 | 47.5 | 158 | 144.5 |
 
-Geometry from Huang et al. (2018), Table 2 (continuum fits), distances as used by DSHARP. The archived outputs of these runs, with their reports, are in [`results/05-real-alma/`](results/05-real-alma/); the Kaggle scripts that ran them are `kernels/alma_exoalma.py` and `kernels/alma_dsharp.py`.
+Geometry from Huang et al. (2018), Table 2 (continuum fits), distances from DSHARP I Table 1 (Andrews et al. 2018). Run from this branch on a Kaggle GPU with the four final checkpoints, the MWC 758 and AS 209 commands above reproduce the archived numbers to the digit ([`results/05-real-alma/final-submission-realcube_v1_2026-10-31/`](results/05-real-alma/final-submission-realcube_v1_2026-10-31/)). The archived outputs of all 20 runs, with their reports, are in [`results/05-real-alma/`](results/05-real-alma/); the Kaggle scripts that ran them are `kernels/alma_exoalma.py` and `kernels/alma_dsharp.py`.
 
 ## What comes out
 
