@@ -27,7 +27,7 @@ def visualize_baselines(clean, dirty, idx=0, save_path="results/baseline_compari
         ax.set_title(title, fontsize=13)
         ax.axis('off')
 
-    plt.suptitle("Classical Denoising Baselines — Sample #{}".format(idx), fontsize=15)
+    plt.suptitle("Classical Denoising Baselines: Sample #{}".format(idx), fontsize=15)
     plt.tight_layout()
     plt.savefig(save_path, dpi=150, bbox_inches='tight')
     plt.show()

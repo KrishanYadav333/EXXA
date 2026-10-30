@@ -24,7 +24,7 @@ run**, not treated as pass marks: median |M1 shift| on bright pixels of at most 
 If the first run lands far outside these, the first suspect is preprocessing (pixel scale, normalization), not
 the model.
 
-### Revised thresholds (2026-10-19, after the final runs; evidence in `results/RUNS.md` and the archived reports under `results/alma/`)
+### Revised thresholds (2026-10-19, after the final runs; evidence in `results/RUNS.md` and the archived reports under `results/05-real-alma/`)
 
 1. **M1: the S1 shift against the raw M1 is dropped as a pass mark; a truth-based mark replaces it.** Reason: the raw M1 is
    itself noisy, so the shift measures the raw cube's error, not the model's. On every S5 injection the shift

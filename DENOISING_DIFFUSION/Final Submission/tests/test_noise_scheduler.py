@@ -1,4 +1,4 @@
-"""Tests for NoiseScheduler — schedule shapes, ranges, monotonicity, and q_sample."""
+"""Tests for NoiseScheduler: schedule shapes, ranges, monotonicity, and q_sample."""
 
 import pytest
 import torch

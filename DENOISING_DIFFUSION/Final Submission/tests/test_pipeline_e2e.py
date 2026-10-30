@@ -162,7 +162,7 @@ try:
     print("[10] resolution round-trip control OK (shape and moments finite)")
 
     print("\n" + "=" * 66)
-    print("Classical-baseline chain smoke test PASSED — notebook logic is sound")
+    print("Classical-baseline chain smoke test PASSED: notebook logic is sound")
     print("=" * 66)
 finally:
     shutil.rmtree(tmp, ignore_errors=True)

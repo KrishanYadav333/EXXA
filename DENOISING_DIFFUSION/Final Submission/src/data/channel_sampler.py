@@ -10,7 +10,7 @@ avoid extreme high-velocity channels (near 0 and near n_channels) which are most
 continuum with little signal and "will confuse the model."
 
 Note on `std`: for a Gaussian centered at 100, the band [50, 150] is center +/- 2*std
-when std=25, which captures ~95% of mass — far above the 75% target. To actually hit
+when std=25, which captures ~95% of mass: far above the 75% target. To actually hit
 ~75% in [50, 150] the std must be larger (~43). This module therefore auto-calibrates
 std toward the target fraction by default and reports the adjustment, rather than
 silently using a std that misses the target.
@@ -180,7 +180,7 @@ if __name__ == "__main__":
     ax.axvline(args.center, color="#E8715A", ls="--", lw=1.5, label=f"center={args.center}")
     ax.set_xlabel("velocity channel index")
     ax.set_ylabel("count")
-    ax.set_title(f"Sampled channel distribution — {len(idx)} channels, "
+    ax.set_title(f"Sampled channel distribution: {len(idx)} channels, "
                  f"{pct:.1f}% in [{BAND_LOW},{BAND_HIGH}]")
     ax.legend()
     ax.grid(alpha=0.3)

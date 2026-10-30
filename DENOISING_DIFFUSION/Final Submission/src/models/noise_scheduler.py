@@ -20,7 +20,7 @@ class NoiseScheduler:
 
     Args:
         timesteps: Total number of diffusion steps T
-        beta_schedule: Schedule type — "linear" or "cosine"
+        beta_schedule: Schedule type: "linear" or "cosine"
         beta_start: Starting beta value (used for linear schedule)
         beta_end: Ending beta value (used for linear schedule)
 
@@ -110,7 +110,7 @@ class NoiseScheduler:
             noise: Optional pre-sampled noise; sampled from N(0,I) if None
 
         Returns:
-            (x_t, noise) tuple — noisy image and the noise that was added
+            (x_t, noise) tuple: noisy image and the noise that was added
         """
         if noise is None:
             noise = torch.randn_like(x0)

@@ -14,9 +14,9 @@ Methods evaluated
     5. Wiener
 
   Neural network (patch-level inference on full 600×600 images via sliding window)
-    6. Autoencoder — MSE-only          (results/checkpoints/autoencoder_best.pth)
-    7. Autoencoder — HybridLoss        (results/checkpoints/autoencoder_hybrid_best.pth)
-    8. VAE — MSE+SSIM+KL               (results/checkpoints/vae_best.pth)
+    6. Autoencoder: MSE-only          (results/checkpoints/autoencoder_best.pth)
+    7. Autoencoder: HybridLoss        (results/checkpoints/autoencoder_hybrid_best.pth)
+    8. VAE: MSE+SSIM+KL               (results/checkpoints/vae_best.pth)
 
 All neural models use the same sliding-window patch tiling strategy:
   - 64×64 patches, stride 32 (50 % overlap)
@@ -133,7 +133,7 @@ def infer_full_image(
                 pred = model(t)
             patch_preds.extend(pred.squeeze(1).cpu().numpy())
 
-    # Stitch — linear weight (1 everywhere in this simple version, edge blending via overlap average)
+    # Stitch: linear weight (1 everywhere in this simple version, edge blending via overlap average)
     for pred, (r, c), (lo, hi) in zip(patch_preds, positions, norms):
         out_sum   [r:r+patch_size, c:c+patch_size] += pred.astype(np.float64)
         out_weight[r:r+patch_size, c:c+patch_size] += 1.0
@@ -220,7 +220,7 @@ def main():
         acc("Median  3x3",        median_filter(d, size=3))
         acc("Wiener",             wiener(d).astype(np.float32))
 
-        # Neural — patch-tiled on full 600×600
+        # Neural: patch-tiled on full 600×600
         acc("AE  MSE-only  (30ep)",      infer_full_image(ae_mse,    d, device))
         acc("AE  HybridLoss (30ep)",     infer_full_image(ae_hybrid, d, device))
         acc("VAE  MSE+SSIM+KL (30ep)",   infer_full_image(vae_model, d, device, is_vae=True))
@@ -239,7 +239,7 @@ def main():
              f"| {'SSIM':>{col_w[2]-2}} | {'MSE':>{col_w[3]-2}} |")
 
     lines = []
-    lines.append(f"\nUnified Comparison — {len(chosen)} Val Samples")
+    lines.append(f"\nUnified Comparison: {len(chosen)} Val Samples")
     lines.append(sep)
     lines.append(hdr)
     lines.append(sep.replace("-", "="))

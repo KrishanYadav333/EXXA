@@ -108,7 +108,7 @@ class PatchPairDataset(Dataset):
 
 
 class FlatPatchDataset(Dataset):
-    """Patch pairs as ``(dirty, clean)``, one patch per item — the U-Net's input shape.
+    """Patch pairs as ``(dirty, clean)``, one patch per item: the U-Net's input shape.
 
     ``PatchPairDataset`` returns all of an image's patches stacked as
     ``(n_patches, 2, p, p)``, which is what the DDPM trainer folds into its batch axis.

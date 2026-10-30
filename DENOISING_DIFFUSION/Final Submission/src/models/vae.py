@@ -105,7 +105,7 @@ class DenoisingVAE(nn.Module):
         # Pre-latent feature extraction (shared trunk before mu/log_var split)
         self.pre_latent = ConvBlock(4 * c, 8 * c)
 
-        # Latent distribution parameters — 1x1 convs preserve spatial dims
+        # Latent distribution parameters: 1x1 convs preserve spatial dims
         self.conv_mu      = nn.Conv2d(8 * c, latent_dim, 1)
         self.conv_log_var = nn.Conv2d(8 * c, latent_dim, 1)
 

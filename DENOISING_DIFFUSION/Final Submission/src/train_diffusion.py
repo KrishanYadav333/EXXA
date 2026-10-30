@@ -12,7 +12,7 @@ Pipeline
 3. Patch-based loaders via :class:`src.data.dataset.AstroDataset`
    (``parse_patches=True``, patch_size=64, n patches per image).
 4. Train :class:`src.training.diffusion.DenoisingDiffusion`
-   (ch=64, ch_mult=[1,2,2,4], attn@16 — fits a 4 GB RTX 2050).
+   (ch=64, ch_mult=[1,2,2,4], attn@16: fits a 4 GB RTX 2050).
 5. Save loss curve + best checkpoint, then DDIM-evaluate PSNR/SSIM/MSE.
 
 Examples

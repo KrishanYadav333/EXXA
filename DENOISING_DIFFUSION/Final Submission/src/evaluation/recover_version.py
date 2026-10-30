@@ -5,12 +5,12 @@ src/evaluation/recover_version.py
 Recover a Kaggle run's outputs from the commit its GitHub integration pushed.
 
 Several notebook versions completed, wrote their CSVs to the kernel Output tab, and were
-never downloaded — the artifacts are gone, but the *executed notebook* was pushed to git
+never downloaded: the artifacts are gone, but the *executed notebook* was pushed to git
 with its outputs still embedded. That commit holds every figure as base64 PNG and the whole
 stdout, which is enough to reconstruct most of what the run produced.
 
 Figures are named from the ``savefig`` call in their own cell rather than by output order.
-Ordering by position mislabelled three of notebook 05 v17's four figures — it writes
+Ordering by position mislabelled three of notebook 05 v17's four figures: it writes
 ``sweepwinner_loss.png``, not ``unet_line_emission_loss.png``, and writes no
 ``moment_map_holdout_summary.png`` at all.
 

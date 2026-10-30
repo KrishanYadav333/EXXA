@@ -48,6 +48,16 @@ All scores lie between 1 (identical to the noise-free truth) and 0 (no relation)
 
 A blind 3D Wiener filter, estimated from the cube itself, is the baseline. A U-Net learns a correction to it whose output layer starts at zero, so the untrained model equals the Wiener filter. Four networks are averaged; a do-no-harm gate blends the output back toward the Wiener result on cubes that need little denoising; the Wiener filter is recomputed from the first pass; and the cube is resampled so that the beam spans about 10 pixels. Settings: [`results/final/RECIPES.md`](results/final/RECIPES.md).
 
+### Names used in the results files
+
+The run records keep the working names they were written with:
+
+- **Recipe B** is the final model described above. **Recipe A** is the same pipeline with networks 1 to 3 only; it was stored for comparison and is not used.
+- **Candidates A, C, D, E** are the four improvement attempts in [`results/06-improvement-attempts/`](results/06-improvement-attempts/): a central-flux correction, more varied training disks, an amplitude-matching loss, and hydrodynamic simulations in training.
+- **R4n-long** (seeds 3, 11, 23) are networks 1 to 3; **R6** (256 px crops) is the first stage of network 4 and **R8-from-R6** is network 4. Checkpoint names follow these, see [`MODELS.md`](MODELS.md).
+- **The Speedie disk** (r1.5) is the held-out test disk of the main result; **9074** is the hydrodynamic disk used to measure amplitude loss.
+- **kaggle-acct-b** to **kaggle-acct-g** are the Kaggle accounts the runs were spread over.
+
 ## Limits
 
 - Nothing is recovered below peak SNR of about 6, or for wiggles below about 15 to 20 m/s.

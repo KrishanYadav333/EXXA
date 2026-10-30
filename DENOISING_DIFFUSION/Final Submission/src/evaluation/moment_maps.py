@@ -43,7 +43,7 @@ def generate_moment_maps(
         rms_n_channels: number of edge channels used to estimate the noise RMS.
         save_path: if given, save a 3-panel (M0|M1|M2) visualization here.
         data_velax: optional pre-loaded (data, velax) to collapse instead of reading
-            from disk — used to make moment maps from an in-memory DENOISED cube.
+            from disk: used to make moment maps from an in-memory DENOISED cube.
         title: optional suptitle for the figure.
         clip_sigma: channels below `clip_sigma * rms` are zeroed before collapsing.
             `bettermoments.collapse_{first,second}` divide by the per-pixel flux sum
@@ -57,21 +57,21 @@ def generate_moment_maps(
             `bettermoments` is extremely allocation-hungry. Measured on a 201x600x600
             float32 cube (0.27 GiB): `collapse_zeroth` peaks at 2x the cube,
             `collapse_first` at 8x and `collapse_second` at 12x, for 3.54 GiB of transient
-            per call — and there are three calls per cube. That, not the cubes themselves,
+            per call: and there are three calls per cube. That, not the cubes themselves,
             is what exhausted the Kaggle host and killed the kernel with no traceback
             across three runs; trimming the 289 MB cubes around it was never going to be
             enough.
 
             All three collapses are per-pixel along the spectral axis, so strips are exact
             rather than an approximation. Peak scales linearly with this value (it is
-            amplified ~13x by the collapse), and strips are also *faster* — better cache
+            amplified ~13x by the collapse), and strips are also *faster*: better cache
             locality:
 
                 untiled   3.54 GiB peak   5.24 s
                 8 MB      0.11 GiB peak   1.97 s      <- default
 
             M0 comes out bit-identical and the NaN pattern is unchanged. Over the brightest
-            10% of pixels — the region anything is reported from — M1 agrees to 9e-6
+            10% of pixels: the region anything is reported from: M1 agrees to 9e-6
             relative and M2 to 5e-11. Larger relative differences occur only on near-zero
             background pixels, where the denominator is ~0 and the value is meaningless
             anyway; that is the instability `clip_sigma` exists to suppress.
@@ -167,7 +167,7 @@ def _plot_clean_vs_dirty(clean_maps, dirty_maps, save_path, tag=""):
     # ylabels get cleared by axis('off'); add text labels instead
     fig.text(0.02, 0.74, "CLEAN", fontsize=14, fontweight="bold", rotation=90, va="center")
     fig.text(0.02, 0.26, "DIRTY", fontsize=14, fontweight="bold", rotation=90, va="center")
-    fig.suptitle(f"Moment maps — clean vs dirty  {tag}", fontweight="bold", fontsize=14)
+    fig.suptitle(f"Moment maps: clean vs dirty  {tag}", fontweight="bold", fontsize=14)
     plt.tight_layout(rect=[0.03, 0, 1, 0.97])
     plt.savefig(save_path, dpi=140)
     plt.close()
@@ -234,7 +234,7 @@ def moment_improvement(clean, dirty, denoised, frac: float = SIGNAL_FRAC) -> dic
     `clean`, `dirty`, `denoised` are each a (M0, M1, M2) triple.
 
     Scored over the signal mask rather than the whole map. Averaging over every finite
-    pixel — the previous behaviour — lets empty sky dominate, and dispersion in a pixel
+    pixel: the previous behaviour: lets empty sky dominate, and dispersion in a pixel
     with no line is not a quantity anyone reports. It penalised M2 hardest because M2 is
     a ratio whose denominator vanishes exactly there.
 
@@ -264,9 +264,9 @@ def moment_improvement(clean, dirty, denoised, frac: float = SIGNAL_FRAC) -> dic
 # --------------------------------------------------------------------------- #
 # Publication figure: clean / dirty / denoised on one honest scale             #
 # --------------------------------------------------------------------------- #
-MOMENT_LABELS = ("Moment 0 — integrated intensity",
-                 "Moment 1 — line-of-sight velocity",
-                 "Moment 2 — velocity dispersion")
+MOMENT_LABELS = ("Moment 0: integrated intensity",
+                 "Moment 1: line-of-sight velocity",
+                 "Moment 2: velocity dispersion")
 
 
 def _limits(maps, mask, kind, lo=1.0, hi=99.0):

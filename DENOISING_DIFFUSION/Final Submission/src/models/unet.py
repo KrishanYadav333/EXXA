@@ -342,7 +342,7 @@ def create_model(
     device: str = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu"),
 ) -> UNet:
     """
-    Original DDPM factory — 2-channel input (noisy+clean), 1-channel noise output.
+    Original DDPM factory: 2-channel input (noisy+clean), 1-channel noise output.
     Uses base_channels=64 and channel_multipliers=[1,2,4,8] (~51M params).
     Suitable for full 600x600 images with large GPU; too heavy for 64x64 patches.
 

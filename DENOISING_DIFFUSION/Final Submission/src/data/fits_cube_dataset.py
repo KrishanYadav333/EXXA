@@ -2,7 +2,7 @@
 """
 src/data/fits_cube_dataset.py
 =============================
-PyTorch Dataset for line-emission FITS cubes — full-image, channel-by-channel.
+PyTorch Dataset for line-emission FITS cubes: full-image, channel-by-channel.
 
 Design (2026-06-18 pivot to line emission):
   - Full-image input (no patches); downsample to `target_size` (default 256) for memory.
@@ -180,7 +180,7 @@ class FITSChannelDataset(Dataset):
             for ch in chans:
                 self.index.append((ci, ch))
 
-        # precompute per-cube continuum (dirty + clean) once, if enabled — each cube subtracts
+        # precompute per-cube continuum (dirty + clean) once, if enabled: each cube subtracts
         # its OWN continuum (the dirty and clean baselines differ).
         self.dirty_continuum = []
         self.clean_continuum = []
@@ -316,7 +316,7 @@ class FITSChannelDataset(Dataset):
         else:
             clean = self._load_channel(clean_path, ch)[None]    # (1, H, W), centre only
 
-        # continuum subtraction (before norm) — each cube subtracts its own line-free
+        # continuum subtraction (before norm): each cube subtracts its own line-free
         # baseline; the 2D continuum broadcasts across the neighbour stack
         if self.subtract_continuum:
             dirty = dirty - self.dirty_continuum[cube_idx]
@@ -394,16 +394,16 @@ if __name__ == "__main__":
     print(f"\nDataset length (train): {len(ds)}")
 
     dirty_t, clean_t = ds[0]
-    print(f"sample 0 — dirty {tuple(dirty_t.shape)} range [{dirty_t.min():.3f}, {dirty_t.max():.3f}]")
-    print(f"sample 0 — clean {tuple(clean_t.shape)} range [{clean_t.min():.3f}, {clean_t.max():.3f}]")
+    print(f"sample 0: dirty {tuple(dirty_t.shape)} range [{dirty_t.min():.3f}, {dirty_t.max():.3f}]")
+    print(f"sample 0: clean {tuple(clean_t.shape)} range [{clean_t.min():.3f}, {clean_t.max():.3f}]")
     ci, ch = ds.index[0]
-    print(f"sample 0 — cube '{ds.cube_paths[ci][2]}' channel {ch}")
+    print(f"sample 0: cube '{ds.cube_paths[ci][2]}' channel {ch}")
 
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     fig, ax = plt.subplots(1, 2, figsize=(10, 5))
     ax[0].imshow(dirty_t[0].numpy(), cmap="inferno"); ax[0].set_title(f"dirty (ch {ch})"); ax[0].axis("off")
     ax[1].imshow(clean_t[0].numpy(), cmap="inferno"); ax[1].set_title(f"clean (ch {ch})"); ax[1].axis("off")
-    fig.suptitle(f"Line-emission sample — {ds.cube_paths[ci][2]}, {args.target_size}x{args.target_size}",
+    fig.suptitle(f"Line-emission sample: {ds.cube_paths[ci][2]}, {args.target_size}x{args.target_size}",
                  fontweight="bold")
     plt.tight_layout(); plt.savefig(args.out, dpi=140)
     print(f"\nsaved -> {args.out}")

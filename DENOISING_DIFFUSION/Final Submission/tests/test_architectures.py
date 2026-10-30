@@ -82,7 +82,7 @@ for arch in ("autoencoder", "vae"):
     assert not isinstance(built.sigmoid, torch.nn.Sigmoid), \
         f"{arch} was built with a sigmoid -- it cannot represent targets >1"
 print(f"[3] sigmoid caps at {float(sig_out.max()):.3f}; linear head is unbounded "
-      f"(range {float(lin_out.min()):.2f}..{float(lin_out.max()):.2f}) — "
+      f"(range {float(lin_out.min()):.2f}..{float(lin_out.max()):.2f}): "
       "sweep-built AE/VAE are linear")
 
 # [4] base_channels scales capacity

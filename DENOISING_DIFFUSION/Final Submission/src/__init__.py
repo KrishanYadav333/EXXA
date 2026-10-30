@@ -1,4 +1,4 @@
-"""EXXA Denoising Package — ML pipeline for protoplanetary disk observations."""
+"""EXXA Denoising Package: ML pipeline for protoplanetary disk observations."""
 
 __version__ = "0.1.0"
 

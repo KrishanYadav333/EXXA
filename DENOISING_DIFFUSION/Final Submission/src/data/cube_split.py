@@ -9,7 +9,7 @@ Design decision (2026-06-18):
   - Hold out 3-4 ENTIRE cubes for inference only -- never in train OR val. These are
     reserved for end-to-end testing: denoise every channel, then build moment maps.
 
-Leakage guard — grouping by RunID:
+Leakage guard: grouping by RunID:
   Each RunID can have several RT variants (e.g. run_0002 -> rt_00, rt_01, rt_04),
   which are "somewhat identical" parameter variants of the same
   underlying simulation. To avoid train/holdout leakage, ALL cubes sharing a RunID are
@@ -91,7 +91,7 @@ def split_cubes(
         verbose: print a summary.
 
     Returns:
-        (train_cubes, val_cubes, holdout_cubes) — each a list of cube dicts
+        (train_cubes, val_cubes, holdout_cubes): each a list of cube dicts
         {folder, run_id, clean, dirty}. Holdout cubes share NO RunID with train/val.
     """
     cubes = list_cubes(data_dir)
@@ -138,7 +138,7 @@ def split_cubes(
 
     if verbose:
         print("=" * 70)
-        print("CUBE-LEVEL SPLIT (grouped by RunID — no channel-level leakage)")
+        print("CUBE-LEVEL SPLIT (grouped by RunID: no channel-level leakage)")
         print("=" * 70)
         print(f"  data_dir          : {data_dir}")
         print(f"  total cubes       : {len(cubes)}  across {len(run_ids)} distinct RunIDs")

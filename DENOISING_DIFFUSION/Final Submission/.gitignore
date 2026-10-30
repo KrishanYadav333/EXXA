@@ -23,7 +23,7 @@ env/
 # Pytest
 .pytest_cache/
 
-# Data — large .npy files tracked separately
+# Data: large .npy files tracked separately
 data/*.npy
 
 # Model checkpoints

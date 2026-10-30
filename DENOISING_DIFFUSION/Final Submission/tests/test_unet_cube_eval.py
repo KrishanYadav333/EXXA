@@ -194,7 +194,7 @@ try:
           f"overshoot {a['overshoot_mean']:.3f}, blobs/ch {a['blobs_per_channel']:.3f}")
 
     print("\n" + "=" * 68)
-    print("Notebook 08 critical path PASSED — safe to spend the GPU session")
+    print("Notebook 08 critical path PASSED: safe to spend the GPU session")
     print("=" * 68)
 finally:
     shutil.rmtree(tmp, ignore_errors=True)
