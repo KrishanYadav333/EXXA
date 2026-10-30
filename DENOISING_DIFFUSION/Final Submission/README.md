@@ -75,6 +75,7 @@ Four attempts to improve the model, judged by a rule fixed before they were trai
 ```text
 Final Submission/
 ├── README.md           this file
+├── USAGE.md            how to run the denoiser on a new or published cube
 ├── MODELS.md           the four trained networks and how to obtain them
 ├── REPRODUCE.md        the exact commands that trained them and produced the main evaluations
 ├── requirements.txt
@@ -105,18 +106,16 @@ numpy 2 or newer is required: on numpy 1.x the four tests that compute moment ma
 
 ## Using the denoiser on a cube
 
-The input is a CLEANed ALMA line cube in FITS, any channel width or pixel size; a raw uv-plane dirty image is not supported. It needs PyTorch, in practice a GPU, and the four checkpoints ([`MODELS.md`](MODELS.md)).
+The input is a CLEANed ALMA line cube in FITS, any channel width or pixel size. It needs PyTorch, in practice a GPU, and the four checkpoints ([`MODELS.md`](MODELS.md)).
 
 ```bash
-python experiments/alma_unified.py --cube MyDisk_13CO.fits --out results/alma/mydisk \
+python experiments/alma_unified.py --cube MyDisk_13CO.fits --out out/mydisk \
     --ckpt unified_r4n_k15_long.pth,unified_r4n_k15_long_s11.pth,unified_r4n_k15_long_s23.pth,unified_r8_m1_r6.pth \
     --crop 512 --target-beam-px 10 \
-    --incl 35 --pa 120 --dist 150      # optional: enables the rotation-curve and PV checks
+    --incl 35 --dist 150      # optional: enables the rotation-curve and PV checks
 ```
 
-Add `--spec-interp 0.1` for channels coarser than 0.1 km/s and `--boot 4` for an empirical M1 uncertainty map. The script finds the line-free channels and the noise level itself, decides on continuum subtraction, denoises, and returns the cube on its original grid with moment maps and a `report.json` (noise reduction, flux retained, structure generated in empty channels and, given the geometry, the rotation-curve residual and PV curve).
-
-**Before using the output for science:** do not take error bars from a fit to the denoised cube (its noise is correlated, so fitting tools report uncertainties that are too small; fit the raw cube); do not read the absence of a kink in a denoised cube as evidence of no kink; crop to the disk when the noise varies across the field (`--crop`, `--auto-fov`); do not force a second continuum subtraction on exoALMA cubes; use flux only beyond 3 beams.
+[`USAGE.md`](USAGE.md) covers the rest: which options to use for coarse channels, noisy field edges, continuum and uncertainty maps; the exact commands and geometry for the 20 published disks; every output file and check in the report; how to test recovery in a cube's own noise by injecting a disk with a known answer; and what not to do with the output.
 
 ## Data and models
 

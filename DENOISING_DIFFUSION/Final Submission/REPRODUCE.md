@@ -57,7 +57,7 @@ python experiments/train_unified.py --eval-only --eval-ckpt $CKPTS $INFER --n-li
     --speedie-dir <speedie cubes> --eval-speedie "" --eval-ladder 6,12,24 --ladder-base GI_r1.5,Kep_r1.5 --tag final_test_B --out runs/final_test
 ```
 
-The five-size evaluation, the fresh test set and the real-data runs use the same model; their exact arguments are in `kernels/eval_five_sizes.py`, `kernels/eval_fresh_set.py`, `kernels/alma_exoalma.py` and `kernels/alma_dsharp.py`. For a single real cube, use `experiments/alma_unified.py` as shown in the README.
+The five-size evaluation, the fresh test set and the real-data runs use the same model; their exact arguments are in `kernels/eval_five_sizes.py`, `kernels/eval_fresh_set.py`, `kernels/alma_exoalma.py` and `kernels/alma_dsharp.py`. For a single cube, new or published, see [`USAGE.md`](USAGE.md).
 
 ## What has and has not been re-run
 
