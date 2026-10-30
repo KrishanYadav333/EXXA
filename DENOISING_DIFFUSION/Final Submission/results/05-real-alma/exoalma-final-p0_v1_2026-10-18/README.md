@@ -1,6 +1,6 @@
 # exoalma-final-p0_v1_2026-10-18
 
-Kaggle kernel `kaggle-acct-d/alma-exoalma-final-p0` v1 (account account D), 2026-10-18. Recipe B, exoALMA 13CO fiducial, 512 px field + `--target-beam-px 10`, continuum auto, PA from
+Kaggle kernel `kaggle-acct-d/alma-exoalma-final-p0` v1 (account D), 2026-10-18. Recipe B, exoALMA 13CO fiducial, 512 px field + `--target-beam-px 10`, continuum auto, PA from
 exoALMA I Table 2. MWC 758 (S5), HD 34282, HD 135344B (S5), V4046 Sgr. Denoised / moment FITS stay in the kernel Output.  Table (`experiments/alma_table.py`):
 
 | disc | blind SNR | beam px (zoom) | flux | noise red. | S2 | S6 rc_r | PV5 r | PV5 mag den / raw (m/s) | PA sky fit / lit (diff mod 180) | M* | S5 GI rc_r | cont. sub |

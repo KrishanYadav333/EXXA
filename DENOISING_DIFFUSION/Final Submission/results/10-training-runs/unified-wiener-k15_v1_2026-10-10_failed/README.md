@@ -1,4 +1,4 @@
-# unified-wiener-k15 v1 (Kaggle, krishanyadav333), FAILED at round 5/40
+# unified-wiener-k15 v1 (Kaggle, account A), FAILED at round 5/40
 
 Round 2 of the unified model: Wiener + learned correction, window +-1.5 km/s (K=15, 31 channels in, 63 with the
 Wiener copy), deconvolution and noise-only tasks (p_ai 0.5), planned 40 rounds x 300 steps. Launched 2026-10-10 05:44 IST.

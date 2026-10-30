@@ -1,6 +1,6 @@
 # exoalma-final-p1_v1_2026-10-18
 
-Kaggle kernel `kaggle-acct-d/alma-exoalma-final-p1` v1 (account account D), pushed about 10:25 IST 2026-10-18, done by 14:56. Recipe B, exoALMA 13CO fiducial, 512 px field +
+Kaggle kernel `kaggle-acct-d/alma-exoalma-final-p1` v1 (account D), pushed about 10:25 IST 2026-10-18, done by 14:56. Recipe B, exoALMA 13CO fiducial, 512 px field +
 `--target-beam-px 10` (scale 1.667), continuum auto (none found), PA from exoALMA I Table 2. DM Tau (S5), CQ Tau, HD 143006, J1842. Denoised / moment FITS stay in the kernel Output.
 Table (`experiments/alma_table.py`):
 

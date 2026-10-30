@@ -1,6 +1,6 @@
 # dsharp-final-hd163296_v1_2026-10-18
 
-Kaggle kernel `kaggle-acct-b/alma-dsharp-final-hd163296` v1 (account account B), pushed about 13:45 IST, done by 14:05. HD 163296 alone (`PART, NPART = 3, 5`), rerun after
+Kaggle kernel `kaggle-acct-b/alma-dsharp-final-hd163296` v1 (account B), pushed about 13:45 IST, done by 14:05. HD 163296 alone (`PART, NPART = 3, 5`), rerun after
 the multi-beam header failure in `-p1`; beam from the BEAMS table (105 channels, median 0.104 x 0.095 arcsec, 8.0 px at 13 mas: no zoom, the 1024 px cap).
 Recipe B, `--spec-interp 0.1`, continuum auto (none found). Denoised / moment FITS stay in the kernel Output.
 

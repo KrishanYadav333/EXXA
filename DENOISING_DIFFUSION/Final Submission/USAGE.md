@@ -38,7 +38,7 @@ python experiments/alma_unified.py --cube MyDisk_13CO.fits --ckpt $CKPTS --out o
 
 | situation | option |
 |---|---|
-| any cube | `--crop 512 --target-beam-px 10`: a 512 px centre crop (default 1024), resampled so the beam spans about 10 px (it only zooms in: a cube whose beam is already wider than 10 px is left at its own scale), as in every real-data run |
+| any cube | `--crop 512 --target-beam-px 10`: a 512 px centre crop (default 1024), resampled so the beam spans about 10 px (it only zooms in, never out). Independently, `--infer-beam-px` (default 10) runs the network on a coarser grid when the beam is wider than 12 px, so together the network always sees a beam of about 10 px. Every real-data run used `--target-beam-px 10` |
 | channels coarser than 0.1 km/s (DSHARP: 0.35 km/s) | `--spec-interp 0.1`: interpolate to 0.1 km/s along velocity, denoise there, average back. On the native 0.35 km/s channels the wiggle score falls (AS 209 at SNR 12: 0.19) |
 | a large field or a large beam (GPU memory) | `--max-scaled-px 1024` caps the resampled grid (default 1024); lower it if the GPU runs out of memory |
 | noise rising toward the edge of the field (primary-beam corrected cubes) | `--auto-fov` crops a square around the disk automatically, or `--fov-arcsec 6.4` crops a fixed field; the output keeps the matching coordinates |

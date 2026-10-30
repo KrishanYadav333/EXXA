@@ -1,6 +1,6 @@
 # dsharp-final-p0_v1_2026-10-18
 
-Kaggle kernel `kaggle-acct-b/alma-dsharp-final-p0` v1 (account account B), pushed about 10:25 IST 2026-10-18, done by 13:45. Recipe B, DSHARP 12CO, `--spec-interp 0.1`,
+Kaggle kernel `kaggle-acct-b/alma-dsharp-final-p0` v1 (account B), pushed about 10:25 IST 2026-10-18, done by 13:45. Recipe B, DSHARP 12CO, `--spec-interp 0.1`,
 `--target-beam-px 10 --max-scaled-px 1024`, continuum auto (none found on any). HD 143006 (S5), HD 142666, IM Lup. Denoised / moment FITS stay in the kernel
 Output (needed for the local geometry refit). Table (`experiments/alma_table.py`):
 

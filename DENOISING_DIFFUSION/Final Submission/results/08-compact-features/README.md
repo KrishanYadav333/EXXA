@@ -1,6 +1,6 @@
 # 08. Compact, planet-like features
 
-A planet-like feature of 171 m/s, one beam wide, placed in a Young simulation is recovered by none of the methods tested (the model keeps 0.03 of its amplitude). On the real disk HD 142666, where Terry et al. (2023) identified a planet kink, a mirror-asymmetry test of the channel maps, fixed before the run, finds nothing above the noise in the raw cube at its SNR of about 7 (0.9 sigma, no larger than in control regions), so whether denoising preserves that kink could not be tested.
+A planet-like feature of 171 m/s, one beam wide, placed in a Young simulation is recovered by none of the methods tested (the model keeps 0.03 of its amplitude). Larger features in the same check are kept: 387 and 566 m/s features are recovered at 0.78 and 0.82 of their amplitude (correlation 0.99 and 0.94). On the real disk HD 142666, where Terry et al. (2023) identified a planet kink, a mirror-asymmetry test of the channel maps, fixed before the run, finds nothing above the noise in the raw cube at its SNR of about 7 (0.9 sigma, no larger than in control regions), so whether denoising preserves that kink could not be tested.
 
 ## Figures
 

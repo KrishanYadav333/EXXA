@@ -1,4 +1,4 @@
-# unified-ft-single v1 (Kaggle, krishanyadav333), COMPLETE
+# unified-ft-single v1 (Kaggle, account A), COMPLETE
 
 Fine-tune of three single-output nb16 checkpoints on the mixed data (line emission + hydro sg_synth + analytic GI disks,
 sizes 256/300/320/480/600, deconvolution and noise-only tasks, p_ai 0.5), each in its own I/O format ("legacy" arm of

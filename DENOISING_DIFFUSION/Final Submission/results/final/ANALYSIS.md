@@ -32,7 +32,7 @@ gain there is over Wiener, not over dirty. Invented wiggle on the no-wiggle twin
 
 Source: `results/09-design-choices/eval-young-test2_v1_2026-10-18/` (reproduced to the last digit by a duplicate run). Clean minor-axis wiggles of 1 to 14 m/s
 (PV magnitude). Means at 600 px, model / Wiener / dirty: rc_r 0.35 / 0.24 / 0.20, PV r (5 px) 0.30 / 0.07 / 0.33. Moments and PSNR strong on every disc
-(PSNR 49.5 to 53.2 dB vs Wiener 31.2 to 33.8; M1 89 to 94 percent). Two near face-on discs (14, 23 deg) give nothing. Statement: the model recovers GI
+(PSNR 49.5 to 53.2 dB vs Wiener 31.2 to 33.8; M1 89 to 94 percent). Two near face-on discs (14, 23 deg; the simulations' inclinations are not stored in this repository) give nothing. Statement: the model recovers GI
 wiggles whose minor-axis amplitude is tens of m/s or more (Speedie, Young M0.7 R50 and M1 R100, an07); about 10 m/s or less, or nearly face-on, is not
 recovered by it or by anything else tested.
 
@@ -52,9 +52,8 @@ Sources: `results/04-hydro-9074/eval-ladder-sg_v1_2026-10-18/` (rc_r) and `resul
 | 9074 PV 5 px vs beam-matched truth (deconv.): model / dirty | 0.45 / 0.51 | 0.47 / 0.53 | 0.37 / 0.46 | 0.33 / 0.45 | 0.21 / 0.40 |
 | 9074 PV 5 px vs truth (noise-only): model / Wiener | 0.27 / 0.77 | 0.36 / 0.34 | 0.43 / 0.62 | 0.53 / 0.51 | 0.80 / 0.78 |
 
-Reading: noise-limited at native SNR (9.5) and also a generalisation gap of about 0.2 against a training disc at the same SNR; the model keeps 57 to 72
-percent of the wiggle's amplitude at every SNR; in the deconvolution regime at high SNR it equals dirty. On 9074's minor axis the model is no better than
-dirty or Wiener (negative result): the PV advantage on GI discs does not carry over to this hydro disc. The beam-only oracle reaches rc_r 0.93.
+Reading: noise-limited at native SNR (9.5) and also a generalisation gap of 0.12 to 0.21 against a training disc at the same SNR on the ladder; the model keeps 57 to 72
+percent of the wiggle's amplitude at every SNR; in the deconvolution regime at high SNR it equals dirty. On 9074's minor axis the model is worse than Wiener in the noise-only case (0.27 against 0.77) and not above dirty in the deconvolution case (negative result): the PV advantage on GI discs does not carry over to this hydro disc. The beam-only oracle reaches rc_r 0.93.
 
 ## 5. Planet check (two spots flagged in the review)
 
