@@ -1,7 +1,7 @@
 # r9-k15-s61_v1_2026-10-17
 
 Kaggle kernel `kaggle-acct-f/unified-r9-s61` (account account F; script kernel: the kernel source as pushed and its full log are in this folder; figures stay in the kernel Output).
-Kaggle version: 1 (one session, 644 min, train and eval complete). Checkpoint: `models/unified/unified_r9_k15_s61.pth` (349 MB, zip-verified).
+Kaggle version: 1 (one session, 644 min, train and eval complete). Checkpoint: `unified_r9_k15_s61.pth` (349 MB, zip-verified).
 
 **What:** R9 = the R6 recipe (R4n flags, 256 px crops, batch 4, seed 61) with `--train-beam-px 8,12`: every redraw is resampled so the beam spans 8 to 12 px, the beam scale where the size fix runs the network. A training-side version of the size fix.
 **Evaluated WITH both inference levers** (`--infer-beam-px 10 --infer-mode full --wiener2`, no gate in the table; the log shows the size fix running on the 480 / 600 px line cubes). So the like-for-like baselines are recipes A and B (`results/unified/combo-*`), NOT the lever-free R4n / R6 evaluations.

@@ -1,10 +1,15 @@
 """Step 1: score candidate runs against the control (three seeds, single network) on the fresh set.
 "Fresh mean" = an09 to an16 noise-only (_ai) + the 8 Young TEST3 discs; twins = an09k / an12k / an15k, both regimes, invented PV5 magnitude.
-Run from DENOISING_DIFFUSION: python experiments/cand_step1.py [CAND_NAME=eval1.json,eval2.json ...]"""
+Run from this folder: python experiments/cand_step1.py [CAND_NAME=eval1.json,eval2.json ...]"""
 import glob, json, sys, numpy as np
 
-CTRL = sorted(glob.glob("results/unified/eval-fresh-control_v1_2026-10-22/eval_fresh_control/eval_ctrl_r4n_s*.json"))
-B = ["results/unified/eval-fresh-b_v2_2026-10-21/eval_fresh_B.json", "results/unified/eval-fresh-young_v1_2026-10-21/eval_fresh_young_B.json"]
+def run_dir(name):
+    """Folder of a run under results/NN-.../ (runs are grouped by result)."""
+    return glob.glob(f"results/[0-9]*/{name}")[0]
+
+
+CTRL = sorted(glob.glob(f"{run_dir('eval-fresh-control_v1_2026-10-22')}/eval_fresh_control/eval_ctrl_r4n_s*.json"))
+B = [f"{run_dir('eval-fresh-b_v2_2026-10-21')}/eval_fresh_B.json", f"{run_dir('eval-fresh-young_v1_2026-10-21')}/eval_fresh_young_B.json"]
 
 
 def is_twin(k):

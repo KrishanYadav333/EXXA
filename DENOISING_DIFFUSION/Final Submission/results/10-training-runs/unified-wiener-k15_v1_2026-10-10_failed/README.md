@@ -14,4 +14,4 @@ aborts only after 50 in a row or if the inputs themselves are non-finite. The ro
 steps and the log prints the running count of skipped steps. Checked locally on MPS by injecting two NaN
 losses into a smoke run: both skipped, run completed. Relaunched as v2.
 
-Files: `run_log.txt` (full kernel log), `kernel_unified.py` (the script as it ran, K=15).
+Files: the README only (the log and script stay in the kernel Output).

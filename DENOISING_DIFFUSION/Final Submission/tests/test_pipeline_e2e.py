@@ -2,7 +2,7 @@
 """
 End-to-end smoke test of the classical-baseline chain on SYNTHETIC FITS cubes.
 
-Exercises exactly the path 07-classical-baselines.ipynb takes -- split_cubes ->
+Exercises exactly the path the classical-baseline pipeline takes -- split_cubes ->
 FITSChannelDataset -> tune_on_validation -> denoise_cube -> generate_moment_maps
 -> summarise_improvements -- so a broken import or a shape/API mismatch is caught
 here instead of halfway through a Kaggle session (which is how the missing

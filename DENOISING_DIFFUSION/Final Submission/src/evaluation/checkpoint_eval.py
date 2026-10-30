@@ -1,8 +1,7 @@
 """
 One protocol, every checkpoint.
 
-Until now each checkpoint family had its own scoring script (`score_08_kinematic.py`, `wiggle_domain_split.py`,
-`score_sg_wiggle.py`, `m1_rendering_audit.py`), each with its own preprocessing, so no two checkpoints had ever
+Earlier, each checkpoint family had its own scoring script with its own preprocessing, so no two checkpoints had
 been put through the same checks on the same cubes. This module gives every checkpoint one interface and runs
 the same battery on the same cases. It only composes functions that already exist and have published numbers
 (`moment_improvement`, `quadratic_moment1`, `fit_keplerian`, `channel_artifacts`, `plot_moment_comparison`), so
@@ -305,7 +304,7 @@ def line_emission_cases(data_dir: str, limit: Optional[int] = None, channels: Op
 
     `fix_incl`: hold the Keplerian fit's inclination at the true value from the cube's `.para` file. That is what
     `fit_keplerian`'s own docstring prescribes whenever inclination is known independently, because mass and
-    inclination are nearly degenerate. The free fit used by `score_08_kinematic.py` was degenerate on two of these
+    inclination are nearly degenerate. The free fit was degenerate on two of these
     five cubes; False reproduces it.
     """
     from src.data.cube_split import split_cubes
@@ -332,7 +331,7 @@ def line_emission_cases(data_dir: str, limit: Optional[int] = None, channels: Op
 
 
 def sg_v2_case(sg_dir: str, ch0: int = 240, ch1: int = 361, channels: Optional[slice] = None) -> Case:
-    """The SG v2 cube (`kinematic_data_v2`), channels 240..360 as in wiggle_domain_split.py / wiggle_all_methods.py."""
+    """The SG v2 cube (`kinematic_data_v2`), channels 240..360 as in experiments/wiggle_domain_split.py."""
     from src.data.fits_cube_dataset import beam_features_of
     hc, hdr, cdata = _hdr_and_data(os.path.join(sg_dir, "clean_sg.fits"))
     hd, _, ddata = _hdr_and_data(os.path.join(sg_dir, "dirty_sg.fits"))
@@ -351,7 +350,7 @@ def sg_v2_case(sg_dir: str, ch0: int = 240, ch1: int = 361, channels: Optional[s
 
 def sg_holdout_case(folder: str, true_incl: float = 20.0, dist_pc: float = 175.178,
                     channels: Optional[slice] = None) -> Case:
-    """The SG holdout disk run_9074_00025_rt_00, whose .para states inclination 20 deg (score_sg_wiggle.py)."""
+    """The SG holdout disk run_9074_00025_rt_00, whose .para states inclination 20 deg."""
     from src.data.fits_cube_dataset import beam_features_of
     name = os.path.basename(folder.rstrip("/"))
     hc, hdr, cdata = _hdr_and_data(os.path.join(folder, f"{name}_clean.fits"))

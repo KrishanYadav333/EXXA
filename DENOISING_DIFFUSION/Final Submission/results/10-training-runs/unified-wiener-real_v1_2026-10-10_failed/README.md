@@ -4,7 +4,7 @@ R3 of K=3, lr 3e-4, realistic noise (peak SNR 10-150, channel kernel a ~ U(0, 0.
 12000 steps planned, 19 training cubes. Rounds 1-6 healthy and better than unified-wiener v1 (L1 0.0139 at round 6 against 0.018-0.025 there).
 Step 2013: first non-finite loss on ORDINARY inputs (range -1..2.8); round 7: 70 non-finite steps of 300, L1 0.0257; then 51 in a row, abort.
 
-Cause (probe_ckpt.py on the saved round-7 weights, fp32, ordinary real batches): weights finite, output max 0.67, but the decoder shortcut convs
+Cause (a probe of the saved round-7 weights, fp32, ordinary real batches): weights finite, output max 0.67, but the decoder shortcut convs
 reach 1.27e5 (dec_blocks.2.0.shortcut) and 9.9e4 (dec_blocks.3.0.shortcut); fp16 max is 65504, so the fp16-autocast forward overflows to inf.
 The U-Net's residual stream (out = h + shortcut(x), src/models/unet.py) is not normalised and grows with training. Not the data, not the
 noise recipe, not the learning rate alone.

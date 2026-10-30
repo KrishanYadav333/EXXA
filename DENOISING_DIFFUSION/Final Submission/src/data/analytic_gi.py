@@ -1,5 +1,5 @@
 """
-Semi-analytic GI-wiggle disk (C. Longarini's model, `giggle_functions.py`, received 2026-10).
+Semi-analytic GI-wiggle disk (after C. Longarini's model).
 
 A self-gravitating disk rotates faster than Keplerian (its own mass adds to the pull) and an m-armed
 logarithmic spiral perturbs the radial and azimuthal velocity by an amount that scales with the
@@ -12,7 +12,7 @@ What is ported (the `momentoneC` path of the original, the one its plots use), a
     perturbations `ura`/`uphC`, sky velocity = (u_phi cos(phi) + u_r sin(phi)) sin(i).
   - vectorised (no Python pixel loops); `np.interp` for the rotation curve instead of an index lookup.
   - not ported: `get_masses`, `amplitude_central_channel`, the `*eta` variants and the plot code
-    (bugs listed in research.md 2026-10-09; the eta variants carry no azimuthal spiral term).
+    (the eta variants carry no azimuthal spiral term).
 Units: au, Msun, km/s.
 
 Added here (NOT in the original, chosen and not derived): the emission model that turns the velocity

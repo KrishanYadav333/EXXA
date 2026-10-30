@@ -1,5 +1,5 @@
 """
-FINAL EVALUATION of recipe B, derived from kernel_combo.py (combo-b): all five sizes and the position-velocity (PV) curves.
+FINAL EVALUATION of recipe B: all five sizes and the position-velocity (PV) curves.
 Kaggle kernel: the two inference-only levers TOGETHER (size-test: network on a ~10 px-beam grid, mode full; wiener2-test: second pass from
 a Wiener built on the first pass), on the full decision set, gate on. VARIANT picks the ensemble: A = R4n-long seeds 3 + 11 + 23; B = A + R8-from-R6 (4 nets);
 C = R8-from-R6 alone. Cases: 5 line holdouts, 5 held-out Young sims, 9074 (+ _ai), an07, an08, SG v2 at 256 / 600 px; Speedie GI / twin r0.5 + r1.5 native; ladder 3/6/12/24.
@@ -51,7 +51,7 @@ for p in glob.glob("/kaggle/input/**/run_00*", recursive=True):
     if os.path.isdir(p):
         le[os.path.dirname(p)] = le.get(os.path.dirname(p), 0) + 1
 LE_DIR = max(le, key=le.get)
-DATA = f"{PKG}/self-gravitating cube and dirty cube"            # hydro + SG v2 + analytic, as kernel_unified.py does
+DATA = f"{PKG}/self-gravitating cube and dirty cube"            # hydro + SG v2 + analytic
 os.makedirs(DATA, exist_ok=True)
 synth = os.path.dirname(glob.glob("/kaggle/input/**/run_9015_00370_rt_00", recursive=True)[0])
 v2 = os.path.dirname(glob.glob("/kaggle/input/**/clean_sg.fits", recursive=True)[0])

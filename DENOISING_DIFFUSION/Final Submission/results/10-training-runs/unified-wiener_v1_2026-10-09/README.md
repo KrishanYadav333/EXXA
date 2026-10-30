@@ -4,5 +4,5 @@ Private GPU script kernel `krishanyadav333/unified-wiener`; code `experiments/tr
 shipped in `exxa-wiggle-code` (not committed at launch). 12,000 steps in 163 min, scored 197 min in total. Trained on 9 line-emission cubes, hydro 9015/9019/9025/9032, analytic an01-an06;
 held out: 5 line cubes, 9074, SG v2, an07, an08. A first smoke version (v1 of `unified-smoke`) produced NaN losses because hydro 9019 is in different units (peak 1.4e10) and overflowed float16; fixed before this run.
 
-Files: `run_log.txt`, `eval_wiener.json` (every case at every size; 4 cases FAILED to score: run_0002_00560_rt_04 at 256 and 300, an08 at 300 and 320, an empty spine track, fixed afterwards).
+Files: `eval_wiener.json` (every case at every size; 4 cases FAILED to score: run_0002_00560_rt_04 at 256 and 300, an08 at 300 and 320, an empty spine track, fixed afterwards).
 Checkpoint: `unified_wiener/unified_wiener.pth` in the kernel Output.

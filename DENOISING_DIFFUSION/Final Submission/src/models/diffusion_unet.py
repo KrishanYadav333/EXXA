@@ -1,8 +1,8 @@
 """
 src/models/diffusion_unet.py
 ============================
-Conditional DDPM U-Net ported from the GSoC main notebook
-(`GSOC_2025_EXXA_Main.ipynb`, "Model" cell) and scaled down for a 4 GB RTX 2050.
+Conditional DDPM U-Net of the midterm experiments,
+scaled down for a 4 GB RTX 2050.
 
 Lineage: https://github.com/ermongroup/ddim and https://github.com/bahjat-kawar/ddrm.
 

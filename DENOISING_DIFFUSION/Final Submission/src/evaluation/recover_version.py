@@ -19,7 +19,7 @@ carries the same numbers, reconstruct it by hand and name the file ``.RECONSTRUC
 so it is never mistaken for the artifact the run actually wrote.
 
 Usage:
-    python -m src.evaluation.recover_version <commit> <notebook.ipynb> <dest-dir>
+    python -m src.evaluation.recover_version <commit> <notebook-path> <dest-dir>
 """
 
 import base64

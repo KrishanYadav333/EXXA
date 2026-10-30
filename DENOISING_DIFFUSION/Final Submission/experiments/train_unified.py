@@ -9,7 +9,7 @@ model falls below dirty. They were trained on one kind of cube at one resolution
 Data (fresh noise every round; a cube is never seen with the same noise twice):
   line     9 line-emission cubes (cube_split train+val; the standard 5 holdouts are never trained on). dirty = clean + noise,
            noise drawn from that cube's own measured 2D noise power spectrum (beam-correlated, as in a CLEAN image and in
-           real ALMA products, research.md 2026-10-08). Continuum removed from both, as checkpoint_eval does.
+           real ALMA products). Continuum removed from both, as checkpoint_eval does.
   hydro    sg_synth 9015/9019/9025/9032 (9074 held out). dirty = beam (*) clean + noise, noise spectrum measured from the pair.
   analytic an01-an06 (Longarini model; an07/an08 held out). Same forward model as hydro.
 Every draw is resampled to a random size from SIZES before the Wiener step, so the model meets each disk at every pixel scale
@@ -31,7 +31,7 @@ further on the same data mix, losses and sizes. ALMA-matched data: real ALMA CLE
 the task is noise-only (A = I). Every hydro / analytic training cube is therefore drawn either as the SG deconvolution task (dirty =
 beam (*) clean + noise) or, with probability --p-ai, as the noise-only task (dirty = clean + noise, same measured noise spectrum).
 
-Run: kaggle/unified/kernel_unified.py.  Local smoke: PYTHONPATH=. python3 experiments/train_unified.py --smoke
+Run: the Kaggle scripts in kernels/.  Local smoke: PYTHONPATH=. python3 experiments/train_unified.py --smoke
 """
 import os, sys, json, time, math, argparse, glob
 import numpy as np
@@ -1015,7 +1015,7 @@ def main():
         print("BEFORE-EVAL DONE", flush=True)
 
     status_path = os.path.join(args.out, f"status_{tag}.json")
-    def status(**kw):                                    # what a next session needs to know (kernel_unified.py reads it)
+    def status(**kw):                                    # what a next session needs to know (the Kaggle script reads it)
         json.dump(dict(tag=tag, **kw), open(status_path, "w"), indent=1)
     if args.eval_only:
         assert legacy or args.eval_ckpt, "--eval-only needs --init or --eval-ckpt"

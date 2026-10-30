@@ -9,7 +9,7 @@ pv_scores   profiles of several methods -> pv_r (correlation with clean after re
             along the minor axis (their 13CO: 37.4 +/- 2.9 m/s, AB Aur, 1 to 5 arcsec). That is the literature number our curves can be compared with.
 plot_pv     one panel per half, clean in black, each method a colour
 
-Literature (research.md 2026-10-17): Speedie 2024 take line centres from a quadratic fit per pixel (bettermoments) and read them in a 0.5 deg wedge on the SOUTHERN
+Literature: Speedie 2024 take line centres from a quadratic fit per pixel (bettermoments) and read them in a 0.5 deg wedge on the SOUTHERN
 minor axis, 1 to 5 arcsec, detrended with a quadratic (a linear trend fitted worse); Longarini 2024 (Elias 2-27) cut along the southern semi-minor axis of a
 Gaussian-fit velocity map and mask the inner two beams. Neither states a slit width; the review asked for a straight slice or a slit of about 4 to 5 px.
 Our M1 is already the quadratic line centre, so the profiles here are the same quantity. We score both halves (the scorecard has no cloud to avoid).

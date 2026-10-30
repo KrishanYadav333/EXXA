@@ -1,7 +1,7 @@
 """
 SPH disc simulation (Phantom dump) -> line-emission channel cube, with radiative transfer along every line of sight.
 
-Why: public GI hydro simulations (research.md 2026-10-10: Young et al. 2026, 63 runs over Md/M* 0.2-1.4; Rowther et al. 2024;
+Why: public GI hydro simulations (Young et al. 2026, 63 runs over Md/M* 0.2-1.4; Rowther et al. 2024;
 Longarini et al. 2026; Speedie et al. 2024) are released as particle dumps, not cubes. This turns one dump into many observations
 (inclination, position angle, in-plane rotation, spin direction, optical depth) on our pixel and channel grid.
 

@@ -6,7 +6,7 @@ posterior mean and attenuates exactly the high-frequency velocity perturbation t
 measures).
 
 Same cube, same mask, same shared Keplerian model (fit on clean, reused for every method),
-frac=0.05, channels 240-360 step 1 -- identical to wiggle_all_methods.py so the numbers drop
+frac=0.05, channels 240-360 step 1 so the numbers drop
 straight into that table. The only thing that changes between the two model rows is which
 checkpoint runs.
 

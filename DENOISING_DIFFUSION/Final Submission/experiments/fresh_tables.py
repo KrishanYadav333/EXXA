@@ -1,7 +1,11 @@
 """Tables for the improvement track: fresh analytic set, B vs candidate A, and B2 (final-test noise realisations).
-Run from DENOISING_DIFFUSION: python experiments/fresh_tables.py [out.md]"""
-import json, sys, numpy as np
-B = json.load(open("results/unified/eval-fresh-b_v2_2026-10-21/eval_fresh_B.json")); A = json.load(open("results/unified/eval-fresh-b_v2_2026-10-21/eval_fresh_A_cfix.json"))
+Run from this folder: python experiments/fresh_tables.py [out.md]"""
+import glob, json, sys, numpy as np
+
+def run_dir(name):
+    """Folder of a run under results/NN-.../ (runs are grouped by result)."""
+    return glob.glob(f"results/[0-9]*/{name}")[0]
+B = json.load(open(f"{run_dir('eval-fresh-b_v2_2026-10-21')}/eval_fresh_B.json")); A = json.load(open(f"{run_dir('eval-fresh-b_v2_2026-10-21')}/eval_fresh_A_cfix.json"))
 out = []
 p = lambda *a: out.append(" ".join(str(x) for x in a))
 p("## Fresh analytic set, 600 px: recipe B vs candidate A (B + --central-fix)\n")
@@ -28,7 +32,7 @@ for grp, g in agg.items():
     p(f"| {grp} | {len(g['psnrB'])} | {mu['psnrB']:.2f} / {mu['psnrA']:.2f} | {mu['dM0']:+.1f} / {mu['dM1']:+.1f} / {mu['dM2']:+.1f} ({min(g['dM0']):+.1f} / {min(g['dM1']):+.1f} / {min(g['dM2']):+.1f}) | "
       f"{mu['rcB']:.3f} / {mu['rcA']:.3f} / {mu['rcW']:.3f} | {mu['pvB']:.2f} / {mu['pvW']:.2f} |")
 
-R = json.load(open("results/unified/eval-final-test-seeds_v1_2026-10-21/eval_final_test_seeds_B.json"))
+R = json.load(open(f"{run_dir('eval-final-test-seeds_v1_2026-10-21')}/eval_final_test_seeds_B.json"))
 p("\n## B2: one-time final test (Speedie r1.5) over 4 noise realisations (realisation 0 = the original final-test noise)\n")
 p("| disc, SNR | rc_r model | rc_r Wiener | rc_r dirty | PV5 r model | PV5 r Wiener | PV5 mag model (m/s) | PV5 mag Wiener | PV5 mag clean |")
 p("|---|---|---|---|---|---|---|---|---|")
@@ -42,7 +46,7 @@ for base in ("GI_r1.5", "Kep_r1.5"):
 print("\n".join(out))
 open(sys.argv[1], "w").write("\n".join(out) + "\n") if len(sys.argv) > 1 else None
 
-Y = "results/unified/eval-fresh-young_v1_2026-10-21/eval_fresh_young_{}.json"
+Y = run_dir('eval-fresh-young_v1_2026-10-21') + "/eval_fresh_young_{}.json"
 import os
 if os.path.exists(Y.format("B")):
     YB, YA = json.load(open(Y.format("B"))), json.load(open(Y.format("A_cfix")))

@@ -31,7 +31,7 @@ N, AU, NCH, DV, DIST = 301, 1.99, 161, 0.1, 175.178     # +-8 km/s: line-free ed
 # name: (md, m, beta, pitch_deg, incl_deg)  ms = 1, p = -1, rin = 10 au, rout = 290 au
 DISKS = {"an01": (0.15, 2, 5.0, 13, 20), "an02": (0.35, 2, 5.0, 13, 30), "an03": (0.60, 2, 5.0, 13, 20),
          "an04": (0.35, 3, 5.0, 18, 20), "an05": (0.35, 2, 3.0, 13, 30), "an06": (0.60, 2, 3.0, 20, 20),
-         # held out of every training set (train_wiggle_correction.py): different mass, arm number, cooling, pitch, inclination
+         # held out of every training set: different mass, arm number, cooling, pitch, inclination
          "an07": (0.45, 2, 4.0, 15, 25), "an08": (0.25, 3, 3.0, 18, 30),
          # FRESH test set of the improvement track: never trained or selected on; m = 4 and
          # i = 35-40 deg lie outside the training ranges on purpose. The "k" entries are no-wiggle twins (same disc, no spiral): invented ripple.

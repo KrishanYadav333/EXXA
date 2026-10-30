@@ -1,8 +1,8 @@
 # r6-k15-s32_v1-v2_2026-10-17
 
 Kaggle kernel `kaggle-acct-f/unified-r6-s32` (account account F). v1 (2026-10-16 15:40 IST) trained rounds 1-70 and stopped at its 12 h deadline;
-v2 (2026-10-17 02:30 IST, `orchestrator.py resume`, its own v1 output attached) resumed at round 70, finished 80 and evaluated (231 min). The log here is v2's; v1's ended at
-"DEADLINE: training stopped after round 70/80". Checkpoint `models/unified/unified_r6_k15_s32.pth` (349 MB, zip-verified). Evaluated WITHOUT the inference levers, like R6 seed 31 and R4n seed 3.
+v2 (2026-10-17 02:30 IST, resumed with its own v1 output attached) resumed at round 70, finished 80 and evaluated (231 min). The log here is v2's; v1's ended at
+"DEADLINE: training stopped after round 70/80". Checkpoint `unified_r6_k15_s32.pth` (349 MB, zip-verified). Evaluated WITHOUT the inference levers, like R6 seed 31 and R4n seed 3.
 
 **What:** R6 recipe (R4n flags, 256 px crops, batch 4), seed 32: does R6's real-GI wiggle gain on 9074 repeat with another seed?
 

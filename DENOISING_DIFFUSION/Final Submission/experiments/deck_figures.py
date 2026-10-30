@@ -1,13 +1,18 @@
 """
 Extra figures (results/final/figs/22_ to 28_): three charts made from archived numbers, plus copies of
-the failure cases, so the deck shows the bad results next to the good ones. Run from DENOISING_DIFFUSION/ (needs matplotlib).
+the failure cases, so the figures show the bad results next to the good ones. Run from this folder (needs matplotlib).
 
 """
-import json, os, shutil
+import glob, json, os, shutil
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-OUT, U = "results/final/figs", "results/unified"
+def run_dir(name):
+    """Folder of a run under results/NN-.../ (runs are grouped by result)."""
+    return glob.glob(f"results/[0-9]*/{name}")[0]
+
+
+OUT = "results/final/figs"
 INK, MUTED = "#10263b", "#5b6b7a"
 C_DIRTY, C_WIEN, C_MODEL = "#9aa7b4", "#d98a1f", "#1467a8"
 plt.rcParams.update({"font.size": 15, "axes.edgecolor": MUTED, "axes.labelcolor": INK, "xtick.color": INK, "ytick.color": INK, "axes.spines.top": False, "axes.spines.right": False})
@@ -45,12 +50,12 @@ def per_disc(path, keys, labels, title, fname, note=None, sort=True):
 yk = ["run_young_M0.1_R50_Mu0.9@600", "run_young_M0.3_R200_Mu1.1@600", "run_young_M0.3_R50_Mu0.3@600", "run_young_M0.5_R200_Mu0.9@600",
       "run_young_M0.7_R100_mu0.3@600", "run_young_M0.7_R50_Mu0.2@600", "run_young_M1_R100_Mu0.5@600", "run_young_M1_R200_Mu0.6@600"]
 yl = [k.replace("run_young_", "").replace("@600", "").replace("_", " ") for k in yk]
-per_disc(f"{U}/eval-fresh-young_v1_2026-10-21/eval_fresh_young_B.json", yk, yl,
+per_disc(f"{run_dir('eval-fresh-young_v1_2026-10-21')}/eval_fresh_young_B.json", yk, yl,
          "Eight fresh Young simulations: wiggle score per disc", "22_fresh_young_per_disc.png",
          "Source: eval-fresh-young_v1_2026-10-21. Two discs fail (M0.1 R50, M0.3 R200); the rest gain over the Wiener filter.")
 
 ak = [f"an{n:02d}@600" for n in range(9, 17)]
-per_disc(f"{U}/eval-fresh-b_v2_2026-10-21/eval_fresh_B.json", ak, [k.replace("@600", "") for k in ak],
+per_disc(f"{run_dir('eval-fresh-b_v2_2026-10-21')}/eval_fresh_B.json", ak, [k.replace("@600", "") for k in ak],
          "Eight fresh analytic GI discs (beam undone): wiggle score per disc", "23_fresh_analytic_per_disc.png",
          "Source: eval-fresh-b_v2_2026-10-21. an15 (m = 4 spiral) is the weakest.")
 
@@ -73,7 +78,7 @@ fig.suptitle("Four candidates against the rule written first: none reaches the b
 fig.tight_layout(rect=(0, 0, 1, 0.95)); fig.savefig(f"{OUT}/24_candidates_vs_rule.png", dpi=130); plt.close(fig)
 
 # copies of failure cases (kept next to the good ones)
-B = f"{U}/eval-fresh-b_v2_2026-10-21/eval_fresh/figs_fresh_B"; Y = f"{U}/eval-fresh-young_v1_2026-10-21/eval_fresh_young/figs_fresh_young_B"
+B = f"{run_dir('eval-fresh-b_v2_2026-10-21')}/eval_fresh/figs_fresh_B"; Y = f"{run_dir('eval-fresh-young_v1_2026-10-21')}/eval_fresh_young/figs_fresh_young_B"
 for dst, src in [("25_fail_young_M0.3_R200_maps.png", f"{Y}/run_young_M0.3_R200_Mu1.1_600.png"), ("26_weak_an15_maps.png", f"{B}/an15_600.png"),
                  ("27_twin_an09k_PV.png", f"{B}/an09k_600_pv.png"), ("28_good_an12_maps.png", f"{B}/an12_600.png")]:
     shutil.copy(src, f"{OUT}/{dst}")

@@ -51,7 +51,7 @@ for p in glob.glob("/kaggle/input/**/run_00*", recursive=True):
     if os.path.isdir(p):
         le[os.path.dirname(p)] = le.get(os.path.dirname(p), 0) + 1
 LE_DIR = max(le, key=le.get)
-DATA = f"{PKG}/self-gravitating cube and dirty cube"            # hydro + SG v2 + analytic, as kernel_unified.py does
+DATA = f"{PKG}/self-gravitating cube and dirty cube"            # hydro + SG v2 + analytic
 os.makedirs(DATA, exist_ok=True)
 synth = os.path.dirname(glob.glob("/kaggle/input/**/run_9015_00370_rt_00", recursive=True)[0])
 v2 = os.path.dirname(glob.glob("/kaggle/input/**/clean_sg.fits", recursive=True)[0])

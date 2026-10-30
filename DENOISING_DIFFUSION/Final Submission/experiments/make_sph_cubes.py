@@ -1,5 +1,5 @@
 """
-Young et al. 2026 Phantom GI discs (Zenodo 22045440, CC-BY-4.0; research.md 2026-10-10) -> line-emission training / test cubes.
+Young et al. 2026 Phantom GI discs (Zenodo 22045440, CC-BY-4.0) -> line-emission training / test cubes.
 
 Per simulation: the LAST dump in its archive (the first is the pre-instability initial condition), one random view (inclination 10-60 deg, PA, in-plane
 rotation, spin direction), 13CO with optical depth tau0 log-uniform 3-50, rendered by src/data/sph_cube.py on a 301 px grid sized so the disc (R95 of the

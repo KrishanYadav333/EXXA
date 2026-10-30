@@ -154,7 +154,7 @@ SEEN = {"sg_k3_fresh": {"9015", "9019", "9032", "9025"}}
 
 def _learned(name, d):
     """Existing checkpoints, each through ITS OWN training preprocessing (wiggle_domain_split.py's loaders,
-    read off the training code). Must run from DENOISING_DIFFUSION/ (relative checkpoint paths)."""
+    read off the training code). Must run from this folder (relative checkpoint paths)."""
     sys.path[:0] = [ROOT, os.path.join(ROOT, "experiments")]
     import wiggle_domain_split as wd
     x = d["dirty"].astype(np.float32)

@@ -1,15 +1,14 @@
 """
 src/training/diffusion.py
 =========================
-Conditional DDPM training / sampling, adapted from the GSoC main notebook
-(`GSOC_2025_EXXA_Main.ipynb`, "Diffusion Algorithm" cell).
+Conditional DDPM training / sampling.
 
 Lineage: https://github.com/ermongroup/ddim and https://github.com/bahjat-kawar/ddrm.
 
-Differences from the notebook
------------------------------
+Differences from the original implementation
+-------------------------------------------
 * Single-GPU (the ``nn.DataParallel`` wrapper is dropped).
-* Single-channel astronomy data (the notebook's hard-coded 3-channel sampling
+* Single-channel astronomy data (the original hard-coded 3-channel sampling
   paths are made channel-agnostic via ``config.data.channels``).
 * Works directly with this repo's :class:`src.data.dataset.AstroDataset`, whose
   patch batches have shape ``(B, n_patches, 2, H, W)`` -> flattened to

@@ -322,7 +322,7 @@ def sheets_for_case(case: str, ref: dict, arts: dict, rows: dict, out_dir: str, 
 
 def _wiggle_classic(case, ref, arts, labels, rows, base, sl, mk, per_page=2):
     """
-    The figure that showed the smoothing (wiggle_all_methods.png), for EVERY checkpoint: row 1 the quadratic M1, row 2 the residual
+    The figure that shows the smoothing, for EVERY checkpoint: row 1 the quadratic M1, row 2 the residual
     from the ONE shared Keplerian fit, each panel with its own colour bar and the residual RMS in the title. Clean and dirty open every
     page as the reference; the checkpoints follow, `per_page` to a page, best wiggle first (lowest error against clean's residual).
     A model that smooths the wiggle away has a residual quieter and blurrier than clean's; one that invents structure has more RMS.

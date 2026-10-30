@@ -1,6 +1,6 @@
 # Results
 
-Every number in the top-level README comes from a folder here. Each numbered folder collects the runs behind one result, with a README that states the result, shows its figures and lists the runs; each run folder keeps the files the run produced (evaluation JSON, tables and, where it has one, its own README).
+Every number in the top-level README comes from a folder here. Each numbered folder collects the runs behind one result, with a README that states the result, shows its figures and lists the runs; each run folder keeps the evaluation JSON and reports the run produced, with its own README where it has one. Logs, per-case figures, kernel sources, FITS outputs and checkpoints stayed in the Kaggle Output and are not in this repository; where a README names one of them, it describes what the original run produced. The networks of the final model are described in [`../MODELS.md`](../MODELS.md).
 
 | folder | result |
 |---|---|

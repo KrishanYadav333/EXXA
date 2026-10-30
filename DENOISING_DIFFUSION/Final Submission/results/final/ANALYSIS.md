@@ -71,7 +71,7 @@ Sources: `results/10-training-runs/r6-k15-crop256_v2_2026-10-15/`, `r6-k15-s32_v
 | R6, 3 seeds (mean +- spread) | 0.40 +- 0.03 | 0.38 +- 0.02 | 46.9 +- 1.2 | 0.60 / 0.80 | 0.83 |
 | recipe B | 0.35 | **0.45** | **51.7** | 0.60 / **0.83** | **0.87** |
 
-Recommendation: one checkpoint (B); R6 documented as the alternative (decision: Krishan).
+Recommendation: one checkpoint (B); R6 documented as the alternative (decision of the author).
 
 ## 7. Real ALMA: exoALMA (15 discs, 13CO) and DSHARP (5 discs, 12CO)
 
@@ -163,4 +163,4 @@ Source: `results/03-fresh-set/eval-fresh-b_v2_2026-10-21/fresh_tables.md`, `resu
 
 On fresh discs B keeps its wiggle advantage in the deconvolution regime and on the fresh Young simulations (without the two near face-on discs, which give nothing for any method: 0.74 vs 0.44); on the smooth analytic discs in the noise-only regime at blind SNR 19 to 34 it ties Wiener on the wiggle while staying 20 dB better in PSNR. Invented PV5 magnitude on the three twins: 8 to 17 m/s (deconvolution; Wiener 2 to 6), 6 to 9 m/s (noise-only; Wiener 4 to 7). Sources: `eval-fresh-b_v2_2026-10-21/`, `eval-fresh-young_v1_2026-10-21/`.
 
-**Candidate A (central flux fix): does not replace B; effect depends on the disc.** Known-truth compact centre (KepC): flux within 1 beam / truth 0.91 to 1.03 (B 1.28 to 1.41). Fresh Young simulations: M0 +8.8 points over B, better on all 8, PSNR +0.7 dB. Fresh analytic discs, noise-only: M0 -6.5 (worst -11.4). M1, M2 and every wiggle score identical to B in all cases. It cannot meet adoption rule (1) (wiggle +0.05) by construction; rule (2) passes averaged over rule (1)'s set (+1.1 M0 points) and fails on the analytic group alone. Shipped only if Krishan chooses it as an optional flag; until then central flux is taken from the input cube.
+**Candidate A (central flux fix): does not replace B; effect depends on the disc.** Known-truth compact centre (KepC): flux within 1 beam / truth 0.91 to 1.03 (B 1.28 to 1.41). Fresh Young simulations: M0 +8.8 points over B, better on all 8, PSNR +0.7 dB. Fresh analytic discs, noise-only: M0 -6.5 (worst -11.4). M1, M2 and every wiggle score identical to B in all cases. It cannot meet adoption rule (1) (wiggle +0.05) by construction; rule (2) passes averaged over rule (1)'s set (+1.1 M0 points) and fails on the analytic group alone. It is shipped as the optional flag `--central-fix`; by default central flux is taken from the input cube.

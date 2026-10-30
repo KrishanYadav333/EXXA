@@ -13,7 +13,7 @@ sizes 256/300/320/480/600, deconvolution and noise-only tasks, p_ai 0.5), each i
 The d2 (second velocity difference) loss of the two single-channel models stays ~0.034 for the whole run (sg_k3_fresh
 reaches 0.005): one output channel from a narrow input cannot fit the velocity structure the mixed data asks for.
 
-Result (`comparison_600px.md`, `comparison_256px.md`; line = 5 line-emission holdouts, mean over cubes, not seeds):
+Result (comparison tables of the run; line = 5 line-emission holdouts, mean over cubes, not seeds):
 - res480 and p10 fine-tunes are WORSE on line emission at 600 px (PSNR 32.6 / 32.7, M0 -99 / -140 %, M2 -171 / -158 %).
   Refuted. Only SG v2 improves slightly (PSNR 27.5 / 27.4, rc_r 0.83).
 - sg_k3_fresh fine-tune: line 600 px PSNR 40.9, M0 -16 %, M1 67 %, M2 -40 %, rc_r 0.55; analytic rc_r 0.79; SG v2 rc_r 0.87.
@@ -30,4 +30,4 @@ from before the `len(y) < 8` guard; the current code has it. Re-score those case
 Checkpoints: `unified_ft_nb05_winner_aug_res480_seed43.pth`, `unified_ft_nb14_sweep_winner_p10_600.pth`,
 `unified_ft_sg_k3_fresh.pth` in the kernel Output, `ft_<name>/`.
 
-Files: `run_log.txt`, the six eval JSONs, `kernel_unified_ft.py` as it ran (GROUP = "single"), comparison tables.
+Files: the six eval JSONs.

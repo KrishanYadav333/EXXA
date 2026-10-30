@@ -6,7 +6,7 @@ axis, v_sys + dv -> v_sys - dv). So A(dv) = I(dv) - R I(-dv) is noise only for s
 are interpolated linearly to the exact velocities and beam-smoothed; the reflection axis is fitted blind on the RAW cube (one angle, then the centre
 within +-2 px, then the angle again) and used unchanged for the denoised cube. sigma_A = the same statistic built from line-free planes.
 
-Kaggle: kaggle/kink/kernel_kink.py (CPU). Local self-check (synthetic disc with and without a kink): PYTHONPATH=. python3 experiments/kink_check.py --demo
+Local self-check (synthetic disc with and without a kink): PYTHONPATH=. python3 experiments/kink_check.py --demo
 """
 import argparse, json, math, os, sys
 import numpy as np
