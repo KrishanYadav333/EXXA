@@ -4,7 +4,7 @@
     python tools/check_md_links.py            # print every broken link, exit 1 if any
     python tools/check_md_links.py --count    # print only the number (for before / after comparisons)
 
-Scope: the documents of this folder (top-level *.md, results/{RUNS,README}.md, the README of each result folder, docs/, kernels/README.md,
+Scope: the documents of this folder (top-level *.md, results/{RUNS,README}.md, the README of each result folder, kernels/README.md,
 results/final/*.md, models/README.md, references/ and history/ and midterm/ indexes). Archived run folders are not checked: they record what
 existed on the day, and rewriting their links would rewrite history. External (http/mailto) links and in-page anchors are skipped.
 """
@@ -22,7 +22,7 @@ def documents():
     pats = [os.path.join(PROJECT, "*.md"),
             os.path.join(PROJECT, "results", "RUNS.md"), os.path.join(PROJECT, "results", "README.md"),
             os.path.join(PROJECT, "results", "final", "*.md"), os.path.join(PROJECT, "results", "[0-9]*", "README.md"),
-            os.path.join(PROJECT, "docs", "*.md"), os.path.join(PROJECT, "kernels", "README.md")]
+            os.path.join(PROJECT, "results", "[0-9]*", "CHECKS.md"), os.path.join(PROJECT, "kernels", "README.md")]
     return sorted({p for pat in pats for p in glob.glob(pat)})
 
 

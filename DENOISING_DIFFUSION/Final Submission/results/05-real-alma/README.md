@@ -1,6 +1,6 @@
 # 05. Real ALMA data: 15 exoALMA and 5 DSHARP disks
 
-Inference only; no model was trained on these observations. Setting: 512 px field, beam resampled to about 10 px, no second continuum subtraction (except V4046 Sgr, see below), DSHARP channels interpolated from 0.35 to 0.1 km/s. The checks S1 to S7 are defined in `../../docs/ALMA_CHECKS.md`.
+Inference only; no model was trained on these observations. Setting: 512 px field, beam resampled to about 10 px, no second continuum subtraction (except V4046 Sgr, see below), DSHARP channels interpolated from 0.35 to 0.1 km/s. The checks S1 to S7 are defined in [`CHECKS.md`](CHECKS.md).
 
 - **Geometry.** The fitted position angle is within 0 to 3.9 degrees of the published value on 19 of 20 disks; J1604 (6 degrees inclination) cannot be tested.
 - **Rotation curves.** Against exoALMA VI, the curve from the denoised velocity map is closer than the raw one on 11 of 15 disks (median difference 49 against 64 m/s), worse on 4.

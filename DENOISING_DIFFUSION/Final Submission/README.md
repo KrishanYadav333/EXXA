@@ -84,7 +84,6 @@ Final Submission/
 │                       pv_curve.py, dataset generators, figure and table builders
 ├── tests/              unit and end-to-end tests (plain scripts)
 ├── tools/              markdown link checker
-├── docs/               ALMA_CHECKS.md (the seven real-data checks)
 └── results/
     ├── README.md       index of the results
     ├── 01-final-test/ ... 10-training-runs/   one folder per result, each with a README
