@@ -122,7 +122,7 @@ python experiments/alma_unified.py --cube MyDisk_13CO.fits --ckpt $CKPTS --out o
 
 `<clean cubes>` is a folder of noise-free cubes named `<case>_clean.fits` (made by `experiments/speedie_prep.py`). Each case is scaled to each peak SNR, added to the cube's real noise, denoised and scored against its truth; the scores go to `S5` in `report.json`. `GI_r0.5` carries a wiggle and `Kep_r0.5` is its twin without one, so the second measures the spurious wiggle the model adds in this noise. For small fields add `--inject-field-frac 0.625`.
 
-For synthetic cubes generated with their truth (`experiments/make_analytic_gi_cubes.py`), and for the held-out test disks, scoring is done by `experiments/train_unified.py --eval-only`; the commands are in [`REPRODUCE.md`](REPRODUCE.md).
+For synthetic cubes generated with their truth (`experiments/make_analytic_gi_cubes.py`), and for the held-out test disks, scoring is done by `experiments/train_unified.py --eval-only`; the commands are in [`MODELS.md`](MODELS.md).
 
 ## Before using the output for science
 

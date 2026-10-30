@@ -1,6 +1,6 @@
 # 10. Training runs
 
-The four networks of the final model come from the runs marked **final** below; the exact commands are in `../../REPRODUCE.md` and the kernels as they ran in `../../kernels/`. Each folder holds the run's evaluation file. The other runs are the alternatives tried and not adopted.
+The four networks of the final model come from the runs marked **final** below; the exact commands are in [`MODELS.md`](../../MODELS.md) and the kernels as they ran in `../../kernels/`. Each folder holds the run's evaluation file. The other runs are the alternatives tried and not adopted.
 
 ## Runs in this folder
 

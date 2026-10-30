@@ -1,6 +1,6 @@
 # Kaggle kernels as they ran
 
-The scripts that produced the four final networks and the main evaluations, as they ran on Kaggle. Each clones the project repository, attaches the data as Kaggle inputs, and calls `experiments/train_unified.py` or `experiments/alma_unified.py`. The settings that matter are the variables at the top of each script (`K`, `EXTRA`, `WARM`) and the argument lists passed to those two programs. [`../REPRODUCE.md`](../REPRODUCE.md) gives the same calls without the Kaggle setup.
+The scripts that produced the four final networks and the main evaluations, as they ran on Kaggle. Each clones the project repository, attaches the data as Kaggle inputs, and calls `experiments/train_unified.py` or `experiments/alma_unified.py`. The settings that matter are the variables at the top of each script (`K`, `EXTRA`, `WARM`) and the argument lists passed to those two programs. [`../MODELS.md`](../MODELS.md) gives the same calls without the Kaggle setup.
 
 | script | produced |
 |---|---|
