@@ -7,7 +7,7 @@ On held-out line-emission cubes the final model's quality does not depend on ima
 | PSNR, final model (dB) | 51.2 | 51.8 | 51.7 | 51.7 | 51.7 |
 | PSNR, Wiener (dB) | 30.5 | | | | 30.6 |
 
-M0, M1 and M2 improve over the noisy cube by about 62, 89 and 91 percent at every size (signal-masked, noise-clipped). The full table, the SNR ladder and the gate are in `../final/RESULTS.md`; the inference settings in `../final/RECIPES.md`. The do-no-harm gate matters on bright cubes: on a test cube at SNR about 135 the ungated model changed M0 and M2 by -76 and -257 percent, the gated one by -4 and +50 percent.
+M0, M1 and M2 improve over the noisy cube by about 62, 88.5 and 90.5 percent at every size (62.0 to 62.7, 88.4 to 88.6 and 90.0 to 90.9 across the five sizes) (signal-masked, noise-clipped). The full table, the SNR ladder and the gate are in `../final/RESULTS.md`; the inference settings in `../final/RECIPES.md`. The do-no-harm gate matters on bright cubes: on a test cube at SNR about 135 the ungated model changed M0 and M2 by -76 and -257 percent, the gated one by -4 and +50 percent.
 
 ## Runs in this folder
 

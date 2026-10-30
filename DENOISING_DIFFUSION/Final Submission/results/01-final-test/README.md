@@ -8,7 +8,7 @@ The model was selected on one disk: the Speedie et al. (2024) GI disk at one rad
 | PV r: model / Wiener / noisy | 0.16 / 0.04 / 0.03 | **0.35** / 0.01 / 0.12 | **0.71** / 0.27 / 0.64 |
 | wiggle score on the selection disk | 0.14 | 0.60 | 0.83 |
 
-**Noise realisations.** The same test repeated with three more noise draws (the single-run values above remain the reported result) gives a wiggle score of 0.59 ± 0.10 at SNR 12 and 0.79 ± 0.06 at SNR 24, against 0.18 ± 0.03 and 0.42 ± 0.02 for Wiener. The original draw was the least favourable of the four. On the selection disk, repeated draws give 0.24 ± 0.11, 0.68 ± 0.03 and 0.84 ± 0.01 at SNR 6, 12 and 24.
+**Noise realisations.** The same test repeated with three more noise draws (the single-run values above remain the reported result; mean and standard deviation are over all four draws, the reported one and the three new ones) gives a wiggle score of 0.59 ± 0.10 at SNR 12 and 0.79 ± 0.06 at SNR 24, against 0.18 ± 0.03 and 0.42 ± 0.02 for Wiener. The original draw was the least favourable of the four. On the selection disk, repeated draws give 0.24 ± 0.11, 0.68 ± 0.03 and 0.84 ± 0.01 at SNR 6, 12 and 24.
 
 **Linear limit.** An oracle Wiener filter built from the true spectrum of the disk (not available for a real observation) reaches 0.20, 0.45 and 0.68 at SNR 6, 12 and 24 on the selection disk. The model exceeds it by 0.23 at SNR 12 and 0.16 at SNR 24. A target of 0.85 at SNR 12 lies 0.40 above this limit.
 

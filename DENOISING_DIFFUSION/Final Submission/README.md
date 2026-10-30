@@ -18,7 +18,7 @@ On a disk held back for a single test and evaluated once, after the model was fr
 | test (never used for training or tuning) | model | Wiener filter |
 |---|---|---|
 | held-out line-emission cubes, PSNR at 256 to 600 px | 51.2 to 51.8 dB | 30.5 to 30.6 dB |
-| held-out line-emission cubes, M0 / M1 / M2 improvement over the noisy cube | 62 / 89 / 91 % | |
+| held-out line-emission cubes, M0 / M1 / M2 improvement over the noisy cube | 62 / 88.5 / 90.5 % | |
 | 8 fresh analytic GI disks, beam to be undone: wiggle score | 0.79 | 0.47 |
 | 8 fresh hydrodynamic simulations (Young et al.): wiggle score | 0.56 | 0.33 |
 | GI disk injected into real MWC 758 noise, SNR 12 / 24: wiggle score | 0.84 / 0.93 | 0.64 / 0.83 |
@@ -42,7 +42,7 @@ All scores lie between 1 (identical to the noise-free truth) and 0 (no relation)
 
 **Pixel metrics cannot see either failure.** A model can reach 51.7 dB and still lose the wiggle, which is why every result here is scored on the wiggle and on a twin disk with no wiggle.
 
-**There is a hard limit.** An ideal linear filter that knows the true spectrum reaches a wiggle score of only 0.45 at SNR 12 on the selection disk; the model reaches 0.68. A target of 0.85 at that SNR is not reachable on these data.
+**There is a hard limit.** An ideal linear filter that knows the true spectrum reaches a wiggle score of only 0.45 at SNR 12 on the selection disk; the model reaches 0.68 (mean of eight noise draws; the first draw gave 0.60). A target of 0.85 at that SNR is not reachable on these data.
 
 ## Method
 

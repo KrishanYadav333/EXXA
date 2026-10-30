@@ -2,7 +2,7 @@
 
 The Keplerian twin of the Speedie disk is the same disk with the spiral switched off. Its true minor-axis curve is flat (the projection alone gives a PV magnitude of 11.4 m/s), so any wiggle a denoiser draws on it is spurious.
 
-| PV magnitude on the twin (m/s), 4 noise realisations | SNR 12 | SNR 24 |
+| PV magnitude on the twin (m/s), 5 px slit, 4 noise realisations | SNR 12 | SNR 24 |
 |---|---|---|
 | model | 27 ± 5 | 18 ± 3 |
 | Wiener | 33 ± 11 | 14 ± 6 |

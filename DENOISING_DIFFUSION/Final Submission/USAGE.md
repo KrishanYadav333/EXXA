@@ -38,12 +38,12 @@ python experiments/alma_unified.py --cube MyDisk_13CO.fits --ckpt $CKPTS --out o
 
 | situation | option |
 |---|---|
-| any cube | `--crop 512 --target-beam-px 10`: a 512 px centre crop (default 1024), resampled so the beam spans about 10 px, as in every real-data run |
+| any cube | `--crop 512 --target-beam-px 10`: a 512 px centre crop (default 1024), resampled so the beam spans about 10 px (it only zooms in: a cube whose beam is already wider than 10 px is left at its own scale), as in every real-data run |
 | channels coarser than 0.1 km/s (DSHARP: 0.35 km/s) | `--spec-interp 0.1`: interpolate to 0.1 km/s along velocity, denoise there, average back. On the native 0.35 km/s channels the wiggle score falls (AS 209 at SNR 12: 0.19) |
 | a large field or a large beam (GPU memory) | `--max-scaled-px 1024` caps the resampled grid (default 1024); lower it if the GPU runs out of memory |
 | noise rising toward the edge of the field (primary-beam corrected cubes) | `--auto-fov` crops a square around the disk automatically, or `--fov-arcsec 6.4` crops a fixed field; the output keeps the matching coordinates |
 | continuum | default `--cont-sub auto` subtracts only when continuum is found on both sides of the line. Use `--cont-sub off` for cubes that are already continuum subtracted (exoALMA); `--cont-sub on` always subtracts |
-| an uncertainty map for M1 | `--boot 4`: re-denoises four copies with fresh noise and writes the per-pixel spread of M1 (noise term only; MWC 758 with `--boot 4` took about 2 hours instead of 27 minutes) |
+| an uncertainty map for M1 | `--boot 4`: re-denoises four copies of the denoised cube with new realisations of the cube's own noise and writes the per-pixel spread of M1 (noise term only; MWC 758 with `--boot 4` took about 2 hours instead of 27 minutes) |
 | flux near the star | `--central-fix` rescales the flux within 2 to 4 beams of the centre to the input's. Off by default: it improves M0 on hydrodynamic disks and worsens it on smooth ones |
 
 The model settings themselves (four networks averaged, gate `40,120,0.25`, second Wiener pass, beam at 10 px) are the defaults and should not be changed for results comparable to this project. `--gate ""` and `--no-wiener2` exist to switch the gate and the second pass off.
@@ -108,7 +108,7 @@ The checks in `report.json` (defined in [`results/05-real-alma/CHECKS.md`](resul
 - `S1`: noise in the line-free channels before and after (`noise_reduction`), the total M0 inside the disk denoised over raw (`m0_total_ratio`, should be close to 1), and how far M1 moved on the brightest pixels (`m1_shift_bright_median_ms`).
 - `S2`: the fraction of line-free pixels above 4 sigma before and after. A rise means the model drew structure where there is no line.
 - `S6` (with `--incl`): the fitted geometry, the rotation-curve residual of raw and denoised M1, and the PV curve magnitude of each (`pv_mag_ms`, `pv5_mag_ms` for the 5 px slit).
-- `snr_est`, `gate_a`: the blind estimate of the peak SNR and the weight of the network output against the Wiener result (1 up to an estimate of 40, falling to 0.25 at 120 and above, where the plain network was found to damage M0 and M2).
+- `snr_est`, `gate_a`: the blind estimate of the peak SNR and the weight of the network output against the Wiener result (1 up to an estimate of 40, falling linearly to 0.25 at 120 and above; the plain network was measured to damage M0 and M2 at an estimate of 121 to 133, and the ramp between 40 and 120 is an interpolation that was not measured).
 - `continuum`, `residual_continuum_peak_sigma`: the continuum decision and what was left after it.
 
 ## Testing on a cube with a known answer
