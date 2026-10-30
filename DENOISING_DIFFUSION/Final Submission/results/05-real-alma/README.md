@@ -64,4 +64,4 @@ Inference only; no model was trained on these observations. Setting: 512 px fiel
 - [`mwc758-13co_zoom512_v2_2026-10-18/`](mwc758-13co_zoom512_v2_2026-10-18/)
 - [`s6-published-rotation_2026-10-19/`](s6-published-rotation_2026-10-19/)
 
-Where a run folder has its own README, it states the Kaggle run, its settings and its outcome. Kaggle accounts are anonymised.
+Where a run folder has its own README, it states the Kaggle run, its settings and its outcome.

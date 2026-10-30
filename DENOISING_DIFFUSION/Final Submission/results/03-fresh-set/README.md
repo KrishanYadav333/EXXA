@@ -31,4 +31,4 @@ When only noise has to be removed the model ties Wiener on the wiggle while stay
 - [`eval-fresh-b_v2_2026-10-21/`](eval-fresh-b_v2_2026-10-21/): the analytic disks and twins (`eval-fresh-b_v2_2026-10-21/eval_fresh_B.json` and `fresh_tables.md`)
 - [`eval-fresh-young_v1_2026-10-21/`](eval-fresh-young_v1_2026-10-21/): the eight Young simulations (`eval-fresh-young_v1_2026-10-21/eval_fresh_young_B.json`)
 
-Where a run folder has its own README, it states the Kaggle run, its settings and its outcome. Kaggle accounts are anonymised.
+Where a run folder has its own README, it states the Kaggle run, its settings and its outcome.

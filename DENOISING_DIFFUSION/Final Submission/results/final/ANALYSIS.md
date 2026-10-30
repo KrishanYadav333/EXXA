@@ -8,7 +8,7 @@ clean cube over the noise rms. Model = recipe B (`RECIPES.md`).
 
 ## 1. The one-time final test (Speedie r1.5, never used for any decision)
 
-Source: `results/01-final-test/eval-final-test_v1_2026-10-18/` (`kaggle-acct-d/eval-final-test`, run once). The headline wiggle-against-SNR curve.
+Source: `results/01-final-test/eval-final-test_v1_2026-10-18/` (`eval-final-test`, run once). The headline wiggle-against-SNR curve.
 
 | Speedie r1.5 | SNR 6 | SNR 12 | SNR 24 |
 |---|---|---|---|

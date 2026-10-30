@@ -14,4 +14,4 @@ Each part of the final inference recipe was tested on its own before being kept.
 - [`combo-b_v1_2026-10-15/`](combo-b_v1_2026-10-15/): four networks with all inference settings (the final model)
 - [`eval-young-test2_v1_2026-10-18/`](eval-young-test2_v1_2026-10-18/): extra Young test simulations
 
-Where a run folder has its own README, it states the Kaggle run, its settings and its outcome. Kaggle accounts are anonymised.
+Where a run folder has its own README, it states the Kaggle run, its settings and its outcome.

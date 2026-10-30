@@ -13,4 +13,4 @@ M0, M1 and M2 improve over the noisy cube by about 62, 88.5 and 90.5 percent at 
 
 - [`eval-final-b_v1_2026-10-17/`](eval-final-b_v1_2026-10-17/): the final model on every held-out case at five sizes (`eval-final-b_v1_2026-10-17/eval_final_B.json`)
 
-Where a run folder has its own README, it states the Kaggle run, its settings and its outcome. Kaggle accounts are anonymised.
+Where a run folder has its own README, it states the Kaggle run, its settings and its outcome.

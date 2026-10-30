@@ -13,4 +13,4 @@ Disk 9074 is a self-gravitating hydrodynamic simulation held out from training. 
 - [`eval-ladder-sg_v2_2026-10-18/`](eval-ladder-sg_v2_2026-10-18/): the same with the beam-matched PV score
 - [`pv-9074-diagnostic_local_2026-10-18/`](pv-9074-diagnostic_local_2026-10-18/): PV detrending diagnostics on 9074
 
-Where a run folder has its own README, it states the Kaggle run, its settings and its outcome. Kaggle accounts are anonymised.
+Where a run folder has its own README, it states the Kaggle run, its settings and its outcome.

@@ -1,4 +1,4 @@
-<!-- Generated 2026-10-18 by experiments/final_report.py from results/07-image-sizes/eval-final-b_v1_2026-10-17/eval_final_B.json (Kaggle kaggle-acct-d/eval-final-b v1),
+<!-- Generated 2026-10-18 by experiments/final_report.py from results/07-image-sizes/eval-final-b_v1_2026-10-17/eval_final_B.json (Kaggle eval-final-b v1),
 recipe B as frozen 2026-10-18 03:00 (results/final/RECIPES.md); gate applied at inference. Replaces the 2026-10-14 version (pre-recipe-B model "final+gate",
 from eval-final; kept in git at a2b49b6). Command:
 python experiments/final_report.py --final recipeB=<json> --ladder recipeB=<json> --gate recipeB=<json> --out results/final/RESULTS.md

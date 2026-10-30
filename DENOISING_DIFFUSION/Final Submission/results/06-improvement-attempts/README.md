@@ -31,4 +31,4 @@ Candidate A, a central-flux correction, cannot change the wiggle and fails the r
 - [`eval-fresh-r5-s0_v1_2026-10-23/`](eval-fresh-r5-s0_v1_2026-10-23/): candidate E, seed 0
 - [`alma-kepc-cfix_v1_2026-10-21/`](alma-kepc-cfix_v1_2026-10-21/): candidate A on the bright-centre injection in MWC 758 noise
 
-Where a run folder has its own README, it states the Kaggle run, its settings and its outcome. Kaggle accounts are anonymised.
+Where a run folder has its own README, it states the Kaggle run, its settings and its outcome.

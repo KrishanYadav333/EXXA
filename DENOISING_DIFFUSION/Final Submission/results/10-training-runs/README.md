@@ -29,4 +29,4 @@ The four networks of the final model come from the runs marked **final** below; 
 - [`ft-kin_v1_2026-10-10/`](ft-kin_v1_2026-10-10/): fine-tune of an earlier kinematic model on mixed data
 - [`ft-single_v1_2026-10-10/`](ft-single_v1_2026-10-10/): single-data fine-tune
 
-Where a run folder has its own README, it states the Kaggle run, its settings and its outcome. Kaggle accounts are anonymised.
+Where a run folder has its own README, it states the Kaggle run, its settings and its outcome.

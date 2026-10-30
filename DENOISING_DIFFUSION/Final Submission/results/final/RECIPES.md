@@ -5,7 +5,7 @@ Both use the same inference flags; they differ only in which checkpoints are ave
 | | B (USED: the deliverable) | A (STORED: the 3-model alternative) |
 |---|---|---|
 | checkpoints averaged | `unified_r4n_k15_long.pth`, `unified_r4n_k15_long_s11.pth`, `unified_r4n_k15_long_s23.pth`, `unified_r8_m1_r6.pth` | the first three only |
-| kernel sources | `kaggle-acct-g/unified-r4n-k15-long`, `kaggle-acct-b/unified-r4n-k15-long-s11`, `kaggle-acct-c/unified-r4n-k15-long-s23`, `kaggle-acct-d/unified-r8-m1-r6` | the first three |
+| kernel sources | `unified-r4n-k15-long`, `unified-r4n-k15-long-s11`, `unified-r4n-k15-long-s23`, `unified-r8-m1-r6` | the first three |
 | inference cost | 4 networks (~1.33x A) | 3 networks |
 | line @600 PSNR, M0/M1/M2 | 51.7 dB, 62/89/91 % | 51.4 dB, 61/88/91 % |
 | Speedie GI native M0, spine | 39 %, 0.39 | 28 %, 0.34 |
@@ -19,7 +19,7 @@ The four checkpoints are described in [`MODELS.md`](../../MODELS.md). If the Oct
 
 ## FROZEN 2026-10-18 03:00 IST: recipe B
 
-Recipe B is the frozen deliverable, exactly as above (R4n-long seeds 3, 11, 23 + R8-from-R6 at M1 weight 0.01, averaged; do-no-harm gate 40 / 120 / 0.25; two-pass Wiener; size fix `--infer-beam-px 10 --infer-mode full` on noise-only cubes only). No candidate from the Oct 16 to 17 batch met its pre-set adoption rule: R6 s32 (9074 per-pixel 0.38, rule 0.43), R6 s33 (restarted from scratch on Oct 18 as `kaggle-acct-e/unified-r6-s33b` for the alternative-checkpoint question only; the first run stopped at round 67 of 80; two resumes failed because Kaggle no longer attaches the version-1 output; partial checkpoint kept, `unified_r6_k15_s33_round67.pth`; not pursued: with s32 below the rule a third seed cannot make the gain consistent), R9 s61 / s62 (no gain on 9074 or the Speedie ladder; SNR 12 wiggle 0.61 / 0.32), R8 weights 0.003 / 0.03 (SNR 12 wiggle 0.30 / 0.42 against 0.64 for 0.01). Recipe A stays stored as the 3-model alternative; R6 (seeds 31, 32) is the documented kinematics alternative.
+Recipe B is the frozen deliverable, exactly as above (R4n-long seeds 3, 11, 23 + R8-from-R6 at M1 weight 0.01, averaged; do-no-harm gate 40 / 120 / 0.25; two-pass Wiener; size fix `--infer-beam-px 10 --infer-mode full` on noise-only cubes only). No candidate from the Oct 16 to 17 batch met its pre-set adoption rule: R6 s32 (9074 per-pixel 0.38, rule 0.43), R6 s33 (restarted from scratch on Oct 18 as `unified-r6-s33b` for the alternative-checkpoint question only; the first run stopped at round 67 of 80; two resumes failed because Kaggle no longer attaches the version-1 output; partial checkpoint kept, `unified_r6_k15_s33_round67.pth`; not pursued: with s32 below the rule a third seed cannot make the gain consistent), R9 s61 / s62 (no gain on 9074 or the Speedie ladder; SNR 12 wiggle 0.61 / 0.32), R8 weights 0.003 / 0.03 (SNR 12 wiggle 0.30 / 0.42 against 0.64 for 0.01). Recipe A stays stored as the 3-model alternative; R6 (seeds 31, 32) is the documented kinematics alternative.
 After this line the one-time final test (Speedie r1.5 ladder at SNR 6 / 12 / 24, `kernels/eval_final_test.py`) is run once on this recipe and reported whatever it gives.
 
 ## DECISION 2026-10-19: ship one recipe, B

@@ -1,7 +1,7 @@
 """
 FRESH-SET BASELINE of the improvement track: recipe B and candidate A (B + --central-fix) scored by the SAME kernel on
 the fresh test set: analytic GI an09-an16 and no-wiggle twins an09k / an12k / an15k (both regimes, 600 px) and the eight Young TEST3 discs
-(kaggle-acct-d/sph-cubes-test3 output, split "test3"). 
+(sph-cubes-test3 output, split "test3"). 
 """
 import os, sys, glob, json, shutil, subprocess, hashlib, time
 os.environ.setdefault("EXXA_T0", str(time.time()))
@@ -72,7 +72,7 @@ TEST3 = "M0.1_R50_Mu0.9,M0.3_R200_Mu1.1,M0.3_R50_Mu0.3,M0.7_R100_mu0.3,M0.5_R200
 _v = glob.glob("/kaggle/input/**/run_young_M1_R200_Mu0.6/view.json", recursive=True)
 if _v:
     SPH = os.path.dirname(os.path.dirname(_v[0]))
-else:                                   # kaggle-acct-d/sph-cubes-test3 is not visible from this account: render TEST3 here, same command and seed
+else:                                   # sph-cubes-test3 is not visible from this account: render TEST3 here, same command and seed
     SPH = "/kaggle/temp/sph_cubes"
     sh([sys.executable, "-u", "experiments/make_sph_cubes.py", "--out", SPH, "--workers", str(os.cpu_count()), "--seed", "3", "--runs", TEST3], env=_env0, cwd=PKG, check=True)
 print("TEST3 cubes from", SPH, flush=True)

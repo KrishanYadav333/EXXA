@@ -56,7 +56,7 @@ The run records keep the working names they were written with:
 - **Candidates A, C, D, E** are the four improvement attempts in [`results/06-improvement-attempts/`](results/06-improvement-attempts/): a central-flux correction, more varied training disks, an amplitude-matching loss, and hydrodynamic simulations in training.
 - **R4n-long** (seeds 3, 11, 23) are networks 1 to 3; **R6** (256 px crops) is the first stage of network 4 and **R8-from-R6** is network 4. Checkpoint names follow these, see [`MODELS.md`](MODELS.md).
 - **The Speedie disk** (r1.5) is the held-out test disk of the main result; **9074** is the hydrodynamic disk used to measure amplitude loss.
-- **kaggle-acct-a** to **kaggle-acct-g** (also written "account A" to "account G") are the Kaggle accounts the runs were spread over; the names are replaced by letters.
+- **Kaggle account** in the run records: the runs were spread over several of the author's Kaggle accounts for GPU quota, so a run that cannot see another run's output or datasets is explained by the account, not by an error.
 
 ## Limits
 

@@ -28,4 +28,4 @@ The model was selected on one disk: the Speedie et al. (2024) GI disk at one rad
 - [`eval-ladder-seeds_v1_2026-10-20/`](eval-ladder-seeds_v1_2026-10-20/): the selection disk over several noise realisations
 - [`oracle-speedie_v2_2026-10-15/`](oracle-speedie_v2_2026-10-15/): the oracle linear filter on the selection disk (`oracle-speedie_v2_2026-10-15/oracle_speedie.json`)
 
-Where a run folder has its own README, it states the Kaggle run, its settings and its outcome. Kaggle accounts are anonymised.
+Where a run folder has its own README, it states the Kaggle run, its settings and its outcome.
