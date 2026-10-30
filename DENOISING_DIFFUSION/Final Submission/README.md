@@ -84,7 +84,6 @@ Final Submission/
 ├── experiments/        train_unified.py (training and evaluation), alma_unified.py (real cubes),
 │                       pv_curve.py, dataset generators, figure and table builders
 ├── tests/              unit and end-to-end tests (plain scripts)
-├── tools/              markdown link checker
 └── results/
     ├── README.md       index of the results
     ├── 01-final-test/ ... 10-training-runs/   one folder per result, each with a README
@@ -99,7 +98,7 @@ cd "DENOISING_DIFFUSION/Final Submission"
 pip install -r requirements.txt
 PYTHONPATH=. python3 tests/test_infer.py                 # tests are plain scripts, one per module
 PYTHONPATH=. python3 tests/test_alma_unified_smoke.py    # the real command line on a synthetic cube, CPU, about 30 s
-python3 tools/check_md_links.py                          # relative links resolve
+python3 tests/test_md_links.py                           # relative links in the documents resolve
 ```
 
 numpy 2 or newer is required: on numpy 1.x the four tests that compute moment maps fail inside `bettermoments`. `tests/test_unet.py` trains a small network and takes minutes on CPU.

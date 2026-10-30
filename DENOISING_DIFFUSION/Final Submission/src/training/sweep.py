@@ -115,7 +115,7 @@ def _use_data_parallel(n_gpu: int, side, override=None) -> bool:
     """Whether to wrap the model in DataParallel.
 
     nn.DataParallel leaks ~1.4 MB of host RAM per training iteration in the main process, whatever
-    the loss, loader or image size (tools/ram_leak_probe.py, 2026-10-08: +1,442 MB per 1,000
+    the loss, loader or image size (a RAM probe, 2026-10-08: +1,442 MB per 1,000
     iterations with it, +0 without, on the real hybrid loss and on plain MSE alike). Full-image arms
     run ~175 iterations/epoch, so they leak ~0.25 GB/epoch and finish; a 64 px patch arm runs
     ~1,400 iterations/epoch, leaks ~1.9 GB/epoch and kills the kernel in 14 epochs. Two GPUs buy

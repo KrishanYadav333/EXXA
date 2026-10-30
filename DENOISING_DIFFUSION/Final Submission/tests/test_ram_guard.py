@@ -65,7 +65,7 @@ print("no /proc      : guard is a no-op")
 print("PASS")
 
 
-# --- DataParallel rule (the actual cause of the nb14 leak; tools/ram_leak_probe.py) -------------
+# --- DataParallel rule (the actual cause of the nb14 leak) -------------
 os.environ.pop("EXXA_DP", None)
 assert sw._use_data_parallel(0, 600) is False and sw._use_data_parallel(1, 600) is False   # no GPUs / one GPU
 assert sw._use_data_parallel(2, 600) is True and sw._use_data_parallel(2, 256) is True      # full images: as before
